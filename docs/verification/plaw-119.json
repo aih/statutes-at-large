@@ -1,0 +1,87 @@
+{
+  "congress": 119,
+  "source": "data/plaw/PLAW-119-public.zip",
+  "source_sha256": "8f4143fd0d8fcae301a9f31e7cc5b2bb4f7976b96fad304cd1f69d6ecccbb153",
+  "loaded_at": "2026-09-08T20:34:01.217369+00:00",
+  "seconds": 4.0,
+  "files": 102,
+  "laws_loaded": 102,
+  "laws_new": 102,
+  "laws_replaced_statute": 0,
+  "laws_replaced_plaw": 0,
+  "laws_failed": 0,
+  "units": 3774,
+  "units_by_level": {
+    "section": 3347,
+    "division": 33,
+    "title": 191,
+    "subtitle": 167,
+    "chapter": 10,
+    "subchapter": 19,
+    "part": 7
+  },
+  "sections": 3347,
+  "sections_in_quoted_content_skipped": 348,
+  "duplicate_section_identifiers": 0,
+  "stat_pages": 2991,
+  "stat_volumes": [
+    139,
+    140
+  ],
+  "identifiers_assigned": {
+    "section": 726,
+    "paragraph": 880,
+    "subsection": 402,
+    "subparagraph": 212,
+    "clause": 22
+  },
+  "laws_with_assigned_identifiers": [
+    "/us/pl/119/2",
+    "/us/pl/119/3",
+    "/us/pl/119/4",
+    "/us/pl/119/5",
+    "/us/pl/119/6",
+    "/us/pl/119/7",
+    "/us/pl/119/8",
+    "/us/pl/119/9",
+    "/us/pl/119/10",
+    "/us/pl/119/11",
+    "/us/pl/119/13",
+    "/us/pl/119/14",
+    "/us/pl/119/15",
+    "/us/pl/119/16",
+    "/us/pl/119/17",
+    "/us/pl/119/19",
+    "/us/pl/119/20",
+    "/us/pl/119/37",
+    "/us/pl/119/46",
+    "/us/pl/119/47",
+    "/us/pl/119/48",
+    "/us/pl/119/49",
+    "/us/pl/119/50",
+    "/us/pl/119/51",
+    "/us/pl/119/52",
+    "/us/pl/119/74",
+    "/us/pl/119/75",
+    "/us/pl/119/78",
+    "/us/pl/119/85",
+    "/us/pl/119/86"
+  ],
+  "provenance": {
+    "gpo-uslm": 72,
+    "gpo-uslm+rules-1.0": 30
+  },
+  "comparison": {
+    "laws_compared": 0,
+    "by_level": {},
+    "laws": []
+  },
+  "warnings": {
+    "section without a number after the first; not addressable": 2
+  },
+  "failures": [],
+  "identifier_provenance": "gpo-uslm",
+  "identifier_rules": "rules-1.0",
+  "first_law": "/us/pl/119/1",
+  "last_law": "/us/pl/119/102"
+}

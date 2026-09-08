@@ -1,0 +1,90 @@
+{
+  "congress": 115,
+  "source": "data/plaw/PLAW-115-public.zip",
+  "source_sha256": "9b2762dd4546e431bcb403b5eb362b2eeaa3a3d3e442ce462c95d0c678f9d99e",
+  "loaded_at": "2026-09-08T20:33:19.553898+00:00",
+  "seconds": 11.2,
+  "files": 442,
+  "laws_loaded": 442,
+  "laws_new": 442,
+  "laws_replaced_statute": 0,
+  "laws_replaced_plaw": 0,
+  "laws_failed": 0,
+  "units": 11402,
+  "units_by_level": {
+    "section": 10305,
+    "title": 536,
+    "subtitle": 379,
+    "division": 87,
+    "part": 58,
+    "subpart": 13,
+    "chapter": 24
+  },
+  "sections": 10305,
+  "sections_in_quoted_content_skipped": 725,
+  "duplicate_section_identifiers": 0,
+  "stat_pages": 7874,
+  "stat_volumes": [
+    131,
+    132
+  ],
+  "identifiers_assigned": {
+    "section": 1491,
+    "paragraph": 1468,
+    "subparagraph": 514,
+    "subsection": 834,
+    "clause": 110,
+    "subclause": 16
+  },
+  "laws_with_assigned_identifiers": [
+    "/us/pl/115/4",
+    "/us/pl/115/5",
+    "/us/pl/115/8",
+    "/us/pl/115/11",
+    "/us/pl/115/12",
+    "/us/pl/115/13",
+    "/us/pl/115/14",
+    "/us/pl/115/17",
+    "/us/pl/115/18",
+    "/us/pl/115/20",
+    "/us/pl/115/21",
+    "/us/pl/115/22",
+    "/us/pl/115/23",
+    "/us/pl/115/24",
+    "/us/pl/115/27",
+    "/us/pl/115/28",
+    "/us/pl/115/29",
+    "/us/pl/115/30",
+    "/us/pl/115/31",
+    "/us/pl/115/35",
+    "/us/pl/115/58",
+    "/us/pl/115/74",
+    "/us/pl/115/123",
+    "/us/pl/115/141",
+    "/us/pl/115/172",
+    "/us/pl/115/199",
+    "/us/pl/115/244",
+    "/us/pl/115/245",
+    "/us/pl/115/298",
+    "/us/pl/115/301"
+  ],
+  "provenance": {
+    "gpo-uslm": 412,
+    "gpo-uslm+rules-1.0": 30
+  },
+  "comparison": {
+    "laws_compared": 0,
+    "by_level": {},
+    "laws": []
+  },
+  "warnings": {
+    "Stat. volume taken from the running-head instruction": 11,
+    "section without a number after the first; not addressable": 7,
+    "occurs 2 times": 1
+  },
+  "failures": [],
+  "identifier_provenance": "gpo-uslm",
+  "identifier_rules": "rules-1.0",
+  "first_law": "/us/pl/115/1",
+  "last_law": "/us/pl/115/442"
+}

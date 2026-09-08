@@ -1,0 +1,135 @@
+{
+  "congress": 118,
+  "source": "data/plaw/PLAW-118-public.zip",
+  "source_sha256": "11f374dc8a7b224e40b1669e8b48ab258846acd45c9fbe08c715c6262baa0dbc",
+  "loaded_at": "2026-09-08T20:36:35.779363+00:00",
+  "seconds": 14.1,
+  "files": 274,
+  "laws_loaded": 274,
+  "laws_new": 0,
+  "laws_replaced_statute": 0,
+  "laws_replaced_plaw": 274,
+  "laws_failed": 0,
+  "units": 5903,
+  "units_by_level": {
+    "section": 5246,
+    "division": 72,
+    "title": 303,
+    "subtitle": 277,
+    "chapter": 2,
+    "part": 3
+  },
+  "sections": 5246,
+  "sections_in_quoted_content_skipped": 378,
+  "duplicate_section_identifiers": 0,
+  "stat_pages": 4365,
+  "stat_volumes": [
+    137,
+    138
+  ],
+  "identifiers_assigned": {
+    "section": 795,
+    "paragraph": 937,
+    "subsection": 513,
+    "subparagraph": 243,
+    "clause": 41
+  },
+  "laws_with_assigned_identifiers": [
+    "/us/pl/118/1",
+    "/us/pl/118/3",
+    "/us/pl/118/28",
+    "/us/pl/118/29",
+    "/us/pl/118/30",
+    "/us/pl/118/42",
+    "/us/pl/118/47",
+    "/us/pl/118/50",
+    "/us/pl/118/82",
+    "/us/pl/118/158"
+  ],
+  "provenance": {
+    "gpo-uslm+rules-1.0": 10,
+    "gpo-uslm": 264
+  },
+  "comparison": {
+    "laws_compared": 34,
+    "by_level": {
+      "division": {
+        "agree": 15,
+        "rules_only": 0,
+        "gpo_only": 0
+      },
+      "title": {
+        "agree": 82,
+        "rules_only": 0,
+        "gpo_only": 0
+      },
+      "subtitle": {
+        "agree": 119,
+        "rules_only": 0,
+        "gpo_only": 0
+      },
+      "chapter": {
+        "agree": 2,
+        "rules_only": 0,
+        "gpo_only": 0
+      },
+      "part": {
+        "agree": 3,
+        "rules_only": 0,
+        "gpo_only": 0
+      },
+      "section": {
+        "agree": 1291,
+        "rules_only": 0,
+        "gpo_only": 0
+      },
+      "subsection": {
+        "agree": 2323,
+        "rules_only": 0,
+        "gpo_only": 0
+      },
+      "paragraph": {
+        "agree": 4386,
+        "rules_only": 0,
+        "gpo_only": 0
+      },
+      "subparagraph": {
+        "agree": 2563,
+        "rules_only": 0,
+        "gpo_only": 0
+      },
+      "clause": {
+        "agree": 862,
+        "rules_only": 0,
+        "gpo_only": 0
+      },
+      "subclause": {
+        "agree": 159,
+        "rules_only": 0,
+        "gpo_only": 0
+      },
+      "item": {
+        "agree": 31,
+        "rules_only": 0,
+        "gpo_only": 0
+      },
+      "subitem": {
+        "agree": 4,
+        "rules_only": 0,
+        "gpo_only": 0
+      }
+    },
+    "laws": []
+  },
+  "warnings": {
+    "Stat. volume taken from the running-head instruction": 7,
+    "section without a number after the first; not addressable": 6,
+    "occurs 2 times": 1,
+    "citableAs says 131 Stat.; the running head says 138 STAT. and is used": 1
+  },
+  "failures": [],
+  "identifier_provenance": "gpo-uslm",
+  "identifier_rules": "rules-1.0",
+  "first_law": "/us/pl/118/1",
+  "last_law": "/us/pl/118/274"
+}

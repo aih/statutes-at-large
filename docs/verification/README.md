@@ -20,6 +20,10 @@ the volume as printed has more laws. The report describes the file as fetched.
 | 124 (2010) | 251 | 249 / 2 / 0 | 4,748 | 4,077 | 591 | 4,463 | 0 demoted, 0 dropped | `021704863305…` |
 | 137 (2023) | 34 | 34 / 0 / 0 | 1,512 | 1,291 | 175 | 1,113 | 0 demoted, 0 dropped | `ef857f483fbf…` |
 
+After `make plaw`, the 34 laws of volume 137 are served from their PLAW
+packages (ADR-0011); a re-load of the volume lists them under
+`laws_kept_from_plaw` and writes nothing for them.
+
 Fields:
 
 - `laws_loaded`, `laws_by_kind`: `pLaw` components stored. `act` counts chapter-era
@@ -36,6 +40,46 @@ Fields:
 
 The `slow` tests in `tests/test_statute_parser.py` re-derive the law, section and
 quoted-section counts from the downloaded volumes (`make test-slow`).
+
+## PLAW bulk data (stage 4)
+
+One JSON report per congress, `plaw-{congress}.json`, written by `python -m
+ingest plaw load 113-119 --report docs/verification` (`make plaw`) from the
+per-congress zips under `data/plaw` (`make fetch-plaw`) and never edited by
+hand. The sha256 of each zip is in its report. Loaded 2026-09-08 in 63 s in
+all.
+
+| Congress | Laws | Units | Sections | Quoted sections skipped | Pages | Identifiers filled in by rule (laws) | Volumes | Zip sha256 |
+|---|---|---|---|---|---|---|---|---|
+| 113 | 296 | 7,285 | 6,434 | 339 | 5,287 | 4,156 (19) | 127, 128 | `ea1773820b82…` |
+| 114 | 329 | 7,345 | 6,468 | 786 | 6,169 | 1,838 (8) | 129, 130 | `8f02bf1a0a8e…` |
+| 115 | 442 | 11,402 | 10,305 | 725 | 7,874 | 4,433 (30) | 131, 132 | `9b2762dd4546…` |
+| 116 | 344 | 10,176 | 9,010 | 833 | 8,431 | 5,246 (21) | 133, 134 | `032d715209f0…` |
+| 117 | 362 | 10,012 | 8,697 | 771 | 8,729 | 4,214 (15) | 135, 136 | `ccfe6c6053a3…` |
+| 118 | 274 | 5,903 | 5,246 | 378 | 4,365 | 2,529 (10) | 137, 138 | `11f374dc8a7b…` |
+| 119 | 102 | 3,774 | 3,347 | 348 | 2,991 | 2,242 (30) | 139, 140 | `8f4143fd0d8f…` |
+
+Identifier agreement: the 118th's report compares the 34 laws the Hub's
+`STATUTE-137.xml` also holds. All 11,840 identifiers on 13 levels are in both
+the rules-1.0 set and GPO's; none is in one set only (ADR-0013). The other
+congresses have no loaded volume to compare against (the Hub ends at volume
+137); `--volumes-dir` compares against any volume file on disk.
+
+Fields:
+
+- `laws_loaded`, `laws_new`, `laws_replaced_statute`, `laws_replaced_plaw`,
+  `laws_failed`, `failures`: files loaded, and what each replaced (ADR-0011).
+- `units`, `units_by_level`, `sections`, `sections_in_quoted_content_skipped`,
+  `duplicate_section_identifiers`, `stat_pages`, `stat_volumes`.
+- `identifiers_assigned` (per level), `laws_with_assigned_identifiers`,
+  `provenance`: what GPO's file did not identify and the rules filled in.
+- `comparison`: `laws_compared`, `by_level` (`agree`, `rules_only`,
+  `gpo_only`), and `laws` (only the laws whose sets differ, with the
+  differing identifiers).
+- `warnings`: `citableAs says 131 Stat.; the running head says 138 STAT. and is
+  used` (five files across the run), `Stat. volume taken from the running-head
+  instruction` (no `citableAs` names a Stat. page), `section without a number
+  after the first; not addressable`, `… occurs 2 times`.
 
 ## Citation index (stage 3)
 

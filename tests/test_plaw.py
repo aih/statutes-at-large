@@ -152,6 +152,17 @@ def test_a_private_law_or_a_wrong_root_is_refused():
     assert any("is not under /us/pvtl/118/34" in w for w in private.warnings)
 
 
+def test_the_running_head_wins_over_a_wrong_citable_as():
+    """Three bulk-data files (116-131, 117-121, 118-79) cite `131 Stat.` under
+    a running head that says the printed volume; the running head is used."""
+    text = read("PLAW-118publ34.xml").replace("<citableAs>137 Stat. 1112</citableAs>", "<citableAs>131 Stat. 1112</citableAs>")
+    law = parse_plaw(text)
+    assert law.stat_volume == 137 and law.citation == "137 Stat. 1112" and law.stat_page_first == "1112"
+    assert law.warnings == ["citableAs says 131 Stat.; the running head says 137 STAT. and is used"]
+    no_head = "".join(line for line in text.splitlines(keepends=True) if "STAT. ?>" not in line)
+    assert parse_plaw(no_head).stat_volume == 131
+
+
 # ------------------------------------------------------------ the comparison
 
 
@@ -270,6 +281,21 @@ def test_a_volume_load_does_not_overwrite_a_plaw_law(fresh):
         again = load_congress(session, 118, files=[("PLAW-118publ34.xml", read("PLAW-118publ34.xml"))], record_check=False)
         assert (again.laws_new, again.laws_replaced_statute, again.laws_replaced_plaw) == (0, 0, 1)
         assert again.comparison["laws_compared"] == 0
+
+
+def test_a_re_load_compares_against_the_volume_file_on_disk(fresh, tmp_path):
+    """With `volumes_dir`, the comparison reads the volume file, so a re-load
+    after the volume-derived copy is gone still reports the agreement."""
+    (tmp_path / "STATUTE-137.xml").write_bytes((FIXTURES / "statute-137-slice.xml").read_bytes())
+    with fresh() as session:
+        report = load_congress(
+            session, 118,
+            files=[(p.name, p.read_text(encoding="utf-8")) for p in PLAW_FILES if "PLAW-118" in p.name],
+            volumes_dir=tmp_path, record_check=False,
+        )
+    assert report.laws_replaced_plaw == 3 and report.comparison["laws_compared"] == 2
+    assert list(report.comparison["by_level"])[:3] == ["division", "title", "subtitle"]
+    assert report.comparison["by_level"]["section"] == {"agree": 28, "rules_only": 0, "gpo_only": 0}
 
 
 def test_a_file_of_another_congress_or_a_bad_file_is_reported(fresh):

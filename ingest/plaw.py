@@ -238,29 +238,39 @@ def parse_plaw(xml_text: str, *, package: str | None = None) -> LawRecord:
 def _pages_of(meta: etree._Element, root: etree._Element, warnings: list[str]) -> tuple[str | None, int, str | None, str | None]:
     """(`137 Stat. 112`, 137, first page label, last page label).
 
-    The volume comes from `citableAs`; when no `citableAs` names a Stat. page,
-    from the `<?I97 137 STAT. ?>` processing instruction; else from the first
+    The volume comes from `citableAs`, checked against the running head the
+    file carries as a processing instruction (`<?I97 137 STAT. ?>`); when the
+    two disagree the running head wins (three files of the 116th to 118th
+    Congresses cite `131 Stat.` under a `134 STAT.` running head). With no
+    `citableAs` naming a Stat. page, the running head alone; else the first
     page marker.
     """
     citation = None
-    volume: int | None = None
+    cited_volume: int | None = None
     first = None
+    page_text = None
     for citable in meta.findall(f"{N}citableAs"):
         match = _STAT_CITE.search(citable.text or "")
         if match:
-            volume = int(match.group("volume"))
-            first = "".join(match.group("page").split()).lower()
-            citation = f"{volume} Stat. {match.group('page')}"
+            cited_volume = int(match.group("volume"))
+            page_text = match.group("page")
+            first = "".join(page_text.split()).lower()
             break
+    head_volume: int | None = None
+    for node in root.iter():
+        if isinstance(node, etree._ProcessingInstruction) and node.target in ("I97", "I98", "I99"):
+            match = _STAT_PI.search(node.text or "")
+            if match:
+                head_volume = int(match.group("volume"))
+                break
+    volume = cited_volume
+    if cited_volume is not None and head_volume is not None and head_volume != cited_volume:
+        warnings.append(f"citableAs says {cited_volume} Stat.; the running head says {head_volume} STAT. and is used")
+        volume = head_volume
+    elif cited_volume is None and head_volume is not None:
+        volume = head_volume
+        warnings.append("Stat. volume taken from the running-head instruction")
     pages = _all_pages(root)
-    if volume is None:
-        for node in root.iter():
-            if isinstance(node, etree._ProcessingInstruction) and node.target in ("I97", "I98", "I99"):
-                match = _STAT_PI.search(node.text or "")
-                if match:
-                    volume = int(match.group("volume"))
-                    warnings.append("Stat. volume taken from the running-head instruction")
-                    break
     if volume is None:
         for page in root.iter(f"{N}page"):
             match = re.match(r"^/us/stat/(\d+)/", (page.get("identifier") or "").strip())
@@ -270,7 +280,9 @@ def _pages_of(meta: etree._Element, root: etree._Element, warnings: list[str]) -
                 break
     if volume is None:
         raise ValueError("no Statutes at Large volume in citableAs, running heads, or page markers")
-    if first is None and pages:
+    if first is not None:
+        citation = f"{volume} Stat. {page_text}"
+    elif pages:
         first = pages[0]
         citation = f"{volume} Stat. {first}"
         warnings.append("citation taken from the first page marker")
@@ -503,10 +515,13 @@ class PlawLoadReport:
     last_law: str | None = None
 
 
-def load_plaw(session: Session, record: LawRecord, *, now: datetime.datetime | None = None) -> PlawLawReport:
+def load_plaw(
+    session: Session, record: LawRecord, *, now: datetime.datetime | None = None, volume_xml: str | None = None
+) -> PlawLawReport:
     """Write one law, replacing a stored copy from either collection, and
-    compare identifiers with a volume-derived copy when that is what was
-    replaced. Does not commit."""
+    compare identifiers with the volume-derived copy: the one replaced, or
+    `volume_xml` (the law as the volume file parses it) when the caller has
+    it. Does not commit."""
     from ingest.load import _write_law
 
     now = now or datetime.datetime.now(datetime.timezone.utc)
@@ -515,10 +530,11 @@ def load_plaw(session: Session, record: LawRecord, *, now: datetime.datetime | N
     comparison = None
     if outcome.action == "replaced":
         action = "replaced_statute" if outcome.replaced_from == "STATUTE" else "replaced_plaw"
-        if outcome.replaced_from == "STATUTE" and outcome.replaced_xml:
-            comparison = compare_identifiers(outcome.replaced_xml, record.xml)
     elif outcome.action == "kept":  # cannot happen: PLAW outranks every other source
         raise RuntimeError(f"{record.identifier}: a {outcome.replaced_from} copy outranks the PLAW file")
+    rules_xml = outcome.replaced_xml if outcome.replaced_from == "STATUTE" else volume_xml
+    if rules_xml:
+        comparison = compare_identifiers(rules_xml, record.xml)
     return PlawLawReport(
         package=record.source_package,
         identifier=record.identifier,
@@ -567,6 +583,33 @@ def _file_order(name: str) -> tuple[int, int, int]:
     return parsed[0], 0 if parsed[1] == "pl" else 1, parsed[2]
 
 
+class VolumeIndex:
+    """The volume files on disk, parsed lazily, one at a time, into the
+    rules-1.0 XML of each law, so a re-load can still compare identifiers
+    after the volume-derived copy is gone from the database."""
+
+    def __init__(self, directory: Path | None):
+        self.directory = Path(directory) if directory else None
+        self._laws: dict[int, dict[str, str]] = {}
+
+    def xml_for(self, identifier: str, volume: int) -> str | None:
+        if self.directory is None:
+            return None
+        if volume not in self._laws:
+            path = self.directory / f"STATUTE-{volume}.xml"
+            laws: dict[str, str] = {}
+            if path.exists():
+                from ingest.numbering import plan_numbering
+                from ingest.statute import iter_claims, iter_volume
+
+                plan = plan_numbering(list(iter_claims(path)))
+                for item in iter_volume(path, plan):
+                    if isinstance(item, LawRecord):
+                        laws.setdefault(item.identifier, item.xml)
+            self._laws[volume] = laws
+        return self._laws[volume].get(identifier)
+
+
 def load_congress(
     session: Session,
     congress: int,
@@ -574,13 +617,19 @@ def load_congress(
     zip_file: Path | None = None,
     directory: Path | None = None,
     files: Iterator[tuple[str, str]] | None = None,
+    volumes_dir: Path | None = None,
     record_check: bool = True,
 ) -> PlawLoadReport:
     """Load every public law of a congress from its bulk-data zip, a directory
     of files, or an iterator of (name, text). Commits every `COMMIT_EVERY`
-    laws and writes a `source_checks` row with collection `PLAW`."""
+    laws and writes a `source_checks` row with collection `PLAW`.
+
+    `volumes_dir` names the downloaded volume files; when given, every law
+    the volume file also holds is compared, whether or not a volume-derived
+    copy was in the database."""
     started = time.monotonic()
     now = datetime.datetime.now(datetime.timezone.utc)
+    volumes_on_disk = VolumeIndex(volumes_dir)
     if files is None:
         if zip_file is not None:
             files = iter_zip(Path(zip_file))
@@ -616,7 +665,10 @@ def load_congress(
         package = package_id(*(parsed[0], parsed[2], parsed[1])) if parsed else None
         try:
             record = parse_plaw(text, package=package)
-            law = load_plaw(session, record, now=now)
+            law = load_plaw(
+                session, record, now=now,
+                volume_xml=volumes_on_disk.xml_for(record.identifier, record.stat_volume),
+            )
         except Exception as exc:  # one bad file must not end the load
             session.rollback()
             report.laws_failed += 1
@@ -675,7 +727,7 @@ def load_congress(
     report.warnings = dict(warnings.most_common())
     report.comparison = {
         "laws_compared": laws_compared,
-        "by_level": {level: dict(counts) for level, counts in totals.items()},
+        "by_level": {level: dict(totals[level]) for level in sorted(totals, key=_level_order)},
         "laws": compared,
     }
     if record_check:
@@ -804,7 +856,7 @@ def cmd_load(args: argparse.Namespace) -> int:
                 continue
             files = ((p.name, p.read_text(encoding="utf-8")) for p in paths)
             with SessionLocal() as session:
-                report = load_congress(session, congress, files=files)
+                report = load_congress(session, congress, files=files, volumes_dir=_volumes_dir(args))
             report.source = str(directory)
             reports.append(report)
     else:
@@ -815,7 +867,7 @@ def cmd_load(args: argparse.Namespace) -> int:
             path = fetch_congress_zip(congress, Path(args.dir))
             with SessionLocal() as session:
                 try:
-                    report = load_congress(session, congress, zip_file=path)
+                    report = load_congress(session, congress, zip_file=path, volumes_dir=_volumes_dir(args))
                 except Exception as exc:  # one bad congress must not stop the run
                     session.rollback()
                     failures += 1
@@ -834,6 +886,14 @@ def cmd_load(args: argparse.Namespace) -> int:
     return 1 if failures else 0
 
 
+def _volumes_dir(args: argparse.Namespace) -> Path | None:
+    """`--volumes-dir` when given; else the default directory when it exists."""
+    if args.volumes_dir:
+        return Path(args.volumes_dir)
+    default = Path("data/statute/xmls")
+    return default if default.is_dir() else None
+
+
 def add_plaw_commands(sub: argparse._SubParsersAction) -> argparse._SubParsersAction:
     """Register `plaw fetch` and `plaw load`; returns the inner subparsers so
     the poller (`ingest/plaw_poll.py`) can add `plaw poll`."""
@@ -850,6 +910,7 @@ def add_plaw_commands(sub: argparse._SubParsersAction) -> argparse._SubParsersAc
     load.add_argument("congresses", nargs="*", help="`118`, `118 119`, or `113-119`")
     load.add_argument("--dir", default=str(DATA_DIR), help="where the zips are (fetched when missing)")
     load.add_argument("--from-dir", help="a directory of PLAW-{c}publ{n}.xml files instead of the zips")
+    load.add_argument("--volumes-dir", help="downloaded STATUTE volumes to compare identifiers against (default data/statute/xmls when present)")
     load.add_argument("--report", help="directory for the per-congress JSON report")
     load.add_argument("--json", action="store_true", help="print the report")
     load.set_defaults(func=cmd_load)

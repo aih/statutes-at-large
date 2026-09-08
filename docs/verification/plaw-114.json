@@ -1,0 +1,65 @@
+{
+  "congress": 114,
+  "source": "data/plaw/PLAW-114-public.zip",
+  "source_sha256": "8f02bf1a0a8e778d13b9269b2a7e7f75abc54b38682756c82cab241dbe8b8920",
+  "loaded_at": "2026-09-08T20:33:10.749609+00:00",
+  "seconds": 8.8,
+  "files": 329,
+  "laws_loaded": 329,
+  "laws_new": 329,
+  "laws_replaced_statute": 0,
+  "laws_replaced_plaw": 0,
+  "laws_failed": 0,
+  "units": 7345,
+  "units_by_level": {
+    "section": 6468,
+    "title": 462,
+    "subtitle": 334,
+    "division": 44,
+    "part": 37
+  },
+  "sections": 6468,
+  "sections_in_quoted_content_skipped": 786,
+  "duplicate_section_identifiers": 0,
+  "stat_pages": 6169,
+  "stat_volumes": [
+    129,
+    130
+  ],
+  "identifiers_assigned": {
+    "section": 671,
+    "paragraph": 699,
+    "subparagraph": 148,
+    "clause": 20,
+    "subsection": 300
+  },
+  "laws_with_assigned_identifiers": [
+    "/us/pl/114/4",
+    "/us/pl/114/9",
+    "/us/pl/114/96",
+    "/us/pl/114/100",
+    "/us/pl/114/108",
+    "/us/pl/114/113",
+    "/us/pl/114/223",
+    "/us/pl/114/254"
+  ],
+  "provenance": {
+    "gpo-uslm": 321,
+    "gpo-uslm+rules-1.0": 8
+  },
+  "comparison": {
+    "laws_compared": 0,
+    "by_level": {},
+    "laws": []
+  },
+  "warnings": {
+    "section without a number after the first; not addressable": 3,
+    "Stat. volume taken from the running-head instruction": 1,
+    "citation taken from the first page marker": 1
+  },
+  "failures": [],
+  "identifier_provenance": "gpo-uslm",
+  "identifier_rules": "rules-1.0",
+  "first_law": "/us/pl/114/1",
+  "last_law": "/us/pl/114/329"
+}

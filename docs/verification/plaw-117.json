@@ -1,0 +1,74 @@
+{
+  "congress": 117,
+  "source": "data/plaw/PLAW-117-public.zip",
+  "source_sha256": "ccfe6c6053a3233979ff54413432911d071bd21d266468dd1e60b69aad325c0d",
+  "loaded_at": "2026-09-08T20:33:41.862269+00:00",
+  "seconds": 11.9,
+  "files": 362,
+  "laws_loaded": 362,
+  "laws_new": 362,
+  "laws_replaced_statute": 0,
+  "laws_replaced_plaw": 0,
+  "laws_failed": 0,
+  "units": 10012,
+  "units_by_level": {
+    "section": 8697,
+    "title": 594,
+    "subtitle": 478,
+    "part": 70,
+    "division": 127,
+    "chapter": 46
+  },
+  "sections": 8697,
+  "sections_in_quoted_content_skipped": 771,
+  "duplicate_section_identifiers": 0,
+  "stat_pages": 8729,
+  "stat_volumes": [
+    135,
+    136
+  ],
+  "identifiers_assigned": {
+    "section": 1344,
+    "subsection": 799,
+    "paragraph": 1604,
+    "subparagraph": 429,
+    "clause": 38
+  },
+  "laws_with_assigned_identifiers": [
+    "/us/pl/117/19",
+    "/us/pl/117/22",
+    "/us/pl/117/23",
+    "/us/pl/117/24",
+    "/us/pl/117/31",
+    "/us/pl/117/43",
+    "/us/pl/117/58",
+    "/us/pl/117/70",
+    "/us/pl/117/73",
+    "/us/pl/117/95",
+    "/us/pl/117/103",
+    "/us/pl/117/128",
+    "/us/pl/117/159",
+    "/us/pl/117/180",
+    "/us/pl/117/328"
+  ],
+  "provenance": {
+    "gpo-uslm": 347,
+    "gpo-uslm+rules-1.0": 15
+  },
+  "comparison": {
+    "laws_compared": 0,
+    "by_level": {},
+    "laws": []
+  },
+  "warnings": {
+    "section without a number after the first; not addressable": 9,
+    "Stat. volume taken from the running-head instruction": 3,
+    "citableAs says 131 Stat.; the running head says 136 STAT. and is used": 1,
+    "occurs 2 times": 1
+  },
+  "failures": [],
+  "identifier_provenance": "gpo-uslm",
+  "identifier_rules": "rules-1.0",
+  "first_law": "/us/pl/117/1",
+  "last_law": "/us/pl/117/362"
+}
