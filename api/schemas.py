@@ -1,0 +1,446 @@
+"""Response models: the public JSON contract and the OpenAPI docs.
+
+A translation of `storage`'s dataclasses rather than a reuse of them, so the
+wire format does not move when an internal field is renamed. Nothing here
+imports from `db`.
+"""
+
+from __future__ import annotations
+
+import datetime
+from typing import Any, Literal
+
+from pydantic import BaseModel, Field
+
+from storage import (
+    CollectionStatus,
+    CompRef,
+    LabelInfo,
+    LawRef,
+    LawSummary,
+    PageRef,
+    Provision,
+    SourceCheckInfo,
+    StatPageDocument,
+    StatPageResult,
+    UnitRef,
+    UnitResult,
+)
+
+AMENDED_UNKNOWN_SENTENCE = "Whether this section has been amended since is not recorded here."
+"""The amended sentence of the as-enacted note while `amended.status` is `unknown`."""
+
+
+class ErrorOut(BaseModel):
+    detail: str
+
+
+# ---------------------------------------------------------------------- laws
+
+
+class LawSourceOut(BaseModel):
+    collection: str = Field(examples=["STATUTE"])
+    package: str = Field(examples=["STATUTE-64"])
+    granule: str | None = Field(default=None, examples=["STATUTE-64-Pg563"])
+
+
+class LawOut(BaseModel):
+    identifier: str = Field(examples=["/us/pl/81/740"])
+    kind: str = Field(description="`pl` | `pvtl` | `act`.")
+    congress: int | None
+    number: int | None
+    chapter: int | None = Field(
+        default=None, description="The chapter number; laws from 1901 to 1957 carry one beside the law number."
+    )
+    label: str = Field(examples=["Public Law 81-740"])
+    aliases: list[str] = Field(
+        default_factory=list,
+        description="Every identifier the law answers to, the primary one first.",
+        examples=[["/us/pl/81/740", "/us/act/1950-08-30/ch823"]],
+    )
+    short_titles: list[str] = Field(default_factory=list)
+    official_title: str | None = None
+    doc_type: str | None = None
+    enacted: datetime.date | None
+    citation: str | None = Field(default=None, examples=["64 Stat. 563"])
+    source: LawSourceOut
+
+    @classmethod
+    def of(cls, law: LawRef) -> LawOut:
+        return cls(
+            identifier=law.identifier,
+            kind=law.kind,
+            congress=law.congress,
+            number=law.number,
+            chapter=law.chapter,
+            label=law.label,
+            aliases=list(law.aliases),
+            short_titles=list(law.short_titles),
+            official_title=law.official_title,
+            doc_type=law.doc_type,
+            enacted=law.enacted,
+            citation=law.citation,
+            source=LawSourceOut(
+                collection=law.source_collection,
+                package=law.source_package,
+                granule=law.source_granule,
+            ),
+        )
+
+
+# ------------------------------------------------------------------ currency
+
+
+class AmendedOut(BaseModel):
+    status: Literal["known_amended", "no_record", "unknown"] = Field(
+        description="Stage 1 always reports `unknown`: no amendment index is loaded yet "
+        "(design section 4). `known_amended` and `no_record` arrive with the citation index."
+    )
+    latest: dict[str, Any] | None = Field(
+        default=None, description="`{pl, enacted}` of the most recent amending law, when recorded."
+    )
+    evidence: list[str] = Field(default_factory=list)
+
+
+class CurrencyOut(BaseModel):
+    kind: Literal["as_enacted"]
+    date: datetime.date | None = Field(description="The enactment date.")
+    amended: AmendedOut
+
+    @classmethod
+    def as_enacted(cls, law: LawRef) -> CurrencyOut:
+        return cls(kind="as_enacted", date=law.enacted, amended=AmendedOut(status="unknown", latest=None, evidence=[]))
+
+
+class AlternativeOut(BaseModel):
+    """Another view of the same provision."""
+
+    view: str = Field(description="`compiled` | `codified` | `enacted`.")
+    identifier: str | None = None
+    identifiers: list[str] | None = None
+    current_through: dict[str, Any] | None = Field(
+        default=None, description="`{pl, enacted}` for a compiled alternative."
+    )
+    url: str
+
+
+class ProvenanceOut(BaseModel):
+    text: str = Field(description="`gpo-uslm`: the text is GovInfo's volume USLM.")
+    identifiers: str = Field(description="The identifier rule set that stamped the XML, `rules-1.0`.")
+    sha256: str = Field(description="The content hash of the served unit.")
+
+
+class PageOut(BaseModel):
+    page: str = Field(examples=["/us/stat/64/564"])
+    pdf: str = Field(examples=["https://www.govinfo.gov/link/statute/64/564"])
+
+    @classmethod
+    def of(cls, page: PageRef) -> PageOut:
+        return cls(page=page.identifier, pdf=page.pdf)
+
+
+# --------------------------------------------------------------------- units
+
+
+class AncestorOut(BaseModel):
+    identifier: str
+    level: str
+    num: str | None
+    heading: str | None
+
+    @classmethod
+    def of(cls, ref: UnitRef) -> AncestorOut:
+        return cls(identifier=ref.identifier, level=ref.level, num=ref.num, heading=ref.heading)
+
+
+class TocEntryOut(BaseModel):
+    identifier: str
+    level: str
+    num: str | None
+    heading: str | None
+    is_section: bool = False
+
+    @classmethod
+    def of(cls, ref: UnitRef) -> TocEntryOut:
+        return cls(
+            identifier=ref.identifier, level=ref.level, num=ref.num, heading=ref.heading, is_section=ref.is_section
+        )
+
+
+class ProvisionOut(BaseModel):
+    identifier: str
+    found: bool
+    xml: str | None = None
+    text: str | None = None
+
+    @classmethod
+    def of(cls, provision: Provision) -> ProvisionOut:
+        return cls(identifier=provision.identifier, found=provision.found, xml=provision.xml, text=provision.text)
+
+
+class UnitOut(BaseModel):
+    """An enacted-view answer: a law, a hierarchy node, or a section (design section 4)."""
+
+    identifier: str = Field(description="The identifier asked for, normalized.")
+    served_identifier: str = Field(description="The stored unit that answered.")
+    view: Literal["enacted"]
+    resolution: str = Field(description="`exact` | `prefix` | `section_number` | `alias` (design section 3).")
+    law: LawOut
+    level: str = Field(description="`law`, `section`, or a hierarchy level (`title`, `division`, …).")
+    num: str | None
+    heading: str | None
+    currency: CurrencyOut
+    alternatives: list[AlternativeOut] = Field(default_factory=list)
+    note: str
+    provenance: ProvenanceOut
+    pages: list[PageOut] = Field(description="The Statutes at Large pages the unit spans, with GovInfo links.")
+    text: str = Field(description="The served unit's reading text.")
+    xml_url: str = Field(description="This request's URL with `format=xml`.")
+    ancestors: list[AncestorOut] = Field(default_factory=list)
+    children: list[TocEntryOut] = Field(
+        default_factory=list,
+        description="The table of contents under a law or hierarchy node. Empty for a section.",
+    )
+    provision: ProvisionOut | None = Field(
+        default=None,
+        description="Set when the request went below a section: the path cut from the section's XML, found or not.",
+    )
+    occurrences: int = Field(description="How many elements the source numbered with this identifier.")
+
+    @classmethod
+    def of(
+        cls,
+        result: UnitResult,
+        *,
+        note: str,
+        alternatives: list[AlternativeOut],
+        xml_url: str,
+    ) -> UnitOut:
+        law = result.law
+        return cls(
+            identifier=result.requested_identifier,
+            served_identifier=result.served_identifier,
+            view="enacted",
+            resolution=result.resolution,
+            law=LawOut.of(law),
+            level=result.level,
+            num=result.num,
+            heading=result.heading,
+            currency=CurrencyOut.as_enacted(law),
+            alternatives=alternatives,
+            note=note,
+            provenance=ProvenanceOut(
+                text=law.provenance_text,
+                identifiers=law.provenance_identifiers,
+                sha256=result.content_hash,
+            ),
+            pages=[PageOut.of(p) for p in result.pages],
+            text=result.text,
+            xml_url=xml_url,
+            ancestors=[AncestorOut.of(a) for a in result.ancestors],
+            children=[TocEntryOut.of(c) for c in result.children],
+            provision=ProvisionOut.of(result.provision) if result.provision else None,
+            occurrences=result.occurrences,
+        )
+
+
+class NotFoundOut(BaseModel):
+    """A 404 that carries the alternatives the identifier does have."""
+
+    detail: str
+    alternatives: list[AlternativeOut] = Field(default_factory=list)
+
+
+# --------------------------------------------------------------- law summary
+
+
+class CompilationOut(BaseModel):
+    file_id: str
+    package_id: str
+    identifier_prefix: str = Field(examples=["/us/sComp/83/703"])
+    display_title: str | None
+    current_through: dict[str, Any] | None = Field(
+        default=None, description="`{pl, enacted}` of the current version."
+    )
+
+    @classmethod
+    def of(cls, comp: CompRef) -> CompilationOut:
+        current = comp.current
+        return cls(
+            file_id=comp.file_id,
+            package_id=comp.package_id,
+            identifier_prefix=comp.identifier_prefix,
+            display_title=comp.display_title,
+            current_through=(
+                {"pl": current.current_through_pl, "enacted": current.current_through_date}
+                if current is not None
+                else None
+            ),
+        )
+
+
+class LawSummaryOut(BaseModel):
+    law: LawOut
+    toc: list[TocEntryOut] = Field(description="Every unit of the law in reading order.")
+    section_count: int
+    compilations: list[CompilationOut] = Field(default_factory=list)
+
+    @classmethod
+    def of(cls, summary: LawSummary, compilations: list[CompRef]) -> LawSummaryOut:
+        return cls(
+            law=LawOut.of(summary.law),
+            toc=[TocEntryOut.of(u) for u in summary.toc],
+            section_count=summary.section_count,
+            compilations=[CompilationOut.of(c) for c in compilations],
+        )
+
+
+# --------------------------------------------------------------- stat pages
+
+
+class StatPageDocumentOut(BaseModel):
+    identifier: str = Field(examples=["/us/pl/81/740"])
+    kind: str
+    title: str | None = Field(description="The official title.")
+    label: str = Field(examples=["Public Law 81-740"])
+    citation: str | None
+    enacted: datetime.date | None
+    starts_here: bool
+    unit_on_page: str | None = Field(description="The unit the page marker falls in, when it falls inside one.")
+
+    @classmethod
+    def of(cls, document: StatPageDocument) -> StatPageDocumentOut:
+        law = document.law
+        return cls(
+            identifier=law.identifier,
+            kind=law.kind,
+            title=law.official_title,
+            label=law.label,
+            citation=law.citation,
+            enacted=law.enacted,
+            starts_here=document.starts_here,
+            unit_on_page=document.unit_identifier,
+        )
+
+
+class StatPageOut(BaseModel):
+    page: str = Field(description="The page label, lower case.", examples=["564", "a12"])
+    identifier: str = Field(examples=["/us/stat/64/564"])
+    volume: int
+    documents: list[StatPageDocumentOut] = Field(
+        description="Every law that starts on or spans the page; the ones that start here first."
+    )
+    pdf: str
+
+    @classmethod
+    def of(cls, page: StatPageResult) -> StatPageOut:
+        return cls(
+            page=page.page,
+            identifier=page.identifier,
+            volume=page.volume,
+            documents=[StatPageDocumentOut.of(d) for d in page.documents],
+            pdf=page.pdf,
+        )
+
+
+# ------------------------------------------------------------------- labels
+
+
+class LabelsIn(BaseModel):
+    identifiers: list[str] = Field(min_length=1, max_length=100)
+
+
+class LabelCurrencyOut(BaseModel):
+    kind: Literal["as_enacted"]
+    date: datetime.date | None
+
+
+class LabelFoundOut(BaseModel):
+    exists: Literal[True] = True
+    served_identifier: str
+    resolution: str
+    num: str | None
+    heading: str | None
+    level: str
+    kind: str = Field(description="The law's kind: `pl` | `pvtl` | `act`.")
+    law_identifier: str
+    law_label: str
+    currency: LabelCurrencyOut
+
+    @classmethod
+    def of(cls, info: LabelInfo) -> LabelFoundOut:
+        return cls(
+            served_identifier=info.served_identifier,
+            resolution=info.resolution,
+            num=info.num,
+            heading=info.heading,
+            level=info.level,
+            kind=info.law.kind,
+            law_identifier=info.law.identifier,
+            law_label=info.law.label,
+            currency=LabelCurrencyOut(kind="as_enacted", date=info.law.enacted),
+        )
+
+
+class LabelMissingOut(BaseModel):
+    exists: Literal[False] = False
+
+
+LabelOut = LabelFoundOut | LabelMissingOut
+
+
+# ------------------------------------------------------------------- status
+
+
+class CollectionStatusOut(BaseModel):
+    packages_loaded: int
+    latest_package: str | None
+    latest_loaded_at: datetime.datetime | None
+    laws: int
+    units: int
+    volumes: list[int] = Field(default_factory=list, description="Statutes at Large volumes loaded (STATUTE only).")
+
+    @classmethod
+    def of(cls, status: CollectionStatus) -> CollectionStatusOut:
+        return cls(
+            packages_loaded=status.packages_loaded,
+            latest_package=status.latest_package,
+            latest_loaded_at=status.latest_loaded_at,
+            laws=status.laws,
+            units=status.units,
+            volumes=list(status.volumes),
+        )
+
+
+class SourceCheckOut(BaseModel):
+    checked_at: datetime.datetime
+    ok: bool
+    newest_package: str | None
+    newest_last_modified: datetime.datetime | None
+    packages_seen: int | None
+    new_packages: list[str] = Field(default_factory=list)
+    error: str | None
+    stale: bool = Field(description="True when the check failed or is over a week old.")
+
+    @classmethod
+    def of(cls, check: SourceCheckInfo) -> SourceCheckOut:
+        return cls(
+            checked_at=check.checked_at,
+            ok=check.ok,
+            newest_package=check.newest_package,
+            newest_last_modified=check.newest_last_modified,
+            packages_seen=check.packages_seen,
+            new_packages=list(check.new_packages),
+            error=check.error,
+            stale=check.is_stale(),
+        )
+
+
+class StatusOut(BaseModel):
+    collections: dict[str, CollectionStatusOut] = Field(description="Keyed `STATUTE`, `COMPS`, `PLAW`.")
+    checks: dict[str, SourceCheckOut | None] = Field(
+        description="The last poll of each collection's source; null when none is recorded."
+    )
+    stale: bool = Field(
+        description="True when any collection with loaded packages has no check or a stale one."
+    )

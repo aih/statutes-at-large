@@ -22,6 +22,36 @@ section cut from the section's XML; otherwise the section number under the law,
 ignoring hierarchy. The response says which rule answered (`note`,
 `served_identifier`).
 
+## Routes
+
+All under `/api/v1`. The bare identifier URL (`/us/pl/81/740/s3`) is a 307 to
+`/api/v1/…` for a program and to `/app/…` for a browser.
+
+| Route | Answer |
+|---|---|
+| `GET /us/pl/{c}/{n}[/{path}]`, `/us/pvtl/…`, `/us/act/{date}/ch{n}[/{path}]` | the unit: `identifier`, `served_identifier`, `view`, `resolution`, `law`, `currency`, `alternatives`, `note`, `provenance`, `pages`, `text`, `xml_url`, `level`, `num`, `heading`, `ancestors`, `children`, `provision`, `occurrences` |
+| `GET /us/stat/{volume}/{page}` | `{page, identifier, volume, documents: [{identifier, kind, title, label, citation, enacted, starts_here, unit_on_page}], pdf}` |
+| `POST /labels` `{"identifiers": […]}`, `GET /labels?identifier=…` | per identifier: `{exists: true, served_identifier, resolution, num, heading, level, kind, law_identifier, law_label, currency}` or `{exists: false}`; 1 to 100 per request; 300 requests then 30 per second per address |
+| `GET /status` | `{collections: {STATUTE, COMPS, PLAW}, checks: {…}, stale}` |
+| `GET /laws/{c}/{n}` | `{law, toc, section_count, compilations}` |
+| `GET /laws/{c}/{n}/sections/{num}` | the section by number, ignoring hierarchy; same body as the identifier routes |
+
+Query parameters on the identifier routes: `view=enacted` (default) or
+`view=compiled` (a 404 with `alternatives` until stage 2 loads compilations),
+`format=json` or `format=xml` (otherwise `Accept:`; XML is the stamped USLM
+element, the provision alone when the path went below a section), `through`
+(a compilation version; ignored on the enacted view).
+
+Headers on a unit: `ETag` (the content hash; a found provision appends a hash
+of its identifier), `Cache-Control: public, max-age=31536000, immutable`,
+`Vary: Accept`, `X-Served-Identifier`. `If-None-Match` answers 304. A stat page
+is immutable with an `ETag` over its documents. `labels`, `status`, and the law
+summary are `public, max-age=300`. `HEAD` is not registered and answers 405.
+
+`currency.amended.status` is `unknown` on every enacted unit in stage 1, and the
+note's amended sentence is "Whether this section has been amended since is not
+recorded here."
+
 Source: GovInfo `STATUTE` volume USLM from the Hub dataset
 `dreamproit/us-statutes-at-large` (`xmls/STATUTE-{n}.xml`). The volume files
 carry no identifiers; the loader assigns them by the rules in the OCR plan,
