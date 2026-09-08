@@ -27,9 +27,6 @@ from storage import (
     UnitResult,
 )
 
-AMENDED_UNKNOWN_SENTENCE = "Whether this section has been amended since is not recorded here."
-"""The amended sentence of the as-enacted note while `amended.status` is `unknown`."""
-
 
 class ErrorOut(BaseModel):
     detail: str

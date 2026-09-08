@@ -75,7 +75,8 @@ def enacted_note(result: UnitResult, *, compiled_link: str | None, codified: lis
     law = result.law
     date = long_date(law.enacted) if law.enacted else "an unrecorded date"
     citation = f" ({law.citation})" if law.citation else ""
-    first = f"This is {result.unit_label} of {law.label} as enacted on {date}{citation}. It is not updated."
+    what = law.label if result.level == "law" else f"{result.unit_label} of {law.label}"
+    first = f"This is {what} as enacted on {date}{citation}. It is not updated."
     checks: list[str] = []
     if compiled_link:
         checks.append(f"the compiled text at {compiled_link}")
@@ -85,6 +86,13 @@ def enacted_note(result: UnitResult, *, compiled_link: str | None, codified: lis
     return f"{first} {amended_sentence} To check for later amendments: " + "; ".join(checks) + "."
 
 
+def amended_unknown_sentence(result: UnitResult) -> str:
+    """The `amended` sentence while no index of later amendments exists
+    (`currency.amended.status = "unknown"`), worded for the level served."""
+    noun = "law" if result.level == "law" else ("section" if result.level == "section" else result.level)
+    return f"Whether this {noun} has been amended since is not recorded here."
+
+
 def compiled_note(result: CompUnitResult, *, enacted_link: str | None, codified: list[str]) -> str:
     """The compiled note (design section 4)."""
     comp = result.comp
@@ -92,8 +100,9 @@ def compiled_note(result: CompUnitResult, *, enacted_link: str | None, codified:
     title = comp.short_title or comp.display_title or comp.identifier_prefix
     through = version.current_through_pl or "an unrecorded law"
     date = long_date(version.current_through_date) if version.current_through_date else "an unrecorded date"
+    what = title if result.level == "compilation" else f"{result.unit_label} of {title}"
     sentences = [
-        f"This is {result.unit_label} of {title} as compiled by the House Office of the "
+        f"This is {what} as compiled by the House Office of the "
         f"Legislative Counsel, incorporating amendments through Public Law {through} ({date}).",
         "Compilations are not an official version; the official text is in the Statutes at "
         "Large and the United States Code (1 U.S.C. 112, 204).",

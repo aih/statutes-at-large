@@ -13,8 +13,17 @@ import hashlib
 from fastapi import Request, Response
 
 from api.alternatives import alternatives_for
-from api.schemas import AMENDED_UNKNOWN_SENTENCE, NotFoundOut, StatPageOut, UnitOut
-from params import IMMUTABLE, REVALIDATE, cache_control, enacted_note, if_none_match, not_found, served_note
+from api.schemas import NotFoundOut, StatPageOut, UnitOut
+from params import (
+    IMMUTABLE,
+    REVALIDATE,
+    amended_unknown_sentence,
+    cache_control,
+    enacted_note,
+    if_none_match,
+    not_found,
+    served_note,
+)
 from storage import Repository, StatPageResult, UnitResult
 
 XML_MEDIA_TYPE = "application/xml; charset=utf-8"
@@ -23,7 +32,7 @@ XML_MEDIA_TYPE = "application/xml; charset=utf-8"
 def unit_note(result: UnitResult) -> str:
     """The resolution sentence, when there is one, then the as-enacted note."""
     enacted = enacted_note(
-        result, compiled_link=None, codified=[], amended_sentence=AMENDED_UNKNOWN_SENTENCE
+        result, compiled_link=None, codified=[], amended_sentence=amended_unknown_sentence(result)
     )
     served = served_note(result)
     return f"{served} {enacted}" if served else enacted
