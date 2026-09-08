@@ -11,6 +11,7 @@ from __future__ import annotations
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 
+from api.cited_by import cited_by_router
 from api.comps import comps_router
 from api.routes import api
 from citation import router as citation_router
@@ -26,6 +27,8 @@ Compilations the House Office of the Legislative Counsel maintains.
 * `/api/v1/us/stat/64/564` — every law on a Statutes at Large page.
 * `/api/v1/us/sComp/83/703/tI/ch1./s1` — the compiled text, current through the
   law the response names.
+* `/api/v1/cited-by?identifier=/us/pl/104/333/s814` — the US Code sections
+  whose source credits, notes, or text cite the section.
 
 The bare citation URL (`/us/pl/81/740/s3`) is a **307 redirect** to whichever
 surface the caller can read, so `curl` it with `-L` or address `/api/v1`.
@@ -40,6 +43,7 @@ app = FastAPI(
 
 app.include_router(api)
 app.include_router(comps_router)
+app.include_router(cited_by_router)
 app.include_router(citation_router)
 
 

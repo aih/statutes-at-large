@@ -366,7 +366,7 @@ def test_status(client):
     assert response.status_code == 200
     assert response.headers["cache-control"] == "public, max-age=300"
     body = response.json()
-    assert set(body) == {"collections", "checks", "stale"}
+    assert set(body) == {"collections", "checks", "stale", "citations", "classifications"}
     assert set(body["collections"]) == {"STATUTE", "COMPS", "PLAW"} == set(body["checks"])
     statute = body["collections"]["STATUTE"]
     assert statute["volumes"] == [26, 64, 68, 72, 116, 124, 137]

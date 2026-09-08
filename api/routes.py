@@ -26,6 +26,8 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, Res
 
 from api.responses import compiled_not_found, stat_page_response, unit_response
 from api.schemas import (
+    CitationsStatusOut,
+    ClassificationsStatusOut,
     CollectionStatusOut,
     ErrorOut,
     LabelFoundOut,
@@ -289,7 +291,9 @@ def status(repository: RepositoryDep) -> StatusOut:
     """Per collection (`STATUTE`, `COMPS`, `PLAW`): packages loaded, the newest
     one, and the counts; and the last poll of its source. `stale` is true when
     a collection with packages has no recorded check or one older than a week
-    (`storage.SOURCE_CHECK_STALE_AFTER`)."""
+    (`storage.SOURCE_CHECK_STALE_AFTER`). `citations` is the citation index
+    and `classifications` the classification tables mirror, each with its
+    last run; `stale` does not read them."""
     collections = {c: CollectionStatusOut.of(repository.collection_status(c)) for c in COLLECTIONS}
     checks: dict[str, SourceCheckOut | None] = {}
     for collection in COLLECTIONS:
@@ -298,7 +302,13 @@ def status(repository: RepositoryDep) -> StatusOut:
     stale = any(
         collections[c].packages_loaded > 0 and (checks[c] is None or checks[c].stale) for c in COLLECTIONS
     )
-    return StatusOut(collections=collections, checks=checks, stale=stale)
+    return StatusOut(
+        collections=collections,
+        checks=checks,
+        stale=stale,
+        citations=CitationsStatusOut.of(repository.citation_index_status()),
+        classifications=ClassificationsStatusOut.of(repository.classification_status()),
+    )
 
 
 # ---------------------------------------------------------------------- laws

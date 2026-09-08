@@ -8,11 +8,18 @@ imports from `db`.
 from __future__ import annotations
 
 import datetime
+from collections.abc import Callable
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
 from storage import (
+    CitationIndexStatus,
+    CitedBy,
+    CitingSection,
+    ClassificationCheckInfo,
+    ClassificationFileRef,
+    ClassificationStatus,
     CollectionStatus,
     CompRef,
     LabelInfo,
@@ -433,6 +440,92 @@ class SourceCheckOut(BaseModel):
         )
 
 
+class CitationsStatusOut(BaseModel):
+    """The citation index: rows, citing sections, titles, the release labels."""
+
+    rows: int
+    citing_sections: int
+    titles: int
+    release_labels: list[list[Any]] = Field(
+        default_factory=list, description="`[label, rows]` pairs, most rows first; the first 10."
+    )
+    loaded_at: datetime.datetime | None
+    dataset_revision: str | None = Field(description="The `dreamproit/uscode` commit the index was built from.")
+
+    @classmethod
+    def of(cls, status: CitationIndexStatus) -> CitationsStatusOut:
+        return cls(
+            rows=status.rows,
+            citing_sections=status.citing_sections,
+            titles=status.titles,
+            release_labels=[[label, rows] for label, rows in status.release_labels[:10]],
+            loaded_at=status.loaded_at,
+            dataset_revision=status.dataset_revision,
+        )
+
+
+class ClassificationFileOut(BaseModel):
+    congress: int
+    session: int = Field(description="`1`, `2`; `0` for a whole-congress table.")
+    covered_laws_text: str | None = Field(examples=["Public Laws 118-35 to 118-274"])
+    row_count: int
+    mirrored_at: datetime.datetime
+
+    @classmethod
+    def of(cls, file: ClassificationFileRef) -> ClassificationFileOut:
+        return cls(
+            congress=file.congress,
+            session=file.session,
+            covered_laws_text=file.covered_laws_text,
+            row_count=file.row_count,
+            mirrored_at=file.mirrored_at,
+        )
+
+
+class ClassificationCheckOut(BaseModel):
+    checked_at: datetime.datetime
+    ok: bool
+    files_seen: int | None
+    files_loaded: int | None
+    rows_loaded: int | None
+    upstream_checked_at: datetime.datetime | None = Field(
+        description="The US Code site's own last check of uscode.house.gov."
+    )
+    error: str | None
+    stale: bool = Field(description="True when the run failed or is over a week old.")
+
+    @classmethod
+    def of(cls, check: ClassificationCheckInfo) -> ClassificationCheckOut:
+        return cls(
+            checked_at=check.checked_at,
+            ok=check.ok,
+            files_seen=check.files_seen,
+            files_loaded=check.files_loaded,
+            rows_loaded=check.rows_loaded,
+            upstream_checked_at=check.upstream_checked_at,
+            error=check.error,
+            stale=check.is_stale(),
+        )
+
+
+class ClassificationsStatusOut(BaseModel):
+    """The classification tables mirror: the files held, their rows, the last run."""
+
+    files: list[ClassificationFileOut] = Field(default_factory=list)
+    rows: int
+    congresses: list[int] = Field(default_factory=list)
+    last_check: ClassificationCheckOut | None
+
+    @classmethod
+    def of(cls, status: ClassificationStatus) -> ClassificationsStatusOut:
+        return cls(
+            files=[ClassificationFileOut.of(f) for f in status.files],
+            rows=status.rows,
+            congresses=list(status.congresses),
+            last_check=ClassificationCheckOut.of(status.last_check) if status.last_check is not None else None,
+        )
+
+
 class StatusOut(BaseModel):
     collections: dict[str, CollectionStatusOut] = Field(description="Keyed `STATUTE`, `COMPS`, `PLAW`.")
     checks: dict[str, SourceCheckOut | None] = Field(
@@ -441,3 +534,105 @@ class StatusOut(BaseModel):
     stale: bool = Field(
         description="True when any collection with loaded packages has no check or a stale one."
     )
+    citations: CitationsStatusOut
+    classifications: ClassificationsStatusOut
+
+
+# ----------------------------------------------------------------- cited-by
+
+
+class CitedRefOut(BaseModel):
+    href: str = Field(
+        description="The ref's target as the citing text wrote it.", examples=["/us/pl/104/333/dI/tVIII/s814/e/1"]
+    )
+    context: str = Field(description="`sourceCredit` | `note` | `text`.")
+    note_topic: str | None = Field(default=None, description="The note's topic, for a `note` ref.")
+    date: datetime.date | None = Field(default=None, description="The law's date as the citing text gives it.")
+
+
+class CitingSectionOut(BaseModel):
+    identifier: str = Field(examples=["/us/usc/t16/s1"])
+    citation: str | None = Field(examples=["16 U.S.C. 1"])
+    heading: str | None
+    release_label: str = Field(description="The release point of the citing section's title.")
+    url: str
+    refs: list[CitedRefOut]
+
+    @classmethod
+    def of(cls, section: CitingSection, *, url: str) -> CitingSectionOut:
+        return cls(
+            identifier=section.identifier,
+            citation=section.citation,
+            heading=section.heading,
+            release_label=section.release_label,
+            url=url,
+            refs=[
+                CitedRefOut(href=r.to_identifier, context=r.context, note_topic=r.note_topic, date=r.to_date)
+                for r in section.refs
+            ],
+        )
+
+
+class CitationIndexOut(BaseModel):
+    release_labels: list[list[Any]] = Field(
+        default_factory=list, description="`[label, rows]` pairs over the whole index."
+    )
+    loaded_at: datetime.datetime | None
+    dataset_revision: str | None
+
+    @classmethod
+    def of(cls, status: CitationIndexStatus) -> CitationIndexOut:
+        return cls(
+            release_labels=[[label, rows] for label, rows in status.release_labels],
+            loaded_at=status.loaded_at,
+            dataset_revision=status.dataset_revision,
+        )
+
+
+class CitedByOut(BaseModel):
+    """US Code sections whose refs point at a law, a section of it, or a
+    Statutes at Large page (design section 5)."""
+
+    identifier: str = Field(description="The identifier asked for, normalized.")
+    law_identifier: str = Field(description="The law's primary form when it is loaded, else the form asked for.")
+    law: LawOut | None = Field(description="Null when the law is not loaded; the index still answers.")
+    aliases: list[str] = Field(description="Every identifier the citing side may have used for the law.")
+    section_num: str | None
+    below: str | None = Field(description="The path below the section that was asked for (`e/1`), when any.")
+    contexts: dict[str, int] = Field(description="Matching refs per context, over the whole answer.")
+    total: int = Field(description="Distinct citing sections over the contexts asked for.")
+    limit: int
+    offset: int
+    release_labels: list[str] = Field(description="The release points the citing sections come from.")
+    index: CitationIndexOut
+    sections: list[CitingSectionOut] = Field(description="One page of citing sections, in identifier order.")
+    note: str
+
+    @classmethod
+    def of(
+        cls,
+        answer: CitedBy,
+        *,
+        identifier: str,
+        limit: int,
+        offset: int,
+        index: CitationIndexStatus,
+        section_url: Callable[[str], str],
+        note: str,
+    ) -> CitedByOut:
+        return cls(
+            identifier=identifier,
+            law_identifier=answer.law_identifier,
+            law=LawOut.of(answer.law) if answer.law is not None else None,
+            aliases=list(answer.aliases),
+            section_num=answer.section_num,
+            below=answer.below,
+            contexts=dict(answer.contexts),
+            total=answer.total,
+            limit=limit,
+            offset=offset,
+            release_labels=list(answer.release_labels),
+            index=CitationIndexOut.of(index),
+            sections=[CitingSectionOut.of(s, url=section_url(s.identifier)) for s in answer.sections],
+            note=note,
+        )

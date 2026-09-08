@@ -86,10 +86,25 @@ Loaded so far: COMPS-1630 (Atomic Energy Act of 1954), COMPS-973 (Federal
 Food, Drug, and Cosmetic Act), COMPS-3055 (Sherman Act), COMPS-8755 (Social
 Security Act, title II), and two packages a poll since 2026-09-04 found.
 
+Stage 3 (the indexes):
+
+| Route | Answer |
+|---|---|
+| `GET /api/v1/cited-by?identifier=/us/pl/104/333/s814` | the US Code sections whose source credits, notes, or text cite the law, the section (by number, whatever hierarchy the ref wrote), a path below it, or a Statutes at Large page; `context` (`sourceCredit`, `note`, `text`, repeatable), `limit` (1–200), `offset`; `law` is null when the law is not loaded; 404 when the index holds nothing for an unloaded law; ETag and `If-None-Match`; `max-age=300`; 60 requests then 2 per second |
+
+Sources: the citation index is built from the `dreamproit/uscode` dataset's
+`current` config (`python -m ingest citations --from-hub`, ADR-0008); the
+classification tables are mirrored from the US Code site's API
+(`python -m ingest classifications`, one `classification_files` row per
+table, replaced wholesale when its rows change).
+
 Other routes: `POST /api/v1/labels` (up to 100 identifiers, existence and
 heading, what the US Code site's reference resolver calls), `GET /api/v1/status`
-(what is loaded per collection, the last poll, `stale` after a week),
-`GET /api/v1/laws/{c}/{n}` and `/sections/{num}`.
+(what is loaded per collection, the last poll, `stale` after a week;
+`citations`: the index's rows, citing sections, titles, release labels, and
+the dataset revision; `classifications`: the tables mirrored with their
+covered laws and row counts, and the last mirror run with `stale` after a
+week), `GET /api/v1/laws/{c}/{n}` and `/sections/{num}`.
 
 Caching (design section 5): enacted units and Statutes at Large pages are
 `immutable`; a compiled unit is `immutable` only when pinned with `through=`;
@@ -103,8 +118,8 @@ routed (405).
   come from the volume USLM until design stage 4.
 - Concurrent resolutions, proclamations, treaties, and agreements printed in
   the volumes. They are counted in the load report and skipped.
-- `citations`, `cited-by`, `amended.status` from evidence (design stage 3):
-  `currency.amended.status` is `unknown`.
+- `amended.status` from evidence (design stage 3): `currency.amended.status`
+  is `unknown`.
 - The reader at `/app` and the citation parser (design stage 5). The citation
   URL already redirects browsers there.
 - The reprocessed OCR text (design stage 6). The text is GPO's digitization
@@ -123,6 +138,8 @@ make up                          # docker compose: Postgres, API, Caddy on :8010
 python -m ingest comps load COMPS-1630 COMPS-3055   # fetch and load packages
 python -m ingest comps poll --since 2026-09-01      # walk the collection
 python -m ingest comps report
+python -m ingest citations --from-hub --report docs/verification    # the citation index
+python -m ingest classifications --report docs/verification         # the classification tables
 ```
 
 `make test` needs no database and no network: the suite loads verbatim slices
