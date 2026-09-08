@@ -64,8 +64,38 @@ Loaded and verified so far: volumes 26, 64, 68, 72, 124 and 137
 loader (`docs/verification/era-sweep.md`). The loader handles all 137 volumes
 (`make load-all`).
 
-Stage 2 (in progress): the `COMPS` poller, `comp_versions`, `/us/sComp/…`, the
-compiled view, and `alternatives` between the two views.
+Stage 2 (compiled view):
+
+| Identifier | Answer |
+|---|---|
+| `/us/sComp/{congress}/{num}[/{path}]` | a Statute Compilation unit in GPO's identifier form (`/tI/ch1./s1`); `?through=118-67` selects a stored version |
+| `/us/pl/…?view=compiled` (also `/us/pvtl`, `/us/act`) | the compiled counterpart of the enacted unit, matched by section number; 404 with `alternatives` when there is none |
+| `GET /api/v1/comps?law=/us/pl/83/703&q=atomic` | compilations for a law, or by title search |
+| `GET /api/v1/comps/{fileId}` | a compilation's summary, version list, and table of contents |
+
+Every unit response carries `alternatives`: the compiled counterpart with its
+`current_through`, the codified US Code section the compilation's editorial
+note names, and, on a compiled unit, the enacted section. The note names them
+in the words of design section 4.
+
+Source: the GovInfo API (`collections/COMPS/{since}`, `packages/{id}/summary`,
+`packages/{id}/uslm`) with `GOVINFO_API_KEY` from the environment. Each fetch
+that changes a package's content hash is a new `comp_versions` row; GovInfo
+keeps only the current text, so the history starts at the first ingest.
+Loaded so far: COMPS-1630 (Atomic Energy Act of 1954), COMPS-973 (Federal
+Food, Drug, and Cosmetic Act), COMPS-3055 (Sherman Act), COMPS-8755 (Social
+Security Act, title II), and two packages a poll since 2026-09-04 found.
+
+Other routes: `POST /api/v1/labels` (up to 100 identifiers, existence and
+heading, what the US Code site's reference resolver calls), `GET /api/v1/status`
+(what is loaded per collection, the last poll, `stale` after a week),
+`GET /api/v1/laws/{c}/{n}` and `/sections/{num}`.
+
+Caching (design section 5): enacted units and Statutes at Large pages are
+`immutable`; a compiled unit is `immutable` only when pinned with `through=`;
+`labels`, `status` and unpinned compiled views are `max-age=300`. Every unit
+response carries an `ETag` and answers `If-None-Match` with 304. `HEAD` is not
+routed (405).
 
 ## Not yet served
 
@@ -90,6 +120,9 @@ make dev-data                    # volumes 64 and 124 from the Hub, with reports
 make dev                         # the API on :8001
 make test                        # pytest over SQLite and the committed slices
 make up                          # docker compose: Postgres, API, Caddy on :8010
+python -m ingest comps load COMPS-1630 COMPS-3055   # fetch and load packages
+python -m ingest comps poll --since 2026-09-01      # walk the collection
+python -m ingest comps report
 ```
 
 `make test` needs no database and no network: the suite loads verbatim slices
@@ -100,10 +133,12 @@ the downloaded volumes under `data/statute/xmls`.
 
 ```
 ingest/      statute.py (volume USLM → laws and units), identifiers.py (the rules),
-             numbering.py (law-number collisions), load.py, hub.py, __main__.py
+             numbering.py (law-number collisions), load.py, hub.py, comps.py (the
+             COMPS parser, loader and poller), govinfo.py (the API client), __main__.py
 storage/     repository.py (the Repository protocol), postgres.py (the only SQL),
              identifiers.py (parsing served identifiers), session.py
-api/         /api/v1 routes and response models
+api/         routes.py (enacted view, stat pages, labels, status, laws), comps.py
+             (the compiled view, /comps), alternatives.py, schemas, responses
 db/          SQLAlchemy models and Alembic migrations (db/migrations)
 params.py    served_note, not_found, cache_control, ETag, rate limits, Accept
 citation.py  the /us/… redirector

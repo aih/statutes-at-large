@@ -236,13 +236,15 @@ def _etag(result: CompUnitResult, fmt: str) -> str:
 # ------------------------------------------------------------------- routes
 
 
-def _compiled(
+def compiled_response(
     request: Request,
     repository: Repository,
     identifier: str,
     through: str | None,
     format: str | None,
 ) -> Response:
+    """A compiled unit in the negotiated format with its caching headers; also
+    what `view=compiled` on an enacted identifier serves (`api/routes.py`)."""
     result = repository.get_comp_unit(identifier, through=through)
     if result is None:
         if through is not None and repository.get_comp_unit(identifier) is not None:
@@ -284,7 +286,7 @@ def compiled_root(
 ) -> Response:
     """The compilation itself: its table of contents and the whole document as
     `format=xml`. `through=118-67` selects a stored version."""
-    return _compiled(request, repository, f"/us/sComp/{congress}/{number}", through, format)
+    return compiled_response(request, repository, f"/us/sComp/{congress}/{number}", through, format)
 
 
 @comps_router.get(
@@ -307,7 +309,7 @@ def compiled_unit(
     prefix with the rest cut from the section's XML; the section number under
     the compilation ignoring hierarchy. `note` says which rule answered."""
     identifier = f"/us/sComp/{congress}/{number}/{path.strip('/')}" if path.strip("/") else f"/us/sComp/{congress}/{number}"
-    return _compiled(request, repository, identifier, through, format)
+    return compiled_response(request, repository, identifier, through, format)
 
 
 @comps_router.get("/comps", response_model=CompListOut, summary="Compilations for a law, or by title")

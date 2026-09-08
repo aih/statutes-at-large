@@ -95,9 +95,26 @@ def enacted_unit(request: Request, repository: Repository, identifier: str, quer
 
 
 def compiled_view(request: Request, repository: Repository, path: str, query: UnitQuery) -> Response:
-    """`view=compiled` for an enacted identifier. Stage 1 loads no compilations,
-    so the answer is a 404 that carries the alternatives the unit has."""
-    return compiled_not_found(repository, path, repository.get_unit(path))
+    """`view=compiled` for an enacted identifier: the compiled counterpart the
+    alternatives name (ADR-0007, decision 5), served in the compiled shape with
+    `X-Requested-Identifier` naming the enacted form asked for. With no
+    counterpart, a 404 that carries the alternatives the unit does have."""
+    from api.alternatives import alternatives_for, compiled_link
+    from api.comps import compiled_response
+
+    enacted = repository.get_unit(path)
+    if enacted is None:
+        raise HTTPException(status_code=404, detail=not_found(path))
+    target = compiled_link(alternatives_for(repository, enacted))
+    if target is None:
+        return compiled_not_found(repository, path, enacted)
+    if enacted.provision is not None and enacted.provision.found:
+        # `/us/pl/83/703/s1/a` → the same sub-path under the compiled section.
+        below = enacted.provision.identifier[len(enacted.served_identifier):]
+        target = f"{target}{below}"
+    response = compiled_response(request, repository, target, query.through, query.format)
+    response.headers["X-Requested-Identifier"] = path
+    return response
 
 
 @api.get(
