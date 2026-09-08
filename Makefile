@@ -1,4 +1,4 @@
-.PHONY: dev migrate dev-data dev-up test test-slow test-all fixtures verify fetch load-all lint fetch-uscode citations classifications fetch-plaw plaw
+.PHONY: dev migrate dev-data dev-up test test-slow test-all fixtures verify fetch load-all lint fetch-uscode citations classifications fetch-plaw plaw plaw-poll
 
 # The API alone on :8001 against the compose Postgres (:5434 on the host).
 dev: dev-up migrate
@@ -43,6 +43,11 @@ fetch-plaw:
 
 plaw: migrate
 	uv run python -m ingest plaw load 113-119 --report docs/verification
+
+# The poller: the bulk-data listings against what is stored, the zip for a
+# congress that is new or mostly due, single files otherwise (ingest/plaw_poll.py).
+plaw-poll: migrate
+	uv run python -m ingest plaw poll --report docs/verification
 
 # The specification. Runs over SQLite with the committed slices; needs no
 # database and no network.
