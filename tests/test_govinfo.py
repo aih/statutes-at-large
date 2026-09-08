@@ -122,7 +122,9 @@ def test_a_connection_error_is_retried_then_wrapped(client):
     assert route.call_count == 2
 
 
-def test_a_missing_key_raises(monkeypatch):
+def test_a_missing_key_raises(monkeypatch, tmp_path):
+    # Run from a directory with no .env: the key is also read from there.
+    monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("GOVINFO_API_KEY", "")
     with pytest.raises(MissingApiKeyError, match="GOVINFO_API_KEY"):
         GovInfoClient()
