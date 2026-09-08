@@ -13,11 +13,12 @@ import hashlib
 from fastapi import Request, Response
 
 from api.alternatives import alternatives_for, codified_labels, compiled_link
-from api.schemas import NotFoundOut, StatPageOut, UnitOut
+from api.currency import Amended, amended_for_unit
+from api.schemas import AmendedOut, NotFoundOut, StatPageOut, UnitOut
 from params import (
     IMMUTABLE,
     REVALIDATE,
-    amended_unknown_sentence,
+    amended_sentence,
     cache_control,
     enacted_note,
     if_none_match,
@@ -29,15 +30,22 @@ from storage import Repository, StatPageResult, UnitResult
 XML_MEDIA_TYPE = "application/xml; charset=utf-8"
 
 
-def unit_note(result: UnitResult, alternatives: list | None = None) -> str:
+def unit_note(result: UnitResult, alternatives: list | None = None, amended: Amended | None = None) -> str:
     """The resolution sentence, when there is one, then the as-enacted note,
-    which names the compiled and codified texts the alternatives found."""
+    which names the compiled and codified texts the alternatives found and
+    says what `amended` decided (`unknown` when no decision is given)."""
     alternatives = alternatives or []
+    latest = amended.latest if amended is not None else None
     enacted = enacted_note(
         result,
         compiled_link=compiled_link(alternatives),
         codified=codified_labels(alternatives),
-        amended_sentence=amended_unknown_sentence(result),
+        amended_sentence=amended_sentence(
+            result,
+            amended.status if amended is not None else "unknown",
+            latest_label=latest.label if latest is not None else None,
+            latest_date=latest.date if latest is not None else None,
+        ),
     )
     served = served_note(result)
     return f"{served} {enacted}" if served else enacted
@@ -78,12 +86,14 @@ def unit_response(request: Request, repository: Repository, result: UnitResult, 
         )
         return Response(content=fragment, media_type=XML_MEDIA_TYPE, headers=headers)
 
-    alternatives = alternatives_for(repository, result)
+    amended = amended_for_unit(repository, result)
+    alternatives = alternatives_for(repository, result, citing=amended.citing)
     out = UnitOut.of(
         result,
-        note=unit_note(result, alternatives),
+        note=unit_note(result, alternatives, amended),
         alternatives=alternatives,
         xml_url=xml_url_for(request),
+        amended=AmendedOut.of(amended),
     )
     return Response(content=out.model_dump_json(), media_type="application/json", headers=headers)
 

@@ -48,9 +48,15 @@ of its identifier), `Cache-Control: public, max-age=31536000, immutable`,
 is immutable with an `ETag` over its documents. `labels`, `status`, and the law
 summary are `public, max-age=300`. `HEAD` is not registered and answers 405.
 
-`currency.amended.status` is `unknown` on every enacted unit in stage 1, and the
-note's amended sentence is "Whether this section has been amended since is not
-recorded here."
+`currency.amended` on an enacted unit is decided from three indexes
+(`api/currency.py`): a US Code source credit that cites the unit and names a
+later law, a classification-table row of a later law that amends a section the
+unit was classified to, and a compilation current through a later law whose
+section text differs. Any of them gives `known_amended`, with `evidence`
+listing which and `latest` the newest law (`{pl, identifier, label, enacted}`);
+none of them gives `no_record` when the indexes know the law and `unknown` for a
+private law or a law in no index. The note's amended sentence says the same in
+words. `labels` carries the same block, without the compiled-text comparison.
 
 Source: GovInfo `STATUTE` volume USLM from the Hub dataset
 `dreamproit/us-statutes-at-large` (`xmls/STATUTE-{n}.xml`). The volume files
@@ -103,8 +109,9 @@ routed (405).
   come from the volume USLM until design stage 4.
 - Concurrent resolutions, proclamations, treaties, and agreements printed in
   the volumes. They are counted in the load report and skipped.
-- `citations`, `cited-by`, `amended.status` from evidence (design stage 3):
-  `currency.amended.status` is `unknown`.
+- The `citations` and `cited-by` routes (design stage 3). The citation index
+  is loaded and `currency.amended` reads it; the classification mirror is
+  built separately and its rows are read when present.
 - The reader at `/app` and the citation parser (design stage 5). The citation
   URL already redirects browsers there.
 - The reprocessed OCR text (design stage 6). The text is GPO's digitization

@@ -3,10 +3,11 @@ same provision (design section 4).
 
 A compiled alternative is the compilation's unit with the same section number
 under the same law (`Repository.compiled_counterparts`), or the compilation
-itself when the law was asked for. A codified alternative is the US Code
-section the compilation's own editorial note names for that section; the
-citation index of design stage 3 is not built, so a section with no
-compilation has no codified alternative yet.
+itself when the law was asked for. A codified alternative lists the US Code
+sections the compilation's own editorial note names for that section, then
+the ones whose source credits cite the unit in the citation index
+(`api.currency.citing_sections`), at most `CODIFIED_CAP` in all. A hierarchy
+node has no alternatives.
 
 The origins come from the environment (`SITE_ORIGIN`, `USCODE_ORIGIN`), read
 here because `api/` may not import `db.config`.
@@ -15,7 +16,9 @@ here because `api/` may not import `db.config`.
 from __future__ import annotations
 
 import os
+from collections.abc import Sequence
 
+from api.currency import CODIFIED_CAP, codified_from_index
 from api.schemas import AlternativeOut
 from storage import CompCounterpart, Repository, UnitResult
 
@@ -23,18 +26,24 @@ SITE_ORIGIN = os.environ.get("SITE_ORIGIN", "https://statutes.linkedlegislation.
 USCODE_ORIGIN = os.environ.get("USCODE_ORIGIN", "https://uscode.linkedlegislation.org")
 
 
-def alternatives_for(repository: Repository, result: UnitResult) -> list[AlternativeOut]:
-    """The other views available for an enacted unit."""
+def alternatives_for(
+    repository: Repository, result: UnitResult, *, citing: Sequence[str] | None = None
+) -> list[AlternativeOut]:
+    """The other views available for an enacted unit. `citing` is the US Code
+    sections whose source credits cite the unit, when the caller already has
+    them (the `currency.amended` decision reads the same credits)."""
     section_num = result.num if result.level == "section" else None
     if result.level not in ("law", "section"):
         # A title or chapter of the enacted law has no unit-level counterpart in
         # a compilation (their hierarchy is written differently); the law does.
         return []
     counterparts = repository.compiled_counterparts(result.law.identifier, section_num)
-    return _alternatives(counterparts)
+    if citing is None:
+        citing = codified_from_index(repository, result.law, result.level, result.num)
+    return _alternatives(counterparts, citing)
 
 
-def _alternatives(counterparts: list[CompCounterpart]) -> list[AlternativeOut]:
+def _alternatives(counterparts: list[CompCounterpart], from_index: Sequence[str] = ()) -> list[AlternativeOut]:
     out: list[AlternativeOut] = []
     codified: list[str] = []
     for counterpart in counterparts:
@@ -49,6 +58,10 @@ def _alternatives(counterparts: list[CompCounterpart]) -> list[AlternativeOut]:
         for ref in counterpart.usc_refs:
             if ref not in codified:
                 codified.append(ref)
+    for ref in from_index:
+        if ref not in codified:
+            codified.append(ref)
+    codified = codified[:CODIFIED_CAP]
     if codified:
         out.append(
             AlternativeOut(view="codified", identifiers=codified, url=f"{USCODE_ORIGIN}{codified[0]}")

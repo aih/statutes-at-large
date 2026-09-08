@@ -12,6 +12,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from api.currency import Amended, Candidate
 from storage import (
     CollectionStatus,
     CompRef,
@@ -88,15 +89,40 @@ class LawOut(BaseModel):
 # ------------------------------------------------------------------ currency
 
 
+class LatestOut(BaseModel):
+    """The newest law the evidence recorded."""
+
+    pl: str | None = Field(description="`118-67` for a public law; null for an act.", examples=["118-67"])
+    identifier: str = Field(examples=["/us/pl/118/67"])
+    label: str = Field(examples=["Public Law 118-67"])
+    enacted: datetime.date | None = Field(description="Null when no date is recorded for the law.")
+
+    @classmethod
+    def of(cls, latest: Candidate) -> LatestOut:
+        return cls(pl=latest.pl, identifier=latest.identifier, label=latest.label, enacted=latest.date)
+
+
 class AmendedOut(BaseModel):
     status: Literal["known_amended", "no_record", "unknown"] = Field(
-        description="Stage 1 always reports `unknown`: no amendment index is loaded yet "
-        "(design section 4). `known_amended` and `no_record` arrive with the citation index."
+        description="`known_amended`: a US Code source credit citing the unit names a later law, a "
+        "classification row of a later law amends a section this unit was classified to, or a "
+        "compilation current through a later law has different text. `no_record`: none of those, "
+        "and the indexes know the law. `unknown`: a private law, or a law in no index (design section 4; "
+        "`api/currency.py`)."
     )
-    latest: dict[str, Any] | None = Field(
-        default=None, description="`{pl, enacted}` of the most recent amending law, when recorded."
+    latest: LatestOut | None = Field(default=None, description="The newest law among the evidence that fired.")
+    evidence: list[str] = Field(
+        default_factory=list,
+        description="The evidence that fired, in the order `source_credit`, `classification`, `compilation`.",
     )
-    evidence: list[str] = Field(default_factory=list)
+
+    @classmethod
+    def of(cls, amended: Amended) -> AmendedOut:
+        return cls(
+            status=amended.status,
+            latest=LatestOut.of(amended.latest) if amended.latest is not None else None,
+            evidence=list(amended.evidence),
+        )
 
 
 class CurrencyOut(BaseModel):
@@ -105,8 +131,8 @@ class CurrencyOut(BaseModel):
     amended: AmendedOut
 
     @classmethod
-    def as_enacted(cls, law: LawRef) -> CurrencyOut:
-        return cls(kind="as_enacted", date=law.enacted, amended=AmendedOut(status="unknown", latest=None, evidence=[]))
+    def as_enacted(cls, law: LawRef, amended: AmendedOut) -> CurrencyOut:
+        return cls(kind="as_enacted", date=law.enacted, amended=amended)
 
 
 class AlternativeOut(BaseModel):
@@ -212,6 +238,7 @@ class UnitOut(BaseModel):
         note: str,
         alternatives: list[AlternativeOut],
         xml_url: str,
+        amended: AmendedOut,
     ) -> UnitOut:
         law = result.law
         return cls(
@@ -223,7 +250,7 @@ class UnitOut(BaseModel):
             level=result.level,
             num=result.num,
             heading=result.heading,
-            currency=CurrencyOut.as_enacted(law),
+            currency=CurrencyOut.as_enacted(law, amended),
             alternatives=alternatives,
             note=note,
             provenance=ProvenanceOut(
@@ -350,6 +377,7 @@ class LabelsIn(BaseModel):
 class LabelCurrencyOut(BaseModel):
     kind: Literal["as_enacted"]
     date: datetime.date | None
+    amended: AmendedOut = Field(description="The same block as a unit's `currency.amended`, without the compiled-text comparison.")
 
 
 class LabelFoundOut(BaseModel):
@@ -365,7 +393,7 @@ class LabelFoundOut(BaseModel):
     currency: LabelCurrencyOut
 
     @classmethod
-    def of(cls, info: LabelInfo) -> LabelFoundOut:
+    def of(cls, info: LabelInfo, amended: AmendedOut) -> LabelFoundOut:
         return cls(
             served_identifier=info.served_identifier,
             resolution=info.resolution,
@@ -375,7 +403,7 @@ class LabelFoundOut(BaseModel):
             kind=info.law.kind,
             law_identifier=info.law.identifier,
             law_label=info.law.label,
-            currency=LabelCurrencyOut(kind="as_enacted", date=info.law.enacted),
+            currency=LabelCurrencyOut(kind="as_enacted", date=info.law.enacted, amended=amended),
         )
 
 
