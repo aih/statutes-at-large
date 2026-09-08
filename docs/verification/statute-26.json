@@ -1,0 +1,82 @@
+{
+  "volume": 26,
+  "package": "STATUTE-26",
+  "source_file": "data/statute/xmls/STATUTE-26.xml",
+  "source_sha256": "901ba30a7986bd700feb50f4e4b00f68ed1694d583a00e63f12046c1ff85f011",
+  "loaded_at": "2026-09-08T03:10:35.929810+00:00",
+  "seconds": 13.1,
+  "components": 2214,
+  "laws_loaded": 2093,
+  "laws_by_kind": {
+    "act": 2093
+  },
+  "laws_replaced": 0,
+  "units": 3461,
+  "units_by_level": {
+    "section": 3459,
+    "title": 1,
+    "chapter": 1
+  },
+  "sections": 3459,
+  "sections_in_quoted_content_skipped": 44,
+  "duplicate_section_identifiers": 8,
+  "aliases": 2093,
+  "aliases_dropped_as_taken": 0,
+  "stat_pages": 3165,
+  "number_conflicts": [],
+  "numbers_out_of_sequence": [],
+  "repeated_laws": [
+    {
+      "seq": 684,
+      "identifier": "/us/act/1890-04-23/ch153",
+      "citation": "26 Stat. 1136"
+    },
+    {
+      "seq": 686,
+      "identifier": "/us/act/1890-04-25/ch156",
+      "citation": "26 Stat. 1137"
+    },
+    {
+      "seq": 760,
+      "identifier": "/us/act/1890-05-22/ch279",
+      "citation": "26 Stat. 1153"
+    },
+    {
+      "seq": 778,
+      "identifier": "/us/act/1890-05-24/ch300",
+      "citation": "26 Stat. 1157"
+    },
+    {
+      "seq": 783,
+      "identifier": "/us/act/1890-05-24/ch305",
+      "citation": "26 Stat. 1158"
+    },
+    {
+      "seq": 786,
+      "identifier": "/us/act/1890-05-24/ch303",
+      "citation": "26 Stat. 1158"
+    },
+    {
+      "seq": 808,
+      "identifier": "/us/act/1890-05-24/ch330",
+      "citation": "26 Stat. 1163"
+    },
+    {
+      "seq": 905,
+      "identifier": "/us/act/1890-06-20/ch466",
+      "citation": "26 Stat. 1183"
+    }
+  ],
+  "skipped_components": {
+    "concurrent resolution": 87,
+    "presidential document": 26
+  },
+  "merged_components": 0,
+  "unidentified": [],
+  "warnings": {
+    "occurs 2 times": 8
+  },
+  "identifier_rules": "rules-1.0",
+  "first_law": "/us/act/1889-12-19/ch1",
+  "last_law": "/us/act/1891-03-03/ch783"
+}

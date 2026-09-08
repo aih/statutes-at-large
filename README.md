@@ -59,8 +59,10 @@ section 7 (`ingest/identifiers.py`, version `rules-1.0`), and stamps them into
 the stored XML. `provenance` on every response records `gpo-uslm` text and
 `rules-1.0` identifiers.
 
-Loaded and verified so far: volumes 64 and 124 (`docs/verification/`). The
-loader handles all 137 volumes (`make load-all`).
+Loaded and verified so far: volumes 26, 64, 68, 72, 124 and 137
+(`docs/verification/`), and eleven more volumes from every era run through the
+loader (`docs/verification/era-sweep.md`). The loader handles all 137 volumes
+(`make load-all`).
 
 Stage 2 (in progress): the `COMPS` poller, `comp_versions`, `/us/sComp/…`, the
 compiled view, and `alternatives` between the two views.

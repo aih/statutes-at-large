@@ -2,8 +2,10 @@
 
 One JSON report per loaded volume, written by `python -m ingest statute
 --report docs/verification` and never edited by hand. Regenerate with
-`make dev-data` (volumes 64 and 124), `python -m ingest statute --volumes 72,137
---report docs/verification`, or `make load-all`. The full sha256 of each source
+`make dev-data` (volumes 64 and 124), `python -m ingest statute --volumes 26,68,72,137
+--report docs/verification`, or `make load-all`. Volumes 26 and 68 are loaded because
+the Sherman Act and the Atomic Energy Act of 1954 have compilations among the COMPS
+fixtures (ADR-0006). The full sha256 of each source
 file is in its report.
 
 The Hub's `STATUTE-137.xml` (12 MB) holds 34 public laws and 183 proclamations;
@@ -11,7 +13,9 @@ the volume as printed has more laws. The report describes the file as fetched.
 
 | Volume | Laws | pl / pvtl / act | Units | Sections | Quoted sections skipped | Pages | Collisions (ADR-0003) | Source sha256 |
 |---|---|---|---|---|---|---|---|---|
+| 26 (1890) | 2,093 | 0 / 0 / 2093 | 3,461 | 3,459 | 44 | 3,165 | 0 demoted, 0 dropped | `901ba30a7986…` |
 | 64 (1950) | 1,230 | 457 / 722 / 51 | 3,240 | 3,063 | 358 | 2,604 | 46 demoted, 0 dropped | `af5a4384ba30…` |
+| 68 (1954) | 1,268 | 493 / 772 / 3 | 3,746 | 3,538 | 367 | 2,579 | 3 demoted, 1 dropped | `bff979fa9b33…` |
 | 72 (1958) | 1,061 | 618 / 443 / 0 | 4,145 | 3,852 | 871 | 2,787 | 0 demoted, 3 dropped | `e41347d1031e…` |
 | 124 (2010) | 251 | 249 / 2 / 0 | 4,748 | 4,077 | 591 | 4,463 | 0 demoted, 0 dropped | `021704863305…` |
 | 137 (2023) | 34 | 34 / 0 / 0 | 1,512 | 1,291 | 175 | 1,113 | 0 demoted, 0 dropped | `ef857f483fbf…` |

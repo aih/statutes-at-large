@@ -1,0 +1,113 @@
+{
+  "volume": 68,
+  "package": "STATUTE-68",
+  "source_file": "data/statute/xmls/STATUTE-68.xml",
+  "source_sha256": "bff979fa9b33282e2fae43a28687efdf33c9e13e6ae05746789f24ee4b3682a3",
+  "loaded_at": "2026-09-08T03:10:48.981926+00:00",
+  "seconds": 12.6,
+  "components": 1366,
+  "laws_loaded": 1268,
+  "laws_by_kind": {
+    "pl": 493,
+    "pvtl": 772,
+    "act": 3
+  },
+  "laws_replaced": 0,
+  "units": 3746,
+  "units_by_level": {
+    "section": 3538,
+    "chapter": 42,
+    "title": 142,
+    "subchapter": 12,
+    "part": 5,
+    "subtitle": 7
+  },
+  "sections": 3538,
+  "sections_in_quoted_content_skipped": 367,
+  "duplicate_section_identifiers": 4,
+  "aliases": 2531,
+  "aliases_dropped_as_taken": 2,
+  "stat_pages": 2579,
+  "number_conflicts": [
+    {
+      "seq": 501,
+      "action": "demote",
+      "claimed": "/us/pvtl/83/233",
+      "kept_as": "/us/act/1954-02-20/ch18",
+      "citation": "68 Stat. A4",
+      "title": "Private Law 233: For the relief of Clarence R. Seiler and other employees of The",
+      "reason": "law number 233 is also claimed by the law at seq 500, whose number fits the sequence"
+    },
+    {
+      "seq": 1142,
+      "action": "demote",
+      "claimed": "/us/pvtl/83/233",
+      "kept_as": "/us/act/1954-08-28/ch1061",
+      "citation": "68 Stat. A233",
+      "title": "Private Law 233: For the relief of Basilios Xarhoulacos.",
+      "reason": "law number 233 is also claimed by the law at seq 500, whose number fits the sequence"
+    },
+    {
+      "seq": 1233,
+      "action": "demote",
+      "claimed": "/us/pvtl/83/278",
+      "kept_as": "/us/act/1954-09-01/ch1219",
+      "citation": "68 Stat. A278",
+      "title": "Private Law 278: For the relief of Ursula Wilke and Mike Mario Wilke.",
+      "reason": "law number 278 is also claimed by the law at seq 546, whose number fits the sequence"
+    },
+    {
+      "seq": 1366,
+      "action": "drop",
+      "claimed": "/us/pl/83/591",
+      "kept_as": null,
+      "citation": "68 Stat. 3",
+      "title": "Public Law 591: To revise the internal revenue laws of the United States.",
+      "reason": "law number 591 is also claimed by the law at seq 303; no chapter form to store this one under"
+    }
+  ],
+  "numbers_out_of_sequence": [
+    {
+      "seq": 526,
+      "identifier": "/us/pvtl/83/258",
+      "citation": "68 Stat. A13",
+      "title": "Private Law 258: For the relief of Lina Anna Adelheid (Adam) Hoyer."
+    },
+    {
+      "seq": 527,
+      "identifier": "/us/pvtl/83/45",
+      "citation": "68 Stat. A13",
+      "title": "Private Law 45: For the relief of Hannelore Netz and her two children."
+    },
+    {
+      "seq": 1076,
+      "identifier": "/us/pvtl/83/3665",
+      "citation": "68 Stat. A208",
+      "title": "Private Law 3665: For the relief of Marko Ribic."
+    },
+    {
+      "seq": 1077,
+      "identifier": "/us/pvtl/83/809",
+      "citation": "68 Stat. A209",
+      "title": "Private Law 809: For the relief of Gilbert Elkanah Richards, Adelaide Gertrude R"
+    }
+  ],
+  "repeated_laws": [],
+  "skipped_components": {
+    "part preface": 2,
+    "concurrent resolution": 58,
+    "presidential document": 37,
+    "law number collision, dropped": 1
+  },
+  "merged_components": 0,
+  "unidentified": [],
+  "warnings": {
+    "occurs 2 times": 4,
+    "section without a number after the first; not addressable": 1,
+    "alias /us/act/1954-02-20/ch18 already names another law": 1,
+    "alias /us/act/1954-07-14/ch492 already names another law": 1
+  },
+  "identifier_rules": "rules-1.0",
+  "first_law": "/us/pl/83/289",
+  "last_law": "/us/pvtl/83/1002"
+}
