@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Verbatim slice of STATUTE-116.xml from the Hub dataset dreamproit/us-statutes-at-large: the volume meta and the laws numbered 259. Regenerate with scripts/extract_fixture.py. -->
+<statutesAtLarge xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/" xml:lang="en">
+<meta xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2023-11-14</processedDate>
+<congress>107</congress><session>2</session>
+<dc:date>2002</dc:date>
+<volume>116</volume>
+</meta>
+
+<main><collection role="statutesParts">
+<component role="statutesPart"><meta><docPart>1</docPart></meta>
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<pLaw>
+<meta>
+<dc:title>Public Law 107&#8211;259: To identify certain routes in the States of Texas, Oklahoma, Colorado, and New Mexico as part of the Ports-to-Plains Corridor, a high priority corridor on the National Highway System.</dc:title>
+<dc:type>Public Law</dc:type><docNumber>259</docNumber>
+<citableAs>Public Law 107&#8211;259</citableAs>
+<citableAs>116 STAT. 1741</citableAs> 
+<approvedDate>2002-10-29</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2023-12-31</processedDate>
+<congress>107</congress><publicPrivate>public</publicPrivate>
+</meta>
+<preface><page identifier="/us/stat/116/1741">116 STAT. 1741</page> 
+<dc:type>Public Law</dc:type><docNumber>107&#8211;259</docNumber>
+<congress value="107">107th Congress</congress>
+</preface>
+<main>
+<longTitle>
+<docTitle>An Act</docTitle>
+<officialTitle>To identify certain routes in the States of Texas, Oklahoma, Colorado, and New Mexico as part of the Ports-to-Plains Corridor, a high priority corridor on the National Highway System.</officialTitle>
+<sidenote><p class="centered fontsize8"><approvedDate date="2002-10-29">Oct. 29, 2002</approvedDate></p>
+<p class="centered fontsize8">[<ref href="/us/bill/107/s/1646">S. 1646</ref>]</p></sidenote></longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled,</i></enactingFormula>
+<section><num value="1">SECTION 1. </num><heading>IDENTIFICATION OF PORTS-TO-PLAINS HIGH PRIORITY CORRIDOR ROUTES.</heading>
+<chapeau>Section 1105(c)(38) of the Intermodal Surface Transportation Efficiency Act of 1991 (105 Stat. 2032; 114 Stat. 2763A-201) is amended&#8212;</chapeau>
+<paragraph class="indent1 fontsize10"><num value="1">(1) </num><content>in subparagraph (A), by redesignating clauses (i) through (viii) as subclauses (I) through (VIII), respectively;</content></paragraph>
+<paragraph class="indent1 fontsize10"><num value="2">(2) </num><content>by redesignating subparagraph (A) as clause (i);</content></paragraph>
+<paragraph class="indent1 fontsize10"><num value="3">(3) </num><content>by striking &#8220;<quotedText>(38) The</quotedText>&#8221; and inserting &#8220;<quotedText>(38)(A) The</quotedText>&#8221;;</content></paragraph>
+<paragraph class="indent1 fontsize10"><num value="4">(4) </num><chapeau>in subparagraph (A) (as designated by paragraph (3))&#8212;</chapeau>
+<subparagraph class="indent2 fontsize10"><num value="A">(A) </num><chapeau>in clause (i) (as redesignated by paragraph (2))&#8212;</chapeau>
+<clause class="indent3 fontsize10"><num value="i">(i) </num><content>in subclause (VII) (as redesignated by paragraph (1)), by striking &#8220;<quotedText>and</quotedText>&#8221; at the end;</content></clause>
+<clause class="indent3 fontsize10"><num value="ii">(ii) </num><content>in subclause (VIII) (as redesignated by paragraph (1)), by striking the period at the end and inserting &#8220;<quotedText>; and</quotedText>&#8221;; and</content></clause>
+<clause class="indent3 fontsize10"><num value="iii">(iii) </num><content>by adding at the end the following:
+<quotedContent><subclause class="indent0 fontsize10"><num value="IX">&#8220;(IX) </num><content>United States Route 287 from Dumas to the border between the States of Texas and Oklahoma, and also United States Route 87 from Dumas to the border between the States of Texas and New Mexico.&#8221;; and</content></subclause></quotedContent></content></clause></subparagraph>
+<subparagraph class="indent2 fontsize10"><num value="B">(B) </num><content>by adding at the end the following:
+<quotedContent><clause class="indent3 fontsize10"><num value="ii">&#8220;(ii) </num><content>In the State of Oklahoma, the Ports-to-Plains Corridor shall generally follow United States Route 287 from the border between the States of Texas and Oklahoma to the border between the States of Oklahoma and Colorado.</content></clause>
+<clause class="indent3 fontsize10"><num value="iii">&#8220;(iii) </num><chapeau>In the State of Colorado, the Ports-to-Plains Corridor shall generally follow&#8212;</chapeau>
+<subclause class="indent0 fontsize10"><num value="I">&#8220;(I) </num><content>United States Route 287 from the border between the States of Oklahoma and Colorado to Limon; and</content></subclause>
+<subclause class="indent0 fontsize10"><num value="II">&#8220;(II) </num><content>Interstate Route 70 from Limon to Denver.</content></subclause></clause>
+<clause class="indent3 fontsize10"><num value="iv">&#8220;(iv) </num><content>In the State of New Mexico, the Ports-to-Plains Corridor shall generally follow United States Route 87 from the border between the States of Texas and New Mexico to Raton.&#8221;; and</content></clause></quotedContent></content></subparagraph></paragraph>
+<page identifier="/us/stat/116/1742">116 STAT. 1742</page>
+<paragraph class="indent1 fontsize10"><num value="5">(5) </num><content>by striking &#8220;(B) The corridor designation contained in paragraph (A)&#8221; and inserting the following:
+<quotedContent><subclause class="indent0 fontsize10"><num value="B">&#8220;(B) </num><content>The corridor designation contained in subclauses (I) through (VIII) of subparagraph (A)(i)&#8221;</content></subclause></quotedContent></content></paragraph></section>
+<action>
+<actionDescription>Approved October 29, 2002.</actionDescription>
+</action>
+</main>
+<legislativeHistory>
+<heading><inline class="underline">LEGISLATIVE HISTORY</inline>&#8212;<ref href="/us/bill/107/s/1646">S. 1646</ref>:</heading>
+<note><headingText>SENATE REPORTS:</headingText> No. <ref href="/us/hrpt/107/165">107-165</ref> (<committee>Comm. on Environment and Public Works</committee>).</note>
+<note><heading>CONGRESSIONAL RECORD, Vol. 148 (2002):</heading>
+<p class="indent2 firstIndent-1">June 26, considered and passed Senate.</p>
+<p class="indent2 firstIndent-1">Oct. 16, considered and passed House.</p>
+</note>
+</legislativeHistory>
+</pLaw>
+<pLaw>
+<meta>
+<dc:title>Public Law 107&#8211;260: To amend the Public Health Service Act to provide for the collection of data on benign brain-related tumors through the national program of cancer registries.</dc:title>
+<dc:type>Public Law</dc:type><docNumber>260</docNumber>
+<citableAs>Public Law 107&#8211;260</citableAs>
+<citableAs>116 STAT. 1743</citableAs> 
+<approvedDate>2002-10-29</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2023-12-31</processedDate>
+<congress>107</congress><publicPrivate>public</publicPrivate>
+</meta>
+<preface><page identifier="/us/stat/116/1743">116 STAT. 1743</page> 
+<dc:type>Public Law</dc:type><docNumber>107&#8211;260</docNumber>
+<congress value="107">107th Congress</congress>
+</preface>
+<main>
+<longTitle>
+<docTitle>An Act</docTitle>
+<officialTitle>To amend the Public Health Service Act to provide for the collection of data on benign brain-related tumors through the national program of cancer registries.</officialTitle>
+<sidenote><p class="centered fontsize8"><approvedDate date="2002-10-29">Oct. 29, 2002</approvedDate></p>
+<p class="centered fontsize8">[<ref href="/us/bill/107/s/2558">S. 2558</ref>]</p></sidenote></longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled,</i></enactingFormula>
+<sidenote><p class="indent0 firstIndent0 fontsize8">Benign Brain Tumor Cancer Registries Amendment Act.</p></sidenote>
+<section><num value="1">SECTION 1. </num><heading>SHORT TITLE.</heading>
+<content>This Act may be cited as the &#8220;<shortTitle role="act">Benign Brain Tumor Cancer Registries Amendment Act</shortTitle>&#8221;.</content>
+<sidenote><p class="indent0 firstIndent0 fontsize8"><ref href="/us/usc/t42/s201">42 USC 201</ref> note.</p></sidenote></section>
+<section><num value="2">SEC. 2. </num><heading>NATIONAL PROGRAM OF CANCER REGISTRIES; BENIGN BRAIN-RELATED TUMORS AS ADDITIONAL CATEGORY OF DATA COLLECTED.</heading>
+<subsection class="indent0 firstIndent0 fontsize10"><num value="a">(a) </num><heading><inline class="smallCaps">In General.</inline>&#8212;</heading><chapeau>Section 399B of the Public Health Service Act (42 U.S.C. 280e), as redesignated by section 502(2)(A) of Public Law 106-310 (114 Stat. 1115), is amended in subsection (a)&#8212;</chapeau>
+<paragraph class="indent1 fontsize10"><num value="1">(1) </num><content>by redesignating paragraphs (1) through (5) as subparagraphs (A) through (E), respectively, and indenting appropriately;</content></paragraph>
+<paragraph class="indent1 fontsize10"><num value="2">(2) </num><content>by striking &#8220;<quotedText>(a) <inline class="smallCaps">In General.</inline>&#8212;The Secretary</quotedText>&#8221; and inserting the following:
+<quotedContent><subsection class="indent0 firstIndent0 fontsize10"><num value="a">&#8220;(a) </num><heading><inline class="smallCaps">In General.&#8212;</inline></heading>
+<paragraph class="indent1 fontsize10"><num value="1">&#8220;(1) </num><heading><inline class="smallCaps">Statewide cancer registries.</inline>&#8212;</heading><content>The Secretary&#8221;;</content></paragraph></subsection></quotedContent></content></paragraph>
+<paragraph class="indent1 fontsize10"><num value="3">(3) </num><content>in the matter preceding subparagraph (A) (as so redesignated), by striking &#8220;<quotedText>population-based</quotedText>&#8221; and all that follows through &#8220;<quotedText>data</quotedText>&#8221; and inserting the following: &#8220;<quotedText>population-based, statewide registries to collect, for each condition specified in paragraph (2)(A), data</quotedText>&#8221;; and</content></paragraph>
+<paragraph class="indent1 fontsize10"><num value="4">(4) </num><content>by adding at the end the following:
+<quotedContent>
+<paragraph class="indent1 fontsize10"><num value="2">&#8220;(2) </num><heading><inline class="smallCaps">Cancer; benign brain-related tumors.&#8212;</inline></heading>
+<subparagraph class="indent2 fontsize10"><num value="A">&#8220;(A) </num><heading><inline class="smallCaps">In general.</inline>&#8212;</heading><chapeau>For purposes of paragraph (1), the conditions referred to in this paragraph are the following:</chapeau>
+<clause class="indent3 fontsize10"><num value="i">&#8220;(i) </num><content>Each form of in-situ and invasive cancer (with the exception of basal cell and squamous cell carcinoma of the skin), including malignant brain-related tumors.</content></clause>
+<clause class="indent3 fontsize10"><num value="ii">&#8220;(ii) </num><content>Benign brain-related tumors.</content></clause></subparagraph>
+<subparagraph class="indent2 fontsize10"><num value="B">&#8220;(B) </num><heading><inline class="smallCaps">Brain-related tumor.</inline>&#8212;</heading><chapeau>For purposes of subparagraph (A):</chapeau>
+<clause class="indent3 fontsize10"><num value="i">&#8220;(i) </num><chapeau>The term &#8216;brain-related tumor&#8217; means a listed primary tumor (whether malignant or benign) occurring in any of the following sites:</chapeau>
+<subclause class="indent4 fontsize10"><num value="I">&#8220;(I) </num><content>The brain, meninges, spinal cord, cauda equina, a cranial nerve or nerves, or any other part of the central nervous system.</content></subclause>
+<page identifier="/us/stat/116/1744">116 STAT. 1744</page>
+<subclause class="indent4 fontsize10"><num value="II">&#8220;(II) </num><content>The pituitary gland, pineal gland, or craniopharyngeal duct.</content></subclause></clause>
+<clause class="indent3 fontsize10"><num value="ii">&#8220;(ii) </num><content>The term &#8216;listed&#8217;, with respect to a primary tumor, means a primary tumor that is listed in the International Classification of Diseases for Oncology (commonly referred to as the ICD-O).</content></clause>
+<clause class="indent3 fontsize10"><num value="iii">&#8220;(iii) </num><content>The term &#8216;International Classification of Diseases for Oncology&#8217; means a classification system that includes topography (site) information and histology (cell type information) developed by the World Health Organization, in collaboration with international centers, to promote international comparability in the collection, classification, processing, and presentation of cancer statistics. The ICD-0 system is a supplement to the International Statistical Classification of Diseases and Related Health Problems (commonly known as the ICD) and is the standard coding system used by cancer registries worldwide. Such term includes any modification made to such system for purposes of the United States. Such term further includes any published classification system that is internationally recognized as a successor to the classification system referred to in the first sentence of this clause.</content></clause></subparagraph>
+<subparagraph class="indent2 fontsize10"><num value="C">&#8220;(C) </num><heading><inline class="smallCaps">Statewide cancer registry.</inline>&#8212;</heading><content>References in this section to cancer registries shall be considered to be references to registries described in this subsection.&#8221;.</content></subparagraph></paragraph></quotedContent></content></paragraph></subsection>
+<subsection class="indent0 firstIndent0 fontsize10"><num value="b">(b) </num><heading><inline class="smallCaps">Applicability.</inline>&#8212;</heading>
+<sidenote><p class="indent0 firstIndent0 fontsize8">Grants.</p>
+<p class="indent0 firstIndent0 fontsize8"><ref href="/us/usc/t42/s280e">42 USC 280e</ref> note.</p>
+</sidenote>
+<content>The amendments made by subsection (a) apply to grants under section 399B of the Public Health Service Act for fiscal year 2002 and subsequent fiscal years, except that, in the case of a State that received such a grant for fiscal year 2000, the Secretary of Health and Human Services may delay the applicability of such amendments to the State for not more than 12 months if the Secretary determines that compliance with such amendments requires the enactment of a statute by the State or the issuance of State regulations.</content></subsection></section>
+<action>
+<actionDescription>Approved October 29, 2002.</actionDescription>
+</action>
+</main>
+<legislativeHistory>
+<heading><inline class="underline">LEGISLATIVE HISTORY&#8212;</inline><ref href="/us/bill/107/s/2558">S. 2558</ref>:</heading>
+<note><heading>CONGRESSIONAL RECORD, Vol. 148 (2002):</heading>
+<p class="indent2 firstIndent-1">Aug. 1, considered and passed Senate.</p>
+<p class="indent2 firstIndent-1">Oct. 10, considered and passed House.</p>
+</note>
+</legislativeHistory>
+</pLaw>
+<pLaw>
+<meta>
+<dc:title>Public Law 107&#8211;261: To designate the facility of the United States Postal Service located at 127 Social Street in Woonsocket, Rhode Island, as the &#8220;Alphonse F. Auclair Post Office Building&#8221;.</dc:title>
+<dc:type>Public Law</dc:type><docNumber>261</docNumber>
+<citableAs>Public Law 107&#8211;261</citableAs>
+<citableAs>116 STAT. 1745</citableAs> 
+<approvedDate>2002-10-30</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2023-12-31</processedDate>
+<congress>107</congress><publicPrivate>public</publicPrivate>
+</meta>
+<preface><page identifier="/us/stat/116/1745">116 STAT. 1745</page> 
+<dc:type>Public Law</dc:type><docNumber>107&#8211;261</docNumber>
+<congress value="107">107th Congress</congress>
+</preface>
+<main>
+<longTitle>
+<docTitle>An Act</docTitle>
+<officialTitle>To designate the facility of the United States Postal Service located at 127 Social Street in Woonsocket, Rhode Island, as the &#8220;Alphonse F. Auclair Post Office Building&#8221;.</officialTitle>
+<sidenote><p class="centered fontsize8"><approvedDate date="2002-10-30">Oct. 30, 2002</approvedDate></p>
+<p class="centered fontsize8">[<ref href="/us/bill/107/hr/669">H.R. 669</ref>]</p></sidenote></longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled,</i></enactingFormula>
+<section><num value="1">SECTION 1. </num><heading>DESIGNATION.</heading><content>The facility of the United States Postal Service located at 127 Social Street in Woonsocket, Rhode Island, shall be known and designated as the &#8220;<quotedText>Alphonse F. Auclair Post Office Building</quotedText>&#8221;.</content></section>
+<section><num value="2">SEC. 2. </num><heading>REFERENCES.</heading>
+<content>Any reference in a law, map, regulation, document, paper, or other record of the United States to the facility referred to in section 1 shall be deemed to be a reference to the &#8220;<quotedText>Alphonse F. Auclair Post Office Building</quotedText>&#8221;.</content></section>
+<action>
+<actionDescription>Approved October 30, 2002.</actionDescription>
+</action>
+</main>
+<legislativeHistory>
+<heading><inline class="underline">LEGISLATIVE HISTORY&#8212;</inline><ref href="/us/bill/107/hr/669">H.R. 669</ref>:</heading>
+<note><heading>CONGRESSIONAL RECORD, Vol. 148 (2002):</heading>
+<p class="indent2 firstIndent-1">Oct. 10, considered and passed House.</p>
+<p class="indent2 firstIndent-1">Oct. 17, considered and passed Senate.</p>
+</note>
+</legislativeHistory>
+</pLaw>
+</component>
+
+</component>
+</collection></main>
+</statutesAtLarge>

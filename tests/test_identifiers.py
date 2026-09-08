@@ -115,3 +115,14 @@ def test_law_labels():
     assert law_label("pl", 83, 703, 1073, datetime.date(1954, 8, 30)) == "Public Law 83-703"
     assert law_label("pvtl", 81, 375, 29, None) == "Private Law 81-375"
     assert law_label("act", 51, None, 647, datetime.date(1890, 7, 2)) == "Act of July 2, 1890, ch. 647"
+
+
+def test_roman_chapter_numbers_of_the_first_volumes():
+    from ingest.identifiers import parse_doc_number, roman_to_int
+
+    assert roman_to_int("CXLVII") == 147 and roman_to_int("IV") == 4 and roman_to_int("x") == 10
+    assert roman_to_int("12") is None and roman_to_int("") is None
+    assert parse_doc_number("I") == 1 and parse_doc_number("3]") == 3 and parse_doc_number("[CHAPTER 5") == 5
+    identity = identify_law(congress=1, doc_type="Chapter", doc_number="I", public_private="public",
+                            enacted=datetime.date(1789, 6, 1))
+    assert identity.primary == "/us/act/1789-06-01/ch1"

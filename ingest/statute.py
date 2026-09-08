@@ -122,6 +122,8 @@ class VolumeParse:
     laws: list[LawRecord] = field(default_factory=list)
     skipped: list[SkippedComponent] = field(default_factory=list)
     sections_in_quoted_content: int = 0
+    merged_components: int = 0
+    """Components holding more than one `pLaw` (vol 116 packs 47 laws into one)."""
 
     @property
     def skipped_by_reason(self) -> dict[str, int]:
@@ -163,12 +165,14 @@ def iter_claims(path: Path) -> Iterator["Claim"]:
         if element.get("role") is not None:
             element.clear()
             continue
-        seq += 1
         try:
-            found = _identity_of(element)
-            if found is not None:
-                identity, meta, root = found
-                citation, _first, _last = _pages_of(meta, element, volume)
+            for plaw in _plaws(element):
+                seq += 1
+                found = _identity_of(plaw)
+                if found is None:
+                    continue
+                identity, meta = found
+                citation, _first, _last = _pages_of(meta, plaw, volume)
                 title = meta.findtext(f"{DC}title")
                 yield Claim(
                     seq=seq,
@@ -179,6 +183,8 @@ def iter_claims(path: Path) -> Iterator["Claim"]:
                     citation=citation,
                     title=" ".join(title.split())[:80] if title else None,
                 )
+            if not _plaws(element):
+                seq += 1
         finally:
             element.clear()
             parent = element.getparent()
@@ -231,30 +237,52 @@ def iter_volume(path: Path, plan: "NumberingPlan | None" = None) -> Iterator[Vol
             # ended. Drop what is left of it.
             element.clear()
             continue
-        seq += 1
         header.components += 1
         try:
-            law, quoted, skipped = _parse_component(element, header.volume, header.package, seq, plan)
+            plaws = _plaws(element)
+            if not plaws:
+                seq += 1
+                header.skipped.append(_skipped_component(element, seq))
+                continue
+            if len(plaws) > 1:
+                header.merged_components += 1
+            for plaw in plaws:
+                seq += 1
+                law, quoted, skipped = _parse_law(plaw, header.volume, header.package, seq, plan)
+                header.sections_in_quoted_content += quoted
+                if skipped is not None:
+                    header.skipped.append(skipped)
+                if law is not None:
+                    yield law
         finally:
             element.clear()
             parent = element.getparent()
             if parent is not None:
                 while element.getprevious() is not None:
                     del parent[0]
-        header.sections_in_quoted_content += quoted
-        if skipped is not None:
-            header.skipped.append(skipped)
-        if law is not None:
-            yield law
 
 
-def _identity_of(component: etree._Element):
-    """(LawIdentity, meta, root) for a `pLaw` component, else None."""
+def _plaws(component: etree._Element) -> list[etree._Element]:
+    """Every `pLaw` directly under a component. Usually one; some born-digital
+    volumes pack a run of consecutive laws into one component."""
+    return [c for c in component if isinstance(c.tag, str) and local_name(c) == "pLaw"]
+
+
+def _skipped_component(component: etree._Element, seq: int) -> SkippedComponent:
     children = [c for c in component if isinstance(c.tag, str)]
-    root = children[0] if children else None
-    root_name = local_name(root) if root is not None else None
+    root_name = local_name(children[0]) if children else None
     meta = component.find(f".//{N}meta")
-    if root_name != "pLaw" or meta is None:
+    doc_type = meta.findtext(f"{DC}type") if meta is not None else None
+    doc_number = meta.findtext(f"{N}docNumber") if meta is not None else None
+    reason = {"resolution": "concurrent resolution", "presidentialDoc": "presidential document",
+              "preface": "part preface"}.get(root_name or "", f"unhandled root {root_name}")
+    return SkippedComponent(seq, root_name, doc_type, doc_number, reason)
+
+
+def _identity_of(plaw: etree._Element):
+    """(LawIdentity, meta) for a `pLaw` element, else None."""
+    meta = plaw.find(f"{N}meta")
+    if meta is None:
         return None
     doc_type = meta.findtext(f"{DC}type")
     doc_number = meta.findtext(f"{N}docNumber")
@@ -262,10 +290,10 @@ def _identity_of(component: etree._Element):
     public_private = (meta.findtext(f"{N}publicPrivate") or "").strip().lower() or None
     enacted = _date(meta.findtext(f"{N}approvedDate"))
     if enacted is None:
-        approved = root.find(f".//{N}approvedDate")
+        approved = plaw.find(f".//{N}approvedDate")
         if approved is not None:
             enacted = _date(approved.get("date"))
-    long_title = root.find(f".//{N}longTitle")
+    long_title = plaw.find(f".//{N}longTitle")
     # The law number is read from the marginal note beside the long title,
     # never from the title itself: "To extend the Rubber Act of 1948 (Public
     # Law 469, Eightieth Congress)" names another law.
@@ -283,43 +311,36 @@ def _identity_of(component: etree._Element):
     )
     if identity is None:
         return None
-    return identity, meta, root
+    return identity, meta
 
 
-def _parse_component(
-    component: etree._Element, volume: int, package: str, seq: int, plan: "NumberingPlan | None" = None
+def _parse_law(
+    root: etree._Element, volume: int, package: str, seq: int, plan: "NumberingPlan | None" = None
 ) -> tuple[LawRecord | None, int, SkippedComponent | None]:
-    children = [c for c in component if isinstance(c.tag, str)]
-    root = children[0] if children else None
-    root_name = local_name(root) if root is not None else None
-    meta = component.find(f".//{N}meta")
+    """One `pLaw` element → a LawRecord, or a SkippedComponent saying why not."""
+    meta = root.find(f"{N}meta")
     doc_type = meta.findtext(f"{DC}type") if meta is not None else None
     doc_number = meta.findtext(f"{N}docNumber") if meta is not None else None
-    if root_name != "pLaw" or meta is None:
-        reason = {"resolution": "concurrent resolution", "presidentialDoc": "presidential document",
-                  "preface": "part preface"}.get(root_name or "", f"unhandled root {root_name}")
-        return None, 0, SkippedComponent(seq, root_name, doc_type, doc_number, reason)
-
+    found = _identity_of(root)
+    if found is None:
+        return None, 0, SkippedComponent(seq, "pLaw", doc_type, doc_number, "unidentified law")
+    identity, meta = found
     congress = _int(meta.findtext(f"{N}congress"))
     enacted = _date(meta.findtext(f"{N}approvedDate"))
     if enacted is None:
         approved = root.find(f".//{N}approvedDate")
         if approved is not None:
             enacted = _date(approved.get("date"))
-
     long_title = root.find(f".//{N}longTitle")
-    found = _identity_of(component)
-    if found is None:
-        return None, 0, SkippedComponent(seq, root_name, doc_type, doc_number, "unidentified law")
-    identity = found[0]
     decision = plan.action_for(seq) if plan is not None else None
     if decision is not None:
         if decision.action == "drop" or decision.kept_as is None:
-            return None, 0, SkippedComponent(seq, root_name, doc_type, doc_number, "law number collision, dropped")
+            return None, 0, SkippedComponent(seq, "pLaw", doc_type, doc_number, "law number collision, dropped")
         from ingest.identifiers import LawIdentity
 
         identity = LawIdentity(kind="act", number=None, chapter=identity.chapter, primary=decision.kept_as, aliases=(decision.kept_as,))
 
+    component = root
     warnings: list[str] = []
     citation, first_page, last_page = _pages_of(meta, component, volume)
     official_title = None

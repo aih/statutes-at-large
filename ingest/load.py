@@ -55,7 +55,12 @@ class VolumeLoadReport:
     """Laws whose law number is also claimed by another law of the volume
     (`ingest/numbering.py`): stored under the chapter form, or dropped."""
     numbers_out_of_sequence: list[dict] = field(default_factory=list)
+    repeated_laws: list[dict] = field(default_factory=list)
+    """Laws whose primary identifier an earlier law of the same volume already
+    took after numbering: the same act printed twice. The first is stored."""
     skipped_components: dict[str, int] = field(default_factory=dict)
+    merged_components: int = 0
+    """Components that held more than one law."""
     unidentified: list[dict] = field(default_factory=list)
     warnings: dict[str, int] = field(default_factory=dict)
     identifier_rules: str = IDENTIFIER_RULES_VERSION
@@ -102,7 +107,9 @@ def load_volume(session: Session, path: Path, *, record_check: bool = True) -> V
         assert header is not None and report is not None
         law: LawRecord = item
         if law.identifier in seen_primaries:
-            report.unidentified.append({"seq": law.seq_in_volume, "reason": "primary identifier repeated after numbering", "identifier": law.identifier, "citation": law.citation})
+            # The same act printed twice in the volume file (vol 12 repeats 19
+            # private acts); the first printing is the one stored.
+            report.repeated_laws.append({"seq": law.seq_in_volume, "identifier": law.identifier, "citation": law.citation})
             continue
         seen_primaries.add(law.identifier)
         replaced, alias_count, dropped = _write_law(session, law, now)
@@ -135,6 +142,7 @@ def load_volume(session: Session, path: Path, *, record_check: bool = True) -> V
     report.units_by_level = dict(levels)
     report.sections_in_quoted_content_skipped = header.sections_in_quoted_content
     report.skipped_components = header.skipped_by_reason
+    report.merged_components = header.merged_components
     report.unidentified.extend(
         {"seq": s.seq, "doc_type": s.doc_type, "doc_number": s.doc_number}
         for s in header.skipped

@@ -54,6 +54,10 @@ copied from `../uscode-redesign` (its CLAUDE.md is the fuller reference).
    Security Act has one file per title); the section identifiers disambiguate.
 9. **The Hub's `STATUTE-137.xml` holds 34 public laws** (12 MB). The loader loads
    what the file holds.
+11. **One `component` can hold many `pLaw` elements** (vol 116 packs 47 consecutive
+    laws into one). Every `pLaw` is a law; `merged_components` counts them.
+12. **The first volumes print chapter numbers in Roman numerals** (`docNumber` `I`,
+    `CXLVII`); `parse_doc_number` reads both.
 10. **Host ports are 5434 and 8010.** 5432, 5433 and 8000 belong to sibling
     projects on the same machine.
 

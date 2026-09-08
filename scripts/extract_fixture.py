@@ -19,7 +19,9 @@ NS = "http://schemas.gpo.gov/xml/uslm"
 N = f"{{{NS}}}"
 
 
-def main(source: Path, target: Path, wanted: list[str]) -> None:
+def main(source: Path, target: Path, wanted: list[str], *, plaws: int | None = None) -> None:
+    """`plaws` keeps only the first N `pLaw` children of each kept component
+    (vol 116 packs 47 laws into one component; three show the shape)."""
     wanted_set = set(wanted)
     kept: list[bytes] = []
     volume_meta: bytes | None = None
@@ -37,6 +39,9 @@ def main(source: Path, target: Path, wanted: list[str]) -> None:
         children = [c for c in element if isinstance(c.tag, str)]
         root = etree.QName(children[0]).localname if children else None
         if root == "pLaw" and number in wanted_set:
+            if plaws is not None:
+                for extra in [c for c in children if etree.QName(c).localname == "pLaw"][plaws:]:
+                    element.remove(extra)
             kept.append(etree.tostring(element))
             wanted_set.discard(number)
         element.clear()
@@ -61,4 +66,10 @@ def main(source: Path, target: Path, wanted: list[str]) -> None:
 
 
 if __name__ == "__main__":
-    main(Path(sys.argv[1]), Path(sys.argv[2]), sys.argv[3:])
+    args = sys.argv[1:]
+    plaws = None
+    if "--plaws" in args:
+        index = args.index("--plaws")
+        plaws = int(args[index + 1])
+        del args[index : index + 2]
+    main(Path(args[0]), Path(args[1]), args[2:], plaws=plaws)

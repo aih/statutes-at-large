@@ -40,6 +40,7 @@ fixtures:
 	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-72.xml tests/fixtures/statute-72-slice.xml 317 322 457 741 829 910
 	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-124.xml tests/fixtures/statute-124-slice.xml 2 177 230 344
 	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-137.xml tests/fixtures/statute-137-slice.xml 22 34
+	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-116.xml tests/fixtures/statute-116-slice.xml 259 --plaws 3
 	uv run python scripts/extract_comp_fixture.py data/comps/COMPS-1630.xml tests/fixtures/comps/COMPS-1630-slice.xml 8
 	uv run python scripts/extract_comp_fixture.py data/comps/COMPS-8755.xml tests/fixtures/comps/COMPS-8755-slice.xml 3
 	uv run python scripts/extract_comp_fixture.py data/comps/COMPS-973.xml tests/fixtures/comps/COMPS-973-slice.xml 4

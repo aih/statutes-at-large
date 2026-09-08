@@ -161,10 +161,20 @@ def test_unit_xml_is_the_section_alone_and_hashes_are_stable(vol137):
     assert by_id(again, "/us/pl/118/34").units[0].content_hash == s1.content_hash
 
 
+def test_a_component_holding_several_laws_yields_each():
+    """Volume 116 packs 47 consecutive laws into one `component`; the slice keeps
+    three of them."""
+    parsed = parse_volume(FIXTURES / "statute-116-slice.xml")
+    assert parsed.components == 1 and parsed.merged_components == 1
+    assert [law.identifier for law in parsed.laws] == ["/us/pl/107/259", "/us/pl/107/260", "/us/pl/107/261"]
+    assert [law.citation for law in parsed.laws] == ["116 Stat. 1741", "116 Stat. 1743", "116 Stat. 1745"]
+    assert all(law.units[0].identifier == f"{law.identifier}/s1" for law in parsed.laws)
+
+
 @pytest.mark.slow
 @pytest.mark.parametrize(
     ("volume", "laws", "sections", "skipped_quoted"),
-    [(64, 1230, 3063, 358), (72, 1061, 3852, 871), (124, 251, 4077, 591), (137, 34, 1291, 175)],
+    [(64, 1230, 3063, 358), (72, 1061, 3852, 871), (116, 246, 3918, 569), (124, 251, 4077, 591), (137, 34, 1291, 175)],
 )
 def test_full_volume_counts(volume, laws, sections, skipped_quoted):
     """The counts in docs/verification/statute-{n}.json, re-derived from the

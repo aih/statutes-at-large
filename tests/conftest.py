@@ -24,6 +24,7 @@ COMPS_FIXTURES = FIXTURES / "comps"
 STATUTE_SLICES = [
     FIXTURES / "statute-64-slice.xml",
     FIXTURES / "statute-72-slice.xml",
+    FIXTURES / "statute-116-slice.xml",
     FIXTURES / "statute-124-slice.xml",
     FIXTURES / "statute-137-slice.xml",
 ]

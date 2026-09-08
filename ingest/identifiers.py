@@ -154,11 +154,37 @@ def identify_law(
     )
 
 
-def _int(value: str | None) -> int | None:
+_ROMAN = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
+
+
+def roman_to_int(text: str) -> int | None:
+    """`CXLVII` → 147. None for anything that is not a Roman numeral."""
+    letters = text.strip().upper().rstrip(".")
+    if not letters or any(ch not in _ROMAN for ch in letters):
+        return None
+    total = 0
+    for index, ch in enumerate(letters):
+        value = _ROMAN[ch]
+        if index + 1 < len(letters) and _ROMAN[letters[index + 1]] > value:
+            total -= value
+        else:
+            total += value
+    return total
+
+
+def parse_doc_number(value: str | None) -> int | None:
+    """`3`, `[3]`, `CXLVII` (the first volumes print chapter numbers in Roman
+    numerals) → an integer; None when nothing numeric is there."""
     if value is None:
         return None
-    digits = re.sub(r"[^\d]", "", value)
-    return int(digits) if digits else None
+    text = value.strip().strip("[]").strip()
+    digits = re.sub(r"[^\d]", "", text)
+    if digits:
+        return int(digits)
+    return roman_to_int(text)
+
+
+_int = parse_doc_number
 
 
 _SECTION_WORDS = re.compile(r"^(?:sec(?:tion)?s?\.?|§+)\s*", re.IGNORECASE)

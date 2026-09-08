@@ -100,8 +100,8 @@ def test_labels(repo):
 
 def test_status(repo):
     status = repo.collection_status("STATUTE")
-    assert status.volumes == (64, 72, 124, 137)
-    assert status.laws == 22 and status.latest_package == "STATUTE-137"
+    assert status.volumes == (64, 72, 116, 124, 137)
+    assert status.laws == 25 and status.latest_package == "STATUTE-137"
     check = repo.last_source_check("STATUTE")
     assert check.ok and check.newest_package == "STATUTE-137" and not check.is_stale()
     assert repo.last_source_check("PLAW") is None
