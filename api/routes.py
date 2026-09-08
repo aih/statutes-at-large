@@ -298,8 +298,10 @@ def labels_by_query(
 @api.get("/status", response_model=StatusOut, summary="What is loaded, and when the sources were last polled")
 def status(repository: RepositoryDep) -> StatusOut:
     """Per collection (`STATUTE`, `COMPS`, `PLAW`): packages loaded, the newest
-    one, and the counts; and the last poll of its source. `stale` is true when
-    a collection with packages has no recorded check or one older than a week
+    one, and the counts; and the last poll of its source. The `PLAW` block
+    also carries `congresses` and `laws_by_congress` (one package per law;
+    `volumes` is the volumes its laws print in). `stale` is true when a
+    collection with packages has no recorded check or one older than a week
     (`storage.SOURCE_CHECK_STALE_AFTER`). `citations` is the citation index
     and `classifications` the classification tables mirror, each with its
     last run; `stale` does not read them."""
@@ -330,13 +332,18 @@ def status(repository: RepositoryDep) -> StatusOut:
     summary="A public law's summary",
 )
 def law_summary(congress: int, number: int, repository: RepositoryDep) -> LawSummaryOut:
-    """Titles, dates, citation, the table of contents with identifiers, and the
-    compilations loaded for the law."""
+    """Titles, dates, citation, the table of contents with identifiers, the
+    compilations loaded for the law, and `sources`: the collection the law is
+    served from (`STATUTE` or `PLAW`), whether the volume file is loaded, and
+    the law's `PLAW` package with its GovInfo link."""
     identifier = f"/us/pl/{congress}/{number}"
     summary = repository.get_law(identifier)
     if summary is None:
         raise HTTPException(status_code=404, detail=not_found(identifier))
-    return LawSummaryOut.of(summary, repository.compilations_for_law(summary.law.identifier))
+    law_identifier = summary.law.identifier
+    return LawSummaryOut.of(
+        summary, repository.compilations_for_law(law_identifier), repository.law_sources(law_identifier)
+    )
 
 
 @api.get(

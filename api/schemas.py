@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 
 from api.currency import Amended, Candidate
 from storage import (
+    GOVINFO_PLAW_LINK,
     CitationIndexStatus,
     CitedBy,
     CitingSection,
@@ -25,6 +26,7 @@ from storage import (
     CompRef,
     LabelInfo,
     LawRef,
+    LawSources,
     LawSummary,
     PageRef,
     Provision,
@@ -44,9 +46,11 @@ class ErrorOut(BaseModel):
 
 
 class LawSourceOut(BaseModel):
-    collection: str = Field(examples=["STATUTE"])
-    package: str = Field(examples=["STATUTE-64"])
-    granule: str | None = Field(default=None, examples=["STATUTE-64-Pg563"])
+    """The GovInfo package the stored copy of the law came from."""
+
+    collection: str = Field(description="`STATUTE` | `PLAW`.", examples=["STATUTE", "PLAW"])
+    package: str = Field(examples=["STATUTE-64", "PLAW-118publ22"])
+    granule: str | None = Field(default=None, description="Null for a PLAW package.", examples=["STATUTE-64-Pg563"])
 
 
 class LawOut(BaseModel):
@@ -155,8 +159,12 @@ class AlternativeOut(BaseModel):
 
 
 class ProvenanceOut(BaseModel):
-    text: str = Field(description="`gpo-uslm`: the text is GovInfo's volume USLM.")
-    identifiers: str = Field(description="The identifier rule set that stamped the XML, `rules-1.0`.")
+    text: str = Field(description="`gpo-uslm`: the text is GovInfo's USLM, from the volume file or the PLAW file.")
+    identifiers: str = Field(
+        description="Where the identifiers in the XML came from. `rules-1.0`: assigned by the volume loader "
+        "(`ingest/identifiers.py`). `gpo-uslm`: read from a PLAW file. `gpo-uslm+rules-1.0`: a PLAW file with "
+        "some levels filled in by rule where GPO wrote no identifier."
+    )
     sha256: str = Field(description="The content hash of the served unit.")
 
 
@@ -310,19 +318,91 @@ class CompilationOut(BaseModel):
         )
 
 
+class VolumeSourceOut(BaseModel):
+    """The Statutes at Large volume that prints the law."""
+
+    package: str = Field(examples=["STATUTE-137"])
+    loaded: bool = Field(description="The volume file has been loaded, whether or not the law is served from it.")
+    govinfo: str | None = Field(
+        description="The GovInfo link to the law's first page; null when no page is recorded.",
+        examples=["https://www.govinfo.gov/link/statute/137/112"],
+    )
+
+
+class PlawSourceOut(BaseModel):
+    """The law's `PLAW` package on GovInfo (the 104th Congress onward)."""
+
+    package: str | None = Field(
+        description="`PLAW-118publ22`; null for a law before the 104th Congress.", examples=["PLAW-118publ22"]
+    )
+    uslm: bool = Field(description="GovInfo has USLM for the package: a public law of the 113th Congress onward.")
+    loaded: bool = Field(description="The law is served from this package.")
+    govinfo: str | None = Field(
+        description="The GovInfo link to the package; null when there is none.",
+        examples=["https://www.govinfo.gov/link/plaw/118/public/22"],
+    )
+
+
+class LawSourcesOut(BaseModel):
+    """Which collections hold the law and which one it is served from."""
+
+    served_from: str = Field(description="`STATUTE` | `PLAW`.", examples=["PLAW"])
+    package: str = Field(description="The package the served copy came from.", examples=["PLAW-118publ22"])
+    identifiers: str = Field(description="The served copy's `provenance.identifiers` value.", examples=["gpo-uslm"])
+    volume: VolumeSourceOut
+    plaw: PlawSourceOut
+
+    @classmethod
+    def of(cls, sources: LawSources | None, law: LawRef) -> LawSourcesOut:
+        """From `Repository.law_sources`; from the law alone when the store returned none."""
+        if sources is None:
+            return cls(
+                served_from=law.source_collection,
+                package=law.source_package,
+                identifiers=law.provenance_identifiers,
+                volume=VolumeSourceOut(
+                    package=f"STATUTE-{law.stat_volume}",
+                    loaded=law.source_collection == "STATUTE",
+                    govinfo=law.govinfo_pdf,
+                ),
+                plaw=PlawSourceOut(package=None, uslm=False, loaded=law.source_collection == "PLAW", govinfo=None),
+            )
+        plaw_link = None
+        if sources.plaw_package is not None and law.congress is not None and law.number is not None:
+            plaw_link = GOVINFO_PLAW_LINK.format(
+                congress=law.congress, kind="public" if law.kind == "pl" else "private", number=law.number
+            )
+        return cls(
+            served_from=sources.served_from,
+            package=sources.package,
+            identifiers=sources.provenance_identifiers,
+            volume=VolumeSourceOut(
+                package=sources.volume_package, loaded=sources.volume_loaded, govinfo=law.govinfo_pdf
+            ),
+            plaw=PlawSourceOut(
+                package=sources.plaw_package,
+                uslm=sources.plaw_uslm,
+                loaded=sources.served_from == "PLAW",
+                govinfo=plaw_link,
+            ),
+        )
+
+
 class LawSummaryOut(BaseModel):
     law: LawOut
     toc: list[TocEntryOut] = Field(description="Every unit of the law in reading order.")
     section_count: int
     compilations: list[CompilationOut] = Field(default_factory=list)
+    sources: LawSourcesOut
 
     @classmethod
-    def of(cls, summary: LawSummary, compilations: list[CompRef]) -> LawSummaryOut:
+    def of(cls, summary: LawSummary, compilations: list[CompRef], sources: LawSources | None) -> LawSummaryOut:
         return cls(
             law=LawOut.of(summary.law),
             toc=[TocEntryOut.of(u) for u in summary.toc],
             section_count=summary.section_count,
             compilations=[CompilationOut.of(c) for c in compilations],
+            sources=LawSourcesOut.of(sources, summary.law),
         )
 
 
@@ -430,7 +510,18 @@ class CollectionStatusOut(BaseModel):
     latest_loaded_at: datetime.datetime | None
     laws: int
     units: int
-    volumes: list[int] = Field(default_factory=list, description="Statutes at Large volumes loaded (STATUTE only).")
+    volumes: list[int] = Field(
+        default_factory=list,
+        description="Statutes at Large volumes: the ones loaded for `STATUTE`, the ones the laws print in for `PLAW`.",
+    )
+    congresses: list[int] = Field(
+        default_factory=list, description="`PLAW` only: the congresses with laws loaded, ascending. Empty otherwise."
+    )
+    laws_by_congress: dict[int, int] = Field(
+        default_factory=dict,
+        description="`PLAW` only: laws loaded per congress, keyed by congress number (a string key on the wire, "
+        "`{\"118\": 274}`). Empty otherwise.",
+    )
 
     @classmethod
     def of(cls, status: CollectionStatus) -> CollectionStatusOut:
@@ -441,6 +532,8 @@ class CollectionStatusOut(BaseModel):
             laws=status.laws,
             units=status.units,
             volumes=list(status.volumes),
+            congresses=list(status.congresses),
+            laws_by_congress={congress: laws for congress, laws in status.laws_by_congress},
         )
 
 
