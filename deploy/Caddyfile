@@ -1,6 +1,6 @@
-# One origin, two surfaces (the US Code site's ADR-0010 shape). The reader at
-# /app is stage 5 of the design; until it exists the proxy answers 503 there,
-# and the citation URL still redirects browsers to it.
+# One origin, two surfaces (the US Code site's ADR-0010 shape): /app is the
+# reader (Astro SSR on Node, frontend:4321) and everything else is FastAPI.
+# The citation URL at /us/… redirects browsers to /app and programs to /api/v1.
 {
 	servers {
 		trusted_proxies static private_ranges
@@ -18,8 +18,16 @@
 			ROBOTS 200
 	}
 
+	# The reader. The same X-Forwarded-For overwrite as the API block, so a
+	# limiter in front of the reader keys on the real peer.
 	handle /app* {
-		respond "The reader is not built yet. The API is at /api/v1." 503
+		reverse_proxy frontend:4321 {
+			header_up X-Forwarded-For {remote_host}
+			transport http {
+				dial_timeout 5s
+				response_header_timeout 30s
+			}
+		}
 	}
 
 	# Everything else is FastAPI: /api/v1, the citation redirector at /us/…,

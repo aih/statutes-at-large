@@ -1,0 +1,24 @@
+---
+/** The site name, two links, and the citation box. */
+import CiteBox from "./CiteBox.astro";
+import { APP, uscodeHref } from "../lib/url";
+
+interface Props {
+  query?: string | null;
+}
+
+const { query = null } = Astro.props;
+---
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="site-header__brand" href={`${APP}/`}>Statutes at Large</a>
+    <nav aria-label="Site">
+      <ul class="site-nav">
+        <li><a href="/docs">API docs</a></li>
+        <li><a href={uscodeHref("/")}>US Code</a></li>
+      </ul>
+    </nav>
+    <CiteBox query={query} />
+  </div>
+</header>

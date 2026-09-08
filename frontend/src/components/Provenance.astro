@@ -1,0 +1,15 @@
+---
+/** `provenance`: the text's source, the identifiers' source, the content hash. */
+import type { Provenance } from "../lib/types";
+
+interface Props {
+  provenance: Provenance;
+}
+
+const { provenance } = Astro.props;
+---
+
+<p class="doc-meta">
+  Provenance: text <code>{provenance.text}</code>, identifiers <code>{provenance.identifiers}</code>, sha256{" "}
+  <code>{provenance.sha256}</code>
+</p>

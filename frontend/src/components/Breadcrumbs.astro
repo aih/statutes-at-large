@@ -1,0 +1,32 @@
+---
+/** USWDS breadcrumbs; the page itself is the last, unlinked item. */
+import type { Link } from "../lib/types";
+
+interface Props {
+  crumbs: Link[];
+  current?: string | null;
+}
+
+const { crumbs, current = null } = Astro.props;
+---
+
+{
+  (crumbs.length > 0 || current) && (
+    <nav class="usa-breadcrumb usa-breadcrumb--wrap" aria-label="Breadcrumbs">
+      <ol class="usa-breadcrumb__list">
+        {crumbs.map((crumb) => (
+          <li class="usa-breadcrumb__list-item">
+            <a class="usa-breadcrumb__link" href={crumb.href}>
+              <span>{crumb.label}</span>
+            </a>
+          </li>
+        ))}
+        {current && (
+          <li class="usa-breadcrumb__list-item usa-current" aria-current="page">
+            <span>{current}</span>
+          </li>
+        )}
+      </ol>
+    </nav>
+  )
+}

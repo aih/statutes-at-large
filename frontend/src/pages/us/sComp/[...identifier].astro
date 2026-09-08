@@ -1,0 +1,199 @@
+---
+/**
+ * `/app/us/sComp/{c}/{n}[/{path}][?through=]`: the compiled view. The
+ * compilation's title, the enacted law, the compiled currency line, `note`
+ * verbatim, `provenance`, `usc_refs`, the table of contents or the rendered
+ * text, the version picker and the alternatives.
+ */
+import Alternatives from "../../../components/Alternatives.astro";
+import CompiledCurrency from "../../../components/CompiledCurrency.astro";
+import ErrorPage from "../../../components/ErrorPage.astro";
+import Note from "../../../components/Note.astro";
+import Provenance from "../../../components/Provenance.astro";
+import TocList from "../../../components/TocList.astro";
+import VersionPicker from "../../../components/VersionPicker.astro";
+import Base from "../../../layouts/Base.astro";
+import { ApiError, fetchCompUnit, fetchCompUnitXml, fetchLabels } from "../../../lib/api";
+import { NO_STORE, copiedCacheControl } from "../../../lib/cache";
+import { identifierParam } from "../../../lib/params";
+import { citedIdentifiers } from "../../../lib/refs";
+import { nestToc, unitLabel } from "../../../lib/toc";
+import type { CompUnit, Link } from "../../../lib/types";
+import { APP, apiHref, appHref, uscodeHref } from "../../../lib/url";
+import { hrefs, parseFragment, render } from "../../../lib/uslm";
+
+const identifier = identifierParam("/us/sComp", Astro.params.identifier);
+const through = Astro.url.searchParams.get("through")?.trim() || null;
+
+interface Failure {
+  status: number;
+  detail: string;
+  retryAfter: string | null;
+}
+
+let unit: CompUnit | null = null;
+let failure: Failure | null = null;
+let cacheControl: string | null = null;
+try {
+  const answer = await fetchCompUnit(identifier, through);
+  unit = answer.body;
+  cacheControl = answer.cacheControl;
+} catch (error) {
+  if (error instanceof ApiError) {
+    failure = { status: error.status, detail: error.detail, retryAfter: error.retryAfter };
+  } else {
+    failure = { status: 502, detail: `The API did not answer: ${(error as Error).message}`, retryAfter: null };
+  }
+}
+
+if (failure) {
+  Astro.response.status = failure.status;
+  Astro.response.headers.set("Cache-Control", NO_STORE);
+  if (failure.retryAfter) Astro.response.headers.set("Retry-After", failure.retryAfter);
+} else {
+  Astro.response.headers.set("Cache-Control", copiedCacheControl(cacheControl));
+}
+
+const isSection = unit?.level === "section";
+const isRoot = unit?.level === "compilation";
+
+let sectionHtml: string | null = null;
+if (unit && isSection) {
+  const xml = await fetchCompUnitXml(unit.served_identifier, through).catch(() => null);
+  if (xml) {
+    const fragment = parseFragment(xml);
+    const labels = await fetchLabels(citedIdentifiers(hrefs(fragment)));
+    const target = unit.provision?.found ? unit.provision.identifier : null;
+    sectionHtml = render(fragment, { target, labels });
+  }
+}
+
+const query = through ? { through } : undefined;
+const crumbs: Link[] = [{ href: `${APP}/`, label: "Home" }];
+if (unit && !isRoot) {
+  crumbs.push({
+    href: appHref(unit.compilation.identifier_prefix, query),
+    label: unit.compilation.display_title ?? unit.compilation.identifier_prefix,
+  });
+  for (const ancestor of unit.ancestors) {
+    crumbs.push({ href: appHref(ancestor.identifier, query), label: unitLabel(ancestor.level, ancestor.num) });
+  }
+}
+const current = unit
+  ? isRoot
+    ? (unit.compilation.display_title ?? unit.compilation.identifier_prefix)
+    : unitLabel(unit.level, unit.num)
+  : null;
+
+const title = !unit
+  ? `${failure?.status ?? ""} — Statutes at Large`
+  : isRoot
+    ? `${unit.compilation.display_title ?? unit.compilation.identifier_prefix} (compiled) — Statutes at Large`
+    : `${unitLabel(unit.level, unit.num)} — ${unit.compilation.display_title ?? unit.compilation.identifier_prefix} (compiled) — Statutes at Large`;
+
+const tocNodes = unit ? nestToc(unit.children) : [];
+---
+
+<Base title={title} crumbs={crumbs} current={current} text={isSection}>
+  {failure && <ErrorPage status={failure.status} detail={failure.detail} retryAfter={failure.retryAfter} />}
+
+  {
+    unit && (
+      <>
+        <h1 class="doc-title">
+          {isRoot ? (
+            unit.compilation.display_title ?? unit.compilation.identifier_prefix
+          ) : (
+            <>
+              <span class="doc-title__num">{unitLabel(unit.level, unit.num)}</span>
+              {unit.heading}
+            </>
+          )}
+        </h1>
+        <p class="doc-meta">
+          Statute Compilation <code>{unit.compilation.package_id}</code>
+          {!isRoot && unit.compilation.display_title && <span>, {unit.compilation.display_title}</span>}
+          {unit.compilation.partial_of && <span> ({unit.compilation.partial_of})</span>}
+          {unit.law.loaded && unit.law.identifier && (
+            <span>
+              {" — enacted as "}
+              <a href={appHref(unit.law.identifier)}>{unit.law.identifier}</a>
+            </span>
+          )}
+        </p>
+        {unit.compilation.short_titles.length > 0 && (
+          <p class="doc-meta">Short titles: {unit.compilation.short_titles.join("; ")}</p>
+        )}
+
+        <Note note={unit.note} />
+        <CompiledCurrency currency={unit.currency} />
+
+        {unit.provision &&
+          (unit.provision.found ? (
+            <p class="doc-meta">
+              Provision <code>{unit.provision.identifier}</code> is shown, marked, in the context of section{" "}
+              {unit.num}.
+            </p>
+          ) : (
+            <div class="usa-alert usa-alert--warning usa-alert--slim" role="status">
+              <div class="usa-alert__body">
+                <p class="usa-alert__text">
+                  Provision <code>{unit.provision.identifier}</code> is not in the text of this section.
+                </p>
+              </div>
+            </div>
+          ))}
+
+        {isSection &&
+          (sectionHtml !== null ? (
+            <article class="section-body" set:html={sectionHtml} />
+          ) : (
+            <>
+              <p class="doc-meta">The source XML could not be fetched; this is the reading text.</p>
+              <article class="section-body">
+                <p>{unit.text}</p>
+              </article>
+            </>
+          ))}
+
+        {!isSection && (
+          <>
+            <h2 class="group">Contents</h2>
+            {tocNodes.length > 0 ? (
+              <TocList nodes={tocNodes} query={query} />
+            ) : (
+              <p class="doc-meta">No units are listed under this node.</p>
+            )}
+          </>
+        )}
+
+        <VersionPicker identifier={unit.identifier} versions={unit.versions} through={through} />
+
+        <section class="panel" aria-labelledby="about-h">
+          <h2 class="group" id="about-h">About this text</h2>
+          <Provenance provenance={unit.provenance} />
+          {unit.usc_refs.length > 0 && (
+            <p class="doc-meta">
+              US Code:{" "}
+              {unit.usc_refs.map((ref, index) => (
+                <span>
+                  {index > 0 && ", "}
+                  <a class="usa-link usa-link--external" href={uscodeHref(ref)}>{ref}</a>
+                </span>
+              ))}
+            </p>
+          )}
+          <Alternatives alternatives={unit.alternatives} />
+          <p class="formats">
+            <a href={unit.xml_url}>Source XML</a>
+            <a href={apiHref(unit.identifier, { through })}>JSON</a>
+            <a class="usa-link usa-link--external" href={unit.compilation.govinfo_details}>GovInfo</a>
+          </p>
+          <p class="formats">
+            Citation URL: <span class="cite">{unit.identifier}{through ? `?through=${through}` : ""}</span>
+          </p>
+        </section>
+      </>
+    )
+  }
+</Base>

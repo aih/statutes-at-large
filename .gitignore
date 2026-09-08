@@ -10,3 +10,9 @@ data/
 *.log
 .DS_Store
 .claude/
+frontend/node_modules/
+frontend/dist/
+frontend/.astro/
+frontend/test-results/
+frontend/playwright-report/
+frontend/public/uswds/

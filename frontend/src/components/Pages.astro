@@ -1,0 +1,25 @@
+---
+/** The Statutes at Large pages a unit spans, each linked to its GovInfo PDF
+ * and labelled by its page identifier. */
+import type { Page } from "../lib/types";
+
+interface Props {
+  pages: Page[];
+}
+
+const { pages } = Astro.props;
+---
+
+{
+  pages.length > 0 && (
+    <p class="doc-meta">
+      Pages:{" "}
+      {pages.map((page, index) => (
+        <span>
+          {index > 0 && ", "}
+          <a class="usa-link usa-link--external" href={page.pdf}>{page.page}</a>
+        </span>
+      ))}
+    </p>
+  )
+}

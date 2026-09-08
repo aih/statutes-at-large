@@ -1,0 +1,41 @@
+---
+/** One link per stored version of a compilation, to `?through=`. */
+import type { CompVersion } from "../lib/types";
+import { appHref, longDate } from "../lib/url";
+
+interface Props {
+  identifier: string;
+  versions: CompVersion[];
+  /** The `through=` the page was asked for, if any. */
+  through: string | null;
+}
+
+const { identifier, versions, through } = Astro.props;
+
+function selected(version: CompVersion): boolean {
+  return through ? version.current_through.pl === through : version.is_current;
+}
+---
+
+{
+  versions.length > 0 && (
+    <nav class="panel" aria-labelledby="versions-h">
+      <h2 class="group" id="versions-h">Versions</h2>
+      <ul class="versions">
+        {versions.map((version) => (
+          <li>
+            <a
+              href={appHref(identifier, { through: version.current_through.pl })}
+              aria-current={selected(version) ? "page" : undefined}
+            >
+              Through Public Law {version.current_through.pl}
+              {version.current_through.enacted && ` (${longDate(version.current_through.enacted)})`}
+            </a>
+            {version.is_current && <span class="usa-tag">current</span>}
+            {version.fetched && <span class="toc__meta"> fetched {longDate(version.fetched)}</span>}
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )
+}

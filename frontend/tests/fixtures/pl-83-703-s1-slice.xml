@@ -1,0 +1,25 @@
+<section xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/" class="inline" identifier="/us/pl/83/703/s1">
+<content class="inline">That the Atomic Energy Act of 1946, as amended, is amended to read as follows:
+<quotedContent>
+<toc>
+<heading class="centered">“ATOMIC ENERGY ACT OF 1954</heading>
+<referenceItem role="chapter"><designator class="centered">“<inline class="smallCaps">Chapter</inline> 1.</designator> <label class="centered"><inline class="smallCaps">Declaration, Findings, and Purpose</inline></label></referenceItem><sidenote><p class="firstIndent1 fontsize8"><i>Post</i>, p. 921.</p></sidenote>
+<referenceItem role="section"><designator>“Sec. 1.</designator> <label>Declaration.</label></referenceItem>
+<referenceItem role="section"><designator>“Sec. 2.</designator> <label>Findings.</label></referenceItem>
+</toc>
+<section class="firstIndent1 fontsize10">
+<num value="1">“<inline class="smallCaps">Section</inline> 1. </num>
+<heading class="inline"><inline class="smallCaps">Declaration</inline>.—</heading>
+<chapeau class="inline">Atomic energy is capable of application for peaceful as well as military purposes. It is therefore declared to<sidenote><p class="firstIndent1 fontsize8">Policy of U. S.</p></sidenote> be the policy of the United States that—</chapeau>
+<subsection class="indent0 fontsize10">
+<num value="a">“a. </num>
+<content class="inline">the development, use, and control of atomic energy shall be directed so as to make the maximum contribution to the general welfare, subject at all times to the paramount objective of making the maximum contribution to the common defense and security: and</content>
+</subsection>
+<subsection class="indent0 fontsize10">
+<num value="b">“b. </num>
+<content class="inline">the development, use, and control of atomic energy shall be directed so as to promote world peace, improve the general welfare, increase the standard of living, and strengthen free competition in private enterprise.</content>
+</subsection>
+</section>
+</quotedContent>
+</content>
+</section>

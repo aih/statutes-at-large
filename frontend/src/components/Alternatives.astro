@@ -1,0 +1,51 @@
+---
+/**
+ * `alternatives`: a `compiled` entry links to this site with its
+ * `current_through`; a `codified` entry links each identifier to the US Code
+ * site; an `enacted` entry (on a compiled unit) links to this site.
+ */
+import type { Alternative } from "../lib/types";
+import { appHref, longDate, uscodeHref } from "../lib/url";
+
+interface Props {
+  alternatives: Alternative[];
+}
+
+const { alternatives } = Astro.props;
+---
+
+{
+  alternatives.length > 0 && (
+    <dl class="facts">
+      {alternatives.map((alternative) => (
+        <>
+          <dt>{alternative.view}</dt>
+          <dd>
+            {alternative.view === "codified" && (alternative.identifiers ?? []).length > 0 ? (
+              <ul>
+                {(alternative.identifiers ?? []).map((identifier) => (
+                  <li>
+                    <a class="usa-link usa-link--external" href={uscodeHref(identifier)}>{identifier}</a>
+                  </li>
+                ))}
+              </ul>
+            ) : alternative.identifier ? (
+              <span>
+                <a href={appHref(alternative.identifier)}>{alternative.identifier}</a>
+                {alternative.current_through?.pl && (
+                  <span class="toc__meta">
+                    {" "}
+                    (current through Public Law {alternative.current_through.pl}
+                    {alternative.current_through.enacted && `, ${longDate(alternative.current_through.enacted)}`})
+                  </span>
+                )}
+              </span>
+            ) : (
+              <a class="usa-link usa-link--external" href={alternative.url}>{alternative.url}</a>
+            )}
+          </dd>
+        </>
+      ))}
+    </dl>
+  )
+}

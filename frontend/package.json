@@ -1,0 +1,33 @@
+{
+  "name": "statutes-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The /app reader: Astro 5, TypeScript and USWDS over /api/v1 (design stage 5)",
+  "scripts": {
+    "predev": "node scripts/uswds-assets.mjs",
+    "dev": "astro dev",
+    "prebuild": "node scripts/uswds-assets.mjs",
+    "build": "astro build",
+    "start": "node ./dist/server/entry.mjs",
+    "check": "astro check",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@astrojs/node": "^9.5.5",
+    "@xmldom/xmldom": "^0.9.10",
+    "astro": "^5.18.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.62.0",
+    "@types/node": "^24.0.0",
+    "@uswds/uswds": "^3.13.0",
+    "playwright": "^1.62.0",
+    "sass": "^1.102.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
+  }
+}

@@ -1,0 +1,12 @@
+---
+/** The API's `note`, verbatim. */
+interface Props {
+  note: string;
+}
+
+const { note } = Astro.props;
+---
+
+<div class="note" role="note">
+  <p>{note}</p>
+</div>
