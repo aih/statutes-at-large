@@ -1,0 +1,86 @@
+{
+  "volume": 72,
+  "package": "STATUTE-72",
+  "source_file": "data/statute/xmls/STATUTE-72.xml",
+  "source_sha256": "e41347d1031eaacea42a0ed5f769ba02e4c128b7e6fb20d248d1b349d1fd1a47",
+  "loaded_at": "2026-09-08T02:58:01.883264+00:00",
+  "seconds": 9.3,
+  "components": 1180,
+  "laws_loaded": 1061,
+  "laws_by_kind": {
+    "pl": 618,
+    "pvtl": 443
+  },
+  "laws_replaced": 0,
+  "units": 4145,
+  "units_by_level": {
+    "section": 3852,
+    "title": 145,
+    "chapter": 69,
+    "part": 28,
+    "subchapter": 51
+  },
+  "sections": 3852,
+  "sections_in_quoted_content_skipped": 871,
+  "duplicate_section_identifiers": 7,
+  "aliases": 1061,
+  "aliases_dropped_as_taken": 0,
+  "stat_pages": 2787,
+  "number_conflicts": [
+    {
+      "seq": 235,
+      "action": "drop",
+      "claimed": "/us/pl/85/412",
+      "kept_as": null,
+      "citation": "72 Stat. 412",
+      "title": "Public Law 85–412: To authorize the Commissioners of the District of Columbia to",
+      "reason": "law number 412 is also claimed by the law at seq 96; no chapter form to store this one under"
+    },
+    {
+      "seq": 333,
+      "action": "drop",
+      "claimed": "/us/pl/85/605",
+      "kept_as": null,
+      "citation": "72 Stat. 605",
+      "title": "Public Law 85–605: To provide a right-of-way to the city of Alamogordo, a munici",
+      "reason": "law number 605 is also claimed by the law at seq 289; no chapter form to store this one under"
+    },
+    {
+      "seq": 547,
+      "action": "drop",
+      "claimed": "/us/pl/85/862",
+      "kept_as": null,
+      "citation": "72 Stat. 1571",
+      "title": "Public Law 85–862: To facilitate administration and management by the Secretary ",
+      "reason": "law number 862 is also claimed by the law at seq 546; no chapter form to store this one under"
+    }
+  ],
+  "numbers_out_of_sequence": [
+    {
+      "seq": 126,
+      "identifier": "/us/pl/85/442",
+      "citation": "72 Stat. 176",
+      "title": "Public Law 85–442: To amend section 217 of the National Housing Act."
+    },
+    {
+      "seq": 127,
+      "identifier": "/us/pl/85/177",
+      "citation": "72 Stat. 177",
+      "title": "Public Law 85–177: To amend the Agricultural Adjustment Act of 1938, as amended,"
+    }
+  ],
+  "skipped_components": {
+    "law number collision, dropped": 3,
+    "part preface": 1,
+    "concurrent resolution": 56,
+    "presidential document": 59
+  },
+  "unidentified": [],
+  "warnings": {
+    "occurs 2 times": 7,
+    "section without a number after the first; not addressable": 2
+  },
+  "identifier_rules": "rules-1.0",
+  "first_law": "/us/pl/85/317",
+  "last_law": "/us/pvtl/85/784"
+}

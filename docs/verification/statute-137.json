@@ -1,0 +1,42 @@
+{
+  "volume": 137,
+  "package": "STATUTE-137",
+  "source_file": "data/statute/xmls/STATUTE-137.xml",
+  "source_sha256": "ef857f483fbf65abda953d041266bfb6c697fba2defad05c5c6e54c7f2592f5f",
+  "loaded_at": "2026-09-08T02:58:11.149194+00:00",
+  "seconds": 5.5,
+  "components": 223,
+  "laws_loaded": 34,
+  "laws_by_kind": {
+    "pl": 34
+  },
+  "laws_replaced": 0,
+  "units": 1512,
+  "units_by_level": {
+    "section": 1291,
+    "division": 15,
+    "title": 82,
+    "subtitle": 119,
+    "chapter": 2,
+    "part": 3
+  },
+  "sections": 1291,
+  "sections_in_quoted_content_skipped": 175,
+  "duplicate_section_identifiers": 0,
+  "aliases": 34,
+  "aliases_dropped_as_taken": 0,
+  "stat_pages": 1113,
+  "number_conflicts": [],
+  "numbers_out_of_sequence": [],
+  "skipped_components": {
+    "concurrent resolution": 6,
+    "presidential document": 183
+  },
+  "unidentified": [],
+  "warnings": {
+    "section without a number after the first; not addressable": 1
+  },
+  "identifier_rules": "rules-1.0",
+  "first_law": "/us/pl/118/1",
+  "last_law": "/us/pl/118/34"
+}
