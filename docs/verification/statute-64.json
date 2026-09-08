@@ -1,0 +1,603 @@
+{
+  "volume": 64,
+  "package": "STATUTE-64",
+  "source_file": "data/statute/xmls/STATUTE-64.xml",
+  "source_sha256": "af5a4384ba3024725183d8417d2d75bce8805a1f52bb199961ff4a30f415caf7",
+  "loaded_at": "2026-09-08T02:51:52.851169+00:00",
+  "seconds": 14.0,
+  "components": 1368,
+  "laws_loaded": 1230,
+  "laws_by_kind": {
+    "pl": 457,
+    "act": 51,
+    "pvtl": 722
+  },
+  "laws_replaced": 0,
+  "units": 3240,
+  "units_by_level": {
+    "section": 3063,
+    "title": 102,
+    "part": 27,
+    "chapter": 48
+  },
+  "sections": 3063,
+  "sections_in_quoted_content_skipped": 358,
+  "duplicate_section_identifiers": 1,
+  "aliases": 2403,
+  "aliases_dropped_as_taken": 6,
+  "stat_pages": 2604,
+  "number_conflicts": [
+    {
+      "seq": 95,
+      "action": "demote",
+      "claimed": "/us/pl/81/835",
+      "kept_as": "/us/act/1950-06-05/ch220",
+      "citation": "64 Stat. 198",
+      "title": "To provide foreign economic assistance.",
+      "reason": "law number 835 is also claimed by the law at seq 395, whose number fits the sequence"
+    },
+    {
+      "seq": 96,
+      "action": "demote",
+      "claimed": "/us/pl/81/530",
+      "kept_as": "/us/act/1950-06-08/ch222",
+      "citation": "64 Stat. 210",
+      "title": "Relating to the forwarding and return of second-, third-, and fourth-class mail,",
+      "reason": "law number 530 is also claimed by the law at seq 90, whose number fits the sequence"
+    },
+    {
+      "seq": 99,
+      "action": "demote",
+      "claimed": "/us/pl/81/639",
+      "kept_as": "/us/act/1950-06-14/ch232",
+      "citation": "64 Stat. 211",
+      "title": "To provide for the addition of certain lands to El Morro National Monument, in t",
+      "reason": "law number 639 is also claimed by the law at seq 199, whose number fits the sequence"
+    },
+    {
+      "seq": 117,
+      "action": "demote",
+      "claimed": "/us/pl/81/567",
+      "kept_as": "/us/act/1950-06-16/ch264",
+      "citation": "64 Stat. 229",
+      "title": "To amend the Act of February 25, 1920 (41 Stat. 452), and for other purposes.",
+      "reason": "law number 567 is also claimed by the law at seq 127, whose number fits the sequence"
+    },
+    {
+      "seq": 126,
+      "action": "demote",
+      "claimed": "/us/pl/81/560",
+      "kept_as": "/us/act/1950-06-17/ch296",
+      "citation": "64 Stat. 246",
+      "title": "To amend section 3 of the Act of June 18, 1934, relating to the establishment of",
+      "reason": "law number 560 is also claimed by the law at seq 120, whose number fits the sequence"
+    },
+    {
+      "seq": 131,
+      "action": "demote",
+      "claimed": "/us/pl/81/671",
+      "kept_as": "/us/act/1950-06-23/ch345",
+      "citation": "64 Stat. 254",
+      "title": "To amend Veterans Regulation Numbered 1 (a) with respect to the computation of e",
+      "reason": "law number 671 is also claimed by the law at seq 231, whose number fits the sequence"
+    },
+    {
+      "seq": 137,
+      "action": "demote",
+      "claimed": "/us/pl/81/677",
+      "kept_as": "/us/act/1950-06-27/ch370",
+      "citation": "64 Stat. 260",
+      "title": "Relating to the renewal of contracts for the carrying of mail on star routes.",
+      "reason": "law number 677 is also claimed by the law at seq 237, whose number fits the sequence"
+    },
+    {
+      "seq": 146,
+      "action": "demote",
+      "claimed": "/us/pl/81/686",
+      "kept_as": "/us/act/1950-06-30/ch421",
+      "citation": "64 Stat. 303",
+      "title": "To amend laws relating to the United States Military Academy and the United Stat",
+      "reason": "law number 686 is also claimed by the law at seq 246, whose number fits the sequence"
+    },
+    {
+      "seq": 149,
+      "action": "demote",
+      "claimed": "/us/pl/81/580",
+      "kept_as": "/us/act/1950-06-30/ch425",
+      "citation": "64 Stat. 307",
+      "title": "To amend section 14 (b) of the Federal Reserve Act, as amended.",
+      "reason": "law number 580 is also claimed by the law at seq 140, whose number fits the sequence"
+    },
+    {
+      "seq": 154,
+      "action": "demote",
+      "claimed": "/us/pl/81/694",
+      "kept_as": "/us/act/1950-06-30/ch430",
+      "citation": "64 Stat. 311",
+      "title": "To permit the prospecting, development, mining, removal, and utilization of the ",
+      "reason": "law number 694 is also claimed by the law at seq 254, whose number fits the sequence"
+    },
+    {
+      "seq": 174,
+      "action": "demote",
+      "claimed": "/us/pl/81/814",
+      "kept_as": "/us/act/1950-07-18/ch465",
+      "citation": "64 Stat. 343",
+      "title": "To establish rearing ponds and a fish hatchery in the State of Kentucky.",
+      "reason": "law number 814 is also claimed by the law at seq 374, whose number fits the sequence"
+    },
+    {
+      "seq": 185,
+      "action": "demote",
+      "claimed": "/us/pl/81/825",
+      "kept_as": "/us/act/1950-07-28/ch502",
+      "citation": "64 Stat. 379",
+      "title": "To authorize the burial in the National Cemetery at Nashville, Tennessee, the bo",
+      "reason": "law number 825 is also claimed by the law at seq 385, whose number fits the sequence"
+    },
+    {
+      "seq": 188,
+      "action": "demote",
+      "claimed": "/us/pl/81/528",
+      "kept_as": "/us/act/1950-07-31/ch510",
+      "citation": "64 Stat. 382",
+      "title": "To authorize construction of the Eklutna project, hydroelectric generating plant",
+      "reason": "law number 528 is also claimed by the law at seq 88, whose number fits the sequence"
+    },
+    {
+      "seq": 192,
+      "action": "demote",
+      "claimed": "/us/pl/81/682",
+      "kept_as": "/us/act/1950-08-03/ch514",
+      "citation": "64 Stat. 393",
+      "title": "To provide for holding a term of the United States District Court for the Distri",
+      "reason": "law number 682 is also claimed by the law at seq 242, whose number fits the sequence"
+    },
+    {
+      "seq": 194,
+      "action": "demote",
+      "claimed": "/us/pl/81/534",
+      "kept_as": "/us/act/1950-08-03/ch516",
+      "citation": "64 Stat. 394",
+      "title": "To amend section 2113 of title 18 of the United States Code in order to include ",
+      "reason": "law number 534 is also claimed by the law at seq 94, whose number fits the sequence"
+    },
+    {
+      "seq": 214,
+      "action": "demote",
+      "claimed": "/us/pl/81/656",
+      "kept_as": "/us/act/1950-08-03/ch536",
+      "citation": "64 Stat. 406",
+      "title": "To amend title 14, United States Code, entitled “Coast Guard”.",
+      "reason": "law number 656 is also claimed by the law at seq 216, whose number fits the sequence"
+    },
+    {
+      "seq": 220,
+      "action": "demote",
+      "claimed": "/us/pl/81/560",
+      "kept_as": "/us/act/1950-08-04/ch577",
+      "citation": "64 Stat. 413",
+      "title": "Authorizing the return to Mexico of the flags, standards, colors, and emblems th",
+      "reason": "law number 560 is also claimed by the law at seq 120, whose number fits the sequence"
+    },
+    {
+      "seq": 223,
+      "action": "demote",
+      "claimed": "/us/pl/81/683",
+      "kept_as": "/us/act/1950-08-04/ch580",
+      "citation": "64 Stat. 413",
+      "title": "For the relief of Dodge County, Wisconsin.",
+      "reason": "law number 683 is also claimed by the law at seq 243, whose number fits the sequence"
+    },
+    {
+      "seq": 226,
+      "action": "demote",
+      "claimed": "/us/pl/81/666",
+      "kept_as": "/us/act/1950-08-05/ch593",
+      "citation": "64 Stat. 415",
+      "title": "To approve a contract negotiated with the Ogden River Water Users’ Association, ",
+      "reason": "law number 666 is also claimed by the law at seq 225, whose number fits the sequence"
+    },
+    {
+      "seq": 244,
+      "action": "demote",
+      "claimed": "/us/pl/81/681",
+      "kept_as": "/us/act/1950-08-10/ch674",
+      "citation": "64 Stat. 437",
+      "title": "To provide for the exchange between the United States and the State of New York ",
+      "reason": "law number 681 is also claimed by the law at seq 241, whose number fits the sequence"
+    },
+    {
+      "seq": 252,
+      "action": "demote",
+      "claimed": "/us/pl/81/602",
+      "kept_as": "/us/act/1950-08-15/ch714",
+      "citation": "64 Stat. 443",
+      "title": "To amend the Public Health Service Act to support research and training in matte",
+      "reason": "law number 602 is also claimed by the law at seq 162, whose number fits the sequence"
+    },
+    {
+      "seq": 286,
+      "action": "demote",
+      "claimed": "/us/pl/81/720",
+      "kept_as": "/us/act/1950-08-21/ch769",
+      "citation": "64 Stat. 469",
+      "title": "Providing for recognition and endorsement of the California World Progress Expos",
+      "reason": "law number 720 is also claimed by the law at seq 280, whose number fits the sequence"
+    },
+    {
+      "seq": 296,
+      "action": "demote",
+      "claimed": "/us/pl/81/730",
+      "kept_as": "/us/act/1950-08-28/ch816",
+      "citation": "64 Stat. 561",
+      "title": "To exempt certain counsel employed by committee from certain Federal laws under ",
+      "reason": "law number 730 is also claimed by the law at seq 290, whose number fits the sequence"
+    },
+    {
+      "seq": 455,
+      "action": "demote",
+      "claimed": "/us/pl/81/805",
+      "kept_as": "/us/act/1950-12-28/ch1177",
+      "citation": "64 Stat. 1122",
+      "title": "To amend the Act incorporating The American Legion so as to redefine eligibility",
+      "reason": "law number 805 is also claimed by the law at seq 369, whose number fits the sequence"
+    },
+    {
+      "seq": 485,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/356",
+      "kept_as": "/us/act/1950-02-11/ch9",
+      "citation": "64 Stat. A4",
+      "title": "For the relief of Mrs. Effie S. Campbell.",
+      "reason": "law number 356 is also claimed by the law at seq 484, whose number fits the sequence"
+    },
+    {
+      "seq": 501,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/872",
+      "kept_as": "/us/act/1950-02-15/ch26",
+      "citation": "64 Stat. A11",
+      "title": "For the relief of Northwest Missouri Fair Association, of Bethany, Harrison Coun",
+      "reason": "law number 872 is also claimed by the law at seq 1000, whose number fits the sequence"
+    },
+    {
+      "seq": 548,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/410",
+      "kept_as": "/us/act/1950-04-26/ch104",
+      "citation": "64 Stat. A29",
+      "title": "For the relief of Charles G. McCormack, captain, Medical Corps, United States Na",
+      "reason": "law number 410 is also claimed by the law at seq 539, whose number fits the sequence"
+    },
+    {
+      "seq": 593,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/410",
+      "kept_as": "/us/act/1950-05-11/ch183",
+      "citation": "64 Stat. A48",
+      "title": "For the relief of Stella Avner.",
+      "reason": "law number 410 is also claimed by the law at seq 539, whose number fits the sequence"
+    },
+    {
+      "seq": 599,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/469",
+      "kept_as": "/us/act/1950-05-25/ch205",
+      "citation": "64 Stat. A50",
+      "title": "For the relief of William Alfred Bevan.",
+      "reason": "law number 469 is also claimed by the law at seq 598, whose number fits the sequence"
+    },
+    {
+      "seq": 625,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/490",
+      "kept_as": "/us/act/1950-06-15/ch257",
+      "citation": "64 Stat. A59",
+      "title": "For the relief of Ferd H. Gibler.",
+      "reason": "law number 490 is also claimed by the law at seq 619, whose number fits the sequence"
+    },
+    {
+      "seq": 635,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/606",
+      "kept_as": "/us/act/1950-06-16/ch276",
+      "citation": "64 Stat. A63",
+      "title": "For the relief of Frances L. Marshall.",
+      "reason": "law number 606 is also claimed by the law at seq 734, whose number fits the sequence"
+    },
+    {
+      "seq": 643,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/614",
+      "kept_as": "/us/act/1950-06-16/ch284",
+      "citation": "64 Stat. A65",
+      "title": "For the relief of Louise M. Koch.",
+      "reason": "law number 614 is also claimed by the law at seq 742, whose number fits the sequence"
+    },
+    {
+      "seq": 654,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/625",
+      "kept_as": "/us/act/1950-06-17/ch298",
+      "citation": "64 Stat. A69",
+      "title": "For the relief of Mrs, John Kaudy (formerly Stella Cappier).",
+      "reason": "law number 625 is also claimed by the law at seq 753, whose number fits the sequence"
+    },
+    {
+      "seq": 656,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/627",
+      "kept_as": "/us/act/1950-06-17/ch300",
+      "citation": "64 Stat. A70",
+      "title": "For the relief of Ben Grunstein.",
+      "reason": "law number 627 is also claimed by the law at seq 755, whose number fits the sequence"
+    },
+    {
+      "seq": 668,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/639",
+      "kept_as": "/us/act/1950-06-17/ch312",
+      "citation": "64 Stat. A74",
+      "title": "For the relief of Yoshiko Ishii Teves.",
+      "reason": "law number 639 is also claimed by the law at seq 767, whose number fits the sequence"
+    },
+    {
+      "seq": 677,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/648",
+      "kept_as": "/us/act/1950-06-20/ch322",
+      "citation": "64 Stat. A78",
+      "title": "For the relief of Edward A. Seeley.",
+      "reason": "law number 648 is also claimed by the law at seq 776, whose number fits the sequence"
+    },
+    {
+      "seq": 744,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/618",
+      "kept_as": "/us/act/1950-06-29/ch406",
+      "citation": "64 Stat. A100",
+      "title": "For the relief of Augustino Marlia.",
+      "reason": "law number 618 is also claimed by the law at seq 746, whose number fits the sequence"
+    },
+    {
+      "seq": 825,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/607",
+      "kept_as": "/us/act/1950-08-04/ch563",
+      "citation": "64 Stat. A129",
+      "title": "For the relief of the estate of the late Francisco J. Côrdova.",
+      "reason": "law number 607 is also claimed by the law at seq 735, whose number fits the sequence"
+    },
+    {
+      "seq": 903,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/774",
+      "kept_as": "/us/act/1950-08-09/ch663",
+      "citation": "64 Stat. A156",
+      "title": "For the relief of Carl L. Sexauer.",
+      "reason": "law number 774 is also claimed by the law at seq 902, whose number fits the sequence"
+    },
+    {
+      "seq": 968,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/849",
+      "kept_as": "/us/act/1950-08-22/ch773",
+      "citation": "64 Stat. A181",
+      "title": "To authorize the sale of inherited interests in certain allotted land under the ",
+      "reason": "law number 849 is also claimed by the law at seq 977, whose number fits the sequence"
+    },
+    {
+      "seq": 984,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/858",
+      "kept_as": "/us/act/1950-08-25/ch795",
+      "citation": "64 Stat. A188",
+      "title": "For the relief of Hyman D. Langer and Alta Jourard Langer.",
+      "reason": "law number 858 is also claimed by the law at seq 986, whose number fits the sequence"
+    },
+    {
+      "seq": 1081,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/963",
+      "kept_as": "/us/act/1950-09-08/ch935",
+      "citation": "64 Stat. A222",
+      "title": "For the relief of Robert C. Watters, Mrs. Martha L. Watters, C. E. Nivens, E. O.",
+      "reason": "law number 963 is also claimed by the law at seq 1091, whose number fits the sequence"
+    },
+    {
+      "seq": 1097,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/909",
+      "kept_as": "/us/act/1950-09-21/ch982",
+      "citation": "64 Stat. A229",
+      "title": "For the relief of H. Dale Madison.",
+      "reason": "law number 909 is also claimed by the law at seq 1037, whose number fits the sequence"
+    },
+    {
+      "seq": 1115,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/937",
+      "kept_as": "/us/act/1950-09-25/ch1031",
+      "citation": "64 Stat. A235",
+      "title": "For the relief of Tatiana Moravec.",
+      "reason": "law number 937 is also claimed by the law at seq 1065, whose number fits the sequence"
+    },
+    {
+      "seq": 1134,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/1008",
+      "kept_as": "/us/act/1950-09-27/ch1066",
+      "citation": "64 Stat. A242",
+      "title": "For the relief of Midshipman Willis Howard Dukelow, United States Navy.",
+      "reason": "law number 1008 is also claimed by the law at seq 1136, whose number fits the sequence"
+    },
+    {
+      "seq": 1197,
+      "action": "demote",
+      "claimed": "/us/pvtl/81/1009",
+      "kept_as": "/us/act/1950-12-27/ch1167",
+      "citation": "64 Stat. A265",
+      "title": "Authorizing the Secretary of the Interior to issue a patent in fee to James Ches",
+      "reason": "law number 1009 is also claimed by the law at seq 1137, whose number fits the sequence"
+    }
+  ],
+  "numbers_out_of_sequence": [
+    {
+      "seq": 97,
+      "identifier": "/us/pl/81/637",
+      "citation": "64 Stat. 211",
+      "title": "To commemorate Jim White and his contribution to the early history of Carlsbad C"
+    },
+    {
+      "seq": 98,
+      "identifier": "/us/pl/81/538",
+      "citation": "64 Stat. 211",
+      "title": "To provide for the designation of the reservoir to be formed by the Davis Dam on"
+    },
+    {
+      "seq": 100,
+      "identifier": "/us/pl/81/340",
+      "citation": "64 Stat. 212",
+      "title": "To authorize relief of authorized certifying officers of terminated war agencies"
+    },
+    {
+      "seq": 116,
+      "identifier": "/us/pl/81/566",
+      "citation": "64 Stat. 228",
+      "title": "To authorize the Commonwealth of Kentucky to use for certain educational purpose"
+    },
+    {
+      "seq": 118,
+      "identifier": "/us/pl/81/558",
+      "citation": "64 Stat. 229",
+      "title": "To direct the Secretary of Agriculture and the Secretary of the Army to transfer"
+    },
+    {
+      "seq": 196,
+      "identifier": "/us/pl/81/636",
+      "citation": "64 Stat. 395",
+      "title": "To facilitate the settlement of the accounts of certain deceased civilian office"
+    },
+    {
+      "seq": 197,
+      "identifier": "/us/pl/81/437",
+      "citation": "64 Stat. 397",
+      "title": "Giving the consent of Congress to an agreement between the State of Missouri and"
+    },
+    {
+      "seq": 213,
+      "identifier": "/us/pl/81/663",
+      "citation": "64 Stat. 406",
+      "title": "To amend the Tariff Act of 1930 to provide for exemption from duty of certain so"
+    },
+    {
+      "seq": 215,
+      "identifier": "/us/pl/81/655",
+      "citation": "64 Stat. 408",
+      "title": "To suspend restrictions on the authorized personnel strength of the Armed Forces"
+    },
+    {
+      "seq": 365,
+      "identifier": "/us/pl/81/806",
+      "citation": "64 Stat. 899",
+      "title": "To incorporate the United States Olympic Association."
+    },
+    {
+      "seq": 366,
+      "identifier": "/us/pl/81/306",
+      "citation": "64 Stat. 902",
+      "title": "To amend certain laws providing for membership and participation by the United S"
+    },
+    {
+      "seq": 488,
+      "identifier": "/us/pvtl/81/359",
+      "citation": "64 Stat. A5",
+      "title": "For the relief of Emory T. Wales."
+    },
+    {
+      "seq": 489,
+      "identifier": "/us/pvtl/81/300",
+      "citation": "64 Stat. A6",
+      "title": "For the reimbursement of Puget Sound Bridge and Dredging Company."
+    },
+    {
+      "seq": 540,
+      "identifier": "/us/pvtl/81/411",
+      "citation": "64 Stat. A25",
+      "title": "For the relief of Peter Michael El-Hini."
+    },
+    {
+      "seq": 541,
+      "identifier": "/us/pvtl/81/112",
+      "citation": "64 Stat. A26",
+      "title": "To authorize the President to appoint Lieutenant Colonel Charles H. Bonesteel as"
+    },
+    {
+      "seq": 622,
+      "identifier": "/us/pvtl/81/496",
+      "citation": "64 Stat. A58",
+      "title": "To amend the Act entitled \"An Act to incorporate the trustees of the Presbyteria"
+    },
+    {
+      "seq": 623,
+      "identifier": "/us/pvtl/81/494",
+      "citation": "64 Stat. A59",
+      "title": "For the relief of Hugo Geiger."
+    },
+    {
+      "seq": 967,
+      "identifier": "/us/pvtl/81/839",
+      "citation": "64 Stat. A180",
+      "title": "Authorizing the Secretary of the Interior to issue a patent in fee to Edgar S. B"
+    },
+    {
+      "seq": 969,
+      "identifier": "/us/pvtl/81/341",
+      "citation": "64 Stat. A181",
+      "title": "For the relief of Sergeant James C. Hollon and Bessie L. Hollon."
+    },
+    {
+      "seq": 1178,
+      "identifier": "/us/pvtl/81/1950",
+      "citation": "64 Stat. A259",
+      "title": "For the relief of Doctor George Peter Petropoulos."
+    },
+    {
+      "seq": 1179,
+      "identifier": "/us/pvtl/81/1051",
+      "citation": "64 Stat. A259",
+      "title": "For the relief of Colvin Bernard Meik."
+    },
+    {
+      "seq": 1214,
+      "identifier": "/us/pvtl/81/1086",
+      "citation": "64 Stat. A272",
+      "title": "For the relief of Ethelyn Isobel Chenalloy."
+    },
+    {
+      "seq": 1215,
+      "identifier": "/us/pvtl/81/10",
+      "citation": "64 Stat. A272",
+      "title": "For the relief of Jose Manzano Somera."
+    }
+  ],
+  "skipped_components": {
+    "part preface": 2,
+    "concurrent resolution": 60,
+    "presidential document": 76
+  },
+  "unidentified": [],
+  "warnings": {
+    "occurs 2 times": 1,
+    "alias /us/act/1950-08-07/ch619 already names another law": 1,
+    "alias /us/act/1950-08-30/ch823 already names another law": 1,
+    "alias /us/act/1950-09-07/ch915 already names another law": 1,
+    "alias /us/act/1950-09-27/ch1072 already names another law": 1,
+    "alias /us/act/1950-09-27/ch1077 already names another law": 1,
+    "alias /us/act/1950-09-28/ch1100 already names another law": 1
+  },
+  "identifier_rules": "rules-1.0",
+  "first_law": "/us/pl/81/441",
+  "last_law": "/us/pvtl/81/1103"
+}

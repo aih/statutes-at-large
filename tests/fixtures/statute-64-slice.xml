@@ -1,0 +1,815 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Verbatim slice of STATUTE-64.xml from the Hub dataset dreamproit/us-statutes-at-large: the volume meta and the laws numbered 1, 2, 3, 29, 134, 153, 357, 768, 823, 1212. Regenerate with scripts/extract_fixture.py. -->
+<statutesAtLarge xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/" xml:lang="en">
+<meta xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2026-02-05</processedDate>
+<congress>81</congress><session>2</session>
+<dc:date>1950</dc:date>
+<dc:date>1951</dc:date>
+<volume>64</volume>
+</meta>
+
+<main><collection role="statutesParts">
+<component role="statutesPart"><meta><docPart>1</docPart></meta>
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>Authorizing the President of the United States of America to proclaim February 6, 1950, as National Children&#8217;s Dental Health Day.</dc:title>
+<dc:type>Chapter</dc:type>
+<docNumber>1</docNumber>
+<citableAs>64 Stat. 3</citableAs>
+<approvedDate>1950-02-01</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2026-02-05</processedDate>
+<congress>81</congress>
+<session>2</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<dc:type>[CHAPTER </dc:type><docNumber>1]</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>JOINT RESOLUTION</docTitle>
+<officialTitle>Authorizing the President of the United States of America to proclaim February 6, 1950, as National Children&#8217;s Dental Health Day.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1950-02-01">February 1, 1950</approvedDate></p><p class="centered fontsize8">[<ref href="/us/bill/81/hjres/184">H. J. Res. 184</ref>]</p><p class="centered fontsize8">[<ref href="/us/pl/81/441">Public Law 441</ref>]</p></sidenote>
+</longTitle>
+<resolvingClause class="indent0 firstIndent1 fontsize10"><i>Resolved by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</resolvingClause><sidenote><p class="firstIndent1 fontsize8">National Children&#8217;s Dental Health Day, 1950.</p></sidenote>
+<section class="inline">
+<content class="inline">That the President of the United States is hereby authorized to issue a proclamation setting aside February 6, 1950, as National Children&#8217;s Dental Health Day and to invite all agencies and organizations interested in child welfare to unite upon that day in the observance of such exercises as will call to the attention of the people of the United States the fundamental necessity of a continuous program for the protection and development of the dental health of the Nation&#8217;s children.</content>
+</section>
+<action>
+<actionDescription>Approved February 1, 1950.</actionDescription></action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>To amend section 5 of the Federal Firearms Act.</dc:title>
+<dc:type>Chapter</dc:type>
+<docNumber>2</docNumber>
+<citableAs>64 Stat. 3</citableAs>
+<approvedDate>1950-02-07</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2026-02-05</processedDate>
+<congress>81</congress>
+<session>2</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<dc:type>[CHAPTER </dc:type><docNumber>2]</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>AN ACT</docTitle>
+<officialTitle>To amend section 5 of the Federal Firearms Act.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1950-02-07">February 7, 1950</approvedDate></p><p class="centered fontsize8">[<ref href="/us/bill/81/hr/6212">H. R. 6212</ref>]</p><p class="centered fontsize8">[<ref href="/us/pl/81/442">Public Law 442</ref>]</p></sidenote>
+</longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</enactingFormula><sidenote><p class="firstIndent1 fontsize8">Federal Firearms Act, amendment.</p></sidenote>
+<section class="inline">
+<content class="inline">That section 5 of the Federal Firearms Act, approved June 30, 1938 (52 Stat. 1252; U. S. C., 1946 edition, title 15, sec. 905), is amended by striking out &#8220;<quotedText><inline class="smallCaps">Sec</inline>. 5</quotedText>&#8221; and substituting therefor &#8220;<quotedText><inline class="smallCaps">Sec</inline>. 5. (a)</quotedText>&#8221; and by adding a new subsection designated &#8220;<quotedText>(b)</quotedText>&#8221; as follows:
+<quotedContent>
+<subsection class="firstIndent1 fontsize10"><num value="b">&#8220;(b) </num><content>Any firearm or ammunition involved in any violation of the provisions of this Act or any rules or regulations promulgated thereunder shall be subject to seizure and forfeiture, and all provisions of the Internal Revenue Code relating to the seizure, forfeiture, and disposition of firearms as defined in section 2733 of such code shall,<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/53/294">53 Stat. 294</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t26/s2733">26 U. S. C. &#167; 2733</ref>.</p></sidenote> so far as applicable, extend to seizures and forfeitures incurred under the provisions of this Act.&#8221;</content></subsection>
+</quotedContent></content></section>
+<action>
+<actionDescription>Approved February 7, 1950.</actionDescription></action>
+</main>
+</pLaw>
+<page identifier="/us/stat/64/3" renderingPosition="bottom">3</page>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>To transfer funds to the town of Craig, Alaska.</dc:title>
+<dc:type>Chapter</dc:type>
+<docNumber>3</docNumber>
+<citableAs>64 Stat. 4</citableAs>
+<approvedDate>1950-02-08</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2026-02-05</processedDate>
+<congress>81</congress>
+<session>2</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<page identifier="/us/stat/64/4">64 <inline class="smallCaps">Stat</inline>. 4</page>
+<dc:type>[CHAPTER </dc:type><docNumber>3]</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>AN ACT</docTitle>
+<officialTitle>To transfer funds to the town of Craig, Alaska.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1950-02-08">February 8, 1950</approvedDate></p><p class="centered fontsize8">[<ref href="/us/bill/81/hr/322">H. R. 322</ref>]</p><p class="centered fontsize8">[<ref href="/us/pl/81/443">Public Law 443</ref>]</p></sidenote>
+</longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</enactingFormula><sidenote><p class="firstIndent1 fontsize8">Craig, Alaska.</p></sidenote>
+<section class="inline">
+<content class="inline">That the Secretary of the Treasury is authorized and directed to pay out of the Alaska Fund to the city treasurer of the incorporated town of Craig, Alaska, the sum of $745.64 heretofore deposited into the said Alaska Fund by the clerk of the United States District Court for the First Judicial Division of the Territory of Alaska, said amount having been paid to the clerk by the New England Fish Company as a license tax for the year 1947 on 18,641 cases of salmon packed or canned at the Libby, McNeill and Libby cannery located within the city limits of the incorporated town of Craig, Alaska.</content>
+</section>
+<action>
+<actionDescription>Approved February 8, 1950.</actionDescription></action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>To revise and repeal certain Acts relating to rules of survey to permit departures from the system of rectangular survey when necessary on all public lands, and for other purposes.</dc:title>
+<dc:type>Chapter</dc:type>
+<docNumber>134</docNumber>
+<citableAs>64 Stat. 92</citableAs>
+<approvedDate>1950-04-29</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2026-02-05</processedDate>
+<congress>81</congress>
+<session>2</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<dc:type>[CHAPTER </dc:type><docNumber>134]</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>AN ACT</docTitle>
+<officialTitle>To revise and repeal certain Acts relating to rules of survey to permit departures from the system of rectangular survey when necessary on all public lands, and for other purposes.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1950-04-29">April 29, 1950</approvedDate></p><p class="centered fontsize8">[<ref href="/us/bill/81/hr/3150">H. R. 3150</ref>]</p><p class="centered fontsize8">[<ref href="/us/pl/81/490">Public Law 490</ref>]</p></sidenote>
+</longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</enactingFormula><sidenote><p class="firstIndent1 fontsize8">Rules of survey.</p></sidenote>
+<section class="inline">
+<content class="inline">That the third paragraph of section 2395, Revised Statutes (43 U. S. C., sec. 751), is amended to read as follows:
+<page identifier="/us/stat/64/93">64 <inline class="smallCaps">Stat</inline>. 93</page>
+<quotedContent>
+<level class="firstIndent1 fontsize10"><num value="3">&#8220;Third. </num><content>The township shall be subdivided into sections, containing, as nearly as may be, six hundred and forty acres each, by running parallel lines through the same from east to west and from south to north at the distance of one mile from each other, and marking corners at the distance of each half mile. The sections shall be numbered, respectively, beginning with the number one in the northeast section and proceeding west and east alternately through the township with progressive numbers, until the thirty-six be completed.&#8221;</content></level>
+</quotedContent></content></section>
+<section class="firstIndent1 fontsize10"><num value="2"><inline class="smallCaps">Sec</inline>. 2. </num><content>Section 2410, Revised Statutes (43 U. S. C., sec. 770), is amended to read as follows:
+<quotedContent>
+<p class="firstIndent1 fontsize10">&#8220;The Secretary of the Interior may, by regulation, provide that departures may be made from the system of rectangular surveys whenever it is not feasible or economical to extend the rectangular surveys in the regular manner or whenever such departure would promote the beneficial use of lands.&#8221;</p>
+</quotedContent></content></section>
+<section class="firstIndent1 fontsize10"><num value="3"><inline class="smallCaps">Sec</inline>. 3. </num><content>Section 1 of the Act of April 13, 1926, entitled &#8220;An Act to authorize a departure from the rectangular system of surveys of homestead claims in Alaska, and for other purposes&#8221; (44 Stat. 243; 48 U. S. C., sec. 379), is hereby amended by deleting the following words: &#8220;<quotedText>and the provisions of the Act of June 28, 1918 (40 Stat. L. 632), insofar as they require that surveys executed thereunder, without expense to the claimant, must follow the general system of the public land surveys.</quotedText>&#8221;</content></section>
+<section class="firstIndent1 fontsize10"><num value="4"><inline class="smallCaps">Sec</inline>. 4. </num><content>Section 2408, Revised Statutes (43 U. S. C., sec. 768), and<sidenote><p class="firstIndent1 fontsize8">Repeals.</p></sidenote> section 2409, Revised Statutes (43 U. S. C., sec. 769), are hereby repealed.</content></section>
+<action>
+<actionDescription>Approved April 29, 1950.</actionDescription></action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>To provide uniform longevity promotional grades for the postal field service.</dc:title>
+<docNumber>153</docNumber>
+<dc:type>Chapter</dc:type>
+<citableAs>64 Stat. 101</citableAs>
+<congress>81</congress>
+<session>2</session>
+<approvedDate>1950-05-03</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2026-02-05</processedDate>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<page identifier="/us/stat/64/101">64 <inline class="smallCaps">Stat</inline>. 101</page>
+<dc:type>[CHAPTER </dc:type>
+<docNumber>153]</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>AN ACT</docTitle>
+<officialTitle>To provide uniform longevity promotional grades for the postal field service.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1950-05-03">May 3, 1950</approvedDate></p><p class="centered fontsize8">[<ref href="/us/bill/81/hr/6653">H. R. 6653</ref>]</p><p class="centered fontsize8">[<ref href="/us/bill/81/pl/500">Public Law 500</ref>]</p></sidenote>
+</longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</enactingFormula>
+<section class="inline">
+<chapeau class="inline">That </chapeau>
+<subsection class="inline">
+<num value="a">(a) </num>
+<content>in the<sidenote><p class="firstIndent1 fontsize8">Postal field service.</p><p class="firstIndent1 fontsize8">Longevity grades.</p></sidenote> case of postmasters and employees in the postal field service (except employees, other than charmen and charwomen, paid on an hourly basis and substitute and temporary rural carriers) for whom single salary or annual automatic salary grades are provided in the Act of July 6, 1945, as amended (Public Law 134, Seventy-ninth Congress), there are hereby established longevity grades A, B. and C. The rate<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/59/435">59 Stat. 435</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t39/s56/851&#8211;876/626/863">39 U. S. C. &#167;&#167; 56, 851&#8211;876; Sup. III, &#167;&#167; 626, 863 <i>et seq</i></ref>.</p><i>Post</i>, pp. 102, 1118.</sidenote> of basic compensation of each such postmaster and employee (except postmasters at post offices of the fourth class, and chairmen and charwomen paid on an hourly basis) shall be increased by $100 per annum for each promotion to a longevity grade. The rate of basic compensation of each such postmaster at a post office of the fourth class shall be increased by 5 per centum per annum for each promotion to a longevity grade. The rate of basic compensation of each such char-man and charwoman shall be increased by five cents per hour for each promotion to a longevity grade.</content>
+</subsection>
+<subsection class="indent0 fontsize10">
+<num value="b">(b) </num>
+<content>Each such postmaster or employee who is serving in a regular<sidenote><p class="firstIndent1 fontsize8">Assignment to grades.</p></sidenote> position on the date of enactment of this Act. or who is appointed to such a position at any time thereafter, shall be assigned to longevity grade A at the beginning of the quarter following the completion of thirteen years of service, to longevity grade B at the beginning of the quarter following the completion of eighteen years of service, and to longevity grade C at the beginning of the quarter following the completion of twenty-five years of service.</content>
+</subsection>
+<subsection class="indent0 fontsize10">
+<num value="c">(c) </num>
+<content>All time on the rolls of the custodial service of the Post Office<sidenote><p class="firstIndent1 fontsize8">Service credits.</p></sidenote> Department on and after October 1, 1933, and all time on the rolls of the mail equipment shops before or after July 1, 1945, shall be considered as postal field service. In determining longevity credit for the purposes of subsection (b), there shall be credited all time on the rolls (except time on the rolls as a substitute rural carrier) in the postal field service or in the Post Office Department before or after July 1, 1945; all time on the rolls in the custodial service of the Treasury Department continuous to the date of the transfer of the employee to the custodial service of the Post Office Department in accordance with Executive Order Numbered 6166, dated June 10, 1933; all time<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/usc/t5/s132/132">5 U. S. C. &#167; 132 note; Sup. III, &#167; 132 note</ref>.</p></sidenote> on the rolls as a special delivery messenger at a first-class post office before or after July 1, 1945; all time on the rolls as a clerk in a third-class post office before or after July 1, 1945, for which payment is made from authorized allowances. In the case of an officer or employee who was separated or is hereafter separated from the postal field service or from the departmental service of the Post Office Department for military duty, or to comply with a war transfer as defined by the Civil Service Commission, all time engaged in military service or service on war transfer shall be credited, and pro rata credit shall be given for the time engaged in military service and service on war transfer for each year of such service. Service specified in this subsection shall be credited on the basis of one-twelfth of a year for each whole calendar month the employee has been on the rolls. All such service shall be credited, whether continuous or intermittent, except that credit shall not be allowed for time on the rolls under a temporary appointment unless such time on the rolls is continuous for one year or more, or unless continuous to the date of appointment as a classified substitute or regular employee.</content>
+</subsection>
+</section>
+<page identifier="/us/stat/64/102">64 <inline class="smallCaps">Stat</inline>. 102</page>
+<section class="firstIndent1 fontsize10">
+<num value="2"><inline class="smallCaps">Sec</inline>. 2. </num><sidenote><p class="firstIndent1 fontsize8">Retention of promotion credit.</p></sidenote>
+<content class="inline">Employees on the rolls on the date of enactment of this Act, who are in the highest automatic grade of their position or who are in additional grades, shall retain promotion credit under the provisions of section 2<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/63/953">63 Stat. 953</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t39/s886/e">39 U. S. C., Sup. III, &#167; 886(e)</ref>.</p><p class="firstIndent1 fontsize8"><i>Post</i>, p. 103.</p></sidenote> (e) of the Act of October 28, 1949 (Public Law 428, Eighty-first Congress), and under those provisions of the Act of July 6, 1945 (Public Law 134, Seventy-ninth Congress), which are <sidenote><p class="firstIndent1 fontsize8"><i>Infra</i>.</p></sidenote>repealed by section 4 of this Act to the same extent as though such provisions had remained in effect, and thereafter shall be promoted to longevity grades A, B, and C at the beginning of the quarter following the completion of three, five, and seven years of service, respectively, in the next lower grade, except that if prior thereto any such employee becomes eligible for promotion under subsection (b) of section 1 of this Act, such employee shall be promoted in accordance with the provisions of such subsection.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="3"><inline class="smallCaps">Sec</inline>. 3. </num><sidenote><p class="firstIndent1 fontsize8">Supervisory employees.</p></sidenote>
+<content class="inline">The amount of any increase under the provisions of this Act in the compensation of any supervisory employee shall not be considered as part of the base salary of such employee for the <sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/59/435">59 Stat. 435</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t39/4853">39 U. S. C., Sup. III, 4853</ref>.</p><p class="firstIndent1 fontsize8"><i>Post</i>, p. 1118.</p></sidenote>purposes of the first and second provisos in section 3 of the Act of July 6, 1945, as amended (Public Law 134, Seventy-ninth Congress).</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="4"><inline class="smallCaps">Sec</inline>. 4. </num>
+<subsection class="inline">
+<num value="a">(a) </num>
+<chapeau>The Act of July 6, 1945, as amended (Public Law 134, <sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/59/443">59 Stat. 443 <i>et seq</i></ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t39/s862/a/863/b/864/b/f/865/d/e">39 U. S. C. &#167;&#167; 862 (a), 863 (b), 864 (b)&#8211;(f), 865 (d), (e)</ref>.</p></sidenote>Seventy-ninth Congress), is amended in the following respects:</chapeau>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="1">(1) </num>
+<content>By striking out the first proviso in section 12 (a).</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="2">(2) </num>
+<content>By striking out the proviso in section 13 (b).</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="3">(3) </num>
+<content>By striking out the proviso in section 14 (b).</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="4">(4) </num>
+<content>By striking out the proviso in section 14 (c).</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="5">(5) </num>
+<content>By striking out the proviso in section 14(d).</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="6">(6) </num>
+<content>By striking out the proviso in section 14 (e).</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="7">(7) </num>
+<content>By striking out the proviso in section 14 (f).</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="8">(8) </num>
+<content>By striking out the proviso in section 15 (d).</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="9">(9) </num>
+<content>By striking out the proviso in section 15 (e).</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="10">(10) </num><sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/59/451">59 Stat. 451</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t39/s866/c">39 U. S. C. &#167; 866 (c)</ref>.</p></sidenote>
+<content>By amending so much of section 16 (c) as precedes the proviso to read as follows:
+<quotedContent>
+<subsection class="indent0 fontsize10"><num value="c">&#8220;(c) </num>
+<content>Railway post-office lines shall be divided into two classes, class A and class B. Clerks assigned to class A lines shall be promoted successively to grade 9, and clerks assigned to class B lines shall be promoted successively to grade 11. Clerks in charge of class A lines shall be of grade 14. Clerks in charge of class B lines shall be of grade 16</content>
+</subsection>
+</quotedContent>
+</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="11">(11) </num><sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/59/452">59 Stat. 452</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t39/s866/d">39 U. S. C. &#167; 866 (d)</ref>.</p></sidenote>
+<content>By amending the first sentence in section 16 (d) to read as follows: &#8220;Clerks assigned to terminal railway post offices and air mail field railway post offices shall be promoted successively to grade 9.&#8221;</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="12">(12) </num><sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/59/452">59 Stat. 452</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t39/s866/e">39 U. S. C. &#167; 866 (e)</ref>.</p></sidenote>
+<content>By amending the first sentence in section 16 (e) to read as follows: <quotedContent>&#8220;Clerks assigned to transfer offices shall be promoted successively to grade 11.&#8221;</quotedContent></content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="13">(13) </num><sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/59/453">59 Stat. 453</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t39/s866/g">39 U. S. C. &#167; 866 (g)</ref>.</p></sidenote>
+<content>By amending the first sentence in section 16 (g) to read as follows: &#8220;Clerks assigned to offices of division superintendents, regional superintendents Air Mail Service, and in chief clerks&#8217; offices shall be promoted successively to grade 9.&#8221;</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="14">(14) </num><sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/59/453">59 Stat. 453</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t39/s866/j">39 U. S. C. &#167; 866 (j)</ref>.</p></sidenote>
+<content>By amending the proviso in section 16 (j) to read as follows: &#8220;<proviso><i>Provided</i>, That such operators shall be promoted successively to grade 9</proviso>&#8221;.</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="15">(15) </num><sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/59/455">59 Stat. 455</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t39/s866/s">39 U. S. C. &#167; 866 (s)</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/stat/59/455">59 Stat. 455</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t39/s867/a">39 U. S. C. &#167; 867 (a)</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/stat/59/457">59 Stat. 457</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t39/s868/b">39 U. S. C. &#167; 868 (b)</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/stat/59/458">59 Stat. 458</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t39/s869/a">39 U. S. C. &#167; 869 (a)</ref>.</p></sidenote>
+<content>By striking out the second sentence in section 16 (s).</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="16">(16) </num>
+<content>16) By striking out the proviso in section 17 (a).</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="17">(17) </num>
+<content>By striking out the proviso in section 18 (b).</content>
+</paragraph>
+<paragraph class="indent0 firstIndent1 fontsize10">
+<num value="18">(18) </num>
+<content>By striking out the matter relating to grades 10 and 11 in the table in section 19 (a), and by amending that part of section 19 (a) which follows such table, to read as follows: &#8220;<quotedText>and shall be promoted successively at the beginning of the quarter following one year&#8217;s satisfactory service in each grade to the next higher grade until they reach the ninth grade</quotedText>&#8221;.</content>
+</paragraph>
+</subsection>
+<page identifier="/us/stat/64/103">64 <inline class="smallCaps">Stat</inline>. 103</page>
+<subsection class="indent0 fontsize10"><num value="b">(b) </num>
+<content>Sections 1 and 2 (e) of the Act approved October 28, 1949<sidenote><p class="firstIndent1 fontsize8">Repeals.</p><p class="firstIndent1 fontsize8"><ref href="/us/stat/63/952/953">63 Stat. 952, 953</ref>.</p><ref href="/us/usc/t39/s885/886/e">39 U. S. C., Sup. III, &#167;&#167; 885, 886 (e)</ref>.</sidenote> (Public Law 428, Eighty-first Congress), are hereby repealed.</content>
+</subsection>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="5"><inline class="smallCaps">Sec</inline>. 5. </num>
+<content class="inline">None of the provisions of this Act shall be so construed as to reduce the grade or compensation of any employee on the rolls on the date of enactment of this Act.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="6"><inline class="smallCaps">Sec</inline>. 6. </num>
+<content class="inline">This Act shall take effect as of November 1, 1949, except<sidenote><p class="firstIndent1 fontsize8">Effective date.</p></sidenote> that retroactive payments for longevity promotions shall not be made to employees no longer on the rolls oi the postal field service on the date of enactment of this Act.</content>
+</section>
+<action>
+<actionDescription>Approved May 3, 1950.</actionDescription>
+</action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>To extend the Rubber Act of 1948 (Public Law 469, Eightieth Congress), and for other purposes.</dc:title>
+<dc:type>Chapter</dc:type>
+<docNumber>357</docNumber>
+<citableAs>64 Stat. 256</citableAs>
+<approvedDate>1950-06-24</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2026-02-05</processedDate>
+<congress>81</congress>
+<session>2</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<dc:type>[CHAPTER</dc:type> <docNumber>357]</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>AN ACT</docTitle>
+<officialTitle>To extend the Rubber Act of 1948 (Public Law 469, Eightieth Congress), and for other purposes.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1950-06-24">June 24, 1950</approvedDate></p>
+<p class="centered fontsize8">[<ref href="/us/bill/82/hr/7579">H. R. 7579</ref>]</p>
+<p class="centered fontsize8">[<ref href="/us/pl/82/575">Public Law 575</ref>]</p></sidenote>
+</longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</enactingFormula>
+<section class="inline">
+<chapeau class="inline">That </chapeau>
+<subsection class="inline">
+<num value="a">(a) </num>
+<content class="inline">subsection <sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/62/105">62 Stat. 105</ref>.</p>
+<p class="firstIndent1 fontsize8"><ref href="/us/usc/t50/sIII/1928a">50 U. S. C., Sup. III, app. &#167; 1928 (a)</ref>.</p></sidenote>(a) of section 9 of the Rubber Act of 1948 (Public Law 469, Eightieth Congress) is amended (1) by striking out &#8220;<quotedText>April 1, 1949</quotedText>&#8221; and inserting in lieu thereof &#8220;<quotedText>April 1, 1951</quotedText>&#8221;, and (2) by striking out &#8220;<quotedText>January 15, 1950</quotedText>&#8221; and inserting in lieu thereof &#8220;<quotedText>January 15, 1952</quotedText>&#8221;.</content>
+</subsection>
+<subsection class="indent0 fontsize10"><num value="b">(b) </num>
+<content>Section 20 of such Act is amended by striking out &#8220;<quotedText>June 30, 1950</quotedText>&#8221; and inserting in lieu thereof &#8220;<quotedText>June 30,<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/62/109">62 Stat. 109</ref>.</p>
+<p class="firstIndent1 fontsize8"><ref href="/us/usc/t50/sIII1938/III1938">50 U. S. C., Sup. III, app. &#167; 1938</ref>.</p></sidenote> 1952</quotedText>&#8221;.</content>
+</subsection>
+</section>
+<action>
+<actionDescription>Approved June 24, 1950.</actionDescription>
+</action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>To amend the Act of March 11, 1948 (62 Stat. 78), relating to the establishment of the De Soto National Memorial, in the State of Florida.</dc:title>
+<dc:type>Chapter</dc:type>
+<docNumber>768</docNumber>
+<citableAs>64 Stat. 469</citableAs>
+<approvedDate>1950-08-21</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2026-02-05</processedDate>
+<congress>81</congress>
+<session>2</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<dc:type>[CHAPTER</dc:type> <docNumber>768]</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>AN ACT</docTitle>
+<officialTitle>To amend the Act of March 11, 1948 (62 Stat. 78), relating to the establishment of the De Soto National Memorial, in the State of Florida.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1950-08-21">August 21, 1950</approvedDate></p>
+<p class="centered fontsize8">[<ref href="/us/bill/81/hr/8230">H. R. 8230</ref>]</p>
+<p class="centered fontsize8">[<ref href="/us/pl/81/725">Public Law 725</ref>]</p></sidenote></longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</enactingFormula>
+<section class="inline"><content class="inline">That section 3 of the Act of March 11, 1948 (62 Stat. 78), relating to the establishment of<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/usc/t16/sIII/450dd">16 U. S. C., Sup. III, &#167; 450dd note</ref>.</p></sidenote> the De Soto National Memorial, Florida, is hereby amended to read as follows:
+<quotedContent>
+<section class="firstIndent1 fontsize10">
+<num value="3">&#8220;<inline class="smallCaps">Sec</inline>. 3. </num>
+<content class="inline">There is hereby authorized to be appropriated such sums,<sidenote><p class="firstIndent1 fontsize8">Appropriation authorized.</p></sidenote> not to exceed $50,000, as may be necessary to carry out the provisions of this Act.&#8221;</content>
+</section>
+</quotedContent>
+</content>
+</section>
+<action>
+<actionDescription>Approved August 21, 1950.</actionDescription>
+</action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>To incorporate the Future Farmers of America, and for other purposes.</dc:title>
+<dc:type>Chapter</dc:type>
+<docNumber>823</docNumber>
+<citableAs>64 Stat. 563</citableAs>
+<approvedDate>1950-08-30</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2026-02-05</processedDate>
+<congress>81</congress>
+<session>2</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<dc:type>[CHAPTER</dc:type> <docNumber>823]</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>AN ACT</docTitle>
+<officialTitle>To incorporate the Future Farmers of America, and for other purposes.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1950-08-30">August 30, 1950</approvedDate></p>
+<p class="centered fontsize8">[<ref href="/us/bill/81/s/2868">S. 2868</ref>]</p>
+<p class="centered fontsize8">[<ref href="/us/pl/81/740">Public Law 740</ref>]</p></sidenote>
+</longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</enactingFormula><sidenote><p class="firstIndent1 fontsize8">Future Farmers of America.</p>
+<p class="firstIndent1 fontsize8">Incorporation.</p></sidenote>
+<section class="inline"><content class="inline">That the following persons: William T. Spanton, Washington, District of Columbia; Dudley M. Clements, College Park, Maryland; Herbert B. Swanson, Washington, District of Columbia; K. Edward Naugher, Arlington, Virginia; Elmer J. Johnson, Arlington, Virginia; Rodolph D. Anderson, Columbia, South Carolina; Ear] H. Little, Concord, New Hampshire; Bert L. Brown, Olympia, Washington; and Ralph A. Howard, Columbus, Ohio, are hereby created a body corporate by the name of Future Farmers of America (hereinafter referred to as the &#8220;corporation&#8221;) and by such name shall be known and have perpetual succession and the power&#8217;s and limitations contained in this Act.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="2"><inline class="smallCaps">Sec</inline>. 2. </num>
+<content class="inline">The persons named in the first section of this Act are authorized<sidenote><p class="firstIndent1 fontsize8">Completion of organization, etc.</p></sidenote> to meet to complete the organization of the corporation by the selection of officers, the adoption of regulations and bylaws, and the doing of such other acts as may be necessary for such purpose.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="3"><inline class="smallCaps">Sec</inline>. 3. </num>
+<chapeau class="inline">The objects and purposes of the corporation shall be&#8212;<sidenote><p class="firstIndent1 fontsize8">Purposes.</p></sidenote></chapeau>
+<paragraph class="firstIndent1 fontsize10">
+<num value="1">(1) </num>
+<content>to create, foster, and assist subsidiary chapters composed of students and former students of vocational agriculture in public schools qualifying for Federal reimbursement under the Smith-Hughes Vocational Education Act or the Vocational Education Act of 1946 (Public Law 347, Sixty-fourth Congress, and Public Law 586, Seventy-ninth Congress), and associations of such<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/39/929">39 Stat. 929</ref>;</p>
+<p class="firstIndent1 fontsize8"><ref href="/us/stat/60/775">60 Stat. 775</ref>.</p>
+<p class="firstIndent1 fontsize8"><ref href="/us/usc/t20/s151">20 U. S. C. &#167; 151 notes</ref>.</p></sidenote> chapters in the several States and Territories of the United States;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="2">(2) </num>
+<content>to develop character, train for useful citizenship, and foster patriotism, and thereby to develop competent, aggressive rural and agricultural leadership;</content>
+</paragraph>
+<page identifier="/us/stat/64/564">64 <inline class="smallCaps">Stat</inline>. 564</page>
+<paragraph class="firstIndent1 fontsize10">
+<num value="3">(3) </num>
+<content>to create and nurture a love of country life by encouraging members to improve the farm home and its surroundings, to develop organized rural recreational activities, and to create more interest in the intelligent choice of farming occupations;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="4">(4) </num>
+<content>to encourage the practice of thrift;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="5">(5) </num>
+<content>to procure for and distribute to State associations, local chapters, and members all official Future Farmers of America supplies and equipment;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="6">(6) </num>
+<content>to publish an official magazine and other publications for the members of the corporation;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="7">(7) </num>
+<content>to strengthen the confidence of farm boys and young men in themselves and their work, to encourage members in the development of individual farming programs, and to promote their permanent establishment in farming by (a) encouraging improvement in scholarship; (b) providing prizes and awards to deserving students who have achieved distinction in vocational agriculture, including farm mechanics activities on a local, State, or national basis; and (c) assisting financially, through loans or grants, deserving students in all-day vocational agriculture classes and young farmers under thirty years of age who were former students in all-day vocational agriculture classes in becoming satisfactorily established in a farming occupation; and</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="8">(8) </num>
+<content>to cooperate with others, including State boards for vocational education, in accomplishing the above purposes; and to engage in such other activities, consistent with the foregoing purposes, determined by the governing body to be for the best interests of the corporation.</content>
+</paragraph>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="4"><inline class="smallCaps">Sec</inline>. 4. </num>
+<chapeau class="inline">The corporation shall have power&#8212;<sidenote><p class="firstIndent1 fontsize8">Powers.</p></sidenote></chapeau>
+<paragraph class="firstIndent1 fontsize10">
+<num value="1">(1) </num>
+<content>to sue and be sued, complain, and defend in any court of competent jurisdiction;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="2">(2) </num>
+<content>to adopt, use, and alter a corporate seal;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="3">(3) </num>
+<content>to choose such officer&#8217;s, managers, agents, and employees as the business of the corporation may require;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="4">(4) </num>
+<content>to adopt and alter bylaws and regulations, not inconsistent with the laws of the United States or any State in which such corporation is to operate, for the management of its property and the regulation of its affairs, including the establishment and maintenance of local chapter&#8217;s and State associations of chapters;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="5">(5) </num>
+<content>to contract and be contracted with;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="6">(6) </num>
+<content>to take and hold by lease, gift, purchase, grant, devise, or bequest any property, real or personal, necessary for attaining the objects and accomplishing the purposes of the corporation, subject to applicable provisions of law of any State (A) governing the amount or kind of real and personal property which may be held by, or (B) otherwise limiting or controlling the ownership of real and personal property by, a corporation operating in such State;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="7">(7) </num>
+<content>to transfer and convey real or personal property;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="8">(8) </num>
+<content>to borrow money for the purposes of the corporation, issue bonds therefor, and secure the same by mortgage, subject to all applicable provisions of Federal or State law;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="9">(9) </num>
+<content>to use the corporate funds to give prizes, awards, loans, and grants to deserving students and young farmers for the purposes set forth in section 3;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="10">(10) </num>
+<content>to publish a magazine and other publications;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="11">(11) </num>
+<content>to procure for and distribute to State associations, local chapters, and members all official Future Farmers of America supplies and equipment;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="12">(12) </num>
+<content>to adopt emblems and badges; and</content>
+</paragraph>
+<page identifier="/us/stat/64/565">64 <inline class="smallCaps">Stat</inline>. 565</page>
+<paragraph class="firstIndent1 fontsize10">
+<num value="13">(13) </num>
+<content>to do any and all acts and things necessary and proper to carry out the objects and purposes of the corporation.</content>
+</paragraph>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="5"><inline class="smallCaps">Sec</inline>. 5. </num>
+<content class="inline">The headquarters and principal offices of the corporation<sidenote><p class="firstIndent1 fontsize8">Headquarters.</p></sidenote> shall be located in the District of Columbia, but the activities of the corporation shall not be confined to that place but may be conducted throughout the various States, Territories, and possessions of the United States. The corporation shall maintain at all times in the District of Columbia a designated agent authorized to accept service of process for the corporation, such designation to be filed in the office of the clerk of the United States District Court for the District of Columbia. Notice to or service upon such agent, or mailed to the business address of such agent, shall be deemed sufficient notice or service upon the corporation.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="6"><inline class="smallCaps">Sec</inline>. 6. </num>
+<content class="inline">Eligibility for membership in the corporation and the rights<sidenote><p class="firstIndent1 fontsize8">Rights of members, etc.</p></sidenote> and privileges of members shall, except as provided in this Act, be determined according to the bylaws of the corporation. In the conduct of official business of any local chapter each member shall have one vote. In the conduct of the official business of any State association each qualified delegate of a local chapter shall have one vote.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="7"><inline class="smallCaps">Sec</inline>. 7. </num>
+<subsection class="inline">
+<num value="a">(a) </num>
+<content class="inline">The national officers of the corporation shall be a student<sidenote><p class="firstIndent1 fontsize8">National officers.</p></sidenote> president, four student vice presidents (one from each of four regions of the United States established in the bylaws for purposes of administration of the corporation), a student secretary, an executive secretary, a treasurer, and a national advisor.</content>
+</subsection>
+<subsection class="indent0 fontsize10"><num value="b">(b) </num>
+<content>The national student officers of the corporation shall comprise a board of student officers. It shall be the duty of such board to advise and make recommendations to the board of directors with respect to the conduct of the activities and business of the corporation.</content>
+</subsection>
+<subsection class="indent0 fontsize10"><num value="c">(c) </num>
+<content>The national officers of the corporation shall be elected annually by a majority vote of the delegates assembled in the annual national convention from among qualified members of the corporation, except that the national advisor shall be the Chief of the Agricultural Education Service, Office of Education, Federal Security Agency, the executive secretary shall be a member of that service, and the treasurer shall be an employee or member of a State agency that directs or supervises a State program of agricultural education under the PROVISIONS of the Smith-Hughes Vocational Education Act or the vocational Education Act of 1946 (Public Law 347, Sixty-fourth Congress, and Public Law 586, Seventy-ninth Congress).<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/39/929">39 Stat. 929</ref>;</p>
+<p class="firstIndent1 fontsize8"><ref href="/us/stat/60/775">60 Stat. 775</ref>.</p>
+<p class="firstIndent1 fontsize8"><ref href="/us/usc/t20/s151">20 U. S. C. &#167; 151 notes</ref>.</p></sidenote></content>
+</subsection>
+<subsection class="indent0 fontsize10"><num value="d">(d) </num>
+<content>In the conduct of the business of the annual national convention each qualified delegate shall have one vote.</content>
+</subsection>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="8"><inline class="smallCaps">Sec</inline>. 8. </num>
+<subsection class="inline">
+<num value="a">(a) </num>
+<content class="inline">The governing body of the corporation, which shall<sidenote><p class="firstIndent1 fontsize8">Board of directors.</p></sidenote> exercise the powers herein granted to the corporation, shall be a board of directors composed of: (1) the Chief of the Agricultural Education Service, Office of Education, Federal Security Agency, who shall act as chairman; (2) four staff members in the Agricultural Education Service, Office of Education, Federal Security Agency; and (3) four State supervisors of agricultural education.</content>
+</subsection>
+<subsection class="indent0 fontsize10"><num value="b">(b) </num>
+<content>The terms of office of members of the board and the method of selection of such members, other than ex officio members, shall be prescribed by the bylaws of the corporation.</content>
+</subsection>
+<subsection class="indent0 fontsize10"><num value="c">(c) </num>
+<content>The board shall meet at least once each year at such time and place as may be prescribed by the bylaws. The annual report of the board shall be presented at such meeting. Special meetings of the board may be called at any time by the chairman.</content>
+</subsection>
+<subsection class="indent0 fontsize10"><num value="d">(d) </num>
+<content>The board may designate the chairman and two members of<sidenote><p class="firstIndent1 fontsize8">Chairman, etc.</p></sidenote> his staff as a governing committee which, when the board is not in session, shall have and exercise the powers of the board subject to its
+<page identifier="/us/stat/64/566">64 <inline class="smallCaps">Stat</inline>. 566</page>
+direction and have the power to authorize the seal of the corporation to be affixed to all papers which may require it.</content>
+</subsection>
+<subsection class="indent0 fontsize10"><num value="e">(e) </num>
+<content>The board of directors which shall serve until the first board is selected as provided in this Act shall be composed of the nine persons named in the first section of this Act.</content>
+</subsection>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="9"><inline class="smallCaps">Sec</inline>. 9. </num>
+<subsection class="inline">
+<num value="a">(a) </num>
+<content class="inline">No part of the income or assets of the corporation shall<sidenote><p class="firstIndent1 fontsize8">Income or assets.</p></sidenote> inure to any member, officer, or director, or be distributable to any such person except upon dissolution and final liquidation of the corporation as provided in section 15 of this Act.</content>
+</subsection>
+<subsection class="indent0 fontsize10"><num value="b">(b) </num>
+<content>The corporation shall not make loans to its officers, directors, or<sidenote><p class="firstIndent1 fontsize8">Restrictions on loans.</p></sidenote> employees. Any director who votes for or assents to the making of a loan to an officer, director, or employee of the corporation, and any officer who participates in the making of such a loan shall be jointly and severally liable to the corporation for the amount of such loan until the repayment thereof.</content>
+</subsection>
+<subsection class="indent0 fontsize10"><num value="c">(c) </num>
+<content>This section shall not preclude prizes, awards, grants, or loans<sidenote><p class="firstIndent1 fontsize8">Prizes, etc.</p></sidenote> to student officers and members meeting the criteria established by the board of directors for selecting recipients of such benefits.</content>
+</subsection>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="10"><inline class="smallCaps">Sec</inline>. 10. </num>
+<content class="inline">The corporation, and its members, officers, and directors,<sidenote><p class="firstIndent1 fontsize8">Political contributions, restriction.</p></sidenote> as such, shall not contribute to or otherwise support or assist any political party or candidate for elective public office.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="11"><inline class="smallCaps">Sec</inline>. 11. </num>
+<content class="inline">The corporation shall be liable for the acts of its officers<sidenote><p class="firstIndent1 fontsize8">Liability.</p></sidenote> and agents when acting within the scope of their authority.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="12"><inline class="smallCaps">Sec</inline>. 12. </num>
+<content class="inline">The corporation shall have no power to issue any shares<sidenote><p class="firstIndent1 fontsize8">Issuance of stock, restriction.</p></sidenote> or stock, or to declare or pay any dividends, its objects and purposes being solely educational.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="13"><inline class="smallCaps">Sec</inline>. 13. </num>
+<content class="inline">The corporation shall keep correct and complete books and<sidenote><p class="firstIndent1 fontsize8">Accounts, minutes, etc.</p></sidenote> records of account and shall also keep minutes of the proceedings of its members, the board of directors, and committees having any authority under the board of directors; and it shall also keep a record of the names and addresses of its members entitled to vote. All books and records of the corporation may be inspected by any member or his agent or attorney at any reasonable time.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="14"><inline class="smallCaps">Sec</inline>. 14. </num>
+<subsection class="inline">
+<num value="a">(a) </num>
+<content class="inline">The financial transactions shall be audited annually <sidenote><p class="firstIndent1 fontsize8">Annual audit.</p></sidenote>by an independent certified public accountant in accordance with the principles and procedures applicable to commercial corporate transactions. The audit shall be conducted at. the place or places where the accounts of the corporation are normally kept. All books, accounts, financial records, reports, files, and all other papers, things, or property belonging to or in use by the corporation and necessary to facilitate the audit shall be made available to the person or persons conducting the audit; and full facilities for verifying transactions with the balances or securities held by depositors, fiscal agents, and custodians shall be afforded to such person or persons.</content>
+</subsection>
+<subsection class="indent0 fontsize10"><num value="b">(b) </num>
+<content>A report of such audit shall be made by the corporation to<sidenote><p class="firstIndent1 fontsize8">Report to Congress.</p></sidenote> the Congress not later than January 15 of each year. The report shall set forth the scope of the audit and shall include a verification by the person or persons conducting the audit of statements of (1) assets and liabilities. (2) capital and surplus or deficit, (3) surplus or deficit analysis, (4) income and expense, and (5) sources and application of funds.</content>
+</subsection>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="15"><inline class="smallCaps">Sec</inline>. 15. </num>
+<content class="inline">Upon final dissolution or liquidation of the corporation<sidenote><p class="firstIndent1 fontsize8">Use of assets upon dissolution.</p></sidenote> and after the discharge or satisfaction of all outstanding obligations and liabilities, the remaining assets of the corporation shall be used by the board of directors for the benefit of students of vocational agriculture, or be transferred to some recognized educational foundation.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="16"><inline class="smallCaps">Sec</inline>. 16. </num>
+<content class="inline">The corporation, and its duly authorized chapters and associations<sidenote><p class="firstIndent1 fontsize8">Exclusive use of name.</p></sidenote> of chapters, shall have the sole and exclusive right to use the
+<page identifier="/us/stat/64/567">64 <inline class="smallCaps">Stat</inline>. 567</page>
+name of Future Farmers of America and the initials FFA as representing an agricultural membership organization and such seals, emblems, and badges as the corporation may lawfully adopt.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="17"><inline class="smallCaps">Sec</inline>. 17. </num>
+<content class="inline">As a condition precedent to the exercise of any power or<sidenote><p class="firstIndent1 fontsize8">Filing of name and address.</p></sidenote> privilege granted to the corporation under this Act, the corporation shall file in the Office of the Secretary of State, or similar officer, in each State and in each Territory or possession of the United States in which subordinate associations or chapters are organized the name, and post office address of an authorized agent in such State, Territory, or possession upon whom legal process or demands against the corporation may be served.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="18"><inline class="smallCaps">Sec</inline>. 18. </num>
+<content class="inline">The United States Commissioner of Education, with the<sidenote><p class="firstIndent1 fontsize8">Personnel, services, and facilities of Office of Education.</p></sidenote> approval of the Federal Security Administrator, is authorized to make available personnel, services, and facilities of the Office of Education requested by the board of directors of the corporation to administer or assist in the administration of the business and activities of the corporation. The personnel of the Office of Education shall not receive any compensation from the corporation for their services, except that travel and other legitimate expenses as defined by the Commissioner of Education and approved by the board of directors of the Corporation may be paid. The Commissioner, with the approval of the Administrator, is also authorized to cooperate with the State boards for vocational education to assist in the promotion of the activities of the corporation.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="19"><inline class="smallCaps">Sec</inline>. 19. </num>
+<content class="inline">The corporation may acquire the assets of the Future<sidenote><p class="firstIndent1 fontsize8">Acquisition of certain assets.</p></sidenote> Farmers of America, a corporation organized under the laws of the State of Virginia, and of the Future Farmers of America Foundation, Incorporated, a corporation organized under the laws of the District of Columbia, upon discharging or satisfactorily providing for the payment and discharge of all of the liabilities of such corporations.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="20"><inline class="smallCaps">Sec</inline>. 20. </num>
+<content class="inline">The provisions of this Act shall take effect on the filing,<sidenote><p class="firstIndent1 fontsize8">Effective date.</p></sidenote> in the office of the clerk of the United States District Court for the District of Columbia of affidavits signed by the incorporators named in the first section of this Act to the effect that the Virginia Corporation known as the Future Farmers of America has been dissolved in accordance with law, but only if such affidavits are filed within one year from the date of enactment of this Act.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="21"><inline class="smallCaps">Sec</inline>. 21. </num>
+<content class="inline">The right to alter, amend, or repeal this Act is hereby<sidenote><p class="firstIndent1 fontsize8">Rights reserved.</p></sidenote> expressly reserved.</content>
+</section>
+<action>
+<actionDescription>Approved August 30, 1950.</actionDescription>
+</action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>To authorize certain construction at military and naval installations, and for other purposes.</dc:title>
+<dc:type>Chapter</dc:type>
+<docNumber>1212</docNumber>
+<citableAs>64 Stat. 1221</citableAs>
+<approvedDate>1951-01-06</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2026-02-05</processedDate>
+<congress>81</congress>
+<session>1</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<dc:type>[CHAPTER </dc:type><docNumber>1212]</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>AN ACT</docTitle>
+<officialTitle>To authorize certain construction at military and naval installations, and for other purposes.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1951-01-06">January 6, 1951</approvedDate></p><p class="centered fontsize8">[<ref href="/us/bill/81/hr/9893">H. R. 9893</ref>]</p><p class="centered fontsize8">[<ref href="/us/pl/81/910">Public Law 910</ref>]</p></sidenote>
+</longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</enactingFormula><sidenote><p class="firstIndent1 fontsize8">Military and naval installations.</p><p class="firstIndent1 fontsize8">Construction authorized.</p></sidenote>
+<title><num value="I"><inline class="centered">TITLE I</inline></num>
+<section class="firstIndent1 fontsize10"><num value="101"><inline class="smallCaps">Sec</inline>. 101. </num><chapeau>The Secretary of the Army, under the direction of the<sidenote><p class="firstIndent1 fontsize8">Army.</p></sidenote> Secretary of Defense, is authorized to establish or develop military installations and facilities by the construction, conversion, installation, or equipment of temporary or permanent public works, including buildings, facilities, appurtenances, and utilities, as follows:</chapeau>
+<appropriations level="small"><heading>continental united states</heading>
+<content>Facilities for Army Field Force stations, $79,722,525; facilities for United States Military Academy, $1,057,400; advance design of future construction projects for Army Field Force stations or United States Military Academy, $1,000,000; facilities for technical service stations as follows: Ordnance Corps, $38,025,275; Quartermaster Corps, $23,277,600; Chemical Corps, $21,129,000; Signal Corps, $44,814,500; Corps of Engineers, $11,677,600; Transportation Corps, $10,956,200: Finance Corps, $23,242,000; Adjutant General&#8217;s Corps, $2,900,000; Army Medical Service, $8,663,200; classified construction, $20,000,000; advance design for future construction projects for technical service stations, $2,000,000; and acquisition of land or real property, $3,295,500.</content></appropriations>
+<appropriations level="small"><heading>outside continental united states</heading>
+<content>Alaska, $28,105,600; Japan, $4,415,000; Hawaii, $923,900; United States Army, Europe, $53,111,600; United States forces, Austria, $4,080,000; and advance design of future construction projects for overseas bases, $1,000,000.</content></appropriations>
+</section>
+</title>
+<title><num value="I&#8211;A"><inline class="centered">TITLE I&#8211;A</inline></num>
+<section class="firstIndent1 fontsize10"><num value="102"><inline class="smallCaps">Sec</inline>. 102. </num><chapeau>The Secretary of the Army, under the direction of the Secretary of Defense, is authorized to establish or develop military installations and facilities by the construction, conversion, installation, or equipment of temporary or permanent public works, including buildings, facilities, appurtenances, and utilities, as follows:</chapeau>
+<page identifier="/us/stat/64/1222">64 <inline class="smallCaps">Stat</inline>. 1222</page>
+<appropriations level="small"><heading>special weapons project</heading>
+<content>Construction at classified installations, $7,500,000.</content></appropriations>
+</section>
+</title>
+<title><num value="II"><inline class="centered">TITLE II</inline></num>
+<section class="firstIndent1 fontsize10"><num value="201"><inline class="smallCaps">Sec</inline>. 201. </num><chapeau>The Secretary of the Navy, under the direction of the<sidenote><p class="firstIndent1 fontsize8">Navy.</p></sidenote> Secretary of Defense, is authorized to establish or develop naval installations and facilities by the construction, conversion, installation, or equipment of temporary or permanent public works, including buildings, facilities, appurtenances, and utilities, as follows:</chapeau>
+<appropriations level="small"><heading>continental united states</heading>
+<content>Fleet facilities, $5,460,380; aviation facilities, $226,913,000; Marine Corps facilities, $30,055,000; ordnance facilities, $43,464,480; medical facilities, $478,000; supply facilities, $5,490,000; communication facilities, $7,062,750; classified facilities, $6,000,000; and advance planning, $2,625,000.</content></appropriations>
+<appropriations level="small"><heading>outside continental united states</heading>
+<content>Alaska advance planning, $660,000; fleet facilities, $7,430,700; aviation facilities, $31,542,500; Marine Corps facilities, $1,500,000; ordnance facilities, $300,000; supply facilities, $1,950,000; and communication facilities, $10,723,500.</content></appropriations>
+</section>
+</title>
+<title><num value="III"><inline class="centered">TITLE III</inline></num>
+<section class="firstIndent1 fontsize10"><num value="301"><inline class="smallCaps">Sec</inline>. 301. </num><chapeau>The Secretary of the Air Force, under the direction of the<sidenote><p class="firstIndent1 fontsize8">Air Force.</p></sidenote> Secretary of Defense, is authorized to establish or develop installations and facilities by the construction, conversion, installation, or equipment of temporary or permanent public works, including buildings, facilities, appurtenances, and utilities, as follows:</chapeau>
+<appropriations level="small"><heading>continental united states</heading>
+<content>Operational support facilities, $199,654,000; training facilities, $133,782,000; depots and logistical facilities, $58,654,000; communications and navigational aid facilities, $8,432,000; research and development and test facilities, $22,864,000; classified facilities, $5,531,000; and other construction, $22,550,000.</content></appropriations>
+<appropriations level="small"><heading>outside continental united states</heading>
+<content>Operational support facilities, $263,497,000; depots and logistical facilities, $31,420,000; communications and navigational aid facilities, $26,535,000; classified facilities, $14,870,000; and other construction, $30,828,000.</content></appropriations>
+<appropriations level="small"><heading>aircraft control and warning system</heading>
+<content>Facilities at classified locations, $66,987,000.</content></appropriations>
+</section>
+</title>
+<title><num value="IV"><inline class="centered">TITLE IV</inline></num>
+<level>
+<heading class="smallCaps centered">general provisions</heading>
+<section class="firstIndent1 fontsize10"><num value="401"><inline class="smallCaps">Sec</inline>. 401. </num><content>The Secretary of the Army, the Secretary of the Navy,<sidenote><p class="firstIndent1 fontsize8">Acquisition of land.</p></sidenote> and the Secretary of the Air Force, under the direction of the Secretary of Defense, are respectively authorized, in order to establish <sidenote><p class="firstIndent1 fontsize8"><i>Ante</i>, p. 1221.</p><p class="firstIndent1 fontsize8"><i>Supra</i>.</p></sidenote>or develop the installations and facilities as authorized by titles I, I&#8211;A, II, and III of this Act, to acquire lands and rights pertaining thereto,
+<page identifier="/us/stat/64/1223">64 <inline class="smallCaps">Stat</inline>. 1223</page>
+or other interests therein, including the temporary use thereof, by donation, purchase, exchange of Government-owned lands, or otherwise, without regard to section 3648, Revised Statutes, as amended.<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/usc/t31/s529">31 U. S. C. &#167; 529</ref>.</p></sidenote> When necessary, construction of a public works project authorized by this Act may be commenced prior to approval of title to the underlying land by the Attorney General as required by section 355, Revised<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/usc/t33/s733">33 U. S. C. &#167; 733 and note</ref>.</p></sidenote> Statutes, as amended.</content></section>
+<section class="firstIndent1 fontsize10"><num value="402"><inline class="smallCaps">Sec</inline>. 402. </num><chapeau>There are hereby authorized to be appropriated, out of<sidenote><p class="firstIndent1 fontsize8">Appropriation authorized.</p></sidenote> any money in the Treasury of the United States not otherwise appropriated, such sums of money as may be necessary to accomplish the purposes of this Act, but not to exceed:</chapeau>
+<paragraph class="firstIndent1 fontsize10">
+<num value="1">(1) </num>
+<content>For public works authorized by title I: Inside continental<sidenote><p class="firstIndent1 fontsize8"><i>Ante</i>, p. 1221.</p></sidenote> United States, $291,760,800; outside continental United States, $91,636,100; or a total of $383,396,900;</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="2">(2) </num>
+<content>For public works authorized by title I&#8211;A: A total of $7,500,000;<sidenote><p class="firstIndent1 fontsize8"><i>Ante</i>, p. 1221.</p><p class="firstIndent1 fontsize8"><i>Ante</i>, p. 1222.</p></sidenote></content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="3">(3) </num>
+<content>For public works authorized by title II: Inside continental United States, $327,548,610; outside continental United States, $54,106,700; or a total of $381,655,310; and</content>
+</paragraph>
+<paragraph class="firstIndent1 fontsize10">
+<num value="4">(4) </num>
+<content>For public works authorized by title III: Inside continental<sidenote><p class="firstIndent1 fontsize8"><i>Ante</i>, p. 1222.</p></sidenote> United States, $451,467,000; outside continental United States, $367,150,000; aircraft control and warning system facilities, $66,987,000, or a total of $885,604,000.</content>
+</paragraph></section>
+<section class="firstIndent1 fontsize10"><num value="403"><inline class="smallCaps">Sec</inline>. 403. </num><content>The approximate cost indicated for each of the classes<sidenote><p class="firstIndent1 fontsize8">Approximate cost of projects.</p></sidenote> of projects enumerated and authorized by titles I, I&#8211;A, II, and III of this Act may, in the discretion of the Secretary concerned, be varied<sidenote><p class="firstIndent1 fontsize8"><i>Ante</i>, pp. 1221, 1222.</p></sidenote> upward or downward, but the total cost of the projects under each title shall not exceed the total appropriations authorized in respect of such title by section 402 of this Act.<sidenote><p class="firstIndent1 fontsize8"><i>Supra</i>.</p><p class="firstIndent1 fontsize8">Family quarters.</p></sidenote></content></section>
+<section class="firstIndent1 fontsize10"><num value="404"><inline class="smallCaps">Sec</inline>. 404. </num><content>No unit of family quarters with a net floor area in excess of one thousand and eighty square feet shall be constructed under the authority of this Act.</content></section>
+<section class="firstIndent1 fontsize10"><num value="405"><inline class="smallCaps">Sec</inline>. 405. </num><content>Appropriations made to carry out the purposes of this<sidenote><p class="firstIndent1 fontsize8">Availability of appropriations.</p></sidenote> Act shall be available for expenses incident to construction, including administration, overhead, planning and supervision, and shall be available until expended when specifically provided in the appropriation Act.</content></section>
+<section class="firstIndent1 fontsize10"><num value="406"><inline class="smallCaps">Sec</inline>. 406. </num><content>Any projects authorized by this Act may be prosecuted under direct appropriations or authority to enter into contracts in lieu of such appropriation.</content></section>
+<section class="firstIndent1 fontsize10"><num value="407"><inline class="smallCaps">Sec</inline>. 407. </num><content>Notwithstanding any other provision of law, the Departments<sidenote><p class="firstIndent1 fontsize8">Transfer of land, etc., restriction.</p></sidenote> of the Army, Navy, and Air Force may not grant or transfer to another Government department or agency other than a military department or to any other party any land or buildings of a permanent nature, or any interests in such property, except equipment no longer serviceable and except easements, leases, or permits deemed to be in the public interest, which shall have been acquired, constructed, or installed pursuant to the provisions of this or any previous Act except as authorized by an Act of Congress enacted subsequent to the date of enactment of this Act.</content></section></level>
+</title>
+<action>
+<actionDescription>Approved January 6, 1951.</actionDescription>
+</action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>For the relief of James Hung Loo.</dc:title>
+<dc:type>Chapter</dc:type>
+<docNumber>29</docNumber>
+<citableAs>64 Stat. A12</citableAs>
+<approvedDate>1950-02-15</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2026-02-05</processedDate>
+<congress>81</congress>
+<session>2</session>
+<publicPrivate>private</publicPrivate>
+</meta>
+<preface>
+<dc:type>[CHAPTER </dc:type><docNumber>29]</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>AN ACT</docTitle>
+<officialTitle>For the relief of James Hung Loo.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1950-02-15">February 15, 1950</approvedDate></p><p class="centered fontsize8">[<ref href="/us/bill/81/s/1446">S. 1446</ref>]</p><p class="centered fontsize8">[Private law 375]</p></sidenote>
+</longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</enactingFormula><sidenote><p class="firstIndent1 fontsize8">James Hung Loo.</p></sidenote>
+<section class="inline">
+<content class="inline">That in the administration of the immigration and naturalization laws, James Hung Loo, of Washington, District of Columbia, shall be held and considered to have been lawfully admitted to the United States for permanent residence as of the date of his last entry into the United States, <sidenote><p class="firstIndent1 fontsize8">Quota deduction.</p></sidenote>upon payment of the required visa fee and head tax. Upon enactment of this Act the Secretary of State shall instruct the proper quota-control officer to deduct one number from the appropriate quota for the first year that such quota is available.</content>
+</section>
+<action>
+<actionDescription>Approved February 15, 1950.</actionDescription>
+</action>
+</main>
+</pLaw>
+</component>
+
+</component>
+</collection></main>
+</statutesAtLarge>

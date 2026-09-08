@@ -1,0 +1,35 @@
+{
+ "dateIssued": "2026-02-03",
+ "documentType": "COMPS",
+ "amendedThrough": {
+  "publicLaw": "75",
+  "congress": "119",
+  "enacted": "2026-02-03"
+ },
+ "packageId": "COMPS-973",
+ "collectionCode": "COMPS",
+ "detailsLink": "https://www.govinfo.gov/app/details/COMPS-973",
+ "shortTitle": [
+  {
+   "title": "Federal Food, Drug, and Cosmetic Act"
+  }
+ ],
+ "title": "To prohibit the movement in interstate commerce of adulterated and misbranded food, drugs, devices, and cosmetics, and for other purposes.",
+ "branch": "legislative",
+ "collectionName": "Statute Compilations",
+ "displayTitle": "Federal Food, Drug, and Cosmetic Act",
+ "download": {
+  "premisLink": "https://api.govinfo.gov/packages/COMPS-973/premis",
+  "zipLink": "https://api.govinfo.gov/packages/COMPS-973/zip",
+  "modsLink": "https://api.govinfo.gov/packages/COMPS-973/mods",
+  "pdfLink": "https://api.govinfo.gov/packages/COMPS-973/pdf",
+  "uslmLink": "https://api.govinfo.gov/packages/COMPS-973/uslm"
+ },
+ "pages": "931",
+ "governmentAuthor1": "Congress",
+ "publisher": "U.S. Government Publishing Office",
+ "suDocClassNumber": "Y 1.2:",
+ "docClass": "COMPS",
+ "lastModified": "2026-08-14T12:12:52Z",
+ "category": "Bills and Statutes"
+}

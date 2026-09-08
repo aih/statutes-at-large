@@ -1,0 +1,35 @@
+{
+ "dateIssued": "2004-06-22",
+ "documentType": "COMPS",
+ "amendedThrough": {
+  "publicLaw": "237",
+  "congress": "108",
+  "enacted": "2004-06-22"
+ },
+ "packageId": "COMPS-3055",
+ "collectionCode": "COMPS",
+ "detailsLink": "https://www.govinfo.gov/app/details/COMPS-3055",
+ "shortTitle": [
+  {
+   "title": "Sherman Act"
+  }
+ ],
+ "title": "To protect trade and commerce against unlawful restraints and monopolies.",
+ "branch": "legislative",
+ "collectionName": "Statute Compilations",
+ "displayTitle": "Sherman Act",
+ "download": {
+  "premisLink": "https://api.govinfo.gov/packages/COMPS-3055/premis",
+  "zipLink": "https://api.govinfo.gov/packages/COMPS-3055/zip",
+  "modsLink": "https://api.govinfo.gov/packages/COMPS-3055/mods",
+  "pdfLink": "https://api.govinfo.gov/packages/COMPS-3055/pdf",
+  "uslmLink": "https://api.govinfo.gov/packages/COMPS-3055/uslm"
+ },
+ "pages": "3",
+ "governmentAuthor1": "Congress",
+ "publisher": "U.S. Government Publishing Office",
+ "suDocClassNumber": "Y 1.2:",
+ "docClass": "COMPS",
+ "lastModified": "2025-03-07T17:03:47Z",
+ "category": "Bills and Statutes"
+}

@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Verbatim slice of STATUTE-72.xml from the Hub dataset dreamproit/us-statutes-at-large: the volume meta and the laws numbered 317, 322, 457, 741, 829, 910. Regenerate with scripts/extract_fixture.py. -->
+<statutesAtLarge xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/" xml:lang="en">
+<meta xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2025-12-22</processedDate>
+<congress>85</congress><session>2</session>
+<dc:date>1958</dc:date>
+<volume>72</volume>
+</meta>
+
+<main><collection role="statutesParts">
+<component role="statutesPart"><meta><docPart>1</docPart></meta>
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>Public Law 85&#8211;317: Authorizing the President to issue a proclamation calling upon the people of the United States to commemorate with appropriate ceremonies the one hundredth anniversary of the admission of the State of Oregon into the Union.</dc:title>
+<dc:type>Public Law</dc:type>
+<docNumber>317</docNumber>
+<citableAs>Public Law 85&#8211;317</citableAs>
+<citableAs>72 Stat. 706</citableAs>
+<approvedDate>1958-02-04</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2025-12-22</processedDate>
+<congress>85</congress>
+<session>2</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<dc:type>Public Law</dc:type> <docNumber>85&#8211;317</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>JOINT RESOLUTION</docTitle>
+<officialTitle>Authorizing the President to issue a proclamation calling upon the people of the United States to commemorate with appropriate ceremonies the one hundredth anniversary of the admission of the State of Oregon into the Union.</officialTitle>
+<sidenote><p class="centered fontsize8"><approvedDate date="1958-02-04">February 4, 1958</approvedDate></p><p class="centered fontsize8">[<ref href="/us/bill/85/sjres/131">S. J. Res. 131</ref>]</p></sidenote>
+</longTitle>
+<resolvingClause class="indent0 firstIndent1 fontsize10"><i>Resolved by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</resolvingClause>
+<sidenote><p class="firstIndent1 fontsize8">Oregon, 100th anniversary.</p></sidenote>
+<section class="inline">
+<content class="inline">That the President of the United States is authorized and requested to issue, on or before February 14, 1959 (the one hundredth anniversary of the date on which the State of Oregon was admitted into the Union), a proclamation calling upon the people of the United States to commemorate with appropriate ceremonies the. one. hundredth anniversary of the admission of Oregon into the Union.
+</content>
+</section>
+<action>
+<actionDescription>Approved February 4, 1958.</actionDescription>
+</action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>Public Law 85&#8211;322: Making supplemental appropriations for the Department of Defense for the Usual year ending June 30, 1938, and for other purposes.</dc:title>
+<dc:type>Public Law</dc:type>
+<docNumber>322</docNumber>
+<citableAs>Public Law 85&#8211;322</citableAs>
+<citableAs>72 Stat. 706</citableAs>
+<approvedDate>1958-02-11</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2025-12-22</processedDate>
+<congress>85</congress>
+<session>2</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<dc:type>Public Law</dc:type> <docNumber>85&#8211;322</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>AN ACT</docTitle>
+<officialTitle>Making supplemental appropriations for the Department of Defense for the Usual year ending June 30, 1938, and for other purposes.</officialTitle>
+<sidenote><p class="centered fontsize8"><approvedDate date="1958-02-11">February 11, 1958</approvedDate></p><p class="centered fontsize8">[<ref href="/us/bill/85/hr/10146">H.R. 10146</ref>]</p></sidenote>
+</longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United Staten of America in Congress assembled</i>,</enactingFormula>
+<sidenote><p class="firstIndent1 fontsize8">Supplemental Defense Appropriation Act, 1958.</p></sidenote>
+<section class="inline">
+<content class="inline">That the following sums are appropriated, out of any money in the Treasury not otherwise appropriated, for the fiscal year ending June 30, 1958, for military functions administered by the Department of Defense, and for other purposes, namely:</content>
+</section>
+<page identifier="/us/stat/72/7">72 <inline class="smallCaps">Stat</inline>. 7</page>
+<title>
+<num value="I">TITLE I</num>
+<heading class="centered">OFFICE OF THE SECRETARY OF DEFENSE</heading>
+<appropriations level="small"><heading>salaries and expenses</heading>
+<content class="firstIndent1 fontsize10">The Secretary of Defense is authorized to transfer not exceeding $10,000,000, to remain available until expended, from any appropriation available to the Department of Defense for the current fiscal year for such advanced research projects as he may designate and determine: <proviso><i>Provided</i>, That such amounts as may be determined by the Secretary of Defense to have been made available for related programs in other appropriations available to the Department of Defense during the current fiscal year may be transferred to and merged with this appropriation to be available for the same purposes and time period:</proviso> <proviso><i>Provided further</i>, That such amounts of this appropriation as may be determined by the Secretary of Defense may be transferred to carry out the purposes of advanced research to those appropriations for military functions under the Department of Defense which are being utilized for related programs to be merged with and to be available for the same time period as the appropriation to which transferred.</proviso>
+</content>
+</appropriations>
+</title>
+<title>
+<num value="II">TITLE II</num>
+<heading class="centered">INTERSERVICE ACTIVITIES</heading>
+<appropriations level="intermediate"><heading>Emergency Fund</heading>
+<content class="firstIndent1 fontsize10">For an additional amount for &#8220;Emergency fund&#8221;, $100,000,000, to be derived by transfer from such appropriations available to the Department of Defense for obligation during the current fiscal year as the Secretary of Defense may designate.
+</content>
+</appropriations>
+</title>
+<title>
+<num value="III">TITLE III</num>
+<heading class="centered">DEPARTMENT OF THE ARMY</heading>
+<appropriations level="intermediate"><heading>Research and Development</heading>
+<content class="firstIndent1 fontsize10">For an additional amount for &#8220;<quotedText>Research and development</quotedText>&#8221;, to remain available until expended, $20,000,000, to be derived by transfer from the appropriation for &#8220;Military personnel, 1958&#8221;.
+</content>
+</appropriations>
+<appropriations level="intermediate"><heading>Procurement and Production</heading>
+<content class="firstIndent1 fontsize10">For an additional amount for &#8220;<quotedText>Procurement and production</quotedText>&#8221;, to remain available until expended, $20,000,000, to be derived by transfer from the appropriation for &#8220;Military personnel, 1958&#8221;.
+</content>
+</appropriations>
+</title>
+<title>
+<num value="IV">TITLE IV</num>
+<heading class="centered">DEPARTMENT OF THE NAVY</heading>
+<appropriations level="intermediate"><heading>Shipbuilding and Conversion</heading>
+<content class="firstIndent1 fontsize10">For an additional amount for &#8220;<quotedText>Shipbuilding and conversion</quotedText>&#8221;, $296,000,000, to remain available until expended.
+</content>
+</appropriations>
+<page identifier="/us/stat/72/8">72 <inline class="smallCaps">Stat</inline>. 8</page>
+<appropriations level="intermediate"><heading>Procurement or Ordnance and Ammunition</heading>
+<content class="firstIndent1 fontsize10">For an additional amount for &#8220;<quotedText>Procurement of ordnance and am-munition</quotedText>&#8221;, $31,800,000, to remain available until expended.
+</content>
+</appropriations>
+<appropriations level="intermediate"><heading>Research and Development</heading>
+<content class="firstIndent1 fontsize10">For an additional amount for &#8220;<quotedText>Research and development</quotedText>&#8221;, $22,200,000, to remain available until expended.
+</content>
+</appropriations>
+</title>
+<title>
+<num value="V">TITLE V</num>
+<heading class="centered">DEPARTMENT OF THE AIR FORCE</heading>
+<appropriations level="intermediate"><heading>Procurement Other Than Aircraft</heading>
+<content class="firstIndent1 fontsize10">For an additional amount for &#8220;Procurement other than aircraft&#8221;, $360,000,000, to remain available until expended.
+</content>
+</appropriations>
+<appropriations level="intermediate"><heading>Research and Development</heading>
+<content class="firstIndent1 fontsize10">For an additional amount for &#8220;<quotedText>Research and development</quotedText>&#8221;, $30,000,000, to remain available until expended.
+</content>
+</appropriations>
+<appropriations level="intermediate"><heading>Millitary Construction</heading>
+<content class="firstIndent1 fontsize10">For an additional amount for &#8220;Military construction&#8221;, including such construction as may be authorized by law during the second session of the Eighty-fifth Congress, $520,000,000, to remain available until expended.
+</content>
+</appropriations>
+</title>
+<title>
+<num value="VI">TITLE VI</num>
+<heading class="centered">GENERAL PROVISIONS</heading>
+<section class="firstIndent1 fontsize10">
+<num value="601"><inline class="smallCaps">Sec.</inline> 601. </num><sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/63/410">63 Stat. 410</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t5/s171p">5 USC 171p</ref>.</p></sidenote><content class="inline">In order to more effectively administer the programs relating to advanced research activities, the Secretary of Defense may authorize the creation of fifteen positions in the professional and scientific service in accordance with the provisions of Public Law 313, Eightieth Congress, as amended, and to place ten positions in grades <sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/63/954">63 Stat. 954</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t5/s1071">5 USC 1071</ref>.</p></sidenote>16, 17, or 18 of the General Schedule, in accordance with the procedures prescribed in the Classification Act of 1949, as amended. These positions shall be in addition to those now authorized by law.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="602"><inline class="smallCaps">Sec.</inline> 602. </num><sidenote><p class="firstIndent1 fontsize8">Short title.</p></sidenote><content class="inline">This Act may be cited as the &#8220;<shortTitle role="act">Supplemental Defense Appropriation Act, 1958</shortTitle>&#8221;.</content>
+</section>
+</title>
+<action>
+<actionDescription>Approved February 11, 1958.</actionDescription>
+</action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>Public Law 85&#8211;457: Making additional supplemental appropriations for the fiscal year 1958, and for other purposes.</dc:title>
+<dc:type>Public Law</dc:type>
+<docNumber>457</docNumber>
+<citableAs>Public Law 85&#8211;457</citableAs>
+<citableAs>72 Stat. 186</citableAs>
+<approvedDate>1958-06-13</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2025-12-22</processedDate>
+<congress>85</congress>
+<session>2</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<dc:type>Public Law</dc:type> <docNumber>85&#8211;457</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>JOINT RESOLUTION</docTitle>
+<officialTitle>Making additional supplemental appropriations for the fiscal year 1958, and for other purposes.</officialTitle>
+<sidenote><p class="centered fontsize8"><approvedDate date="1958-06-13">June 13, 1958</approvedDate></p><p class="centered fontsize8">[<ref href="/us/bill/85/hjres/624">H. J. Res. 624</ref>]</p></sidenote>
+</longTitle>
+<resolvingClause class="indent0 firstIndent1 fontsize10"><i>Resolved by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</resolvingClause>
+<sidenote><p class="firstIndent1 fontsize8">Supplemental appropriations, 1958.</p><p class="firstIndent1 fontsize8">Additional.</p></sidenote>
+<section class="inline">
+<content class="inline">That the following sums are appropriated, out of any money in the Treasury not otherwise appropriated, for the fiscal year ending June 30, 1958, namely:</content>
+</section>
+<chapter>
+<num value="I">CHAPTER I</num>
+<appropriations level="intermediate"><heading>Small Business Administration</heading>
+<appropriations level="small"><heading>revolving fund</heading>
+<content>For additional capital for the revolving fund authorized by the<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/70/10">70 Stat. 10</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t15/s633">15 USC 633(b)</ref>.</p></sidenote> Small Business Act of 1953, as amended, to be available without fiscal year limitation, $20,000,000.</content>
+</appropriations>
+</appropriations>
+</chapter>
+<page identifier="/us/stat/72/187">72 <inline class="smallCaps">Stat</inline>. 187</page>
+<chapter>
+<num value="II">CHAPTER II</num>
+<appropriations level="intermediate"><heading>Department of Labor</heading>
+<subheading>Bureau of Employment Security</subheading>
+<appropriations level="small"><heading>temporary unemployment compensation</heading>
+<content>For carrying into effect the provisions of the Temporary Unemployment<sidenote><p class="firstIndent1 fontsize8"><i>Ante</i>, p. 171.</p></sidenote> Compensation Act of 1958, $665,700,000, of which (a) $640,000,000 shall be for payment of temporary unemployment compensation to claimants as authorized by title I of the Temporary Unemployment Compensation Act of 1958; (b) $25,100,000 shall be for the general administration of the temporary unemployment compensation program by the States, Puerto Rico and the Virgin Islands; and (c) $600,000 shall be for expenses necessary for the general administration by the Department of Labor of the temporary unemployment compensation program, including services as authorized by section 15 of the Act of August 2, 1946 (5U.S. C. 55a)(not to exceed $10,000),<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/60/810">60 Stat. 810</ref>.</p></sidenote> reimbursement to the States for salaries and other expenses of State employees temporarily assigned or detailed to duty with the Bureau of Employment Security, and direct payments for travel expenses, transportation of household goods, and per diem in lieu of subsistence while away from their regular duty stations in the States, at rates authorized by law for Federal employees: <proviso><i>Provided</i>, That this appropriation shall be available from the date of enactment of the Temporary Unemployment Compensation Act of 1958, and any obligations incurred between such date and the date of enactment of this Act are hereby ratified and confirmed if otherwise in accordance with the provisions of this appropriation:</proviso> <proviso><i>Provided further</i>, That this appropriation shall remain available until April 30, 1959:</proviso> <proviso><i>Provided further</i>, That notwithstanding any provision of law to the contrary, no part of any funds appropriated by this Act and expended for administrative costs in the payment of benefits pursuant to the Temporary Unemployment Compensation Act of 1958 to persons who exhausted<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/68/1130">68 Stat. 1130</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t42/s1361">42 USC 1361 <i>et seq</i></ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/stat/66/684">66 Stat. 684</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t38/s991">38 USC 991 <i>et seq</i></ref>.</p><p class="firstIndent1 fontsize8"><i>Ante</i>, p. 173.</p></sidenote> their rights to benefits under title XV of the Social Security Act, as amended, or title IV of the Veterans&#8217; Readjustment Assistance Act of 1952, as amended, shall be included in any computations required under section 104 (a) of said Temporary Unemployment Compensation Act of 1958.</proviso></content>
+</appropriations>
+</appropriations>
+</chapter>
+<action>
+<actionDescription>Approved June 13, 1958.</actionDescription>
+</action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>Public Law 85&#8211;741: To amend title 18, United States Code, section 3651, so as to permit confinement in Jail-type institutions or treatment institutions for a period not exceeding six months in connection with the grant of probation on a one-count indictment.</dc:title>
+<dc:type>Public Law</dc:type>
+<docNumber>741</docNumber>
+<citableAs>Public Law 85&#8211;741</citableAs>
+<citableAs>72 Stat. 834</citableAs>
+<approvedDate>1958-08-23</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2025-12-22</processedDate>
+<congress>85</congress>
+<session>2</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<dc:type>Public Law</dc:type> <docNumber>85&#8211;741</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>AN ACT</docTitle>
+<officialTitle>To amend title 18, United States Code, section 3651, so as to permit confinement in Jail-type institutions or treatment institutions for a period not exceeding six months in connection with the grant of probation on a one-count indictment.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1958-08-23">August 23, 1958</approvedDate></p><p class="centered fontsize8">[<ref href="/us/bill/85/hr/7260">H. R. 7260</ref>]</p></sidenote>
+</longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</enactingFormula><sidenote><p class="firstIndent1 fontsize8">Crimes and offenses.</p><p class="firstIndent1 fontsize8">Split sentences.</p><p class="firstIndent1 fontsize8"><ref href="/us/stat/62/842">62 Stat. 842</ref>.</p></sidenote>
+<section class="inline">
+<content class="inline">That title 18, United States Code, section 3651, is amended by adding a paragraph after the first paragraph of that section reading as follows:
+<quotedContent>
+<p class="firstIndent1 fontsize10">&#8220;Upon entering a judgment of conviction of any offense not punishable by death or life imprisonment, if the maximum punishment provided for such offense is more than six months, any court having jurisdiction to try offenses against the United States, when satisfied that the ends of justice and the best interest of the public as well as the defendant will be served thereby, may impose a sentence in excess of six months and provide that the defendant be confined in a jail-type institution or a treatment institution for a period not exceeding six months and that the execution of the remainder of the sentence be suspended and the defendant placed on probation for such period and upon such terms and conditions as the court deems best.&#8221;</p>
+</quotedContent></content></section>
+<action>
+<actionDescription>Approved August 23, 1958.</actionDescription>
+</action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>Public Law 85&#8211;829: To amend title IV of the Agricultural Act of 1956 to provide that the provisions of such title shall apply in Hawaii.</dc:title>
+<dc:type>Public Law</dc:type>
+<docNumber>829</docNumber>
+<citableAs>Public Law 85&#8211;829</citableAs>
+<citableAs>72 Stat. 986</citableAs>
+<approvedDate>1958-08-28</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2025-12-22</processedDate>
+<congress>85</congress>
+<session>2</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<page identifier="/us/stat/72/986">72 <inline class="smallCaps">Stat</inline>. 986</page>
+<dc:type>Public Law</dc:type> <docNumber>85&#8211;829</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>AN ACT</docTitle>
+<officialTitle>To amend title IV of the Agricultural Act of 1956 to provide that the provisions of such title shall apply in Hawaii.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1958-08-28">August 28, 1958</approvedDate></p><p class="centered fontsize8">[<ref href="/us/bill/85/hr/8481">H. R. 8481</ref>]</p></sidenote>
+</longTitle>
+<enactingFormula><i>Be it enacted by the. Senate and House of Representatives of the United States of America in Congress assembled</i>,</enactingFormula><sidenote><p class="firstIndent1 fontsize8"><ref href="/us/stat/70/207">70 Stat. 207</ref>.</p><p class="firstIndent1 fontsize8"><ref href="/us/usc/t16/s568e/f">16 USC 568e ,f</ref>.</p></sidenote>
+<section class="inline">
+<content class="inline">That title IV of the Agricultural Act of 1956 is amended by adding at the end thereof the following:
+<quotedContent>
+<section>
+<heading class="smallCaps centered">&#8220;extension of title to hawaii</heading>
+<num value="403"><inline class="smallCaps">&#8220;Sec</inline>. 403. </num><content>As used in this title, the term &#8216;State&#8217; includes the Territory of Hawaii.&#8221;</content></section></quotedContent></content></section>
+<action>
+<actionDescription>Approved August 28, 1958.</actionDescription>
+</action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>Public Law 85&#8211;910: To provide for the establishment of Grand Portage National Monument in the State of Minnesota, and for other purposes.</dc:title>
+<dc:type>Public Law</dc:type>
+<docNumber>910</docNumber>
+<citableAs>Public Law 85&#8211;910</citableAs>
+<citableAs>72 Stat. 1751</citableAs>
+<approvedDate>1958-09-02</approvedDate>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2025-12-22</processedDate>
+<congress>85</congress>
+<session>1</session>
+<publicPrivate>public</publicPrivate>
+</meta>
+<preface>
+<dc:type>Public Law</dc:type> <docNumber>85&#8211;910</docNumber>
+</preface>
+<main>
+<longTitle>
+<docTitle>AN ACT</docTitle>
+<officialTitle>To provide for the establishment of Grand Portage National Monument in the State of Minnesota, and for other purposes.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1958-09-02">September 2, 1958</approvedDate></p>
+<p class="centered fontsize8">[<ref href="/us/bill/85/hr/11009">H. R. 11009</ref>]</p></sidenote>
+</longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</enactingFormula><sidenote><p class="firstIndent1 fontsize8">Grant Portage National Monument, Minn., establishment.</p></sidenote>
+<section class="inline">
+<chapeau class="inline">That, for the purpose of preserving an area containing unique historical values, there is hereby authorized to be established, in the manner hereinafter provided, the Grand Portage National Monument in the State of Minnesota which, subject to valid existing rights, shall comprise the following described lands:</chapeau>
+<appropriations level="small"><heading>northwest company area</heading>
+<content>Tract numbered 1 beginning at a point about 28 feet from the water line of Lake Superior and on the east boundary of the south-west quarter of the southeast quarter of section 4, said point marked by a brass plug numbered I; thence northerly along said boundary line a distance of 273.70 feet to a point marked by a brass plug numbered II; thence in a westerly direction parallel to the south one-sixteenth line of section 4 a distance of 1,320 feet to the intersection of said line with the north-south quarter line of section 4, said point of intersection being in the bed or a stream and witnessed by an iron pipe located 60 feet southerly from said point and on the north-south quarter line, and on the west bank of said stream; thence southerly along said north-south quarter line a distance of 120 feet to the point of intersection of said north-south quarter line and the south one-sixteenth line of section 4 marked by an iron pipe set in concrete; thence westerly along said one-sixteenth line a distance of 120 feet to a point in path marked by brass plug numbered IV; thence southerly in a direction parallel to the north-south quarter line of section 4 a distance of 660 feet to an iron bolt in road intersection; thence westerly parallel to the south one-sixteenth line of section 4 a distance of 1,200 feet to the point of intersection of said line with the west one-sixteenth line of said section 4 and marked by a brass plug numbered VI; thence southerly along said west one-sixteenth line a distance of 1,760 feet to a point marked by a brass plug numbered VII; thence easterly along a line parallel to the north section line of section 9 a distance of 486.21 feet to a point marked by an inclined iron pipe, said point being the point where the said iron pipe enters the concrete; thence along the said line extended a distance of approximately 39 feet to the water&#8217;s edge; thence along the shore line of Lake Superior to the point where said shore line intersects the east one-sixteenth line of section 4 extended; thence northerly along said one-sixteenth line to place of beginning, all being located in sections 4 and 9, township 63 north, range 6 east, in Grand Portage Indian Reservation, State of Minnesota. Right-of-way for existing Bureau of Indian Affairs roads within the above described parcel of land is excluded therefrom.</content>
+</appropriations>
+<page identifier="/us/stat/72/1752">72 <inline class="smallCaps">Stat</inline>. 1752</page>
+<appropriations level="small"><heading>northwest company area</heading>
+<content>Tract numbered 2 beginning at the point on the west one-sixteenth line of section 9 marked by brass plug numbered VII referred to in the description of tract numbered 1 above, thence westerly along a line parallel to the north section line of section 9 a distance of 275 feet to a point marked by an iron pipe; thence northerly along a line parallel to the west one-sixteenth line of section 9 a distance of 443.63 feet to a point marked by an iron pipe; thence easterly along a line parallel to the north section line of section 9 to the point of intersection of west one-sixteenth line of section 9; thence southerly along said one-sixteenth line to point of beginning, all lying in section 9 of township 63 north, range 6 east, in the Grand Portage Indian Reservation, State of Minnesota.</content>
+</appropriations>
+<appropriations level="small"><heading>fort charlotte area</heading>
+<content>The northeast quarter, section 29, township 64 north, range 5 east, or such lands within this quarter section as the Secretary of the Interior shall determine to be necessary for the protection and interpretation of the site of Fort Charlotte.</content>
+</appropriations>
+<appropriations level="small"><heading>grand portage trail section</heading>
+<content>
+<p class="indent0 fontsize10">A strip of land 100 feet wide centering along the old Portage Trail beginning at the point where the trail intersects the present road to Grand Portage School, and continuing to the proposed United States Highway 61 right-of-way relocation in the northeast quarter of the northwest quarter, section 4, township 63 north, range 6 east, a strip of land 600 feet wide centering along the old Portage Trail as delineated on original General Land Office survey maps, from the north side of the proposed right-of-way to lands described at the Fort Charlotte site.</p>
+<p class="indent0 fontsize10">Establishment of the foregoing areas as the Grand Portage National Monument shall be effective when title to that portion of the aforesaid lands and interests in lands which is held in trust by the United States of America for the Minnesota Chippewa Tribe and the Grand Portage Band of Chippew a Indians, Minnesota, has been relinquished in accordance with section 2 hereof to the Secretary of the Interior for administration as a part of the Grand Portage National Monument. <sidenote><p class="firstIndent1 fontsize8">Publication in F. R.</p></sidenote>Notice of the establishment of the monument as authorized and prescribed by this Act shall be published in the Federal Register.</p>
+</content>
+</appropriations>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="2"><inline class="smallCaps">Sec</inline>. 2. </num>
+<content class="inline">The Secretary of the Interior is authorized to accept, as a donation, the relinquishment of all right, title, and interest of the Minnesota Chippewa Tribe and the Grand Portage Band of Chippewa Indians, Minnesota, in and to any of the lands described in section 1 of this Act which is now held in trust by the United States of America for the said tribe or band; the executive committee of the Minnesota Chippewa Tribe and the tribal council of the Grand Portage Band of Chippewa Indians, Minnesota, are hereby authorized to execute such instruments of relinquishment in favor of the United States; and acceptance of the relinquishment by the Secretary shall operate as a transfer of custody, control and administration of such properties for administration and as a part of the Grand Portage National Monument: <proviso><i>Provided</i>, That upon the acceptance of any donated lands and interests therein the Secretary shall recognize, honor, and respect, in accordance with the terms thereof, any existing life assignments on such properties.</proviso></content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="3"><inline class="smallCaps">Sec</inline>. 3. </num>
+<content class="inline">The Secretary of the Interior is authorized to procure any and all other lands or interests therein within the monument, including, but not limited to, any and all nontrust lands therein owned in
+<page identifier="/us/stat/72/1753">72 <inline class="smallCaps">Stat</inline>. 1753</page>
+fee simple by the Grand Portage Band of Chippewa Indians, Minnesota, and the council of said band is authorized to sell and convey such nontrust lands to the United States of America.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="4"><inline class="smallCaps">Sec</inline>. 4. </num>
+<content class="inline">The Secretary of the Interior, under regulations prescribed by him, shall grant recognized members of the Minnesota Chippewa Tribe the preferential privilege to provide those visitor accommodations and services, including guide services, which he deems are necessary within the monument.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="5"><inline class="smallCaps">Sec</inline>. 5. </num>
+<content class="inline">The Secretary of the Interior shall, insofar as practicable, give first preference to employment of recognized members of the Minnesota Chippewa Tribe in the performance of any construction, maintenance, or any other service within the monument for which they are qualified.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="6"><inline class="smallCaps">Sec</inline>. 6. </num>
+<content class="inline">The Secretary of the Interior shall encourage recognized members of the Minnesota Chippewa Tribe in the production and sale of handicraft objects within the monument. The administration of the Grand Portage National Monument shall not in any manner interfere with the operation or existence of any trade or business of said tribe outside the boundaries of the national monument.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="7"><inline class="smallCaps">Sec</inline>. 7. </num>
+<content class="inline">Recognized members of the Minnesota Chippewa Tribe shall not be denied the privilege of traversing the area included within the Grand Portage National Monument for the purposes of logging their land, fishing, or boating, or as a means of access to their homes, businesses, or other areas of use and they shall have the right to traverse such area in pursuit of their traditional rights to hunt and trap outside the monument: <proviso><i>Provided</i>, That, in order to preserve and interpret the historic features and attractions within the monument, the Secretary may prescribe reasonable regulations under which the monument may be traversed.</proviso></content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="8"><inline class="smallCaps">Sec</inline>. 8. </num>
+<content class="inline">The Secretary of the Interior, subject to the availability of appropriated funds, shall construct and maintain docking facilities at the Northwest Company area for use in connection with the monument. Such facilities shall be available for use by the Minnesota Chippewa Tribe and its recognized members, without charge to them, under regulations to be prescribed by the Secretary.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="9"><inline class="smallCaps">Sec</inline>. 9. </num>
+<content class="inline">To the extent that appropriated funds and personnel are available therefor, the Secretary of the Interior shall provide consultative or advisory assistance to the Minnesota Chippewa Tribe and the Grand Portage Band of Chippewa Indians, Minnesota, in the planning of facilities or developments upon the lands adjacent to the monument.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="10"><inline class="smallCaps">Sec</inline>. 10. </num>
+<content class="inline">When establishment of the monument has been effected, pursuant to this Act, the Secretary of the Interior shall administer, protect, and develop the monument in accordance with the provisions of the Act entitled &#8220;<quotedText>An Act to establish a National Park Service, and for other purposes</quotedText>&#8221; approved August 25, 1916 (39 Stat. 535),<sidenote><p class="firstIndent1 fontsize8"><ref href="/us/usc/t16/s1">16 USC 1</ref>.</p></sidenote> as amended.</content>
+</section>
+<section class="firstIndent1 fontsize10">
+<num value="11"><inline class="smallCaps">Sec</inline>. 11. </num>
+<content class="inline">In the event the Grand Portage National Monument is abandoned at any time after its establishment, title to the lands relinquished by the Minnesota Chippewa Tribe and the Grand Portage Band of Chippewa Indians, Minnesota, pursuant to section 2 hereof shall thereupon automatically revert to the Minnesota Chippewa Tribe and the Grand Portage Band of Chippewa Indians, Minnesota, their successors or assigns. In such event, the title will be taken in a fee simple status unless the United States holds other lands in trust for the Minnesota Chippewa Tribe or the Grand Portage Band of Chippewa Indians, Minnesota, in which event the title shall revert to the United States in trust for the Minnesota Chippewa Tribe or the Grand Portage Band of Chippewa Indians, Minnesota.</content>
+</section>
+<action>
+<actionDescription>Approved September 2, 1958.</actionDescription>
+</action>
+</main>
+</pLaw>
+</component>
+
+</component>
+</collection></main>
+</statutesAtLarge>

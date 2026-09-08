@@ -1,0 +1,50 @@
+{
+ "dateIssued": "2026-02-10",
+ "documentType": "COMPS",
+ "amendedThrough": {
+  "publicLaw": "77",
+  "congress": "119",
+  "enacted": "2026-02-10"
+ },
+ "packageId": "COMPS-8755",
+ "collectionCode": "COMPS",
+ "detailsLink": "https://www.govinfo.gov/app/details/COMPS-8755",
+ "shortTitle": [
+  {
+   "title": "Social Security Act-TITLE II (Federal Old-Age, Survivors, and Disability Insurance Benefits)"
+  },
+  {
+   "title": "Federal Employees Unemployment Compensation Act"
+  },
+  {
+   "title": "Health Insurance for the Aged Act"
+  },
+  {
+   "title": "Medicaid Act"
+  },
+  {
+   "title": "Medicare Act"
+  },
+  {
+   "title": "Social Security Act"
+  }
+ ],
+ "title": "To provide for the general welfare by establishing a system of Federal old-age benefits, and by enabling the several States to make more adequate provision for aged persons, blind persons, dependent and crippled children, maternal and child welfare, public health, and the administration of their unemployment compensation laws; to establish a Social Security Board; to raise revenue; and for other purposes.",
+ "branch": "legislative",
+ "collectionName": "Statute Compilations",
+ "displayTitle": "Social Security Act-TITLE II (Federal Old-Age, Survivors, and Disability Insurance Benefits)",
+ "download": {
+  "premisLink": "https://api.govinfo.gov/packages/COMPS-8755/premis",
+  "zipLink": "https://api.govinfo.gov/packages/COMPS-8755/zip",
+  "modsLink": "https://api.govinfo.gov/packages/COMPS-8755/mods",
+  "pdfLink": "https://api.govinfo.gov/packages/COMPS-8755/pdf",
+  "uslmLink": "https://api.govinfo.gov/packages/COMPS-8755/uslm"
+ },
+ "pages": "266",
+ "governmentAuthor1": "Congress",
+ "publisher": "U.S. Government Publishing Office",
+ "suDocClassNumber": "Y 1.2:",
+ "docClass": "COMPS",
+ "lastModified": "2026-04-24T12:14:54Z",
+ "category": "Bills and Statutes"
+}

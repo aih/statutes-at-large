@@ -1,0 +1,49 @@
+# One origin, two surfaces (the US Code site's ADR-0010 shape). The reader at
+# /app is stage 5 of the design; until it exists the proxy answers 503 there,
+# and the citation URL still redirects browsers to it.
+{
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+{$SITE_ADDRESS::8000} {
+	encode gzip zstd
+
+	handle /robots.txt {
+		header Content-Type "text/plain; charset=utf-8"
+		respond <<ROBOTS
+			User-agent: *
+			Disallow: /
+			ROBOTS 200
+	}
+
+	handle /app* {
+		respond "The reader is not built yet. The API is at /api/v1." 503
+	}
+
+	# Everything else is FastAPI: /api/v1, the citation redirector at /us/…,
+	# /health, and the OpenAPI docs. `header_up X-Forwarded-For {remote_host}`
+	# overwrites the header, so the rate limiter keys on the real peer.
+	handle {
+		reverse_proxy api:8001 {
+			header_up X-Forwarded-For {remote_host}
+			transport http {
+				dial_timeout 5s
+				response_header_timeout 30s
+			}
+		}
+	}
+
+	header {
+		?Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		?X-Content-Type-Options "nosniff"
+		?Referrer-Policy "strict-origin-when-cross-origin"
+		?X-Frame-Options "DENY"
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

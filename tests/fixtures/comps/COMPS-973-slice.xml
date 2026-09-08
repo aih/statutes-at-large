@@ -1,0 +1,759 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?xml-stylesheet type="text/css" href="uslm.css"?><!-- Verbatim slice of GovInfo COMPS-973 USLM: meta, preface without the table of contents, and the first 4 sections. Regenerate with scripts/extract_comp_fixture.py. --><statuteCompilation xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:gpo="http://www.gpo.gov/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" style="-uslm-dtd:statute" xml:lang="en" xsi:schemaLocation="http://schemas.gpo.gov/xml/uslm https://www.govinfo.gov/schemas/xml/uslm/uslm-2.0.13.xsd">
+    <meta style="-uslm-dtd:compilation-act-form">
+        <dc:title>FEDERAL FOOD, DRUG, AND COSMETIC ACT</dc:title>
+        <currentThroughPublicLaw>119–75</currentThroughPublicLaw>
+        <dc:type>Statute Compilation</dc:type>
+        <dc:creator>United States House of Representatives</dc:creator>
+        <dc:creator>Office of the Legislative Counsel</dc:creator>
+        <dc:format>text/xml</dc:format>
+        <dc:language>EN</dc:language>
+        <dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+        <processedBy>GPO Statute Compilations USLM converter, version 20240419</processedBy>
+        <processedDate>2026-08-14</processedDate>
+        <containsShortTitle>Federal Food, Drug, and Cosmetic Act</containsShortTitle>
+        <containsShortTitle>21st Century Cures Act</containsShortTitle>
+        <containsShortTitle>Compounding Quality Act</containsShortTitle>
+        <containsShortTitle>FDA Reauthorization Act of 2017</containsShortTitle>
+        <containsShortTitle>Medical Device User Fee Amendments of 2017</containsShortTitle>
+        <containsShortTitle>Advancing Hope Act of 2016</containsShortTitle>
+        <containsShortTitle>Pandemic and All-Hazards Preparedness and Advancing Innovation Act of 2019</containsShortTitle>
+        <containsShortTitle>Drug Supply Chain Security Act</containsShortTitle>
+        <containsShortTitle>Sunscreen Innovation Act</containsShortTitle>
+        <containsShortTitle>Prescription Drug User Fee Amendments of 2022</containsShortTitle>
+        <containsShortTitle>Medical Device User Fee Amendments of 2022</containsShortTitle>
+        <containsShortTitle>Generic Drug User Fee Amendments of 2022</containsShortTitle>
+        <containsShortTitle>Biosimilar User Fee Amendments of 2022</containsShortTitle>
+        <containsShortTitle>Biosimilar User Fee Amendments of 201</containsShortTitle>
+        <containsShortTitle>Over-the-Counter Monograph Drug User Fee Amendments</containsShortTitle>
+        <property role="fileId">973</property>
+        <congress>75</congress>
+        <approvedDate>1938-06-25</approvedDate>
+    </meta>
+    <preface style="-uslm-dtd:compilation-act-form">
+        <property role="compShortTitle" style="-uslm-dtd:comp-short-title">FEDERAL FOOD, DRUG, AND COSMETIC ACT</property>
+        <editionNote style="-uslm-dtd:updated-through-note">[As Amended Through <currentThroughPublicLaw>P.L. 119–75</currentThroughPublicLaw>, Enacted <date date="2026-02-03">February 3, 2026</date>]</editionNote>
+        <explanationNote style="-uslm-dtd:explanatory-note"><b>[</b>Currency: This publication is a compilation of the text of Chapter 675 of the 75th Congress. It was last amended by the public law listed in the As Amended Through note above and below at the bottom of each page of the pdf version and reflects current law through the date of the enactment of the public law listed at https://www.govinfo.gov/app/collection/comps/<b>]</b></explanationNote>
+        <explanationNote style="-uslm-dtd:explanatory-note"><b>[</b>Note: While this publication does  not represent an official version of any Federal statute, substantial efforts have been made to ensure the accuracy of its contents. The official version of Federal law is found in the United States Statutes at Large and in the United States Code. The legal effect to be given to the Statutes at Large and the United States Code is established by statute (1 U.S.C. 112, 204).<b>]</b></explanationNote>
+    </preface>
+    <main style="-uslm-dtd:legis-body">
+        <chapter identifier="/us/sComp/75/675/chI" style="-uslm-dtd:chapter; -uslm-dtd-nonstandard:all-cap 10 no-bold" styleType="nonstandard">
+            <num style="-uslm-dtd:enum" value="I">CHAPTER I—</num><heading style="-uslm-dtd:header">SHORT TITLE </heading>
+            <section identifier="/us/sComp/75/675/chI/s1" style="-uslm-dtd:section" styleType="traditional-inline">
+                <num style="-uslm-dtd:enum" value="1">Section 1. </num><editorialNote role="uscRef" style="-uslm-dtd:usc-reference"><b>[</b><ref href="/us/usc/t21/s301">21 U.S.C. 301</ref><b>]</b> </editorialNote><content style="-uslm-dtd:text">This Act may be cited as the Federal Food, Drug, and Cosmetic Act.</content>
+            </section>
+        </chapter>
+        <chapter identifier="/us/sComp/75/675/chII" role="definitions" style="-uslm-dtd:chapter; -uslm-dtd-nonstandard:all-cap 10 no-bold" styleType="nonstandard">
+            <num style="-uslm-dtd:enum" value="II">CHAPTER II—</num><heading style="-uslm-dtd:header">DEFINITIONS<ref class="footnoteRef" idref="ID028D7232D5E34F66879826D238FA00BB" style="-uslm-dtd:footnote-ref">1</ref> </heading><footnote id="ID028D7232D5E34F66879826D238FA00BB" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">1</sup><content><p style="-uslm-dtd:para; margin-left:1em">The following additional definitions applicable to this Act are provided for in other Acts:</p>
+            <p style="-uslm-dtd:para; margin-left:1em">Butter. The Act of March 4, 1923 (21 U.S.C. 321a), defines butter as “<term style="-uslm-dtd:quote">the food product usually known as butter, and which is made exclusively from milk or cream, or both, with or without common salt, and with or without additional coloring matter, and containing not less than 80 per centum by weight of milk fat, all tolerances having been allowed for.</term>”</p>
+            <p style="-uslm-dtd:para; margin-left:1em">Package. The Act of July 24, 1919 (21 U.S.C. 321b), states “<term style="-uslm-dtd:quote">The word‘<term style="-uslm-dtd:quote">package</term>’shall include and shall be construed to include wrapped meats inclosed in papers or other materials as prepared by the manufacturers thereof for sale.</term>”</p>
+            <p style="-uslm-dtd:para; margin-left:1em">Nonfat Dry Milk, Milk. The Act of July 2, 1956 (21 U.S.C. 321c), defines nonfat dry milk as “<term style="-uslm-dtd:quote">the product resulting from the removal of fat and water from milk, and contains the lactose, milk proteins, and milk minerals in the same relative proportions as in the fresh milk from which made. It contains not over 5 per centum by weight of moisture. The fat content is not over 1½per centum by weight unless otherwise indicated.</term>”, and defines milk to mean sweet milk of cows.</p></content></footnote>
+            <section identifier="/us/sComp/75/675/chII/s201" style="-uslm-dtd:section" styleType="traditional-inline">
+                <num style="-uslm-dtd:enum" value="201">Sec. 201. </num><editorialNote role="uscRef" style="-uslm-dtd:usc-reference"><b>[</b><ref href="/us/usc/t21/s321">21 U.S.C. 321</ref><b>]</b> </editorialNote><chapeau style="-uslm-dtd:text">For the purposes of this Act—<ref class="footnoteRef" idref="ID247902D561CF427B8462969C0215E6D9" style="-uslm-dtd:footnote-ref">2</ref></chapeau><footnote id="ID247902D561CF427B8462969C0215E6D9" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">2</sup><p style="-uslm-dtd:para; margin-left:1em">See footnote for section 403(h)(3) regarding the stylistic use of a list consisting of “<quotedText style="-uslm-dtd:quote">(a)</quotedText>”, “<quotedText style="-uslm-dtd:quote">(b)</quotedText>”, etc.</p></footnote>
+                <subsection identifier="/us/sComp/75/675/chII/s201/a" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="a">(a)</num><paragraph class="inline" identifier="/us/sComp/75/675/chII/s201/a/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">State</term>”, except as used in the last sentence of section 702(a), means any State or Territory of the United States, the District of Columbia, and the Commonwealth of Puerto Rico.</content></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/a/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">Territory</term>” means any Territory or possession of the United States, including the District of Columbia, and excluding the Commonwealth of Puerto Rico and the Canal Zone.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/b" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="b">(b) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">interstate commerce</term>” means (1) commerce between any State or Territory and any place outside thereof, and (2) commerce within the District of Columbia or within any other Territory not organized with a legislative body.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/c" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="c">(c) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">Department</term>” means the Department of Health and Human Services.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/d" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="d">(d) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">Secretary</term>” means the Secretary of Health and Human Services.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/e" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="e">(e) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">person</term>” includes individual, partnership, corporation, and association.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/f" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="f">(f) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">food</term>” means (1) articles used for food or drink for man or other animals, (2) chewing gum, and (3) articles used for components of any such article.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/g" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="g">(g)</num><paragraph class="inline" identifier="/us/sComp/75/675/chII/s201/g/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">drug</term>” means (A) articles recognized in the official United States Pharmacopoeia<ref class="footnoteRef" idref="ID13791F9761FE43ED8538C58CD8182E87" style="-uslm-dtd:footnote-ref">3</ref>, official Homeopathic Pharmacopoeia<ref class="footnoteRef" style="-uslm-dtd:dangling-footnote-ref">3</ref> of the United States, or official National Formulary, or any supplement to any of them; and (B) articles intended for use in the diagnosis, cure, mitigation, treatment, or prevention of disease in man or other animals; and (C) articles (other than food) intended to affect the structure or any function of the body of man or other animals; and (D) articles intended for use as a component of any articles specified in clause (A), (B), or (C). A food or dietary supplement for which a claim, subject to sections 403(r)(1)(B) and 403(r)(3) or sections 403(r)(1)(B) and 403(r)(5)(D), is made in accordance with the requirements of section 403(r) is not a drug solely because the label or the labeling contains such a claim. A food, dietary ingredient, or dietary supplement for which a truthful and not misleading statement is made in accordance with section 403(r)(6) is not a drug under clause (C) solely because the label or the labeling contains such a statement.</content><footnote id="ID13791F9761FE43ED8538C58CD8182E87" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">3</sup><p style="-uslm-dtd:para; margin-left:1em">So in original. Probably should be “<quotedText style="-uslm-dtd:quote">Pharmacopeia</quotedText>”.</p></footnote></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/g/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">counterfeit drug</term>” means a drug which, or the container or labeling of which, without authorization, bears the trademark, trade name, or other identifying mark, imprint, or device, or any likeness thereof, of a drug manufacturer, processor, packer, or distributor other than the person or persons who in fact manufactured, processed, packed, or distributed such drug and which thereby falsely purports or is represented to be the product of, or to have been packed or distributed by, such other drug manufacturer, processor, packer, or distributor.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/h" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="h">(h)</num><paragraph class="inline" identifier="/us/sComp/75/675/chII/s201/h/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><chapeau style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">device</term>” (except when used in paragraph (n) of this section and in sections 301(i), 403(f), 502(c), and 602(c)) means an instrument, apparatus, implement, machine, contrivance, implant, in vitro reagent, or other similar or related article, including any component, part, or accessory, which is—</chapeau>
+                    <subparagraph class="leftIndentDecrease2" identifier="/us/sComp/75/675/chII/s201/h/1/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">recognized in the official National Formulary, or the United States Pharmacopeia, or any supplement to them,</content>
+                    </subparagraph>
+                    <subparagraph class="leftIndentDecrease2" identifier="/us/sComp/75/675/chII/s201/h/1/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">intended for use in the diagnosis of disease or other conditions, or in the cure, mitigation, treatment, or prevention of disease, in man or other animals, or</content>
+                    </subparagraph>
+                    <subparagraph class="leftIndentDecrease2" identifier="/us/sComp/75/675/chII/s201/h/1/C" style="-uslm-dtd:subparagraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="C">(C) </num><content style="-uslm-dtd:text">intended to affect the structure or any function of the body of man or other animals, and</content>
+                    </subparagraph><continuation role="paragraph" style="-uslm-dtd:continuation-text">which does not achieve its primary intended purposes through chemical action within or on the body of man or other animals and which is not dependent upon being metabolized for the achievement of its primary intended purposes. The term “<term style="-uslm-dtd:term">device</term>” does not include software functions excluded pursuant to section 520(o).</continuation></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/h/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">counterfeit device</term>” means a device which, or the container, packaging, or labeling of which, without authorization, bears a trademark, trade name, or other identifying mark or imprint, or any likeness thereof, or is manufactured using a design, of a device manufacturer, processor, packer, or distributor other than the person or persons who in fact manufactured, processed, packed, or distributed such device and which thereby falsely purports or is represented to be the product of, or to have been packed or distributed by, such other device manufacturer, processor, packer, or distributor.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/i" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="i">(i) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">cosmetic</term>” means (1) articles intended to be rubbed, poured, sprinkled, or sprayed on, introduced into, or otherwise applied to the human body or any part thereof for cleansing, beautifying, promoting attractiveness, or altering the appearance, and (2) articles intended for use as a component of any such articles; except that such term shall not include soap.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/j" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="j">(j) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">official compendium</term>” means the official United States Pharmacopeia, official Homeopathic Pharmacopeia of the United States, official National Formulary, or any supplement to any of them.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/k" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="k">(k) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">label</term>” means a display of written, printed, or graphic matter upon the immediate container of any article; and a requirement made by or under authority of this Act that any word, statement, or other information appear on the label shall not be considered to be complied with unless such word, statement, or other information also appears on the outside container or wrapper, if any there be, of the retail package of such article, or is easily legible through the outside container or wrapper.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/l" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="l">(l) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">immediate container</term>” does not include package liners.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/m" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="m">(m) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">labeling</term>” means all labels and other written, printed, or graphic matter (1) upon any article or any of its containers or wrappers, or (2) accompanying such article.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/n" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="n">(n) </num><content style="-uslm-dtd:text">If an article is alleged to be misbranded because the labeling or advertising is misleading, then in determining whether the labeling or advertising is misleading there shall be taken into account (among other things) not only representations made or suggested by statement, word, design, device, or any combination thereof, but also the extent to which the labeling or advertising fails to reveal facts material in the light of such representations or material with respect to consequences which may result from the use of the article to which the labeling or advertising relates under the conditions of use prescribed in the labeling or advertising thereof or under such conditions of use as are customary or usual.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/o" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="o">(o) </num><content style="-uslm-dtd:text">The representation of a drug, in its labeling, as an antiseptic shall be considered to be a representation that it is a germicide, except in the case of a drug purporting to be, or represented as, an antiseptic for inhibitory use as a wet dressing, ointment, dusting powder, or such other use as involves prolonged contact with the body.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/p" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="p">(p)<ref class="footnoteRef" idref="ID524F064989244435AB83438EE8A4C575" style="-uslm-dtd:footnote-ref">4</ref> </num><chapeau style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">new drug</term>” means—</chapeau><footnote id="ID524F064989244435AB83438EE8A4C575" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">4</sup><p style="-uslm-dtd:para; margin-left:1em">The amendments made to this Act by the Drug Amendments of 1962 included amendments establishing the requirement that new drugs be effective. Section 107(c) of such Public Law concerned the applicability of the amendments, and is included in the appendix to this compilation.</p></footnote>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/p/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">Any drug (except a new animal drug or an animal feed bearing or containing a new animal drug) the composition of which is such that such drug is not generally recognized, among experts qualified by scientific training and experience to evaluate the safety and effectiveness of drugs, as safe and effective for use under the conditions prescribed, recommended, or suggested in the labeling thereof, except that such a drug not so recognized shall not be deemed to be a “<quotedText style="-uslm-dtd:quote">new drug</quotedText>” if at any time prior to the enactment of this Act it was subject to the Food and Drugs Act of June 30, 1906, as amended, and if at such time its labeling contained the same representations concerning the conditions of its use; or</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/p/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">Any drug (except a new animal drug or an animal feed bearing or containing a new animal drug) the composition of which is such that such drug, as a result of investigations to determine its safety and effectiveness for use under such conditions, has become so recognized, but which has not, otherwise than in such investigations, been used to a material extent or for a material time under such conditions.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/q" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="q">(q)</num><paragraph class="inline" identifier="/us/sComp/75/675/chII/s201/q/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1)</num><subparagraph class="inline" identifier="/us/sComp/75/675/chII/s201/q/1/A" style="-uslm-dtd:subparagraph" styleType="OLC"><num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">Except as provided in clause (B), the term “<term style="-uslm-dtd:term">pesticide chemical</term>” means any substance that is a pesticide within the meaning of the Federal Insecticide, Fungicide, and Rodenticide Act, including all active and inert ingredients of such pesticide. Notwithstanding any other provision of law, the term “<term style="-uslm-dtd:term">pesticide</term>” within such meaning includes ethylene oxide and propylene oxide when such substances are applied on food.</content></subparagraph>
+                    <subparagraph class="leftIndentDecrease2" identifier="/us/sComp/75/675/chII/s201/q/1/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="B">(B) </num><chapeau style="-uslm-dtd:text">In the case of the use, with respect to food, of a substance described in clause (A) to prevent, destroy, repel, or mitigate microorganisms (including bacteria, viruses, fungi, protozoa, algae, and slime), the following applies for purposes of clause (A):</chapeau>
+                        <clause class="leftIndentDecrease2" identifier="/us/sComp/75/675/chII/s201/q/1/B/i" style="-uslm-dtd:clause" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="i">(i) </num><chapeau style="-uslm-dtd:text">The definition in such clause for the term “<term style="-uslm-dtd:term">pesticide chemical</term>” does not include the substance if the substance is applied for such use on food, or the substance is included for such use in water that comes into contact with the food, in the preparing, packing, or holding of the food for commercial purposes. The substance is not excluded under this subclause from such definition if the substance is ethylene oxide or propylene oxide, and is applied for such use on food. The substance is not so excluded if the substance is applied for such use on a raw agricultural commodity, or the substance is included for such use in water that comes into contact with the commodity, as follows:</chapeau>
+                            <subclause class="leftIndentDecrease2" identifier="/us/sComp/75/675/chII/s201/q/1/B/i/I" style="-uslm-dtd:subclause" styleType="OLC">
+                                <num style="-uslm-dtd:enum" value="I">(I) </num><content style="-uslm-dtd:text">The substance is applied in the field.</content>
+                            </subclause>
+                            <subclause class="leftIndentDecrease2" identifier="/us/sComp/75/675/chII/s201/q/1/B/i/II" style="-uslm-dtd:subclause" styleType="OLC">
+                                <num style="-uslm-dtd:enum" value="II">(II) </num><content style="-uslm-dtd:text">The substance is applied at a treatment facility where raw agricultural commodities are the only food treated, and the treatment is in a manner that does not change the status of the food as a raw agricultural commodity (including treatment through washing, waxing, fumigating, and packing such commodities in such manner).</content>
+                            </subclause>
+                            <subclause class="leftIndentDecrease2" identifier="/us/sComp/75/675/chII/s201/q/1/B/i/III" style="-uslm-dtd:subclause" styleType="OLC">
+                                <num style="-uslm-dtd:enum" value="III">(III) </num><content style="-uslm-dtd:text">The substance is applied during the transportation of such commodity between the field and such a treatment facility.</content>
+                            </subclause>
+                        </clause>
+                        <clause class="leftIndentDecrease2" identifier="/us/sComp/75/675/chII/s201/q/1/B/ii" style="-uslm-dtd:clause" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="ii">(ii) </num><content style="-uslm-dtd:text">The definition in such clause for the term “<term style="-uslm-dtd:term">pesticide chemical</term>” does not include the substance if the substance is a food contact substance as defined in section 409(h)(6), and any of the following circumstances exist: The substance is included for such use in an object that has a food contact surface but is not intended to have an ongoing effect on any portion of the object; the substance is included for such use in an object that has a food contact surface and is intended to have an ongoing effect on a portion of the object but not on the food contact surface; or the substance is included for such use in or is applied for such use on food packaging (without regard to whether the substance is intended to have an ongoing effect on any portion of the packaging). The food contact substance is not excluded under this subclause from such definition if any of the following circumstances exist: The substance is applied for such use on a semipermanent or permanent food contact surface (other than being applied on food packaging); or the substance is included for such use in an object that has a semipermanent or permanent food contact surface (other than being included in food packaging) and the substance is intended to have an ongoing effect on the food contact surface.</content>
+                        </clause><continuation role="subparagraph" style="-uslm-dtd:continuation-text">With respect to the definition of the term “<term style="-uslm-dtd:term">pesticide</term>” that is applicable to the Federal Insecticide, Fungicide, and Rodenticide Act, this clause does not exclude any substance from such definition.</continuation>
+                    </subparagraph></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/q/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><chapeau style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">pesticide chemical residue</term>” means a residue in or on raw agricultural commodity or processed food of—</chapeau>
+                        <subparagraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/q/2/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">a pesticide chemical; or</content>
+                        </subparagraph>
+                        <subparagraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/q/2/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">any other added substance that is present on or in the commodity or food primarily as a result of the metabolism or other degradation of a pesticide chemical.</content>
+                        </subparagraph>
+                    </paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/q/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><chapeau style="-uslm-dtd:text">Notwithstanding subparagraphs (1) and (2), the Administrator may by regulation except a substance from the definition of “<quotedText style="-uslm-dtd:quote">pesticide chemical</quotedText>” or “<quotedText style="-uslm-dtd:quote">pesticide chemical residue</quotedText>” if—</chapeau>
+                        <subparagraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/q/3/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">its occurrence as a residue on or in a raw agricultural commodity or processed food is attributable primarily to natural causes or to human activities not involving the use of any substances for a pesticidal purpose in the production, storage, processing, or transportation of any raw agricultural commodity or processed food; and</content>
+                        </subparagraph>
+                        <subparagraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/q/3/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">the Administrator, after consultation with the Secretary, determines that the substance more appropriately should be regulated under one or more provisions of this Act other than sections 402(a)(2)(B) and 408.</content>
+                        </subparagraph>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/r" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="r">(r) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">raw agricultural commodity</term>” means any food in its raw or natural state, including all fruits that are washed, colored, or otherwise treated in their unpeeled natural form prior to marketing.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/s" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="s">(s) </num><chapeau style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">food additive</term>” means any substance the intended use of which results or may reasonably be expected to result, directly or indirectly, in its becoming a component or otherwise affecting the characteristics of any food (including any substance intended for use in producing, manufacturing, packing, processing, preparing, treating, packaging, transporting, or holding food; and including any source of radiation intended for any such use), if such substance is not generally recognized, among experts qualified by scientific training and experience to evaluate its safety, as having been adequately shown through scientific procedures (or, in the case of a substance used in food prior to January 1, 1958, through either scientific procedures or experience based on common use in food) to be safe under the conditions of its intended use; except that such term does not include—</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/s/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">a pesticide chemical residue in or on a raw agricultural commodity or processed food; or</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/s/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">a pesticide chemical; or</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/s/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><content style="-uslm-dtd:text">a color additive; or</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/s/4" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="4">(4) </num><content style="-uslm-dtd:text">any substance used in accordance with a sanction or approval granted prior to the enactment of this paragraph<ref class="footnoteRef" idref="IDCA716BDBA76B46C0A1D4698FE7EED3AE" style="-uslm-dtd:footnote-ref">5</ref> pursuant to this Act, the Poultry Products Inspection Act (21 U.S.C. 451 and the following) or the Meat Inspection Act of March 4, 1907 (34 Stat. 1260), as amended and extended (21 U.S.C. 71 and the following);</content><footnote id="IDCA716BDBA76B46C0A1D4698FE7EED3AE" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">5</sup><p style="-uslm-dtd:para; margin-left:1em">Paragraph (s) was added by Public Law 85–929, which was enacted September 6, 1958.</p></footnote>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/s/5" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="5">(5) </num><content style="-uslm-dtd:text">a new animal drug; or</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/s/6" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="6">(6) </num><content style="-uslm-dtd:text">an ingredient described in paragraph (ff) in, or intended for use in, a dietary supplement.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/t" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="t">(t)</num><paragraph class="inline" identifier="/us/sComp/75/675/chII/s201/t/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><chapeau style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">color additive</term>” means a material which—</chapeau>
+                    <subparagraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/t/1/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">is a dye, pigment, or other substance made by a process of synthesis or similar artifice, or extracted, isolated, or otherwise derived, with or without intermediate or final change of identity, from a vegetable, animal, mineral, or other source, and</content>
+                    </subparagraph>
+                    <subparagraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/t/1/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">when added or applied to a food, drug, or cosmetic, or to the human body or any part thereof, is capable (alone or through reaction with other substance) of imparting color thereto;</content>
+                    </subparagraph><continuation role="paragraph" style="-uslm-dtd:continuation-text">except that such term does not include any material which the Secretary, by regulation, determines is used (or intended to be used) solely for a purpose or purposes other than coloring.</continuation></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/t/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">color</term>” includes black, white, and intermediate grays.</content>
+                    </paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/t/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><content style="-uslm-dtd:text">Nothing in subparagraph (1) of this paragraph shall be construed to apply to any pesticide chemical, soil or plant nutrient, or other agricultural chemical solely because of its effect in aiding, retarding, or otherwise affecting, directly or indirectly, the growth or other natural physiological processes of produce of the soil and thereby affecting its color, whether before or after harvest.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/u" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="u">(u) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">safe,</term>” as used in paragraph (s) of this section and in sections 409, 512, 571, and 721, has reference to the health of man or animal.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/v" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="v">(v) </num><chapeau style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">new animal drug</term>” means any drug intended for use for animals other than man, including any drug intended for use in animal feed but not including such animal feed—</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/v/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">the composition of which is such that such drug is not generally recognized, among experts qualified by scientific training and experience to evaluate the safety and effectiveness of animal drugs, as safe and effective for use under the conditions prescribed, recommended, or suggested in the labeling thereof; except that such a drug not so recognized shall not be deemed to be a “<quotedText style="-uslm-dtd:quote">new animal drug</quotedText>” if at any time prior to June 25, 1938, it was subject to the Food and Drug Act of June 30, 1906, as amended, and if at such time its labeling contained the same representations concerning the conditions of its use; or</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/v/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">the composition of which is such that such drug, as a result of investigations to determine its safety and effectiveness for use under such conditions, has become so recognized but which has not, otherwise than in such investigations, been used to a material extent or for a material time under such conditions.</content>
+                    </paragraph><continuation role="subsection" style="-uslm-dtd:continuation-text">Provided that<ref class="footnoteRef" idref="ID2FE47DA0547A4715B71A27AF649A6489" style="-uslm-dtd:footnote-ref">6</ref> any drug intended for minor use or use in a minor species that is not the subject of a final regulation published by the Secretary through notice and comment rulemaking finding that the criteria of paragraphs (1) and (2) have not been met (or that the exception to the criterion in paragraph (1) has been met) is a new animal drug.</continuation><footnote id="ID2FE47DA0547A4715B71A27AF649A6489" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">6</sup><content><p style="-uslm-dtd:para; margin-left:1em">The proviso appears so as to reflect the probable intent of the Congress. See section 102(b)(5)(B) of Public Law 108–282, which in amending section 201(v) above referred to “<quotedText style="-uslm-dtd:quote">paragraph (2)</quotedText>” of the section. The reference probably should have been to “<quotedText style="-uslm-dtd:quote">subparagraph (2)</quotedText>”. (See footnote for section 403(h)(3) regarding the stylistic use of a list consisting of “<quotedText style="-uslm-dtd:quote">(a)</quotedText>”, “<quotedText style="-uslm-dtd:quote">(b)</quotedText>”, etc.)</p>
+                    <p style="-uslm-dtd:para; margin-left:1em">With respect to the placement of the proviso, section 102(b)(5)(B) of such Public Law provided for placement “<quotedText style="-uslm-dtd:quote">after</quotedText>” paragraph (2) (not at the end of paragraph (2)), yet did not indicate separate indentation. The proviso has been placed after and below subparagraph (2), with separate indentation, to indicate the probable intent of the Congress, although such placement of matter that is not a complete sentence calls for striking the period at the end of subparagraph (2) and inserting a semicolon, which section 102(b)(5)(B) of such Public Law did not do. (Compare with matter after and below section 201(t)(1)(B), for example.)</p></content></footnote>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/w" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="w">(w) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">animal feed</term>”, as used in paragraph (w)<ref class="footnoteRef" idref="ID91FC1E9496B1492BA49C666FEE10647D" style="-uslm-dtd:footnote-ref">7</ref> of this section, in section 512, and in provisions of this Act referring to such paragraph or section, means an article which is intended for use for food for animals other than man and which is intended for use as a substantial source of nutrients in the diet of the animal, and is not limited to a mixture intended to be the sole ration of the animal.</content><footnote id="ID91FC1E9496B1492BA49C666FEE10647D" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">7</sup><p style="-uslm-dtd:para; margin-left:1em">So in law. Probably should be paragraph “<quotedText style="-uslm-dtd:quote">(v)</quotedText>”.</p></footnote>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/x" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="x">(x) </num><chapeau style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">informal hearing</term>” means a hearing which is not subject to section 554, 556, or 557 of title 5 of the United States Code and which provides for the following:</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/x/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">The presiding officer in the hearing shall be designated by the Secretary from officers and employees of the Department who have not participated in any action of the Secretary which is the subject of the hearing and who are not directly responsible to an officer or employee of the Department who has participated in any such action.</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/x/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">Each party to the hearing shall have the right at all times to be advised and accompanied by an attorney.</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/x/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><content style="-uslm-dtd:text">Before the hearing, each party to the hearing shall be given reasonable notice of the matters to be considered at the hearing, including a comprehensive statement of the basis for the action taken or proposed by the Secretary which is the subject of the hearing and a general summary of the information which will be presented by the Secretary at the hearing in support of such action.</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/x/4" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="4">(4) </num><content style="-uslm-dtd:text">At the hearing the parties to the hearing shall have the right to hear a full and complete statement of the action of the Secretary which is the subject of the hearing together with the information and reasons supporting such action, to conduct reasonable questioning, and to present any oral or written information relevant to such action.</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/x/5" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="5">(5) </num><content style="-uslm-dtd:text">The presiding officer in such hearing shall prepare a written report of the hearing to which shall be attached all written material presented at the hearing. The participants in the hearing shall be given the opportunity to review and correct or supplement the presiding officer's report of the hearing.</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/x/6" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="6">(6) </num><content style="-uslm-dtd:text">The Secretary may require the hearing to be transcribed. A party to the hearing shall have the right to have the hearing transcribed at his expense. Any transcription of a hearing shall be included in the presiding officer's report of the hearing.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/y" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="y">(y) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">saccharin</term>” includes calcium saccharin, sodium saccharin, and ammonium saccharin.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/z" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="z">(z) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">infant formula</term>” means a food which purports to be or is represented for special dietary use solely as a food for infants by reason of its simulation of human milk or its suitability as a complete or partial substitute for human milk.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/aa" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="aa">(aa) </num><chapeau style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">abbreviated drug application</term>” means an application submitted under section 505(j) for the approval of a drug that relies on the approved application of another drug with the same active ingredient to establish safety and efficacy, and—</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/aa/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">in the case of section 306, includes a supplement to such an application for a different or additional use of the drug but does not include a supplement to such an application for other than a different or additional use of the drug, and</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/aa/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">in the case of sections 307 and 308, includes any supplement to such an application.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/bb" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="bb">(bb) </num><chapeau style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">knowingly</term>” or “<quotedText style="-uslm-dtd:quote">knew</quotedText>” means that a person, with respect to information—</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/bb/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">has actual knowledge of the information, or</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/bb/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">acts in deliberate ignorance or reckless disregard of the truth or falsity of the information.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/cc" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="cc">(cc) </num><chapeau style="-uslm-dtd:text">For purposes of section 306, the term “<term style="-uslm-dtd:term">high managerial agent</term>”—</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/cc/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><chapeau style="-uslm-dtd:text">means—</chapeau>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/cc/1/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">an officer or director of a corporation or an association,</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/cc/1/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">a partner of a partnership, or</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/cc/1/C" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="C">(C) </num><content style="-uslm-dtd:text">any employee or other agent of a corporation, association, or partnership,</content>
+                        </subparagraph><continuation role="paragraph" style="-uslm-dtd:continuation-text">having duties such that the conduct of such officer, director, partner, employee, or agent may fairly be assumed to represent the policy of the corporation, association, or partnership, and</continuation>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/cc/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><chapeau style="-uslm-dtd:text">includes persons having management responsibility for—</chapeau>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/cc/2/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">submissions to the Food and Drug Administration regarding the development or approval of any drug product,</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/cc/2/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">production, quality assurance, or quality control of any drug product, or</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/cc/2/C" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="C">(C) </num><content style="-uslm-dtd:text">research and development of any drug product.</content>
+                        </subparagraph>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/dd" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="dd">(dd) </num><content style="-uslm-dtd:text">For purposes of sections 306 and 307, the term “<term style="-uslm-dtd:term">drug product</term>” means a drug subject to regulation under section 505, 512, or 802 of this Act or under section 351 of the Public Health Service Act.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/ee" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ee">(ee) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">Commissioner</term>” means the Commissioner of Food and Drugs.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/ff" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ff">(ff) </num><chapeau style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">dietary supplement</term>”—</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/ff/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><chapeau style="-uslm-dtd:text">means a product (other than tobacco) intended to supplement the diet that bears or contains one or more of the following dietary ingredients:</chapeau>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/ff/1/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">a vitamin;</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/ff/1/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">a mineral;</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/ff/1/C" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="C">(C) </num><content style="-uslm-dtd:text">an herb or other botanical;</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/ff/1/D" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="D">(D) </num><content style="-uslm-dtd:text">an amino acid;</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/ff/1/E" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="E">(E) </num><content style="-uslm-dtd:text">a dietary substance for use by man to supplement the diet by increasing the total dietary intake; or</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/ff/1/F" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="F">(F) </num><content style="-uslm-dtd:text">a concentrate, metabolite, constituent, extract, or combination of any ingredient described in clause (A), (B), (C), (D), or (E);</content>
+                        </subparagraph>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/ff/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><chapeau style="-uslm-dtd:text">means a product that—</chapeau>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/ff/2/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="A">(A)</num><clause class="inline" identifier="/us/sComp/75/675/chII/s201/ff/2/A/i" style="-uslm-dtd:clause" styleType="OLC"><num style="-uslm-dtd:enum" value="i">(i) </num><content style="-uslm-dtd:text">is intended for ingestion in a form described in section 411(c)(1)(B)(i); or</content></clause>
+                            <clause class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/ff/2/A/ii" style="-uslm-dtd:clause" styleType="OLC">
+                                <num style="-uslm-dtd:enum" value="ii">(ii) </num><content style="-uslm-dtd:text">complies with section 411(c)(1)(B)(ii);</content>
+                            </clause>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/ff/2/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">is not represented for use as a conventional food or as a sole item of a meal or the diet; and</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/ff/2/C" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="C">(C) </num><content style="-uslm-dtd:text">is labeled as a dietary supplement; and</content>
+                        </subparagraph>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/ff/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><chapeau style="-uslm-dtd:text">does—</chapeau>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/ff/3/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">include an article that is approved as a new drug under section 505 or licensed as a biologic under section 351 of the Public Health Service Act (42 U.S.C. 262) and was, prior to such approval, certification, or license, marketed as a dietary supplement or as a food unless the Secretary has issued a regulation, after notice and comment, finding that the article, when used as or in a dietary supplement under the conditions of use and dosages set forth in the labeling for such dietary supplement, is unlawful under section 402(f); and</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/ff/3/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="B">(B) </num><chapeau style="-uslm-dtd:text">not include—</chapeau>
+                            <clause identifier="/us/sComp/75/675/chII/s201/ff/3/B/i" style="-uslm-dtd:clause" styleType="OLC">
+                                <num style="-uslm-dtd:enum" value="i">(i) </num><content style="-uslm-dtd:text">an article that is approved as a new drug under section 505, certified as an antibiotic under section 507<ref class="footnoteRef" idref="IDCBA6AD2C55FB439CA2CBCA532766C441" style="-uslm-dtd:footnote-ref">8</ref>, or licensed as a biologic under section 351 of the Public Health Service Act (42 U.S.C. 262), or</content><footnote id="IDCBA6AD2C55FB439CA2CBCA532766C441" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">8</sup><p style="-uslm-dtd:para; margin-left:1em">So in law. Section 507 was repealed by section 125(b)(1) of Public Law 105–115 (111 Stat. 2325).</p></footnote>
+                            </clause>
+                            <clause identifier="/us/sComp/75/675/chII/s201/ff/3/B/ii" style="-uslm-dtd:clause" styleType="OLC">
+                                <num style="-uslm-dtd:enum" value="ii">(ii) </num><content style="-uslm-dtd:text">an article authorized for investigation as a new drug, antibiotic, or biological for which substantial clinical investigations have been instituted and for which the existence of such investigations has been made public,</content>
+                            </clause>
+                        </subparagraph><continuation role="paragraph" style="-uslm-dtd:continuation-text">which was not before such approval, certification, licensing, or authorization marketed as a dietary supplement or as a food unless the Secretary, in the Secretary's discretion, has issued a regulation, after notice and comment, finding that the article would be lawful under this Act.</continuation>
+                    </paragraph><continuation role="subsection" style="-uslm-dtd:continuation-text">Except for purposes of sections 201(g) and 417, a dietary supplement shall be deemed to be a food within the meaning of this Act.</continuation>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/gg" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="gg">(gg) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">processed food</term>” means any food other than a raw agricultural commodity and includes any raw agricultural commodity that has been subject to processing, such as canning, cooking, freezing, dehydration, or milling.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/hh" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="hh">(hh) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">Administrator</term>” means the Administrator of the United States Environmental Protection Agency.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/ii" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ii">(ii) </num><chapeau style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">compounded positron emission tomography drug</term>”—</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/ii/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><chapeau style="-uslm-dtd:text">means a drug that—</chapeau>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/ii/1/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">exhibits spontaneous disintegration of unstable nuclei by the emission of positrons and is used for the purpose of providing dual photon positron emission tomographic diagnostic images; and</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/ii/1/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">has been compounded by or on the order of a practitioner who is licensed by a State to compound or order compounding for a drug described in subparagraph (A), and is compounded in accordance with that State's law, for a patient or for research, teaching, or quality control; and</content>
+                        </subparagraph>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/ii/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">includes any nonradioactive reagent, reagent kit, ingredient, nuclide generator, accelerator, target material, electronic synthesizer, or other apparatus or computer program to be used in the preparation of such a drug.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/jj" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="jj">(jj) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">antibiotic drug</term>” means any drug (except drugs for use in animals other than humans) composed wholly or partly of any kind of penicillin, streptomycin, chlortetracycline, chloramphenicol, bacitracin, or any other drug intended for human use containing any quantity of any chemical substance which is produced by a micro-organism and which has the capacity to inhibit or destroy micro-organisms in dilute solution (including a chemically synthesized equivalent of any such substance) or any derivative thereof.</content>
+                </subsection>
+                <subsection class="leftIndentIncrease1" identifier="/us/sComp/75/675/chII/s201/kk" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="kk">(kk)<ref class="footnoteRef" idref="IDA6AA70CACBAE4CF0BA890CEED27C21E1" style="-uslm-dtd:footnote-ref">9</ref> </num><heading style="-uslm-dtd:header">Priority supplement.—</heading><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">priority supplement</term>” means a drug application referred to in section 101(4) of the Food and Drug Administration Modernization Act of 1997 (111 Stat. 2298).</content><footnote id="IDA6AA70CACBAE4CF0BA890CEED27C21E1" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">9</sup><p style="-uslm-dtd:para; margin-left:1em">Indentation is so in law. See section 5(b)(1) of Public Law 107–109 (115 Stat. 1413).</p></footnote>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/ll" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ll">(ll)</num><paragraph class="inline" identifier="/us/sComp/75/675/chII/s201/ll/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">single-use device</term>” means a device that is intended for one use, or on a single patient during a single procedure.</content></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/ll/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2)</num><subparagraph class="inline" identifier="/us/sComp/75/675/chII/s201/ll/2/A" style="-uslm-dtd:subparagraph" styleType="OLC"><num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">reprocessed</term>”, with respect to a single-use device, means an original device that has previously been used on a patient and has been subjected to additional processing and manufacturing for the purpose of an additional single use on a patient. The subsequent processing and manufacture of a reprocessed single-use device shall result in a device that is reprocessed within the meaning of this definition.</content></subparagraph>
+                        <subparagraph class="leftIndentDecrease2" identifier="/us/sComp/75/675/chII/s201/ll/2/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">A single-use device that meets the definition under clause (A) shall be considered a reprocessed device without regard to any description of the device used by the manufacturer of the device or other persons, including a description that uses the term “<term style="-uslm-dtd:term">recycled</term>” rather than the term “<term style="-uslm-dtd:term">reprocessed</term>”.</content>
+                        </subparagraph>
+                    </paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/ll/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">original device</term>” means a new, unused single-use device.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/mm" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="mm">(mm)</num><paragraph class="inline" identifier="/us/sComp/75/675/chII/s201/mm/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">critical reprocessed single-use device</term>” means a reprocessed single-use device that is intended to contact normally sterile tissue or body spaces during use.</content></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/mm/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">semi-critical reprocessed single-use device</term>” means a reprocessed single-use device that is intended to contact intact mucous membranes and not penetrate normally sterile areas of the body.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/nn" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="nn">(nn) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">major species</term>” means cattle, horses, swine, chickens, turkeys, dogs, and cats, except that the Secretary may add species to this definition by regulation.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/oo" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="oo">(oo) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">minor species</term>” means animals other than humans that are not major species.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/pp" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="pp">(pp) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">minor use</term>” means the intended use of a drug in a major species for an indication that occurs infrequently and in only a small number of animals or in limited geographical areas and in only a small number of animals annually.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/qq" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="qq">(qq) </num><chapeau style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">major food allergen</term>” means any of the following:</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/qq/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">Milk, egg, fish (e.g., bass, flounder, or cod), Crustacean shellfish (e.g., crab, lobster, or shrimp), tree nuts (e.g., almonds, pecans, or walnuts), wheat, peanuts, soybeans, and sesame.</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/qq/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><chapeau style="-uslm-dtd:text">A food ingredient that contains protein derived from a food specified in paragraph<ref class="footnoteRef" idref="ID57E19EF25C9C473E84212AEF67636F07" style="-uslm-dtd:footnote-ref">10</ref> (1), except the following:</chapeau><footnote id="ID57E19EF25C9C473E84212AEF67636F07" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">10</sup><p style="-uslm-dtd:para; margin-left:1em">So in law. See section 203(c)(1) of Public Law 108–282. Probably should be “<quotedText style="-uslm-dtd:quote">subparagraph</quotedText>”. See footnote for section 403(h)(3).</p></footnote>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/qq/2/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">Any highly refined oil derived from a food specified in paragraph<ref class="footnoteRef" style="-uslm-dtd:dangling-footnote-ref">10</ref> (1) and any ingredient derived from such highly refined oil.</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chII/s201/qq/2/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">A food ingredient that is exempt under paragraph<ref class="footnoteRef" style="-uslm-dtd:dangling-footnote-ref">10</ref> (6) or (7) of section 403(w).</content>
+                        </subparagraph>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/rr" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="rr">(rr)</num><paragraph class="inline" identifier="/us/sComp/75/675/chII/s201/rr/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">tobacco product</term>” means any product made or derived from tobacco, or containing nicotine from any source, that is intended for human consumption, including any component, part, or accessory of a tobacco product (except for raw materials other than tobacco used in manufacturing a component, part, or accessory of a tobacco product).</content></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/rr/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">tobacco product</term>” does not mean an article that is a drug under subsection (g)(1), a device under subsection (h), or a combination product described in section 503(g).</content>
+                    </paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/rr/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><content style="-uslm-dtd:text">The products described in paragraph (2) shall be subject to chapter V of this Act.</content>
+                    </paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/rr/4" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="4">(4) </num><content style="-uslm-dtd:text">A tobacco product shall not be marketed in combination with any other article or product regulated under this Act (including a drug, biologic, food, cosmetic, medical device, or a dietary supplement).</content>
+                    </paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chII/s201/rr/5" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="5">(5) </num><content style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">tobacco product</term>” does not mean an article that is a food under paragraph (f), if such article contains no nicotine, or no more than trace amounts of naturally occurring nicotine.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chII/s201/ss" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ss">(ss) </num><chapeau style="-uslm-dtd:text">The term “<term style="-uslm-dtd:term">critical food</term>” means a food that is—</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/ss/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">an infant formula; or</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chII/s201/ss/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">a medical food, as defined in section 5(b)(3) of the Orphan Drug Act.</content>
+                    </paragraph>
+                </subsection>
+            </section>
+        </chapter>
+        <chapter identifier="/us/sComp/75/675/chIII" style="-uslm-dtd:chapter; -uslm-dtd-nonstandard:all-cap 10 no-bold" styleType="nonstandard">
+            <num style="-uslm-dtd:enum" value="III">CHAPTER III—</num><heading style="-uslm-dtd:header">PROHIBITED ACTS AND PENALTIES </heading>
+            <section identifier="/us/sComp/75/675/chIII/s301" style="-uslm-dtd:section" styleType="traditional">
+                <heading style="-uslm-dtd:header">prohibited acts </heading>
+                <num style="-uslm-dtd:enum" value="301">Sec. 301. </num><editorialNote role="uscRef" style="-uslm-dtd:usc-reference"><b>[</b><ref href="/us/usc/t21/s331">21 U.S.C. 331</ref><b>]</b> </editorialNote><chapeau style="-uslm-dtd:text">The following acts and the causing thereof are hereby prohibited:<ref class="footnoteRef" idref="ID9B283F3D8FE4439F94B81FE0DA3AC53B" style="-uslm-dtd:footnote-ref">11</ref></chapeau><footnote id="ID9B283F3D8FE4439F94B81FE0DA3AC53B" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">11</sup><p style="-uslm-dtd:para; margin-left:1em">See footnote for section 403(h)(3) regarding the stylistic use of a list consisting of “<quotedText style="-uslm-dtd:quote">(a)</quotedText>”, “<quotedText style="-uslm-dtd:quote">(b)</quotedText>”, etc..</p></footnote>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/a" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="a">(a) </num><content style="-uslm-dtd:text">The introduction or delivery for introduction into interstate commerce of any food, drug, device, tobacco product, or cosmetic that is adulterated or misbranded.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/b" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="b">(b) </num><content style="-uslm-dtd:text">The adulteration or misbranding of any food, drug, device, tobacco product, or cosmetic in interstate commerce.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/c" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="c">(c) </num><content style="-uslm-dtd:text">The receipt in interstate commerce of any food, drug, device, tobacco product, or cosmetic that is adulterated or misbranded, and the delivery or proffered delivery thereof for pay or otherwise.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/d" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="d">(d) </num><content style="-uslm-dtd:text">The introduction or delivery for introduction into interstate commerce of any article in violation of section 404, 415, 505,,<ref class="footnoteRef" idref="ID799971AF91A34A6E90D9E73985FDED52" style="-uslm-dtd:footnote-ref">12</ref> 564, or 607 .</content><footnote id="ID799971AF91A34A6E90D9E73985FDED52" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">12</sup><p style="-uslm-dtd:para; margin-left:1em">Double commas in section 301(d) are so in law. See amendment made by section 3503(a)(1)(B) of division FF of Public Law 117-328.</p></footnote>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/e" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="e">(e) </num><content style="-uslm-dtd:text">The refusal to permit access to or copying of any record as required by section 412, 414, 417(j), 416, 504, 564, 605,
+703, 704(a), 760, or 761; or the failure to establish or maintain any record, or make any report, required under section 412, 414(b), 417, 416, 504, 505 (i) or (k), 512(a)(4)(C), 512 (j), (l) or (m), 572(i), 515(f), 519, 564, 605,
+611, 760, 761, 909, or 920 or the refusal to permit access to or verification or copying of any such required record; or the violation of any recordkeeping requirement under section 204 of the FDA Food Safety Modernization Act (except when such violation is committed by a farm).</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/f" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="f">(f) </num><content style="-uslm-dtd:text">The refusal to permit entry or inspection as authorized by section 704.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/g" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="g">(g) </num><content style="-uslm-dtd:text">The manufacture within any Territory of any food, drug, device, tobacco product, or cosmetic that is adulterated or misbranded.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/h" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="h">(h) </num><content style="-uslm-dtd:text">The giving of a guaranty or undertaking referred to in section 303(c)(2), which guaranty or undertaking is false, except by a person who relied upon a guaranty or undertaking to the same effect signed by, and containing the name and address of, the person residing in the United States from whom he received in good faith the food, drug, device, tobacco product, or cosmetic; or the giving of a guaranty or undertaking referred to in section 303(c)(3), which guaranty or undertaking is false.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/i" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="i">(i)</num><paragraph class="inline" identifier="/us/sComp/75/675/chIII/s301/i/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">Forging, counterfeiting, simulating, or falsely representing, or without proper authority using any mark, stamp, tag, label, or other identification device authorized or required by regulations promulgated under the provisions of section 404 or 721.</content></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/i/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">Making, selling, disposing of, or keeping in possession, control, or custody, or concealing any punch, die, plate, stone, or other thing designed to print, imprint, or reproduce the trademark, trade name, or other identifying mark, imprint, or device of another or any likeness of any of the foregoing upon any drug or container or labeling thereof so as to render such drugs a counterfeit drug.</content>
+                    </paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/i/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><content style="-uslm-dtd:text">The doing of any act which causes a drug to be a counterfeit drug, or the sale or dispensing, or the holding for sale or dispensing, of a counterfeit drug.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/j" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="j">(j) </num><content style="-uslm-dtd:text">The using by any person to his own advantage, or revealing, other than to the Secretary or officers or employees of the Department, or to the courts when relevant in any judicial proceeding under this Act, any information acquired under authority of section 404, 409, 412, 414, 505, 510, 512, 513, 514, 515, 516, 518, 519, 520, 571, 572, 573, 704, 708, 721, 904, 905, 906, 907, 908, 909, or 920(b) concerning any method or process which as a trade secret is entitled to protection; or the violating of section 408(i)(2) or any regulation issued under that section..<ref class="footnoteRef" idref="IDB025250A3DB946378E9F7752EF77B344" style="-uslm-dtd:footnote-ref">13</ref> This paragraph does not authorize the withholding of information from either House of Congress or from, to the extent of matter within its jurisdiction, any committee or subcommittee of such committee or any joint committee of Congress or any subcommittee of such joint committee.</content><footnote id="IDB025250A3DB946378E9F7752EF77B344" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">13</sup><p style="-uslm-dtd:para; margin-left:1em">So in law. See the amendment made by section 403 of Public Law 104–170 (110 Stat. 1514).</p></footnote>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/k" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="k">(k) </num><content style="-uslm-dtd:text">The alteration, mutilation, destruction, obliteration, or removal of the whole or any part of the labeling of, or the doing of any other act with respect to, a food, drug, device, tobacco product, or cosmetic, if such act is done while such article is held for sale (whether or not the first sale) after shipment in interstate commerce and results in such article being adulterated or misbranded.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/m" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="m">(m)<ref class="footnoteRef" idref="ID0672870A14474BB7BF0F87CB07A953F9" style="-uslm-dtd:footnote-ref">14</ref> </num><content style="-uslm-dtd:text">The sale or offering for sale of colored oleomargarine or colored margarine, or the possession or serving of colored oleomargarine or colored margarine in violation of section 407(b) or 407(c).</content><footnote id="ID0672870A14474BB7BF0F87CB07A953F9" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">14</sup><p style="-uslm-dtd:para; margin-left:1em">Paragraph (l) was struck by section 421 of Public Law 105–115 (111 Stat. 2380).</p></footnote>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/n" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="n">(n) </num><content style="-uslm-dtd:text">The using, in labeling, advertising or other sales promotion of any reference to any report or analysis furnished in compliance with section 704.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/o" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="o">(o) </num><content style="-uslm-dtd:text">In the case of a prescription drug distributed or offered for sale in interstate commerce, the failure of the manufacturer, packer, or distributor thereof to maintain for transmittal, or to transmit, to any practitioner licensed by applicable State law to administer such drug who makes written request for information as to such drug, true and correct copies of all printed matter which is required to be included in any package in which that drug is distributed or sold, or such other printed matter as is approved by the Secretary. Nothing in this paragraph shall be construed to exempt any person from any labeling requirement imposed by or under other provisions of this Act.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/p" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="p">(p) </num><content style="-uslm-dtd:text">The failure to register in accordance with section 510 or 905, the failure to provide any information required by section 510(j), 510(k), 905(i), or 905(j), or the failure to provide a notice required by section 510(j)(2) or 905(i)(3).</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/q" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="q">(q)</num><paragraph class="inline" identifier="/us/sComp/75/675/chIII/s301/q/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><chapeau style="-uslm-dtd:text">The failure or refusal—</chapeau>
+                    <subparagraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/q/1/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">to comply with any requirement prescribed under section 518, 520(g), 903(b), 907, 908, or 915;</content>
+                    </subparagraph>
+                    <subparagraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/q/1/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">to furnish any notification or other material or information required by or under section 519, 520(g), 904, 909, or 920; or</content>
+                    </subparagraph>
+                    <subparagraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/q/1/C" style="-uslm-dtd:subparagraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="C">(C) </num><content style="-uslm-dtd:text">to comply with a requirement under section 522 or 913.</content>
+                    </subparagraph></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/q/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">With respect to any device or tobacco product, the submission of any report that is required by or under this Act that is false or misleading in any material respect.</content>
+                    </paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/q/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><content style="-uslm-dtd:text">The failure to comply with any requirement under section 524B(b)(2) (relating to ensuring device cybersecurity).</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/r" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="r">(r) </num><content style="-uslm-dtd:text">The movement of a device, drug, or tobacco product in violation of an order under section 304(g) or the removal or alteration of any mark or label required by the order to identify the device, drug, or tobacco product as detained.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/s" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="s">(s) </num><content style="-uslm-dtd:text">The failure to provide the notice required by section 412(c) or 412(e), the failure to make the reports required by section 412(f)(1)(B), the failure to retain the records required by section 412(b)(4), or the failure to meet the requirements prescribed under section 412(f)(3).</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/t" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="t">(t) </num><content style="-uslm-dtd:text">The importation of a drug in violation of section 801(d)(1), the sale, purchase, or trade of a drug or drug sample or the offer to sell, purchase, or trade a drug or drug sample in violation of section 503(c), the sale, purchase, or trade of a coupon, the offer to sell, purchase, or trade such a coupon, or the counterfeiting of such a coupon in violation of section 503(c)(2), the distribution of a drug sample in violation of section 503(d) or the failure to otherwise comply with the requirements of section 503(d),  the distribution of drugs in violation of section 503(e), failure to comply with the requirements under section 582, the failure to comply with the requirements under section 584, as applicable, or the failure to otherwise comply with the requirements of section 503(e).</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/u" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="u">(u) </num><content style="-uslm-dtd:text">The failure to comply with any requirements of the provisions of, or any regulations or orders of the Secretary, under section 512(a)(4)(A), 512(a)(4)(D), or 512(a)(5).</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/v" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="v">(v) </num><content style="-uslm-dtd:text">The introduction or delivery for introduction into interstate commerce of a dietary supplement that is unsafe under section 413.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/w" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="w">(w) </num><content style="-uslm-dtd:text">The making of a knowingly false statement in any statement, certificate of analysis, record, or report required or requested under section 801(d)(3); the failure to submit a certificate of analysis as required under such section; the failure to maintain records or to submit records or reports as required by such section; the release into interstate commerce of any article or portion thereof imported into the United States under such section or any finished product made from such article or portion, except for export in accordance with section 801(e) or 802, or with section 351(h) of the Public Health Service Act; or the failure to so export or to destroy such an article or portions thereof, or such a finished product.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/x" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="x">(x) </num><content style="-uslm-dtd:text">The falsification of a declaration of conformity submitted under section 514(c) or the failure or refusal to provide data or information requested by the Secretary under paragraph (3) of such section.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/y" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="y">(y) </num><chapeau style="-uslm-dtd:text">In the case of a drug, device, or food—</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chIII/s301/y/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">the submission of a report or recommendation by a person accredited under section 523 that is false or misleading in any material respect;</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chIII/s301/y/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">the disclosure by a person accredited under section 523 of confidential commercial information or any trade secret without the express written consent of the person who submitted such information or secret to such person; or</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chIII/s301/y/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><content style="-uslm-dtd:text">the receipt by a person accredited under section 523 of a bribe in any form or the doing of any corrupt act by such person associated with a responsibility delegated to such person under this Act.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/z" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="z">(z)<ref class="footnoteRef" idref="ID3381CE1EF05D49DA94C98C926FA76A4E" style="-uslm-dtd:footnote-ref">15</ref> </num><content style="-uslm-dtd:text">The dissemination of information in violation of section 551.</content><footnote id="ID3381CE1EF05D49DA94C98C926FA76A4E" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">15</sup><content><p style="-uslm-dtd:para; margin-left:1em">Paragraph (z) was added by subsection (b) of section 401(b) of Public Law 105–115 (111 Stat. 2364). Subsection (e) of such section provides as follows:</p>
+                    <p style="-uslm-dtd:para; margin-left:1em">(e) <headingText style="-uslm-dtd:header-in-text">Sunset</headingText>.—The amendments made by this section cease to be effective September 30, 2006, or 7 years after the date on which the Secretary promulgates the regulations described in subsection (c), whichever is later.</p></content></footnote>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/aa" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="aa">(aa) </num><content style="-uslm-dtd:text">The importation of a prescription drug in violation of section 804, the falsification of any record required to be maintained or provided to the Secretary under such section, or any other violation of regulations under such section.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/bb" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="bb">(bb) </num><content style="-uslm-dtd:text">The transfer of an article of food in violation of an order under section 304(h), or the removal or alteration of any mark or label required by the order to identify the article as detained.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/cc" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="cc">(cc) </num><content style="-uslm-dtd:text">The importing or offering for import into the United States of an article of food or a drug by, with the assistance of, or at the direction of, a person debarred from such activity under section 306(b)(3).</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/dd" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="dd">(dd) </num><content style="-uslm-dtd:text">The failure to register in accordance with section 415.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/ee" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ee">(ee) </num><content style="-uslm-dtd:text">The importing or offering for import into the United States of an article of food in violation of the requirements under section 801(m).</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/ff" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ff">(ff) </num><content style="-uslm-dtd:text">The importing or offering for import into the United States of a drug or device with respect to which there is a failure to comply with a request of the Secretary to submit to the Secretary a statement under section 801(o).</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/gg" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="gg">(gg) </num><content style="-uslm-dtd:text">The knowing failure to comply with paragraph (7)(E) of section 704(g); the knowing inclusion by a person accredited under paragraph (2) of such section of false information in an inspection report under paragraph (7)(A) of such section; or the knowing failure of such a person to include material facts in such a report.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/hh" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="hh">(hh) </num><content style="-uslm-dtd:text">The failure by a shipper, carrier by motor vehicle or rail vehicle, receiver, or any other person engaged in the transportation of food to comply with the sanitary transportation practices prescribed by the Secretary under section 416.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/ii" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ii">(ii) </num><content style="-uslm-dtd:text">The falsification of a report of a serious adverse event submitted to a responsible person (as defined under section 604,
+760, or 761) or the falsification of a serious adverse event report (as defined under section 760 or 761 or required under section 605(a)) submitted to the Secretary.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/jj" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="jj">(jj)</num><paragraph class="inline" identifier="/us/sComp/75/675/chIII/s301/jj/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">The failure to submit the certification required by section 402(j)(5)(B) of the Public Health Service Act, or knowingly submitting a false certification under such section.</content></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/jj/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">The failure to submit clinical trial information required under subsection (j) of section 402 of the Public Health Service Act.</content>
+                    </paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/jj/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><content style="-uslm-dtd:text">The submission of clinical trial information under subsection (j) of section 402 of the Public Health Service Act that is false or misleading in any particular under paragraph (5)(D) of such subsection (j).</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/kk" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="kk">(kk)<ref class="footnoteRef" idref="ID1A6E93C6D50246D086406724CBD90983" style="-uslm-dtd:footnote-ref">16</ref> </num><content style="-uslm-dtd:text">The dissemination of a television advertisement without complying with section 503B.</content><footnote id="ID1A6E93C6D50246D086406724CBD90983" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">16</sup><p style="-uslm-dtd:para; margin-left:1em">Subsection (kk) was added by section 901(d)(1) of Public Law 110–85 (enacted September 27, 2007; 121 Stat. 939). Section 909(a) provides that “<quotedText style="-uslm-dtd:quote">[t]his subtitle takes effect 180 days after the date of the enactment of this Act</quotedText>”.</p></footnote>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/ll" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ll">(ll) </num><chapeau style="-uslm-dtd:text">The introduction or delivery for introduction into interstate commerce of any food to which has been added a drug approved under section 505, a biological product licensed under section 351 of the Public Health Service Act, or a drug or a biological product for which substantial clinical investigations have been instituted and for which the existence of such investigations has been made public, unless—</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chIII/s301/ll/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">such drug or such biological product was marketed in food before any approval of the drug under section 505, before licensure of the biological product under such section 351, and before any substantial clinical investigations involving the drug or the biological product have been instituted;</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chIII/s301/ll/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">the Secretary, in the Secretary's discretion, has issued a regulation, after notice and comment, approving the use of such drug or such biological product in the food;</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chIII/s301/ll/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><chapeau style="-uslm-dtd:text">the use of the drug or the biological product in the food is to enhance the safety of the food to which the drug or the biological product is added or applied and not to have independent biological or therapeutic effects on humans, and the use is in conformity with—</chapeau>
+                        <subparagraph identifier="/us/sComp/75/675/chIII/s301/ll/3/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">a regulation issued under section 409 prescribing conditions of safe use in food;</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chIII/s301/ll/3/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">a regulation listing or affirming conditions under which the use of the drug or the biological product in food is generally recognized as safe;</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chIII/s301/ll/3/C" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="C">(C) </num><content style="-uslm-dtd:text">the conditions of use identified in a notification to the Secretary of a claim of exemption from the premarket approval requirements for food additives based on the notifier's determination that the use of the drug or the biological product in food is generally recognized as safe, provided that the Secretary has not questioned the general recognition of safety determination in a letter to the notifier;</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chIII/s301/ll/3/D" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="D">(D) </num><content style="-uslm-dtd:text">a food contact substance notification that is effective under section 409(h); or</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chIII/s301/ll/3/E" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="E">(E) </num><content style="-uslm-dtd:text">such drug or biological product had been marketed for smoking cessation prior to the date of the enactment of the Food and Drug Administration Amendments Act of 2007; or</content>
+                        </subparagraph>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chIII/s301/ll/4" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="4">(4) </num><content style="-uslm-dtd:text">the drug is a new animal drug whose use is not unsafe under section 512.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/mm" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="mm">(mm) </num><content style="-uslm-dtd:text">The failure to submit a report or provide a notification required under section 417(d).</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/nn" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="nn">(nn) </num><content style="-uslm-dtd:text">The falsification of a report or notification required under section 417(d).</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/oo" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="oo">(oo) </num><content style="-uslm-dtd:text">The sale of tobacco products in violation of a no-tobacco-sale order issued under section 303(f).</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/pp" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="pp">(pp) </num><content style="-uslm-dtd:text">The introduction or delivery for introduction into interstate commerce of a tobacco product in violation of section 911.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/qq" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="qq">(qq)</num><paragraph class="inline" identifier="/us/sComp/75/675/chIII/s301/qq/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">Forging, counterfeiting, simulating, or falsely representing, or without proper authority using any mark, stamp (including tax stamp), tag, label, or other identification device upon any tobacco product or container or labeling thereof so as to render such tobacco product a counterfeit tobacco product.</content></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/qq/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">Making, selling, disposing of, or keeping in possession, control, or custody, or concealing any punch, die, plate, stone, or other item that is designed to print, imprint, or reproduce the trademark, trade name, or other identifying mark, imprint, or device of another or any likeness of any of the foregoing upon any tobacco product or container or labeling thereof so as to render such tobacco product a counterfeit tobacco product.</content>
+                    </paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/qq/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><content style="-uslm-dtd:text">The doing of any act that causes a tobacco product to be a counterfeit tobacco product, or the sale or dispensing, or the holding for sale or dispensing, of a counterfeit tobacco product.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/rr" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="rr">(rr) </num><content style="-uslm-dtd:text">The charitable distribution of tobacco products.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/ss" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ss">(ss) </num><content style="-uslm-dtd:text">The failure of a manufacturer or distributor to notify the Attorney General and the Secretary of the Treasury of their knowledge of tobacco products used in illicit trade.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/tt" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="tt">(tt) </num><chapeau style="-uslm-dtd:text">Making any express or implied statement or representation directed to consumers with respect to a tobacco product, in a label or labeling or through the media or advertising, that either conveys, or misleads or would mislead consumers into believing, that—</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chIII/s301/tt/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">the product is approved by the Food and Drug Administration;</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chIII/s301/tt/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">the Food and Drug Administration deems the product to be safe for use by consumers;</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chIII/s301/tt/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><content style="-uslm-dtd:text">the product is endorsed by the Food and Drug Administration for use by consumers; or</content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chIII/s301/tt/4" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="4">(4) </num><chapeau style="-uslm-dtd:text">the product is safe or less harmful by virtue of—</chapeau>
+                        <subparagraph identifier="/us/sComp/75/675/chIII/s301/tt/4/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">its regulation or inspection by the Food and Drug Administration; or</content>
+                        </subparagraph>
+                        <subparagraph identifier="/us/sComp/75/675/chIII/s301/tt/4/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">its compliance with regulatory requirements set by the Food and Drug Administration;</content>
+                        </subparagraph><continuation role="paragraph" style="-uslm-dtd:continuation-text">including any such statement or representation rendering the product misbranded under section 903.</continuation>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/uu" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="uu">(uu) </num><content style="-uslm-dtd:text">The operation of a facility that manufactures, processes, packs, or holds food for sale in the United States if the owner, operator, or agent in charge of such facility is not in compliance with section 418.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/vv" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="vv">(vv) </num><content style="-uslm-dtd:text">The failure to comply with the requirements under section 419.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/ww" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ww">(ww) </num><content style="-uslm-dtd:text">The failure to comply with section 420.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/xx" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="xx">(xx) </num><content style="-uslm-dtd:text">The refusal or failure to follow an order under section 423.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/yy" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="yy">(yy) </num><content style="-uslm-dtd:text">The knowing and willful failure to comply with the notification requirement under section 417(h).</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/zz" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="zz">(zz) </num><content style="-uslm-dtd:text">The importation or offering for importation of a food if the importer (as defined in section 805) does not have in place a foreign supplier verification program in compliance with such section 805.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/aaa" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="aaa">(aaa) </num><content style="-uslm-dtd:text">The failure to register in accordance with section 801(s).</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/bbb" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="bbb">(bbb) </num><content style="-uslm-dtd:text">The failure to notify the Secretary in violation of section 568.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/ccc" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ccc">(ccc)</num><paragraph class="inline" identifier="/us/sComp/75/675/chIII/s301/ccc/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">The resale of a compounded drug that is labeled “<quotedText style="-uslm-dtd:quote">not for resale</quotedText>” in accordance with section 503B.</content></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/ccc/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">With respect to a drug to be compounded pursuant to section 503A or 503B, the intentional falsification of a prescription, as applicable.</content>
+                    </paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/ccc/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><content style="-uslm-dtd:text">The failure to report drugs or adverse events by an entity that is registered in accordance with subsection (b) of section 503B.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/ddd" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ddd">(ddd)</num><paragraph class="inline" identifier="/us/sComp/75/675/chIII/s301/ddd/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">The manufacture or the introduction or delivery for introduction into interstate commerce of a rinse-off cosmetic that contains intentionally-added plastic microbeads.</content></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/ddd/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><chapeau style="-uslm-dtd:text">In this paragraph—</chapeau>
+                        <subparagraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/ddd/2/A" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="A">(A) </num><content style="-uslm-dtd:text">the term “<quotedText style="-uslm-dtd:quote">plastic microbead</quotedText>” means any solid plastic particle that is less than five millimeters in size and is intended to be used to exfoliate or cleanse the human body or any part thereof; and </content>
+                        </subparagraph>
+                        <subparagraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/ddd/2/B" style="-uslm-dtd:subparagraph" styleType="OLC">
+                            <num style="-uslm-dtd:enum" value="B">(B) </num><content style="-uslm-dtd:text">the term “<quotedText style="-uslm-dtd:quote">rinse-off cosmetic</quotedText>” includes toothpaste.</content>
+                        </subparagraph>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/eee" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="eee">(eee) </num><content style="-uslm-dtd:text">The failure to comply with any order issued under section 569D.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/fff" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="fff">(fff)</num><paragraph class="inline" identifier="/us/sComp/75/675/chIII/s301/fff/1" style="-uslm-dtd:paragraph" styleType="OLC"><num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">Forging, counterfeiting, simulating, or falsely representing, or without proper authority using any mark, stamp, tag, label, or other identification upon any device or container, packaging, or labeling thereof so as to render such device a counterfeit device.</content></paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/fff/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">Making, selling, disposing of, or keeping in possession, control, or custody, or concealing any punch, die, plate, stone, or other thing designed to print, imprint, or reproduce the trademark, trade name, or other identifying mark or imprint of another or any likeness of any of the foregoing upon any device or container, packaging, or labeling thereof so as to render such device a counterfeit device.</content>
+                    </paragraph>
+                    <paragraph class="leftIndentDecrease1" identifier="/us/sComp/75/675/chIII/s301/fff/3" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="3">(3) </num><content style="-uslm-dtd:text">The doing of any act which causes a device to be a counterfeit device, or the sale or dispensing, or the holding for sale or dispensing, of a counterfeit device.</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/ggg" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="ggg">(ggg) </num><chapeau style="-uslm-dtd:text">The failure of a sponsor of a product approved under accelerated approval pursuant to section 506(c)—</chapeau>
+                    <paragraph identifier="/us/sComp/75/675/chIII/s301/ggg/1" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="1">(1) </num><content style="-uslm-dtd:text">to conduct with due diligence any postapproval study required under section 506(c) with respect to such product; or </content>
+                    </paragraph>
+                    <paragraph identifier="/us/sComp/75/675/chIII/s301/ggg/2" style="-uslm-dtd:paragraph" styleType="OLC">
+                        <num style="-uslm-dtd:enum" value="2">(2) </num><content style="-uslm-dtd:text">to submit timely reports with respect to such product in accordance with section 506B(a)(2).</content>
+                    </paragraph>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/hhh" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="hhh">(hhh) </num><content style="-uslm-dtd:text">The failure to register or submit listing information in accordance with section 607.</content>
+                </subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s301/iii" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="iii">(iii) </num><content style="-uslm-dtd:text">The refusal or failure to follow an order under section 611.</content>
+                </subsection>
+            </section>
+            <section identifier="/us/sComp/75/675/chIII/s302" style="-uslm-dtd:section" styleType="traditional">
+                <heading style="-uslm-dtd:header">injunction proceedings </heading>
+                <num style="-uslm-dtd:enum" value="302">Sec. 302. </num><editorialNote role="uscRef" style="-uslm-dtd:usc-reference"><b>[</b><ref href="/us/usc/t21/s332">21 U.S.C. 332</ref><b>]</b> </editorialNote><subsection class="inline" identifier="/us/sComp/75/675/chIII/s302/a" style="-uslm-dtd:subsection" styleType="OLC"><num style="-uslm-dtd:enum" value="a">(a) </num><content style="-uslm-dtd:text">The district courts of the United States and the United States courts of the Territories shall have jurisdiction, for cause shown<ref class="footnoteRef" idref="ID56C95A7E684B4E5390158242485544BC" style="-uslm-dtd:footnote-ref">17</ref> to restrain violations of section 301, except paragraphs (h), (i), and (j).</content><footnote id="ID56C95A7E684B4E5390158242485544BC" style="-uslm-dtd:footnote"><sup style="-uslm-dtd:superscript">17</sup><p style="-uslm-dtd:para; margin-left:1em">So in law. Probably should be followed by a comma.</p></footnote></subsection>
+                <subsection identifier="/us/sComp/75/675/chIII/s302/b" style="-uslm-dtd:subsection" styleType="OLC">
+                    <num style="-uslm-dtd:enum" value="b">(b) </num><content style="-uslm-dtd:text">In case of violation of an injunction or restraining order issued under this section, which also constitutes a violation of this Act, trial shall be by the court, or, upon demand of the accused, by a jury.</content>
+                </subsection>
+            </section>
+            </chapter>
+        </main>
+</statuteCompilation>

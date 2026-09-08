@@ -1,0 +1,47 @@
+{
+ "dateIssued": "2024-07-09",
+ "law": {
+  "number": "703",
+  "congress": "83",
+  "isPrivate": "false"
+ },
+ "documentType": "COMPS",
+ "amendedThrough": [
+  {
+   "publicLaw": "67",
+   "congress": "118",
+   "enacted": "2024-07-09"
+  },
+  {
+   "publicLaw": "67",
+   "congress": "118",
+   "enacted": "2024-07-09"
+  }
+ ],
+ "packageId": "COMPS-1630",
+ "collectionCode": "COMPS",
+ "detailsLink": "https://www.govinfo.gov/app/details/COMPS-1630",
+ "shortTitle": [
+  {
+   "title": "Atomic Energy Act of 1954"
+  }
+ ],
+ "title": "To amend the Atomic Energy Act of 1946, as amended, and for other purposes.",
+ "branch": "legislative",
+ "collectionName": "Statute Compilations",
+ "displayTitle": "Atomic Energy Act of 1954",
+ "download": {
+  "premisLink": "https://api.govinfo.gov/packages/COMPS-1630/premis",
+  "zipLink": "https://api.govinfo.gov/packages/COMPS-1630/zip",
+  "modsLink": "https://api.govinfo.gov/packages/COMPS-1630/mods",
+  "pdfLink": "https://api.govinfo.gov/packages/COMPS-1630/pdf",
+  "uslmLink": "https://api.govinfo.gov/packages/COMPS-1630/uslm"
+ },
+ "pages": "196",
+ "governmentAuthor1": "Congress",
+ "publisher": "U.S. Government Publishing Office",
+ "suDocClassNumber": "Y 1.2:",
+ "docClass": "COMPS",
+ "lastModified": "2026-09-04T12:08:06Z",
+ "category": "Bills and Statutes"
+}

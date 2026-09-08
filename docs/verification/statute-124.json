@@ -1,0 +1,45 @@
+{
+  "volume": 124,
+  "package": "STATUTE-124",
+  "source_file": "data/statute/xmls/STATUTE-124.xml",
+  "source_sha256": "021704863305f58c03cd8ab23830a29b33c4057c332e027369789025e9061169",
+  "loaded_at": "2026-09-08T02:52:06.822221+00:00",
+  "seconds": 10.8,
+  "components": 461,
+  "laws_loaded": 251,
+  "laws_by_kind": {
+    "pl": 249,
+    "pvtl": 2
+  },
+  "laws_replaced": 0,
+  "units": 4748,
+  "units_by_level": {
+    "section": 4077,
+    "title": 227,
+    "subtitle": 286,
+    "part": 58,
+    "subpart": 4,
+    "chapter": 66,
+    "subchapter": 24,
+    "division": 6
+  },
+  "sections": 4077,
+  "sections_in_quoted_content_skipped": 591,
+  "duplicate_section_identifiers": 0,
+  "aliases": 251,
+  "aliases_dropped_as_taken": 0,
+  "stat_pages": 4463,
+  "number_conflicts": [],
+  "numbers_out_of_sequence": [],
+  "skipped_components": {
+    "concurrent resolution": 38,
+    "presidential document": 172
+  },
+  "unidentified": [],
+  "warnings": {
+    "section without a number after the first; not addressable": 1
+  },
+  "identifier_rules": "rules-1.0",
+  "first_law": "/us/pl/111/126",
+  "last_law": "/us/pvtl/111/2"
+}

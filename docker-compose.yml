@@ -1,0 +1,56 @@
+# The site: Postgres, the API, and the proxy that owns the port.
+#
+#   browser :8010 ── proxy ─┬── /app/*  → (the reader; not built yet, 503)
+#                           └── /*      → api:8001   (FastAPI)
+#
+# Host ports 5434 and 8010 rather than 5432 and 8000: the US Code site's stack
+# runs on this machine with those.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: statutes
+      POSTGRES_PASSWORD: statutes
+      POSTGRES_DB: statutes
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U statutes"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://statutes:statutes@db:5432/statutes
+      GOVINFO_API_KEY: ${GOVINFO_API_KEY:-}
+    expose:
+      - "8001"
+    volumes:
+      - .:/app
+    command:
+      [
+        "uv", "run", "python", "-m", "uvicorn",
+        "main:app", "--host", "0.0.0.0", "--port", "8001", "--reload",
+        "--proxy-headers", "--forwarded-allow-ips", "*",
+      ]
+
+  proxy:
+    image: caddy:2-alpine
+    depends_on:
+      - api
+    ports:
+      - "8010:8000"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+
+volumes:
+  pgdata:
+  caddydata:
