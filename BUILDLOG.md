@@ -152,3 +152,22 @@ wrong `citableAs`).
 
 Verified: `make test` 263 passed, 5 deselected, no network; the seven
 reports in `docs/verification/`.
+
+## 2026-09-08 — stage 5: the reader, the citation parser, the US Code site integration
+
+Asked: build design stage 5 (sections 3, 4, 5 and 7): the reader at `/app`,
+the citation parser behind `GET /api/v1/cite`, and the US Code site's links
+to this site.
+
+Main agent first: `citeparse.py` (pure; 125 accepted-forms cases in
+`tests/test_citeparse.py`), `api/cite.py` (`GET /api/v1/cite?q=`: parse,
+then `Repository.labels`, `stat_page` or `get_comp_unit`; 422, `exists:
+false`, `exists: true`; `kind: "usc"` with the US Code site's URL and no
+check; 60 requests then 2 a second; `max-age=300`; ETag), `CiteOut`,
+`cite_note`, `cite_not_a_citation` and `cite_chapter_not_on_page` in
+`params.py`, `POST /labels` answering a `/us/stat/{vol}/{page}` identifier
+with the page's documents (`LabelPageOut`), `make cite`, the architecture
+test that the parser imports no storage, db, fastapi or sqlalchemy, and
+`docs/plans/2026-09-08-reader-contract.md` (every route each reader page
+calls and every sentence it prints verbatim). Committed before delegating;
+`make test` 408 passed.
