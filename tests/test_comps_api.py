@@ -25,11 +25,12 @@ def test_a_compiled_section(client):
         "display_title": "Atomic Energy Act of 1954",
         "short_titles": ["Atomic Energy Act of 1954"],
         "identifier_prefix": "/us/sComp/83/703",
-        "law_identifier": None,
+        "law_identifier": "/us/pl/83/703",
         "partial_of": None,
         "govinfo_details": "https://www.govinfo.gov/app/details/COMPS-1630",
     }
-    assert body["law"] == {"congress": 83, "number": 703, "identifier": "/us/pl/83/703", "loaded": False}
+    # Public Law 83-703 is in the volume 68 slice, so the two views meet here.
+    assert body["law"] == {"congress": 83, "number": 703, "identifier": "/us/pl/83/703", "loaded": True}
     currency = body["currency"]
     assert currency["kind"] == "compiled"
     assert currency["current_through"] == {"pl": "118-67", "enacted": "2024-07-09"}
@@ -40,8 +41,11 @@ def test_a_compiled_section(client):
     assert version["current_through"] == {"pl": "118-67", "enacted": "2024-07-09"}
     assert version["is_current"] is True
     assert version["url"] == f"{origins.site_origin}/us/sComp/83/703/tI/ch1./s1?through=118-67"
+    # The enacted counterpart of the restated act's section 1 is the amending
+    # section 1 of Public Law 83-703 (ADR-0006).
     assert body["alternatives"] == [
-        {"view": "codified", "identifiers": ["/us/usc/t42/s2011"], "url": f"{origins.uscode_origin}/us/usc/t42/s2011"}
+        {"view": "enacted", "identifier": "/us/pl/83/703/s1", "url": f"{origins.site_origin}/us/pl/83/703/s1"},
+        {"view": "codified", "identifiers": ["/us/usc/t42/s2011"], "url": f"{origins.uscode_origin}/us/usc/t42/s2011"},
     ]
     assert body["usc_refs"] == ["/us/usc/t42/s2011"]
     assert body["provenance"] == {"text": "gpo-uslm", "identifiers": "gpo-uslm", "sha256": body["provenance"]["sha256"]}
@@ -61,7 +65,8 @@ def test_the_compiled_note_wording(client):
         "Compilations are not an official version; the official text is in the Statutes at Large "
         "and the United States Code (1 U.S.C. 112, 204). Laws enacted after July 9, 2024 are not "
         "reflected; check the classification tables for Atomic Energy Act of 1954 and the US Code "
-        f"section(s) {origins.uscode_origin}/us/usc/t42/s2011."
+        f"section(s) {origins.uscode_origin}/us/usc/t42/s2011. The enacted text is at "
+        f"{origins.site_origin}/us/pl/83/703/s1."
     )
 
 
@@ -153,12 +158,14 @@ def test_a_hierarchy_node_and_the_compilation_itself(client):
     assert [c["identifier"] for c in chapter["children"]][:1] == ["/us/sComp/83/703/tI/ch1./s1"]
     assert chapter["children"][0]["is_section"] is True
     assert chapter["heading"] == "DECLARATION, FINDINGS, AND PURPOSE"
-    assert chapter["usc_refs"] == [] and chapter["alternatives"] == []
+    # A chapter has no section counterpart; the enacted law itself is offered.
+    assert chapter["usc_refs"] == []
+    assert chapter["alternatives"] == [{"view": "enacted", "identifier": "/us/pl/83/703", "url": f"{origins.site_origin}/us/pl/83/703"}]
     assert chapter["note"].startswith("This is chapter 1. of Atomic Energy Act of 1954 as compiled")
     root = client.get("/api/v1/us/sComp/83/703").json()
     assert root["level"] == "compilation" and root["served_identifier"] == "/us/sComp/83/703"
     assert [c["identifier"] for c in root["children"]] == ["/us/sComp/83/703/tI"]
-    assert root["note"].startswith("This is the compilation of Atomic Energy Act of 1954 as compiled")
+    assert root["note"].startswith("This is Atomic Energy Act of 1954 as compiled")
     whole = client.get("/api/v1/us/sComp/83/703?format=xml")
     assert whole.text.lstrip().startswith("<?xml") and "<statuteCompilation" in whole.text
 
@@ -180,9 +187,12 @@ def test_an_act_before_public_law_numbering(client):
     assert response.status_code == 200
     body = response.json()
     assert body["resolution"] == "exact" and body["compilation"]["file_id"] == "3055"
-    assert body["law"] == {"congress": 51, "number": 647, "identifier": None, "loaded": False}
+    assert body["law"] == {"congress": 51, "number": 647, "identifier": "/us/act/1890-07-02/ch647", "loaded": True}
     assert body["currency"]["current_through"] == {"pl": "108-237", "enacted": "2004-06-22"}
-    assert body["alternatives"] == [{"view": "codified", "identifiers": ["/us/usc/t15/s1"], "url": f"{origins.uscode_origin}/us/usc/t15/s1"}]
+    assert body["alternatives"] == [
+        {"view": "enacted", "identifier": "/us/act/1890-07-02/ch647/s1", "url": f"{origins.site_origin}/us/act/1890-07-02/ch647/s1"},
+        {"view": "codified", "identifiers": ["/us/usc/t15/s1"], "url": f"{origins.uscode_origin}/us/usc/t15/s1"},
+    ]
     assert body["note"].startswith("This is section 1 of Sherman Act as compiled")
     assert body["text"].startswith("Section 1. Every contract, combination")
 
@@ -197,7 +207,7 @@ def test_list_comps_by_title(client):
     assert comp["display_title"] == "Atomic Energy Act of 1954"
     assert comp["title"].startswith("To amend the Atomic Energy Act of 1946")
     assert comp["short_titles"] == ["Atomic Energy Act of 1954"]
-    assert comp["law_identifier"] is None and comp["partial_of"] is None
+    assert comp["law_identifier"] == "/us/pl/83/703" and comp["partial_of"] is None
     assert comp["current_through"] == {"pl": "118-67", "enacted": "2024-07-09"}
     assert comp["govinfo_last_modified"] == "2026-09-04T12:08:06Z"
     assert comp["url"] == f"{origins.site_origin}/us/sComp/83/703"
@@ -212,12 +222,15 @@ def test_list_comps_by_title(client):
 
 
 def test_list_comps_by_law(client):
-    # `list_comps(law_identifier=…)` goes through the loaded laws; Public Law
-    # 83-703 is not in the slices, so the answer is empty rather than a match
-    # on the prefix.
+    # `list_comps(law_identifier=…)` goes through the loaded laws and either
+    # form of the law finds its compilation.
     response = client.get("/api/v1/comps?law=/us/pl/83/703")
     assert response.status_code == 200
-    assert response.json() == {"comps": []}
+    assert [c["file_id"] for c in response.json()["comps"]] == ["1630"]
+    assert [c["file_id"] for c in client.get("/api/v1/comps?law=/us/act/1954-08-30/ch1073").json()["comps"]] == ["1630"]
+    assert [c["file_id"] for c in client.get("/api/v1/comps?law=/us/act/1890-07-02/ch647").json()["comps"]] == ["3055"]
+    # A law that is not loaded is empty rather than a match on the prefix.
+    assert client.get("/api/v1/comps?law=/us/pl/74/271").json() == {"comps": []}
     # A loaded law without a compilation is empty too.
     assert client.get("/api/v1/comps?law=/us/pl/81/740").json() == {"comps": []}
 
@@ -264,8 +277,10 @@ class _Repo:
 def test_compiled_alternatives_with_and_without_an_enacted_counterpart(repo):
     result = repo.get_comp_unit("/us/sComp/83/703/tI/ch1./s1")
     assert compiled_alternatives(repo, result) == [
-        {"view": "codified", "identifiers": ["/us/usc/t42/s2011"], "url": f"{origins.uscode_origin}/us/usc/t42/s2011"}
+        {"view": "enacted", "identifier": "/us/pl/83/703/s1", "url": f"{origins.site_origin}/us/pl/83/703/s1"},
+        {"view": "codified", "identifiers": ["/us/usc/t42/s2011"], "url": f"{origins.uscode_origin}/us/usc/t42/s2011"},
     ]
+    assert compiled_alternatives(_Repo(None), result)[0]["view"] == "codified"
     enacted = repo.get_unit("/us/pl/81/740/s3")
     fake = _Repo(enacted)
     alternatives = compiled_alternatives(fake, result)

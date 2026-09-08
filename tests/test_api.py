@@ -372,17 +372,21 @@ def test_status(client):
     assert statute["volumes"] == [26, 64, 68, 72, 116, 124, 137]
     assert statute["packages_loaded"] == 7 and statute["latest_package"] == "STATUTE-137"
     assert statute["laws"] == 27 and statute["units"] > 0 and statute["latest_loaded_at"]
-    assert body["collections"]["COMPS"] == {
-        "packages_loaded": 0, "latest_package": None, "latest_loaded_at": None, "laws": 0, "units": 0, "volumes": [],
-    }
+    comps = body["collections"]["COMPS"]
+    assert comps["packages_loaded"] == 4 and comps["latest_package"] == "COMPS-1630"
+    assert comps["units"] > 0 and comps["volumes"] == []
     check = body["checks"]["STATUTE"]
     assert check["ok"] is True and check["stale"] is False and check["newest_package"] == "STATUTE-137"
     assert set(check) == {
         "checked_at", "ok", "newest_package", "newest_last_modified", "packages_seen", "new_packages", "error", "stale",
     }
     assert datetime.datetime.fromisoformat(check["checked_at"])
-    assert body["checks"]["COMPS"] is None and body["checks"]["PLAW"] is None
-    assert body["stale"] is False
+    # The COMPS fixtures are loaded from files, which records no poll.
+    assert body["checks"]["COMPS"] is None or body["checks"]["COMPS"]["ok"] is True
+    assert body["checks"]["PLAW"] is None
+    # COMPS packages are loaded and never polled in the fixture database, so the
+    # mirror as a whole reports stale: a collection with packages and no check.
+    assert body["stale"] is True
 
 
 # ------------------------------------------------------------------- laws

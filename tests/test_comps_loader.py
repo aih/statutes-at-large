@@ -28,7 +28,7 @@ def test_the_fixtures_were_loaded(loaded, db):
     assert sorted(c.file_id for c in db.scalars(select(Comp)).all()) == ["1630", "3055", "8755", "973"]
     comp = _comp(db, "1630")
     assert comp.package_id == "COMPS-1630" and comp.identifier_prefix == "/us/sComp/83/703"
-    assert comp.law_congress == 83 and comp.law_number == 703 and comp.law_id is None
+    assert comp.law_congress == 83 and comp.law_number == 703 and comp.law_id is not None
     versions = _versions(db, comp)
     assert len(versions) == 1 and versions[0].is_current and versions[0].current_through_pl == "118-67"
     units = db.scalars(select(CompUnit).where(CompUnit.comp_version_id == versions[0].id).order_by(CompUnit.seq)).all()
@@ -41,7 +41,7 @@ def test_loading_the_same_file_twice_is_one_version(db):
     assert report.action == "unchanged" and report.versions == 1
     comp = _comp(db, "1630")
     assert len(_versions(db, comp)) == 1
-    assert report.law_identifier is None
+    assert report.law_identifier == "/us/pl/83/703"
 
 
 def test_a_changed_text_is_a_second_version(db, repo):
@@ -94,44 +94,18 @@ def test_a_changed_text_is_a_second_version(db, repo):
 
 
 def test_law_id_is_set_when_the_enacted_law_is_loaded(db, repo):
-    now = datetime.datetime.now(datetime.timezone.utc)
-    law = Law(
-        identifier="/us/pl/83/703",
-        kind="pl",
-        congress=83,
-        number=703,
-        chapter=1073,
-        enacted=datetime.date(1954, 8, 30),
-        stat_volume=68,
-        stat_page_first="919",
-        citation="68 Stat. 919",
-        source_collection="STATUTE",
-        source_package="STATUTE-68",
-        seq_in_volume=1,
-        provenance_text="gpo-uslm",
-        provenance_identifiers="rules-1.0",
-        xml='<pLaw xmlns="http://schemas.gpo.gov/xml/uslm"/>',
-        content_hash="0" * 64,
-        loaded_at=now,
-    )
-    db.add(law)
-    db.flush()
-    db.add(LawAlias(identifier="/us/pl/83/703", law_id=law.id, is_primary=True))
-    db.commit()
-    try:
-        report = load_comp_file(db, ATOMIC, summary_path=ATOMIC_SUMMARY)
-        assert report.action == "unchanged" and report.law_identifier == "/us/pl/83/703"
-        comp = _comp(db, "1630")
-        assert comp.law_id == law.id
-        assert repo.get_comp("1630").law_identifier == "/us/pl/83/703"
-        assert [c.file_id for c in repo.compilations_for_law("/us/pl/83/703")] == ["1630"]
-    finally:
-        comp = _comp(db, "1630")
-        comp.law_id = None
-        db.execute(LawAlias.__table__.delete().where(LawAlias.law_id == law.id))
-        db.delete(law)
-        db.commit()
-    assert _comp(db, "1630").law_id is None
+    """Public Law 83-703 comes from the volume 68 slice; the loader links the
+    compilation to it, and a law that is not loaded (74-271) stays unlinked."""
+    comp = _comp(db, "1630")
+    law_id = db.scalar(select(Law.id).where(Law.identifier == "/us/pl/83/703"))
+    assert law_id is not None and comp.law_id == law_id
+    assert repo.get_comp("1630").law_identifier == "/us/pl/83/703"
+    assert [c.file_id for c in repo.compilations_for_law("/us/pl/83/703")] == ["1630"]
+    assert [c.file_id for c in repo.compilations_for_law("/us/act/1954-08-30/ch1073")] == ["1630"]
+    assert _comp(db, "8755").law_id is None
+    # The Sherman Act (1890) links by congress and chapter, there being no law number.
+    assert repo.get_comp("3055").law_identifier == "/us/act/1890-07-02/ch647"
+
 
 
 class _FakeClient:
