@@ -11,6 +11,7 @@ from __future__ import annotations
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
 
+from api.comps import comps_router
 from api.routes import api
 from citation import router as citation_router
 from storage import RepositoryUnavailableError
@@ -38,6 +39,7 @@ app = FastAPI(
 )
 
 app.include_router(api)
+app.include_router(comps_router)
 app.include_router(citation_router)
 
 
