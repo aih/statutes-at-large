@@ -184,10 +184,30 @@ routed (405).
 - Private laws from `PLAW` (no USLM on GovInfo); they come from the volumes.
 - Concurrent resolutions, proclamations, treaties, and agreements printed in
   the volumes. They are counted in the load report and skipped.
-- The reader at `/app` (design stage 5). The citation URL already redirects
-  browsers there.
 - The reprocessed OCR text (design stage 6). The text is GPO's digitization
   vendor's, errors included.
+
+## Reader
+
+The reader at `/app` (`frontend/`, Astro 5 with TypeScript and USWDS 3,
+server-rendered on Node behind Caddy, no client JavaScript) reads `/api/v1`
+and prints the API's `note`, `message` and `detail` sentences verbatim
+(`docs/plans/2026-09-08-reader-contract.md`, ADR-0014). Pages:
+
+| Page | Shows |
+|---|---|
+| `/app/` | what is loaded, from `/status`; the citation box; the forms it accepts |
+| `/app/goto?q=` | the box's target: 307 to the unit on a hit, 307 to the US Code site for a US Code citation, 404 with the note for a citation naming nothing loaded, 422 with the detail for text that is not a citation |
+| `/app/us/pl/{c}/{n}`, `/us/pvtl/…`, `/us/act/…` | the law: titles, dates, citation, aliases, sources, table of contents, the "cited by" panel |
+| `/app/us/pl/{c}/{n}/{path}` (and the other kinds) | a hierarchy node's contents, or a section's text rendered from `?format=xml` with a provision marked, the note, the currency line, alternatives, Stat. pages with govinfo links, breadcrumbs, previous and next, cross references resolved through `/labels`, the "cited by" panel, provenance |
+| `/app/us/sComp/{c}/{n}[/{path}]` | the compiled view with the version picker (`?through=`) and the enacted counterpart |
+| `/app/us/stat/{vol}/{page}` | the documents on the page |
+
+Cross references: `/us/usc/…` links to the US Code site (`USCODE_ORIGIN`);
+`/us/pl/`, `/us/pvtl/`, `/us/act/` and `/us/stat/` links stay on this site
+when `/labels` says they exist, go to govinfo for a public law of the 104th
+Congress onward or a Stat. page that does not, and are text otherwise. The
+US Code site applies the same rule towards this site (ADR-0016).
 
 ## Running it
 
@@ -196,9 +216,13 @@ cp .env.example .env            # DATABASE_URL, GOVINFO_API_KEY
 make dev-up                      # Postgres on :5434
 make migrate                     # alembic upgrade head
 make dev-data                    # volumes 64 and 124 from the Hub, with reports
-make dev                         # the API on :8001
-make test                        # pytest over SQLite and the committed slices
-make up                          # docker compose: Postgres, API, Caddy on :8010
+make dev                         # the API on :8001 and the reader's dev server on :4321
+make dev-web                     # the reader alone
+make test                        # pytest over SQLite and the committed slices; no Node
+make test-web                    # vitest over the reader's renderer, ref rules, client
+make test-e2e                    # Playwright and axe over a running site (BASE_URL)
+make cite Q="Pub. L. 81-740, § 3"   # the parser, then GET /api/v1/cite on the running site
+make up                          # docker compose: Postgres, API, reader, Caddy on :8010
 python -m ingest comps load COMPS-1630 COMPS-3055   # fetch and load packages
 python -m ingest comps poll --since 2026-09-01      # walk the collection
 python -m ingest comps report
@@ -209,9 +233,11 @@ python -m ingest plaw load 118 --report docs/verification           # public law
 python -m ingest plaw poll --report docs/verification               # what changed on GovInfo
 ```
 
-`make test` needs no database and no network: the suite loads verbatim slices
-of the source files (`tests/fixtures/`) into SQLite. `make test-slow` parses
-the downloaded volumes under `data/statute/xmls`.
+`make test` needs no database, no network and no Node: the suite loads
+verbatim slices of the source files (`tests/fixtures/`) into SQLite, and the
+citation parser's accepted-forms table runs with no fixtures at all.
+`make test-slow` parses the downloaded volumes under `data/statute/xmls`.
+`make test-web` and `make test-e2e` are the reader's suites.
 
 ## Layout
 
@@ -225,12 +251,16 @@ ingest/      statute.py (volume USLM → laws and units), identifiers.py (the ru
 storage/     repository.py (the Repository protocol), postgres.py (the only SQL),
              identifiers.py (parsing served identifiers), session.py
 api/         routes.py (enacted view, stat pages, labels, status, laws), comps.py
-             (the compiled view, /comps), cited_by.py, currency.py (currency.amended
-             from the indexes), alternatives.py, schemas, responses
+             (the compiled view, /comps), cited_by.py, cite.py (GET /cite),
+             currency.py (currency.amended from the indexes), alternatives.py,
+             schemas, responses
 db/          SQLAlchemy models and Alembic migrations (db/migrations)
-params.py    served_note, not_found, cache_control, ETag, rate limits, Accept
+params.py    served_note, not_found, cache_control, ETag, rate limits, Accept, the cite wording
 citation.py  the /us/… redirector
+citeparse.py the citation parser (pure; tests/test_citeparse.py is its accepted-forms table)
 uslmtext.py  reading text and fragment extraction from stored USLM
+frontend/    the reader: src/pages (the routes), src/lib (api, types, url, refs, uslm), src/components,
+             tests (vitest), tests/e2e (Playwright, axe)
 docs/adr     decisions that depart from the design
 docs/verification  per-volume load reports, the citation index and mirror counts
 ```

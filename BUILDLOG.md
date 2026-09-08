@@ -171,3 +171,54 @@ test that the parser imports no storage, db, fastapi or sqlalchemy, and
 `docs/plans/2026-09-08-reader-contract.md` (every route each reader page
 calls and every sentence it prints verbatim). Committed before delegating;
 `make test` 408 passed.
+
+Two subagents in worktrees, neither touching `api/`, `storage/`, `db/` or
+`params.py`:
+
+- (a) the reader, `frontend/`: Astro 5 with TypeScript and USWDS 3, SSR on
+  Node at `/app`, one typed client over `/api/v1`, the pages of the contract
+  (`/app/`, `/app/goto`, the enacted unit page shared by `/us/pl`, `/us/pvtl`
+  and `/us/act`, `/app/us/sComp`, `/app/us/stat`), the typed USLM renderer
+  ported from the US Code site's and adjusted to statutes USLM, the
+  reference rule over `/labels`, the "cited by" panel, previous and next
+  from the law's table of contents, the API's `Cache-Control` copied; the
+  compose `frontend` service and the Caddy `handle /app*` block; `make dev`
+  (API and reader), `dev-web`, `test-web`, `test-e2e`. 62 vitest units, 17
+  Playwright tests with axe, `astro check` clean.
+- (b) the US Code site, branch `statutes-links` in a worktree of
+  `../uscode-redesign` (four commits, not pushed): `fetchStatuteLabels`
+  (`POST {STATUTES_ORIGIN}/api/v1/labels`, 100 per request, cached five
+  minutes, nothing when the origin is unset or the call fails),
+  `citedStatuteIdentifiers`, `resolveRef` linking `/us/pl/`, `/us/pvtl/`,
+  `/us/act/` and `/us/stat/` refs to this site when `exists: true` with the
+  hover label, govinfo for `false` or no answer; the version timeline's law
+  chips linked to `/us/pl/{c}/{n}?view=enacted` and to each section
+  designator; `pl_sections` on `VersionLawOut`, read at request time from
+  the classification rows; `STATUTES_ORIGIN` in `.env.example` and both
+  compose files. Verified there: `make test` 869 passed, 2 skipped;
+  `make test-web` 517 passed; the CSP needs no change (the labels call is
+  server-side; the links are navigations). 13 `astro check` errors
+  pre-exist on its `main`.
+
+Main agent after the merge: the compose stack rebuilt with the reader
+(`docker compose up -d --build`, the proxy recreated for the new Caddyfile)
+and checked on :8010: `/app/us/pl/81/740/s3` (immutable),
+`/app/us/act/1950-08-30/ch823/s3` (the alias sentence),
+`/app/us/pl/118/22/s101` (the section-number sentence and the amended
+sentence naming Public Law 118-35), `/app/us/pl/118/5/dA/tI/s101/a` (the
+provision marked `target` inside its section), `/app/us/sComp/83/703/tI/ch1./s1`
+(`max-age=300`, immutable with `?through=118-67`), `/app/us/stat/137/112`,
+`/app/goto?q=110 Stat. 4196` (404, `no-store`, the note), `/app/goto?q=garbage`
+(422, the detail), `/app/goto?q=Pub. L. 81-740, § 3` (307 to the unit),
+`/app/goto?q=43 U.S.C. 1701` (307 to the US Code site), and the bare
+citation URL redirecting a browser into the reader; the axe spec widened to
+one page of each kind (twelve pages, no violations); ADR-0014, 0015, 0016;
+README; this entry.
+
+Decisions: ADR-0014 (the reader's stack and what it prints verbatim),
+ADR-0015 (the citation parser's forms and failures), ADR-0016 (the
+cross-site link rule in both directions).
+
+Verified: `make test` 408 passed, 5 deselected, no Node, no network;
+`make test-web` 62 passed; `make test-e2e` over the compose stack 26 passed;
+`npx astro check` 0 errors.
