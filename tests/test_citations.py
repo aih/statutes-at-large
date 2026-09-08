@@ -226,8 +226,11 @@ def test_citation_index_status(repo):
     assert status.release_labels[0][1] >= status.release_labels[-1][1]
 
 
-def test_classification_methods_are_empty_before_the_mirror(repo):
+def test_classification_methods_for_a_law_the_mirror_does_not_hold(repo):
+    """The fixture tables hold Public Laws 118-35 to 118-41 and 104-1; 118-22
+    is in the 118-1 table, which is not loaded."""
     assert repo.classification_rows("/us/pl/118/22") == ()
     assert repo.classification_amendments("/us/pl/118/22", "101") == ()
     status = repo.classification_status()
-    assert status.rows == 0 and status.files == () and status.last_check is None
+    assert status.rows == 80 and [(f.congress, f.session) for f in status.files] == [(118, 2), (104, 0)]
+    assert status.last_check is not None and status.last_check.ok

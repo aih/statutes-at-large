@@ -37,6 +37,9 @@ COMP_SLICES = [
     COMPS_FIXTURES / "COMPS-8755-slice.xml",
 ]
 VOLUME_DIR = REPO_ROOT / "data" / "statute" / "xmls"
+CLASSIFICATIONS_FIXTURES = FIXTURES / "classifications"
+"""The US Code site's tables listing and the first 40 rows of two tables
+(118-2 and the whole-congress 104), verbatim (`tests/fixtures/classifications/README.md`)."""
 CITATIONS_SLICE = FIXTURES / "uscode-current-slice.parquet"
 """57 US Code sections cut from the `dreamproit/uscode` `current` shards
 (`scripts/extract_citations_fixture.py`): the ones whose source credits cite
@@ -83,6 +86,10 @@ def loaded(session_factory) -> dict:
 
     with session_factory() as session:
         reports[CITATIONS_SLICE.name] = load_citations(session, [CITATIONS_SLICE], revision="fixture")
+    from ingest.classifications import DirectorySource, load_classifications
+
+    with session_factory() as session:
+        reports["classifications"] = load_classifications(session, DirectorySource(CLASSIFICATIONS_FIXTURES))
     return reports
 
 
