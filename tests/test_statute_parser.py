@@ -36,7 +36,7 @@ def test_slice_counts(vol64, vol72, vol124, vol137):
     assert (vol64.volume, len(vol64.laws), sum(len(l.units) for l in vol64.laws), sum(len(l.sections) for l in vol64.laws)) == (64, 10, 53, 48)
     assert (vol72.volume, len(vol72.laws), sum(len(l.units) for l in vol72.laws), sum(len(l.sections) for l in vol72.laws)) == (72, 6, 26, 18)
     assert (vol124.volume, len(vol124.laws), sum(len(l.units) for l in vol124.laws), sum(len(l.sections) for l in vol124.laws)) == (124, 4, 34, 24)
-    assert (vol137.volume, len(vol137.laws), sum(len(l.units) for l in vol137.laws), sum(len(l.sections) for l in vol137.laws)) == (137, 2, 40, 28)
+    assert (vol137.volume, len(vol137.laws), sum(len(l.units) for l in vol137.laws), sum(len(l.sections) for l in vol137.laws)) == (137, 3, 41, 29)
 
 
 def test_chapter_era_law_has_both_identifiers(vol64):

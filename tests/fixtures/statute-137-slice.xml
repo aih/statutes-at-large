@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Verbatim slice of STATUTE-137.xml from the Hub dataset dreamproit/us-statutes-at-large: the volume meta and the laws numbered 22, 34. Regenerate with scripts/extract_fixture.py. -->
+<!-- Verbatim slice of STATUTE-137.xml from the Hub dataset dreamproit/us-statutes-at-large: the volume meta and the laws numbered 3, 22, 34. Regenerate with scripts/extract_fixture.py. -->
 <statutesAtLarge xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/" xml:lang="en">
 <meta xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:publisher>United States Government Publishing Office</dc:publisher>
 <dc:creator>Office of the Federal Register</dc:creator><dc:creator>National Archives and Records Administration</dc:creator>
@@ -11,6 +11,48 @@
 
 <main><collection role="statutesParts">
 <component role="statutesPart"><meta><docPart>1</docPart></meta>
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><pLaw>
+
+<?I97 137 STAT. ?>
+<?I98 137 STAT. ?>
+<?I99 137 STAT. ?>
+<?I50 PUBLIC LAW 118&#8211;3&#8212;APR. 10, 2023?>
+<?I51 PUBLIC LAW 118&#8211;3&#8212;APR. 10, 2023?>
+<?I52 PUBLIC LAW 118&#8211;3&#8212;APR. 10, 2023?>
+<!--Disclaimer: Legislative measures that include compacts or other non-standard data structures will require additional modeling and may contain inconsistencies in the converted USLM XML.-->
+<meta><dc:title>Public Law 118&#8211;3: Relating to a national emergency declared by the President on March 13, 2020.</dc:title>
+<dc:type>Public Law</dc:type><docNumber>3</docNumber>
+<citableAs>Public Law 118&#8211;3</citableAs><citableAs/>
+<approvedDate>2023-04-10</approvedDate>
+<dc:date>2023-04-10</dc:date>
+<dc:publisher>United States Government Publishing Office</dc:publisher><dc:creator>National Archives and Records Administration</dc:creator><dc:creator>Office of the Federal Register</dc:creator><dc:format>text/xml</dc:format><dc:language>EN</dc:language><dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>GPO Locator to USLM Converter 4.15.31;Stage2.20250702</processedBy><processedDate>2026-04-15</processedDate>
+<congress>118</congress><publicPrivate>public</publicPrivate>
+</meta>
+<preface><centerRunningHead>PUBLIC LAW 118&#8211;3&#8212;APR. 10, 2023</centerRunningHead>
+
+<dc:type>Public Law</dc:type><docNumber>118&#8211;3</docNumber>
+<congress value="118">118th Congress</congress>
+</preface>
+<main>
+<longTitle>
+<docTitle class="centered fontsize12" style="-uslm-lc:I658005">Joint Resolution</docTitle>
+<officialTitle class="indentUp0 firstIndent1 fontsize8" style="-uslm-lc:I658011">Relating to a national emergency declared by the President on March 13, 2020.<sidenote><p class="centered fontsize8" id="x097894a6-38fb-11f1-850e-1d8f7df6e243" style="-uslm-lc:I658076"><approvedDate date="2023-04-10">Apr. 10, 2023</approvedDate></p><p class="centered fontsize8" id="x097894a7-38fb-11f1-850e-1d8f7df6e243" style="-uslm-lc:I658076">[<ref href="/us/bill/118/hjres/7">H.J. Res. 7</ref>]<?GPOvSpace 08?></p></sidenote></officialTitle>
+</longTitle>
+<resolvingClause class="indentUp0 firstIndent0 fontsize10" style="-uslm-lc:I658120"><i>&#8195;&#8195;Resolved&#8239;&#8239; by&#8239;&#8239; the&#8239;&#8239; Senate&#8239;&#8239; and&#8239;&#8239; House&#8239;&#8239; of&#8239;&#8239; Representatives&#8239;&#8239; of&#8239;&#8239; the&#8239;&#8239; United&#8239;&#8239; States&#8239;&#8239; of&#8239;&#8239; America&#8239;&#8239; in&#8239;&#8239; Congress&#8239;&#8239; assembled,</i></resolvingClause><sidenote><p class="leftAlign firstIndent0 fontsize8" id="x097894a8-38fb-11f1-850e-1d8f7df6e243" style="-uslm-lc:I658180">COVID&#8211;19.</p><p class="leftAlign firstIndent0 fontsize8" id="x097894a9-38fb-11f1-850e-1d8f7df6e243" style="-uslm-lc:I658180"><ref href="/us/usc/t50/s1621">50 USC 1621 note</ref>.</p></sidenote>
+<section class="inline">
+<content class="inline"> That, pursuant to section 202 of the National Emergencies Act (<ref href="/us/usc/t50/s1622">50 U.S.C. 1622</ref>), the national emergency declared by the finding of the President on March 13, 2020, in Proclamation 9994 (<ref href="/us/fr/85/15337">85 Fed. Reg. 15337</ref>) is hereby terminated.</content>
+</section>
+<action>
+<actionDescription style="-uslm-lc:I658030">Approved</actionDescription> <date date="2023-04-10">April 10, 2023</date>.</action>
+</main>
+<legislativeHistory>
+<heading style="-uslm-lc:I658031"><inline class="underline">LEGISLATIVE HISTORY</inline>&#8212;<ref href="/us/bill/118/hjres/7">H.J. Res. 7</ref>:</heading>
+<note>
+<heading style="-uslm-lc:I658032">CONGRESSIONAL RECORD, Vol. 169 (2023):</heading>
+<p class="indentUp4 firstIndent-1" id="x097894aa-38fb-11f1-850e-1d8f7df6e243" style="-uslm-lc:I658035">Feb. 1, considered and passed House.</p><p class="indentUp4 firstIndent-1" id="x097894ab-38fb-11f1-850e-1d8f7df6e243" style="-uslm-lc:I658035">Mar. 29, considered and passed Senate.</p></note>
+</legislativeHistory>
+</pLaw></component>
 <component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><pLaw>
 
 <?I97 137 STAT. ?>

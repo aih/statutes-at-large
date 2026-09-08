@@ -200,6 +200,32 @@ class StatPageResult:
 
 
 @dataclass(frozen=True, slots=True)
+class LawSources:
+    """Which collections hold a law, and which one it is served from (design
+    section 2; ADR-0011). A public law of the 113th Congress onward is served
+    from its `PLAW` package once that is loaded; the volume-derived copy is
+    replaced and the volume is still recorded as holding it."""
+
+    law_identifier: str
+    served_from: str
+    """`STATUTE` | `PLAW`: `source_collection` of the stored copy."""
+    package: str
+    provenance_identifiers: str
+    """`rules-1.0`, `gpo-uslm`, or `gpo-uslm+rules-1.0`."""
+    volume: int
+    volume_package: str
+    """`STATUTE-137`."""
+    volume_loaded: bool
+    """The volume file has been loaded: a law from it is stored, or a
+    `STATUTE` check names it."""
+    plaw_package: str | None
+    """`PLAW-118publ22` for a public or private law of the 104th Congress
+    onward, whether or not it is loaded; None before that."""
+    plaw_uslm: bool
+    """GovInfo has USLM for the package: a public law of the 113th onward."""
+
+
+@dataclass(frozen=True, slots=True)
 class LabelInfo:
     """One answer of the batched `labels` lookup."""
 
@@ -340,6 +366,12 @@ class CollectionStatus:
     laws: int = 0
     units: int = 0
     volumes: tuple[int, ...] = field(default=())
+    laws_by_congress: tuple[tuple[int, int], ...] = field(default=())
+    """`PLAW` only: (congress, laws loaded) pairs, congress ascending."""
+
+    @property
+    def congresses(self) -> tuple[int, ...]:
+        return tuple(c for c, _ in self.laws_by_congress)
 
 
 # ------------------------------------------------------- stage 3: the indexes
@@ -574,6 +606,11 @@ class Repository(Protocol):
     def labels(self, identifiers: Sequence[str]) -> dict[str, LabelInfo]:
         """Resolution and heading for many identifiers at once; absent when
         nothing answers."""
+        ...
+
+    def law_sources(self, law_identifier: str) -> LawSources | None:
+        """Which collection the law is served from, whether its volume is
+        loaded, and its PLAW package name. None when the law is not loaded."""
         ...
 
     # --------------------------------------------------------------- compiled

@@ -101,7 +101,10 @@ def test_labels(repo):
 def test_status(repo):
     status = repo.collection_status("STATUTE")
     assert status.volumes == (26, 64, 68, 72, 116, 124, 137)
-    assert status.laws == 27 and status.latest_package == "STATUTE-137"
+    assert status.laws == 26 and status.latest_package == "STATUTE-137"
     check = repo.last_source_check("STATUTE")
     assert check.ok and check.newest_package == "STATUTE-137" and not check.is_stale()
-    assert repo.last_source_check("PLAW") is None
+    plaw = repo.collection_status("PLAW")
+    assert plaw.laws == 4 and plaw.laws_by_congress == ((118, 3), (119, 1)) and plaw.congresses == (118, 119)
+    assert plaw.latest_package == "PLAW-119publ1" and plaw.volumes == (137, 139)
+    assert repo.last_source_check("PLAW").newest_package == "PLAW-119publ1"

@@ -16,10 +16,10 @@ from collections import Counter
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
 
-from db.models import Law, LawAlias, SourceCheck, StatPage, Unit
+from db.models import Comp, Law, LawAlias, SourceCheck, StatPage, Unit
 from ingest.statute import (
     IDENTIFIER_RULES_VERSION,
     TEXT_PROVENANCE,
@@ -29,6 +29,30 @@ from ingest.statute import (
 )
 
 COMMIT_EVERY = 50
+
+#: Which source's copy of a law wins when both hold it (ADR-0011). A load from
+#: a lower-ranked collection leaves a stored law of a higher-ranked one alone.
+SOURCE_PRECEDENCE: dict[str, int] = {"STATUTE": 1, "PLAW": 2}
+
+
+@dataclass(slots=True)
+class WriteOutcome:
+    """What `_write_law` did with one record."""
+
+    action: str
+    """`new` | `replaced` | `kept`: `kept` means a copy from a collection that
+    outranks this record's was stored already and nothing was written."""
+    replaced_from: str | None = None
+    """The collection of the copy that was replaced (`STATUTE`, `PLAW`)."""
+    replaced_xml: str | None = None
+    """That copy's whole-law XML, for the identifier comparison a PLAW load
+    writes (`ingest/plaw.py`)."""
+    aliases_written: int = 0
+    aliases_dropped: int = 0
+
+    @property
+    def replaced(self) -> int:
+        return 1 if self.action == "replaced" else 0
 
 
 @dataclass(slots=True)
@@ -43,6 +67,9 @@ class VolumeLoadReport:
     laws_loaded: int = 0
     laws_by_kind: dict[str, int] = field(default_factory=dict)
     laws_replaced: int = 0
+    laws_kept_from_plaw: list[str] = field(default_factory=list)
+    """Laws of the volume left alone because a PLAW-derived copy is stored
+    (ADR-0011): the bulk-data file outranks the volume file."""
     units: int = 0
     units_by_level: dict[str, int] = field(default_factory=dict)
     sections: int = 0
@@ -112,11 +139,14 @@ def load_volume(session: Session, path: Path, *, record_check: bool = True) -> V
             report.repeated_laws.append({"seq": law.seq_in_volume, "identifier": law.identifier, "citation": law.citation})
             continue
         seen_primaries.add(law.identifier)
-        replaced, alias_count, dropped = _write_law(session, law, now)
+        outcome = _write_law(session, law, now)
+        if outcome.action == "kept":
+            report.laws_kept_from_plaw.append(law.identifier)
+            continue
         report.laws_loaded += 1
-        report.laws_replaced += replaced
-        report.aliases += alias_count
-        report.aliases_dropped_as_taken += dropped
+        report.laws_replaced += outcome.replaced
+        report.aliases += outcome.aliases_written
+        report.aliases_dropped_as_taken += outcome.aliases_dropped
         report.units += len(law.units)
         report.sections += len(law.sections)
         report.stat_pages += len(law.page_units)
@@ -173,15 +203,29 @@ def load_volume(session: Session, path: Path, *, record_check: bool = True) -> V
     return report
 
 
-def _write_law(session: Session, law: LawRecord, now: datetime.datetime) -> tuple[int, int, int]:
-    """Replace any earlier copy of the law, then insert it. Returns
-    (replaced, aliases written, aliases dropped because another law holds them)."""
-    replaced = 0
+def _write_law(session: Session, law: LawRecord, now: datetime.datetime) -> WriteOutcome:
+    """Replace any earlier copy of the law, then insert it.
+
+    Precedence (ADR-0011): a stored copy from a collection that outranks the
+    record's (`SOURCE_PRECEDENCE`) is kept and nothing is written. Otherwise
+    the old copy, its units, aliases and pages go, and compilations that were
+    linked to it are re-pointed at the new row.
+    """
+    outcome = WriteOutcome(action="new")
+    rank = SOURCE_PRECEDENCE.get(law.source_collection, 0)
     existing = session.scalars(select(Law).where(Law.identifier == law.identifier)).all()
+    comp_ids: list[int] = []
     for old in existing:
+        if SOURCE_PRECEDENCE.get(old.source_collection, 0) > rank:
+            outcome.action = "kept"
+            outcome.replaced_from = old.source_collection
+            return outcome
+        outcome.action = "replaced"
+        outcome.replaced_from = old.source_collection
+        outcome.replaced_xml = old.xml
+        comp_ids.extend(session.scalars(select(Comp.id).where(Comp.law_id == old.id)).all())
         session.execute(delete(StatPage).where(StatPage.law_id == old.id))
         session.delete(old)
-        replaced += 1
     if existing:
         session.flush()
 
@@ -199,30 +243,31 @@ def _write_law(session: Session, law: LawRecord, now: datetime.datetime) -> tupl
         stat_page_first=law.stat_page_first,
         stat_page_last=law.stat_page_last,
         citation=law.citation,
-        source_collection="STATUTE",
+        source_collection=law.source_collection,
         source_package=law.source_package,
         source_granule=None,
         seq_in_volume=law.seq_in_volume,
         provenance_text=TEXT_PROVENANCE,
-        provenance_identifiers=IDENTIFIER_RULES_VERSION,
+        provenance_identifiers=law.provenance_identifiers,
         xml=law.xml,
         content_hash=law.content_hash,
         loaded_at=now,
     )
     session.add(row)
     session.flush()
+    if comp_ids:
+        session.execute(update(Comp).where(Comp.id.in_(comp_ids)).values(law_id=row.id))
 
-    written = dropped = 0
     for alias in law.aliases:
         taken = session.get(LawAlias, alias)
         if taken is not None:
             if taken.law_id == row.id:
                 continue
-            dropped += 1
+            outcome.aliases_dropped += 1
             law.warnings.append(f"alias {alias} already names another law")
             continue
         session.add(LawAlias(identifier=alias, law_id=row.id, is_primary=(alias == law.identifier)))
-        written += 1
+        outcome.aliases_written += 1
 
     session.add_all(
         Unit(
@@ -256,7 +301,7 @@ def _write_law(session: Session, law: LawRecord, now: datetime.datetime) -> tupl
         for page, unit_identifier in law.page_units.items()
     )
     session.flush()
-    return replaced, written, dropped
+    return outcome
 
 
 def write_report(report: VolumeLoadReport, directory: Path) -> Path:

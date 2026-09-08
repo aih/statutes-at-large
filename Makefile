@@ -1,4 +1,4 @@
-.PHONY: dev migrate dev-data dev-up test test-slow test-all fixtures verify fetch load-all lint fetch-uscode citations classifications
+.PHONY: dev migrate dev-data dev-up test test-slow test-all fixtures verify fetch load-all lint fetch-uscode citations classifications fetch-plaw plaw
 
 # The API alone on :8001 against the compose Postgres (:5434 on the host).
 dev: dev-up migrate
@@ -34,6 +34,16 @@ citations: migrate
 classifications: migrate
 	uv run python -m ingest classifications --report docs/verification
 
+# Stage 4: GovInfo PLAW bulk data (public laws with USLM, 113th Congress
+# onward), one zip per congress under data/plaw. `plaw` fetches what is missing,
+# loads every congress, and writes docs/verification/plaw-{c}.json. Neither is
+# part of `make test`.
+fetch-plaw:
+	uv run python -m ingest plaw fetch 113-119
+
+plaw: migrate
+	uv run python -m ingest plaw load 113-119 --report docs/verification
+
 # The specification. Runs over SQLite with the committed slices; needs no
 # database and no network.
 test:
@@ -51,7 +61,7 @@ fixtures:
 	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-64.xml tests/fixtures/statute-64-slice.xml 1 2 3 29 134 153 357 768 823 1212
 	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-72.xml tests/fixtures/statute-72-slice.xml 317 322 457 741 829 910
 	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-124.xml tests/fixtures/statute-124-slice.xml 2 177 230 344
-	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-137.xml tests/fixtures/statute-137-slice.xml 22 34
+	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-137.xml tests/fixtures/statute-137-slice.xml 3 22 34
 	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-116.xml tests/fixtures/statute-116-slice.xml 259 --plaws 3
 	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-26.xml tests/fixtures/statute-26-slice.xml 647
 	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-68.xml tests/fixtures/statute-68-slice.xml 703

@@ -6,6 +6,8 @@
     python -m ingest comps ...                       # the COMPS poller (ingest/comps.py)
     python -m ingest citations --from-hub            # the citation index (ingest/citations.py)
     python -m ingest classifications                 # the classification tables mirror (ingest/classifications.py)
+    python -m ingest plaw fetch 113-119              # PLAW bulk-data zips into data/plaw
+    python -m ingest plaw load 118 --report docs/verification   # public laws from the zips (ingest/plaw.py)
 """
 
 from __future__ import annotations
@@ -108,6 +110,16 @@ def main(argv: list[str] | None = None) -> int:
     from ingest.classifications import add_classifications_commands
 
     add_classifications_commands(sub)
+
+    from ingest.plaw import add_plaw_commands
+
+    plaw_commands = add_plaw_commands(sub)
+    try:
+        from ingest.plaw_poll import add_poll_command
+    except ImportError:  # the poller lands with stage 4, part (a)
+        add_poll_command = None
+    if add_poll_command is not None:
+        add_poll_command(plaw_commands)
 
     args = parser.parse_args(argv)
     return args.func(args)

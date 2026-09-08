@@ -36,6 +36,16 @@ COMP_SLICES = [
     COMPS_FIXTURES / "COMPS-3055.xml",
     COMPS_FIXTURES / "COMPS-8755-slice.xml",
 ]
+PLAW_FIXTURES = FIXTURES / "plaw"
+PLAW_FILES = [
+    PLAW_FIXTURES / "PLAW-118publ1.xml",
+    PLAW_FIXTURES / "PLAW-118publ22.xml",
+    PLAW_FIXTURES / "PLAW-118publ34.xml",
+    PLAW_FIXTURES / "PLAW-119publ1.xml",
+]
+"""Whole public laws from GovInfo bulk data (`tests/fixtures/plaw/README.md`).
+Loaded after the volume slices, so 118-22 and 118-34 are PLAW-derived in the
+fixture database and 118-3 stays volume-derived."""
 VOLUME_DIR = REPO_ROOT / "data" / "statute" / "xmls"
 CLASSIFICATIONS_FIXTURES = FIXTURES / "classifications"
 """The US Code site's tables listing and the first 40 rows of two tables
@@ -73,6 +83,12 @@ def loaded(session_factory) -> dict:
     with session_factory() as session:
         for path in STATUTE_SLICES:
             reports[path.name] = load_volume(session, path, record_check=True)
+    from ingest.plaw import load_congress
+
+    with session_factory() as session:
+        for congress in (118, 119):
+            files = ((p.name, p.read_text(encoding="utf-8")) for p in PLAW_FILES if f"PLAW-{congress}" in p.name)
+            reports[f"plaw-{congress}"] = load_congress(session, congress, files=files)
     try:
         from ingest.comps import load_comp_file
     except ImportError:

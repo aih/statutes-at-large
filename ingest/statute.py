@@ -100,6 +100,18 @@ class LawRecord:
     """Page label → identifier of the unit the page marker falls in (None when
     it falls outside every unit)."""
     warnings: list[str] = field(default_factory=list)
+    source_collection: str = "STATUTE"
+    """`STATUTE` (a volume file) or `PLAW` (a GovInfo public-law package)."""
+    provenance_identifiers: str = IDENTIFIER_RULES_VERSION
+    """`rules-1.0` when this module assigned every identifier; `gpo-uslm` when
+    the source carried them (`ingest/plaw.py`); `gpo-uslm+rules-1.0` when a
+    PLAW file left some levels unidentified and the rules filled them in."""
+    identifiers_assigned: dict[str, int] = field(default_factory=dict)
+    """Per level, how many identifiers were assigned by rule rather than read
+    from the source. Empty for a volume law, where every one is assigned."""
+    sections_in_quoted_content: int = 0
+    """`<section>` elements inside `quotedContent`, kept in the XML and not
+    units. The volume parser counts these on `VolumeParse` instead."""
 
     @property
     def sections(self) -> list[UnitRecord]:

@@ -378,7 +378,8 @@ def test_status(client):
     statute = body["collections"]["STATUTE"]
     assert statute["volumes"] == [26, 64, 68, 72, 116, 124, 137]
     assert statute["packages_loaded"] == 7 and statute["latest_package"] == "STATUTE-137"
-    assert statute["laws"] == 27 and statute["units"] > 0 and statute["latest_loaded_at"]
+    # 28 laws in the volume slices; 118-22 and 118-34 are served from PLAW.
+    assert statute["laws"] == 26 and statute["units"] > 0 and statute["latest_loaded_at"]
     comps = body["collections"]["COMPS"]
     assert comps["packages_loaded"] == 4 and comps["latest_package"] == "COMPS-1630"
     assert comps["units"] > 0 and comps["volumes"] == []
@@ -390,7 +391,9 @@ def test_status(client):
     assert datetime.datetime.fromisoformat(check["checked_at"])
     # The COMPS fixtures are loaded from files, which records no poll.
     assert body["checks"]["COMPS"] is None or body["checks"]["COMPS"]["ok"] is True
-    assert body["checks"]["PLAW"] is None
+    plaw = body["collections"]["PLAW"]
+    assert plaw["packages_loaded"] == 4 and plaw["laws"] == 4 and plaw["latest_package"] == "PLAW-119publ1"
+    assert body["checks"]["PLAW"]["ok"] is True and body["checks"]["PLAW"]["newest_package"] == "PLAW-119publ1"
     # COMPS packages are loaded and never polled in the fixture database, so the
     # mirror as a whole reports stale: a collection with packages and no check.
     assert body["stale"] is True

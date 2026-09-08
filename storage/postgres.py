@@ -47,6 +47,7 @@ from storage.repository import (
     CollectionStatus,
     IndexCoverage,
     LawCite,
+    LawSources,
     SourceCreditEvidence,
     CompCounterpart,
     CompRef,
@@ -64,6 +65,12 @@ from storage.repository import (
     UnitResult,
 )
 from uslmtext import fragment_by_identifier, plain_text, serialize
+
+
+FIRST_PLAW_CONGRESS = 104
+"""GovInfo's PLAW collection starts with the 104th Congress."""
+FIRST_PLAW_USLM_CONGRESS = 113
+"""Bulk-data USLM starts with the 113th."""
 
 
 class PostgresRepository:
@@ -156,6 +163,36 @@ class PostgresRepository:
                 heading=result.heading,
             )
         return found
+
+    def law_sources(self, law_identifier: str) -> LawSources | None:
+        parsed = parse_identifier(law_identifier)
+        if parsed is None or parsed.kind == "sComp":
+            return None
+        law = self._law_by_alias(parsed.law_identifier)
+        if law is None:
+            return None
+        volume_package = f"STATUTE-{law.stat_volume}"
+        volume_loaded = law.source_collection == "STATUTE" or self._session.scalar(
+            select(Law.id).where(Law.source_collection == "STATUTE", Law.stat_volume == law.stat_volume).limit(1)
+        ) is not None or self._session.scalar(
+            select(SourceCheck.id).where(SourceCheck.collection == "STATUTE", SourceCheck.newest_package == volume_package).limit(1)
+        ) is not None
+        plaw_package = None
+        plaw_uslm = False
+        if law.kind in ("pl", "pvtl") and law.congress is not None and law.number is not None and law.congress >= FIRST_PLAW_CONGRESS:
+            plaw_package = f"PLAW-{law.congress}{'publ' if law.kind == 'pl' else 'pvtl'}{law.number}"
+            plaw_uslm = law.kind == "pl" and law.congress >= FIRST_PLAW_USLM_CONGRESS
+        return LawSources(
+            law_identifier=law.identifier,
+            served_from=law.source_collection,
+            package=law.source_package,
+            provenance_identifiers=law.provenance_identifiers,
+            volume=law.stat_volume,
+            volume_package=volume_package,
+            volume_loaded=volume_loaded,
+            plaw_package=plaw_package,
+            plaw_uslm=plaw_uslm,
+        )
 
     # -- helpers
 
@@ -913,6 +950,8 @@ class PostgresRepository:
                 laws=0,
                 units=units,
             )
+        if collection == "PLAW":
+            return self._plaw_status()
         rows = self._session.execute(
             select(Law.source_package, Law.stat_volume, func.count(Law.id), func.max(Law.loaded_at))
             .where(Law.source_collection == collection)
@@ -933,6 +972,42 @@ class PostgresRepository:
             laws=sum(r[2] for r in rows),
             units=units,
             volumes=tuple(sorted(r[1] for r in rows)),
+        )
+
+    def _plaw_status(self) -> CollectionStatus:
+        """One package per law: the count per congress, the newest law by
+        (congress, number), and the volumes the laws print in."""
+        by_congress = self._session.execute(
+            select(Law.congress, func.count(Law.id))
+            .where(Law.source_collection == "PLAW")
+            .group_by(Law.congress)
+            .order_by(Law.congress)
+        ).all()
+        latest = self._session.execute(
+            select(Law.source_package, Law.loaded_at)
+            .where(Law.source_collection == "PLAW")
+            .order_by(Law.congress.desc(), Law.number.desc())
+            .limit(1)
+        ).first()
+        units = int(
+            self._session.scalar(
+                select(func.count()).select_from(Unit).join(Law, Law.id == Unit.law_id).where(Law.source_collection == "PLAW")
+            )
+            or 0
+        )
+        volumes = self._session.scalars(
+            select(Law.stat_volume).where(Law.source_collection == "PLAW").distinct().order_by(Law.stat_volume)
+        ).all()
+        laws = sum(int(n) for _, n in by_congress)
+        return CollectionStatus(
+            collection="PLAW",
+            packages_loaded=laws,
+            latest_package=latest[0] if latest else None,
+            latest_loaded_at=latest[1] if latest else None,
+            laws=laws,
+            units=units,
+            volumes=tuple(int(v) for v in volumes),
+            laws_by_congress=tuple((int(c), int(n)) for c, n in by_congress if c is not None),
         )
 
     def last_source_check(self, collection: str) -> SourceCheckInfo | None:
