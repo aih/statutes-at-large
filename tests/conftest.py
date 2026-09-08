@@ -22,7 +22,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = REPO_ROOT / "tests" / "fixtures"
 COMPS_FIXTURES = FIXTURES / "comps"
 STATUTE_SLICES = [
+    FIXTURES / "statute-26-slice.xml",
     FIXTURES / "statute-64-slice.xml",
+    FIXTURES / "statute-68-slice.xml",
     FIXTURES / "statute-72-slice.xml",
     FIXTURES / "statute-116-slice.xml",
     FIXTURES / "statute-124-slice.xml",

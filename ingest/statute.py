@@ -53,6 +53,7 @@ SKIP_SUBTREES = frozenset({"quotedContent", "toc", "sidenote", "footnote", "note
 _STAT_CITE = re.compile(r"(?P<volume>\d+)\s*Stat\.?\s*(?P<page>[0-9A-Za-z]+(?:-\d+)?)", re.IGNORECASE)
 _PAGE_ID = re.compile(r"^/us/stat/(?P<volume>\d+)/(?P<page>[^/@]+)")
 _LEADING_LAW = re.compile(r"^(?:Public|Private)\s+Law\s+[\d–-]+:\s*", re.IGNORECASE)
+_PREFACE_CHAPTER = re.compile(r"\bchapter\s+(\d+)", re.IGNORECASE)
 
 
 @dataclass(slots=True)
@@ -300,6 +301,12 @@ def _identity_of(plaw: etree._Element):
     notes = list(long_title.iter(f"{N}sidenote")) if long_title is not None else []
     long_title_text = " ".join(plain_text(n, skip=frozenset()) for n in notes)
     hrefs = [r.get("href", "") for n in notes for r in n.iter(f"{N}ref")]
+    preface = plaw.find(f"{N}preface")
+    preface_chapter = None
+    if preface is not None:
+        match = _PREFACE_CHAPTER.search(plain_text(preface, skip=frozenset({"page"})))
+        if match:
+            preface_chapter = int(match.group(1))
     identity = identify_law(
         congress=congress,
         doc_type=doc_type,
@@ -308,6 +315,7 @@ def _identity_of(plaw: etree._Element):
         enacted=enacted,
         long_title_text=long_title_text,
         long_title_hrefs=hrefs,
+        preface_chapter=preface_chapter,
     )
     if identity is None:
         return None

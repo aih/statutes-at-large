@@ -20,7 +20,7 @@ load-all: migrate
 	uv run python -m ingest statute --volumes 1-137 --report docs/verification
 
 fetch:
-	uv run python -m ingest fetch-statute 64 72 124 137
+	uv run python -m ingest fetch-statute 26 64 68 72 116 124 137
 
 # The specification. Runs over SQLite with the committed slices; needs no
 # database and no network.
@@ -41,6 +41,8 @@ fixtures:
 	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-124.xml tests/fixtures/statute-124-slice.xml 2 177 230 344
 	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-137.xml tests/fixtures/statute-137-slice.xml 22 34
 	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-116.xml tests/fixtures/statute-116-slice.xml 259 --plaws 3
+	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-26.xml tests/fixtures/statute-26-slice.xml 647
+	uv run python scripts/extract_fixture.py data/statute/xmls/STATUTE-68.xml tests/fixtures/statute-68-slice.xml 703
 	uv run python scripts/extract_comp_fixture.py data/comps/COMPS-1630.xml tests/fixtures/comps/COMPS-1630-slice.xml 8
 	uv run python scripts/extract_comp_fixture.py data/comps/COMPS-8755.xml tests/fixtures/comps/COMPS-8755-slice.xml 3
 	uv run python scripts/extract_comp_fixture.py data/comps/COMPS-973.xml tests/fixtures/comps/COMPS-973-slice.xml 4

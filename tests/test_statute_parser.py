@@ -161,6 +161,29 @@ def test_unit_xml_is_the_section_alone_and_hashes_are_stable(vol137):
     assert by_id(again, "/us/pl/118/34").units[0].content_hash == s1.content_hash
 
 
+def test_1954_law_typed_as_public_law_still_gets_its_chapter():
+    """Volume 68 types laws `Public Law` with the chapter in the preface
+    ("chapter 1073"); the Atomic Energy Act answers to both forms."""
+    parsed = parse_volume(FIXTURES / "statute-68-slice.xml")
+    law = by_id(parsed, "/us/pl/83/703")
+    assert law.chapter == 1073 and law.citation == "68 Stat. 919"
+    assert law.aliases == ["/us/pl/83/703", "/us/act/1954-08-30/ch1073"]
+    # The act restates the Atomic Energy Act of 1946 inside section 1 as quoted
+    # text, so the enacted view has three sections and the restated act's own
+    # sections stay inside section 1's XML (the compilation addresses them).
+    assert [u.identifier for u in law.units] == ["/us/pl/83/703/s1", "/us/pl/83/703/s2", "/us/pl/83/703/s3"]
+    assert parsed.sections_in_quoted_content > 100
+    assert "Atomic Energy Act of 1954" in law.units[0].text
+
+
+def test_an_1890_act_is_a_chapter_only():
+    parsed = parse_volume(FIXTURES / "statute-26-slice.xml")
+    law = by_id(parsed, "/us/act/1890-07-02/ch647")
+    assert law.kind == "act" and law.number is None and law.chapter == 647
+    assert law.citation == "26 Stat. 209"
+    assert [u.identifier for u in law.units][:2] == ["/us/act/1890-07-02/ch647/s1", "/us/act/1890-07-02/ch647/s2"]
+
+
 def test_a_component_holding_several_laws_yields_each():
     """Volume 116 packs 47 consecutive laws into one `component`; the slice keeps
     three of them."""

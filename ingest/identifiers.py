@@ -95,12 +95,15 @@ def identify_law(
     enacted: datetime.date | None,
     long_title_text: str = "",
     long_title_hrefs: list[str] | None = None,
+    preface_chapter: int | None = None,
 ) -> LawIdentity | None:
     """Decide what a `pLaw` component is and which identifiers it answers to.
 
     `doc_type` is the component's `dc:type`: `Public Law`, `Private Law`, or
     `Chapter` (1957 and before, where `docNumber` is the chapter). For a
-    chapter, the law number is read from the long title's marginal note.
+    chapter, the law number is read from the long title's marginal note. Some
+    volumes of the numbered-and-chaptered years (68, 1954) type the law as
+    `Public Law` and print the chapter in the preface; that is `preface_chapter`.
 
     None when nothing identifies the law: no number, no chapter, or a chapter
     with no enactment date.
@@ -114,6 +117,7 @@ def identify_law(
     if doc_type in ("public law", "private law"):
         number = parsed_number
         kind = "pl" if doc_type == "public law" else "pvtl"
+        chapter = preface_chapter
     else:
         if doc_type == "chapter":
             chapter = parsed_number

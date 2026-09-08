@@ -369,9 +369,9 @@ def test_status(client):
     assert set(body) == {"collections", "checks", "stale"}
     assert set(body["collections"]) == {"STATUTE", "COMPS", "PLAW"} == set(body["checks"])
     statute = body["collections"]["STATUTE"]
-    assert statute["volumes"] == [64, 72, 116, 124, 137]
-    assert statute["packages_loaded"] == 5 and statute["latest_package"] == "STATUTE-137"
-    assert statute["laws"] == 25 and statute["units"] > 0 and statute["latest_loaded_at"]
+    assert statute["volumes"] == [26, 64, 68, 72, 116, 124, 137]
+    assert statute["packages_loaded"] == 7 and statute["latest_package"] == "STATUTE-137"
+    assert statute["laws"] == 27 and statute["units"] > 0 and statute["latest_loaded_at"]
     assert body["collections"]["COMPS"] == {
         "packages_loaded": 0, "latest_package": None, "latest_loaded_at": None, "laws": 0, "units": 0, "volumes": [],
     }
