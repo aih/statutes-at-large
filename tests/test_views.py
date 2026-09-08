@@ -27,7 +27,9 @@ def test_the_amending_act_of_a_restated_law(client):
     body = client.get("/api/v1/us/pl/83/703/s1").json()
     compiled = [a for a in body["alternatives"] if a["view"] == "compiled"]
     assert [a["identifier"] for a in compiled] == ["/us/sComp/83/703/tI/ch1./s1"]
-    assert body["alternatives"][-1]["identifiers"] == ["/us/usc/t42/s2011"]
+    codified = body["alternatives"][-1]["identifiers"]
+    assert codified[0] == "/us/usc/t42/s2011"
+    assert "/us/usc/t42/s2014" in codified and len(codified) == len(set(codified))
 
 
 def test_the_law_itself_offers_the_compilation(client):

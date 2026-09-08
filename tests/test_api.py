@@ -14,10 +14,13 @@ SECTION_KEYS = {
 }
 ENACTED_NOTE_740 = (
     "This is section 3 of Public Law 81-740 as enacted on August 30, 1950 (64 Stat. 563). "
-    "It is not updated. Whether this section has been amended since is not recorded here. "
+    "It is not updated. No later amendment of this section is recorded in the indexes here "
+    "(the US Code's source credits, the classification tables, and the Statute Compilations); "
+    "amendment may still have occurred. "
     "To check for later amendments: the classification tables at uscode.house.gov for laws "
     "after August 30, 1950."
 )
+"""Public Law 81-740 is cited by the US Code in notes only: `no_record`."""
 
 
 # ------------------------------------------------------------- the section
@@ -42,7 +45,7 @@ def test_section_json_shape(client):
     assert body["law"]["source"] == {"collection": "STATUTE", "package": "STATUTE-64", "granule": None}
     assert body["currency"]["kind"] == "as_enacted"
     assert body["currency"]["date"] == "1950-08-30"
-    assert body["currency"]["amended"] == {"status": "unknown", "latest": None, "evidence": []}
+    assert body["currency"]["amended"] == {"status": "no_record", "latest": None, "evidence": []}
     assert body["alternatives"] == []
     assert body["provenance"]["text"] == "gpo-uslm"
     assert body["provenance"]["identifiers"] == "rules-1.0"
@@ -315,7 +318,11 @@ def test_labels_post(client):
         "kind": "pl",
         "law_identifier": "/us/pl/81/740",
         "law_label": "Public Law 81-740",
-        "currency": {"kind": "as_enacted", "date": "1950-08-30"},
+        "currency": {
+            "kind": "as_enacted",
+            "date": "1950-08-30",
+            "amended": {"status": "no_record", "latest": None, "evidence": []},
+        },
     }
     assert body["/us/act/1950-08-30/ch823"]["resolution"] == "alias"
     assert body["/us/act/1950-08-30/ch823"]["served_identifier"] == "/us/pl/81/740"

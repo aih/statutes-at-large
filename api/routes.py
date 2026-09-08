@@ -24,8 +24,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, Response
 
+from api.currency import amended_for_label
 from api.responses import compiled_not_found, stat_page_response, unit_response
 from api.schemas import (
+    AmendedOut,
     CollectionStatusOut,
     ErrorOut,
     LabelFoundOut,
@@ -234,7 +236,14 @@ def stat_page(volume: int, page: str, request: Request, repository: RepositoryDe
 def _labels(repository: Repository, identifiers: list[str]) -> dict[str, LabelOut]:
     paths = [normalize_identifier(one) for one in identifiers]
     found = repository.labels(paths)
-    return {path: (LabelFoundOut.of(found[path]) if path in found else LabelMissingOut()) for path in paths}
+    out: dict[str, LabelOut] = {}
+    for path in paths:
+        if path in found:
+            amended = AmendedOut.of(amended_for_label(repository, found[path]))
+            out[path] = LabelFoundOut.of(found[path], amended)
+        else:
+            out[path] = LabelMissingOut()
+    return out
 
 
 @api.post(
@@ -253,8 +262,8 @@ def labels(
 ) -> dict[str, LabelOut]:
     """Between 1 and 100 identifiers per request. Every requested identifier
     appears in the answer: `{exists: true, …}` with the served identifier,
-    resolution, heading and law for the ones that resolve, `{exists: false}`
-    for the rest. What the US Code site's `resolveRef` calls."""
+    resolution, heading, law and `currency.amended` for the ones that resolve,
+    `{exists: false}` for the rest. What the US Code site's `resolveRef` calls."""
     return _labels(repository, body.identifiers)
 
 

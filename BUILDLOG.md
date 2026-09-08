@@ -46,3 +46,27 @@ Decisions: ADR-0006 (restated acts), ADR-0007 (compilations).
 
 Verified: `make test` 153 passed; `make test-slow` over volumes 64, 72, 116,
 124, 137; the compose stack on :8010 serving both views from Postgres.
+
+## 2026-09-08 — stage 3, part (b): `currency.amended` from evidence
+
+Asked: decide `currency.amended` for enacted units and `labels` from the
+citation index, the classification rows and the compilations, in a worktree
+beside part (a) (the classification mirror).
+
+- `api/currency.py`: the decision (`decide`, `amended_for_unit`,
+  `amended_for_label`), the ordering (`later`, `newest`), and the citing
+  US Code sections the codified alternative reuses.
+- `api/schemas.py`: `LatestOut` (`pl`, `identifier`, `label`, `enacted`),
+  `AmendedOut.of`, `LabelCurrencyOut.amended`. `api/responses.py` wires
+  `params.amended_sentence`; `api/routes.py` gives `labels` the same block.
+- `api/alternatives.py`: the codified alternative adds the index's citing
+  sections after the compilation's own, capped at 20.
+- `tests/test_currency.py` (18 tests): the three statuses over the fixtures,
+  `latest`, the sentences, `labels`, the codified alternative, and
+  classification rows inserted for the module (PL 118-22 and 118-42 on
+  7 U.S.C. §§ 1627a and 1627b) and removed after.
+
+Decisions: ADR-0010.
+
+Verified: `make test` (192 passed, 5 deselected). No change under `storage/`,
+`db/` or `params.py`.
