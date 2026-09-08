@@ -35,6 +35,7 @@ from api.schemas import (
     LabelFoundOut,
     LabelMissingOut,
     LabelOut,
+    LabelPageOut,
     LabelsIn,
     LawSummaryOut,
     NotFoundOut,
@@ -55,7 +56,7 @@ from params import (
     public_cache,
     rate_limit,
 )
-from storage import Repository, normalize_page
+from storage import Repository, normalize_page, parse_stat_page
 
 api = APIRouter(prefix="/api/v1", tags=["api"], dependencies=[Depends(public_cache)])
 
@@ -236,11 +237,18 @@ def stat_page(volume: int, page: str, request: Request, repository: RepositoryDe
 
 
 def _labels(repository: Repository, identifiers: list[str]) -> dict[str, LabelOut]:
+    """Units through `Repository.labels`; a `/us/stat/{vol}/{page}` identifier
+    through `stat_page`, so a reader can link a page reference the same way."""
     paths = [normalize_identifier(one) for one in identifiers]
-    found = repository.labels(paths)
+    pages = {path: parse_stat_page(path) for path in paths}
+    found = repository.labels([path for path in paths if pages[path] is None])
     out: dict[str, LabelOut] = {}
     for path in paths:
-        if path in found:
+        stat = pages[path]
+        if stat is not None:
+            page = repository.stat_page(stat.volume, stat.page)
+            out[path] = LabelPageOut.of(page) if page is not None else LabelMissingOut()
+        elif path in found:
             amended = AmendedOut.of(amended_for_label(repository, found[path]))
             out[path] = LabelFoundOut.of(found[path], amended)
         else:
@@ -265,7 +273,9 @@ def labels(
     """Between 1 and 100 identifiers per request. Every requested identifier
     appears in the answer: `{exists: true, …}` with the served identifier,
     resolution, heading, law and `currency.amended` for the ones that resolve,
-    `{exists: false}` for the rest. What the US Code site's `resolveRef` calls."""
+    `{exists: true, level: "page", documents: […]}` for a Statutes at Large
+    page that is loaded, `{exists: false}` for the rest. What the US Code
+    site's `resolveRef` calls."""
     return _labels(repository, body.identifiers)
 
 

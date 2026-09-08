@@ -14,6 +14,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 from api.currency import Amended, Candidate
+from citeparse import ParsedCitation
 from storage import (
     GOVINFO_PLAW_LINK,
     CitationIndexStatus,
@@ -494,11 +495,49 @@ class LabelFoundOut(BaseModel):
         )
 
 
+class LabelPageDocumentOut(BaseModel):
+    identifier: str
+    label: str
+    kind: str
+    starts_here: bool
+
+
+class LabelPageOut(BaseModel):
+    """A Statutes at Large page, for a `/us/stat/{vol}/{page}` identifier:
+    what a reader needs to link the reference to the page and say what is on it."""
+
+    exists: Literal[True] = True
+    served_identifier: str
+    resolution: Literal["exact"] = "exact"
+    num: str = Field(description="The page label, lower case.")
+    heading: None = None
+    level: Literal["page"] = "page"
+    kind: Literal["stat"] = "stat"
+    volume: int
+    page: str
+    documents: list[LabelPageDocumentOut] = Field(description="The laws on the page, the ones that start here first.")
+    pdf: str
+
+    @classmethod
+    def of(cls, page: StatPageResult) -> LabelPageOut:
+        return cls(
+            served_identifier=page.identifier,
+            num=page.page,
+            volume=page.volume,
+            page=page.page,
+            documents=[
+                LabelPageDocumentOut(identifier=d.law.identifier, label=d.law.label, kind=d.law.kind, starts_here=d.starts_here)
+                for d in page.documents
+            ],
+            pdf=page.pdf,
+        )
+
+
 class LabelMissingOut(BaseModel):
     exists: Literal[False] = False
 
 
-LabelOut = LabelFoundOut | LabelMissingOut
+LabelOut = LabelFoundOut | LabelPageOut | LabelMissingOut
 
 
 # ------------------------------------------------------------------- status
@@ -756,4 +795,74 @@ class CitedByOut(BaseModel):
             index=CitationIndexOut.of(index),
             sections=[CitingSectionOut.of(s, url=section_url(s.identifier)) for s in answer.sections],
             note=note,
+        )
+
+
+# ---------------------------------------------------------------------- cite
+
+
+class CiteOut(BaseModel):
+    """A written citation resolved to the identifier it names, and whether
+    that is loaded (design section 5; `citeparse`)."""
+
+    query: str
+    kind: str = Field(description="`pl` | `pvtl` | `act` | `stat` | `sComp` | `usc`; a chapter cited with its page answers with the law's kind.")
+    identifier: str = Field(description="The deepest thing the citation named; for a chapter on a page, the law found there.")
+    section_identifier: str = Field(description="The section containing `identifier` when the citation went below one.")
+    law_identifier: str | None = Field(description="The law's primary identifier when it is loaded, else the form the citation named.")
+    label: str = Field(description="The citation in this site's written form.", examples=["Public Law 104-333, section 814(e)(1)"])
+    exists: bool | None = Field(description="Whether the target is loaded; null for a US Code citation, which is not checked here.")
+    served_identifier: str | None = Field(description="The stored unit or page that answers, on a hit.")
+    resolution: str | None = Field(description="`exact` | `prefix` | `section_number` | `alias` (design section 3), on a hit.")
+    level: str | None
+    num: str | None
+    heading: str | None
+    law_label: str | None
+    url: str | None = Field(description="The citation URL on a hit; the US Code site's URL for a US Code citation; null on a miss.")
+    stat_page: str | None = Field(description="A Stat. page the citation gave beside a law, not resolved.")
+    hierarchy: list[str] = Field(default_factory=list, description="The hierarchy the citation wrote, as GPO segments; not in the identifier.")
+    note: str
+    message: str | None = Field(description="Something specific about a hit that did not land exactly: a provision missing from its section, a chapter absent from its page.")
+
+    @classmethod
+    def of(
+        cls,
+        parsed: ParsedCitation,
+        query: str,
+        *,
+        exists: bool | None,
+        note: str,
+        identifier: str | None = None,
+        section_identifier: str | None = None,
+        kind: str | None = None,
+        label: str | None = None,
+        served_identifier: str | None = None,
+        resolution: str | None = None,
+        level: str | None = None,
+        num: str | None = None,
+        heading: str | None = None,
+        law_identifier: str | None = None,
+        law_label: str | None = None,
+        url: str | None = None,
+        message: str | None = None,
+    ) -> CiteOut:
+        return cls(
+            query=query,
+            kind=kind or parsed.kind,
+            identifier=identifier or parsed.identifier,
+            section_identifier=section_identifier or (parsed.section_identifier if identifier is None else identifier),
+            law_identifier=law_identifier or parsed.law_identifier,
+            label=label or parsed.label,
+            exists=exists,
+            served_identifier=served_identifier,
+            resolution=resolution,
+            level=level,
+            num=num,
+            heading=heading,
+            law_label=law_label,
+            url=url,
+            stat_page=parsed.stat_page,
+            hierarchy=list(parsed.hierarchy),
+            note=note,
+            message=message,
         )

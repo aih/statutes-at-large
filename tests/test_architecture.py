@@ -68,3 +68,12 @@ def test_the_govinfo_key_is_not_in_source():
         for match in re.finditer(r"api_key=([A-Za-z0-9]{20,})", text):
             suspicious.append((str(path.relative_to(REPO_ROOT)), match.group(1)[:6]))
     assert suspicious == []
+
+
+def test_the_citation_parser_is_pure():
+    """`citeparse.py` knows what string names an identifier and nothing about
+    what exists: no storage, db, fastapi or sqlalchemy (the US Code site's
+    ADR-0023), so its accepted-forms table runs with no database."""
+    names = _imports(REPO_ROOT / "citeparse.py")
+    offenders = sorted(n for n in names if n.split(".")[0] in {"storage", "db", "fastapi", "sqlalchemy", "httpx", "api", "params"})
+    assert offenders == []

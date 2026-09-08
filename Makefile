@@ -1,4 +1,4 @@
-.PHONY: dev migrate dev-data dev-up test test-slow test-all fixtures verify fetch load-all lint fetch-uscode citations classifications fetch-plaw plaw plaw-poll
+.PHONY: dev migrate dev-data dev-up test test-slow test-all fixtures verify fetch load-all lint fetch-uscode citations classifications fetch-plaw plaw plaw-poll cite
 
 # The API alone on :8001 against the compose Postgres (:5434 on the host).
 dev: dev-up migrate
@@ -80,3 +80,11 @@ verify: dev-data
 
 up:
 	docker compose up --build
+
+# Stage 5: a written citation through the parser (no database) and through the
+# running site's `GET /api/v1/cite` (the compose proxy on :8010 by default).
+#   make cite Q="Pub. L. 81-740, § 3"        SITE=http://localhost:8001 for `make dev`
+SITE ?= http://localhost:8010
+cite:
+	uv run python -m citeparse "$(Q)"
+	curl -sG "$(SITE)/api/v1/cite" --data-urlencode "q=$(Q)" | python3 -m json.tool

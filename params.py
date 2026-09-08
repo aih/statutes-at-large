@@ -329,3 +329,76 @@ ThroughParam = Annotated[
     str | None,
     Query(description="A compilation's stored version, by the public law it is current through: `118-67`.", examples=["118-67"]),
 ]
+
+
+# ---------------------------------------------------------------------- cite
+#
+# `GET /api/v1/cite?q=` (design section 5): the parse is `citeparse`, the
+# existence check is the route's, and the sentences are here so the reader's
+# `/app/goto` says the same words.
+
+CITE_FORMS = (
+    "Pub. L. 104-333, § 814",
+    "110 Stat. 4196",
+    "Act of Aug. 25, 1916, ch. 408",
+    "Aug. 30, 1954, ch. 1073, § 2",
+    "Private Law 81-375",
+    "43 U.S.C. 1701",
+)
+"""The forms the 422 detail and the reader's box name."""
+
+
+def cite_not_a_citation(q: str) -> str:
+    """The 422 detail: the text is not a citation this site reads."""
+    forms = ", ".join(f"'{form}'" for form in CITE_FORMS[:-1]) + f", or '{CITE_FORMS[-1]}'"
+    return f"{q!r} is not a citation this site can read. Try {forms}."
+
+
+def cite_note(
+    *,
+    label: str,
+    identifier: str,
+    kind: str,
+    exists: bool | None,
+    served_identifier: str | None = None,
+    resolution: str | None = None,
+    num: str | None = None,
+    url: str | None = None,
+) -> str:
+    """What the citation names and whether it is here, one sentence per fact.
+
+    A US Code citation is named and handed to the US Code site; a hit says
+    which stored unit answers and, when that is not the identifier itself,
+    which resolution rule chose it (the same rules `served_note` reports); a
+    miss says nothing is loaded at the identifier, or on the page.
+    """
+    if kind == "usc":
+        return (
+            f"{label} is a United States Code citation, {identifier}; the US Code site serves it "
+            f"at {url}. It is not checked here."
+        )
+    if not exists:
+        where = "no loaded law prints on that page" if kind == "stat" else "nothing is loaded there"
+        return f"{label} is {identifier}; {where}."
+    first = f"{label} is {identifier}, which is loaded here."
+    if served_identifier is None or served_identifier == identifier or resolution == "exact":
+        return first
+    if resolution == "alias":
+        return f"{first} It is served as {served_identifier}, the same law under its other identifier."
+    if resolution == "section_number":
+        return (
+            f"{first} No unit is stored at {identifier}; the section numbered {num} in this law "
+            f"is at {served_identifier} and is served."
+        )
+    if resolution == "prefix":
+        return (
+            f"{first} Nothing is stored at {identifier}; {served_identifier} is the longest stored "
+            "prefix and is served."
+        )
+    return f"{first} It is served as {served_identifier}."
+
+
+def cite_chapter_not_on_page(*, chapter: int, page_identifier: str) -> str:
+    """A chapter cited with a Stat. page, when the page is loaded and no law
+    on it has that chapter."""
+    return f"The page {page_identifier} is loaded, and no law on it is chapter {chapter}; the page's documents are served."

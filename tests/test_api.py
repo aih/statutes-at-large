@@ -447,3 +447,21 @@ def test_head_is_not_served(client):
     response = client.head(SECTION)
     assert response.status_code == 405
     assert response.headers["allow"] == "GET"
+
+
+def test_labels_answer_a_stat_page(client):
+    response = client.post(
+        "/api/v1/labels", json={"identifiers": ["/us/stat/64/563", "/us/stat/64/A12", "/us/stat/110/4196"]}
+    )
+    assert response.status_code == 200
+    body = response.json()
+    page = body["/us/stat/64/563"]
+    assert page["exists"] is True
+    assert page["level"] == "page" and page["kind"] == "stat"
+    assert page["served_identifier"] == "/us/stat/64/563"
+    assert page["num"] == "563" and page["volume"] == 64 and page["page"] == "563"
+    assert page["pdf"] == "https://www.govinfo.gov/link/statute/64/563"
+    assert {"identifier": "/us/pl/81/740", "label": "Public Law 81-740", "kind": "pl", "starts_here": True} in page["documents"]
+    assert body["/us/stat/64/A12"]["exists"] is True
+    assert body["/us/stat/64/A12"]["served_identifier"] == "/us/stat/64/a12"
+    assert body["/us/stat/110/4196"] == {"exists": False}
