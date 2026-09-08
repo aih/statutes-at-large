@@ -23,7 +23,8 @@ copied from `../uscode-redesign` (its CLAUDE.md is the fuller reference).
 5. **Shared HTTP helpers live in `params.py`**: `served_note`, `not_found`,
    `cache_control`, `if_none_match`, `rate_limit`, `negotiated_format`. `api/` and
    `citation.py` import it and never each other.
-6. The GovInfo key is `GOVINFO_API_KEY` in the environment, never in source.
+6. The GovInfo key is `GOVINFO_API_KEY` in the environment or in `.env` (gitignored),
+   never in source.
 
 ## Gotchas
 

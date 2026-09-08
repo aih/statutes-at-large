@@ -75,13 +75,27 @@ for _name in ("httpx", "httpcore"):
 
 
 def api_key_from_env() -> str:
+    """The key from the environment, else from `.env` in the working directory
+    (the same file `db/config.py` reads). Never from source."""
     key = os.environ.get(ENV_VAR, "").strip()
     if not key:
+        key = _key_from_dotenv()
+    if not key:
         raise MissingApiKeyError(
-            f"{ENV_VAR} is not set. Get a key at https://api.govinfo.gov/docs/ and export it; "
-            "it is read from the environment only."
+            f"{ENV_VAR} is not set. Get a key at https://api.govinfo.gov/docs/ and put it in "
+            f"the environment or in .env as {ENV_VAR}=…; it is never read from source."
         )
     return key
+
+
+def _key_from_dotenv() -> str:
+    from pydantic_settings import BaseSettings, SettingsConfigDict
+
+    class _Dotenv(BaseSettings):
+        govinfo_api_key: str = ""
+        model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    return _Dotenv().govinfo_api_key.strip()
 
 
 def _utc(when: datetime.datetime) -> datetime.datetime:
