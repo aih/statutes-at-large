@@ -1,8 +1,19 @@
-.PHONY: dev migrate dev-data dev-up test test-slow test-all fixtures verify fetch load-all lint fetch-uscode citations classifications fetch-plaw plaw plaw-poll
+.PHONY: dev dev-api dev-web migrate dev-data dev-up test test-web test-e2e test-slow test-all fixtures verify fetch load-all lint fetch-uscode citations classifications fetch-plaw plaw plaw-poll
 
-# The API alone on :8001 against the compose Postgres (:5434 on the host).
+# The API on :8001 and the reader's dev server on :4321, against the compose
+# Postgres (:5434 on the host). The reader's Vite proxy sends /api/v1, /health,
+# /docs and /openapi.json to API_BASE_URL (default http://localhost:8001).
 dev: dev-up migrate
+	$(MAKE) --no-print-directory -j2 dev-api dev-web
+
+# The API alone.
+dev-api:
 	uv run python -m uvicorn main:app --reload --port 8001
+
+# The reader's dev server alone (stage 5; frontend/). API_BASE_URL picks the
+# API it reads: the compose stack is API_BASE_URL=http://localhost:8010.
+dev-web:
+	cd frontend && npm install --no-audit --no-fund && npm run dev
 
 dev-up:
 	docker compose up -d db
@@ -54,6 +65,17 @@ plaw-poll: migrate
 test:
 	uv run pytest
 
+# The reader's unit tests: vitest over frontend/src/lib (the renderer, the
+# reference rules, the URL helpers, the labels client). Needs Node, not a
+# browser, a database or the network. Not part of `make test`.
+test-web:
+	cd frontend && npm install --no-audit --no-fund && npm test
+
+# The reader's browser tests: Playwright over a running site (BASE_URL,
+# default http://localhost:4321; `make dev` or `make dev-web` first).
+test-e2e:
+	cd frontend && npm install --no-audit --no-fund && npx playwright test
+
 # Parses the whole downloaded volumes under data/statute/xmls (skips when absent).
 test-slow:
 	uv run pytest -m slow
@@ -78,5 +100,6 @@ fixtures:
 # Re-derive docs/verification/statute-{n}.json for the loaded volumes.
 verify: dev-data
 
+# The compose stack: Postgres, the API, the reader, Caddy on :8010.
 up:
 	docker compose up --build

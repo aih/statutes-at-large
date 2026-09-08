@@ -1,0 +1,90 @@
+---
+/**
+ * `/app/us/stat/{volume}/{page}`: the page label and volume, the `pdf` link,
+ * and every law that starts on or spans the page.
+ */
+import ErrorPage from "../../../../components/ErrorPage.astro";
+import Base from "../../../../layouts/Base.astro";
+import { ApiError, fetchStatPage } from "../../../../lib/api";
+import { NO_STORE, REVALIDATE } from "../../../../lib/cache";
+import type { Link, StatPage } from "../../../../lib/types";
+import { APP, apiHref, appHref, longDate } from "../../../../lib/url";
+
+const volume = Astro.params.volume ?? "";
+const page = Astro.params.page ?? "";
+
+interface Failure {
+  status: number;
+  detail: string;
+  retryAfter: string | null;
+}
+
+let stat: StatPage | null = null;
+let failure: Failure | null = null;
+try {
+  stat = (await fetchStatPage(volume, page)).body;
+} catch (error) {
+  if (error instanceof ApiError) {
+    failure = { status: error.status, detail: error.detail, retryAfter: error.retryAfter };
+  } else {
+    failure = { status: 502, detail: `The API did not answer: ${(error as Error).message}`, retryAfter: null };
+  }
+}
+
+if (failure) {
+  Astro.response.status = failure.status;
+  Astro.response.headers.set("Cache-Control", NO_STORE);
+  if (failure.retryAfter) Astro.response.headers.set("Retry-After", failure.retryAfter);
+} else {
+  Astro.response.headers.set("Cache-Control", REVALIDATE);
+}
+
+const label = stat ? `${stat.volume} Stat. ${stat.page}` : `${volume} Stat. ${page}`;
+const crumbs: Link[] = [{ href: `${APP}/`, label: "Home" }];
+---
+
+<Base title={`${label} — Statutes at Large`} crumbs={crumbs} current={label}>
+  {failure && <ErrorPage status={failure.status} detail={failure.detail} retryAfter={failure.retryAfter} />}
+
+  {
+    stat && (
+      <>
+        <h1 class="doc-title">{label}</h1>
+        <p class="doc-meta">
+          Volume {stat.volume}, page {stat.page} —{" "}
+          <a class="usa-link usa-link--external" href={stat.pdf}>the printed page on GovInfo</a>
+        </p>
+
+        <h2 class="group">Documents on this page</h2>
+        {stat.documents.length === 0 && <p class="doc-meta">No loaded law prints on this page.</p>}
+        <ul class="toc">
+          {stat.documents.map((document) => (
+            <li>
+              <a href={appHref(document.identifier)}>
+                <span class="toc__num">{document.label}</span>
+                <span class="toc__heading">{document.title}</span>
+                <span class="toc__meta">
+                  {document.citation}
+                  {document.enacted && `, ${longDate(document.enacted)}`}
+                  {document.starts_here ? "; starts on this page" : "; continues onto this page"}
+                </span>
+              </a>
+              {document.unit_on_page && (
+                <p class="doc-meta">
+                  The page marker falls in <a href={appHref(document.unit_on_page)}>{document.unit_on_page}</a>.
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        <p class="formats">
+          <a href={apiHref(stat.identifier)}>JSON</a>
+        </p>
+        <p class="formats">
+          Citation URL: <span class="cite">{stat.identifier}</span>
+        </p>
+      </>
+    )
+  }
+</Base>

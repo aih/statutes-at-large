@@ -1,0 +1,545 @@
+/*
+ * USWDS, compiled from its Sass packages with system fonts, plus the reader's
+ * own layer: the reading column, the ladder of provisions, sidenotes and page
+ * markers, listings and the apparatus around the text.
+ */
+
+@use "uswds-core" with (
+  $theme-show-notifications: false,
+  $theme-show-compile-warnings: false,
+  $theme-image-path: "/app/uswds/img",
+  $theme-typeface-tokens: (
+    "site-sans": (
+      display-name: null,
+      cap-height: 362px,
+      stack: (-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif),
+      system-font: true,
+    ),
+    "site-serif": (
+      display-name: null,
+      cap-height: 371px,
+      stack: (Georgia, "Iowan Old Style", "Times New Roman", Times, serif),
+      system-font: true,
+    ),
+    "site-mono": (
+      display-name: null,
+      cap-height: 362px,
+      stack: (ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace),
+      system-font: true,
+    ),
+  ),
+  $theme-font-type-sans: "site-sans",
+  $theme-font-type-serif: "site-serif",
+  $theme-font-type-mono: "site-mono",
+  $theme-font-role-heading: "sans",
+  $theme-font-role-body: "sans",
+  $theme-respect-user-font-size: true,
+  $theme-style-body-element: true
+);
+
+@forward "uswds-global";
+@forward "usa-layout-grid";
+@forward "usa-skipnav";
+@forward "usa-breadcrumb";
+@forward "usa-button";
+@forward "usa-search";
+@forward "usa-label";
+@forward "usa-form";
+@forward "usa-input";
+@forward "usa-link";
+@forward "usa-list";
+@forward "usa-table";
+@forward "usa-footer";
+@forward "usa-alert";
+@forward "usa-tag";
+@forward "usa-prose";
+@forward "usa-summary-box";
+
+:root {
+  --ink: #1b1b1b;
+  --muted: #565c65;
+  --link: #005ea2;
+  --rule: #dfe1e2;
+  --panel: #f0f0f0;
+  --bar: #162e51;
+  --target: #fff5c2;
+  --target-edge: #936f00;
+  --reading: Georgia, "Iowan Old Style", "Times New Roman", Times, serif;
+  --ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --indent-step: 2rem;
+  --margin-col: 12rem;
+}
+
+body {
+  color: var(--ink);
+  background: #fff;
+  font-family: var(--ui);
+}
+
+code,
+.cite {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
+/* ----------------------------------------------------------------- chrome */
+
+.site-header {
+  background: var(--bar);
+  color: #fff;
+}
+
+.site-header__inner {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+}
+
+.site-header__brand {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+}
+
+.site-header__brand:hover,
+.site-header__brand:focus {
+  text-decoration: underline;
+  color: #fff;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site-nav a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.site-nav a:hover,
+.site-nav a:focus {
+  text-decoration: underline;
+  color: #fff;
+}
+
+.site-header .usa-search {
+  flex: 1 1 18rem;
+  max-width: 32rem;
+  margin-left: auto;
+}
+
+.site-header .usa-search [type="search"] {
+  border-color: #fff;
+}
+
+.site-footer {
+  border-top: 1px solid var(--rule);
+  margin-top: 3rem;
+  padding: 1.5rem 1rem 2rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.site-footer__inner {
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.site-footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+/* ------------------------------------------------------------- the column */
+
+.reader-wrap {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 1rem 1rem 2rem;
+}
+
+.doc-title {
+  font-size: 1.75rem;
+  line-height: 1.2;
+  margin: 1rem 0 0.5rem;
+  max-width: none;
+}
+
+.doc-title__num {
+  color: var(--muted);
+  margin-right: 0.4em;
+}
+
+.lede {
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: none;
+}
+
+.doc-meta {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0.4rem 0;
+  max-width: none;
+}
+
+/* The API's sentences, printed as they came. */
+.note {
+  background: var(--panel);
+  border-left: 0.25rem solid var(--link);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  max-width: none;
+}
+
+.note p {
+  margin: 0;
+  max-width: none;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.3rem 1rem;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+.facts dt {
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.facts ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.group {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 1.75rem 0 0.25rem;
+}
+
+h2.group {
+  font-weight: 700;
+}
+
+.formats {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 1rem 0 0;
+}
+
+.formats a + a::before {
+  content: "·";
+  margin: 0 0.5em;
+  color: var(--muted);
+}
+
+/* ---------------------------------------------------------------- listings */
+
+.toc {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  max-width: none;
+}
+
+.toc .toc {
+  margin: 0 0 0 1.25rem;
+}
+
+.toc li {
+  border-top: 1px solid var(--rule);
+}
+
+.toc a {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.25rem;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.toc a:hover,
+.toc a:focus {
+  background: var(--panel);
+}
+
+.toc__num {
+  font-weight: 700;
+  color: var(--link);
+  white-space: nowrap;
+}
+
+.toc__heading {
+  flex: 1 1 12rem;
+}
+
+.toc__meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.neighbors {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 2rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.neighbors__next {
+  margin-left: auto;
+  text-align: right;
+}
+
+.neighbors__dir {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.panel {
+  border-top: 1px solid var(--rule);
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+.versions {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0;
+}
+
+.versions li {
+  padding: 0.25rem 0;
+}
+
+/* --------------------------------------------------------------- the text */
+
+.section-body {
+  font-family: var(--reading);
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin-top: 1.5rem;
+  text-align: start;
+  hyphens: manual;
+}
+
+.section-body .uslm-heading {
+  display: inline;
+  font-size: 1em;
+  font-family: var(--reading);
+  font-weight: 700;
+  margin: 0;
+}
+
+/* The section's own number and heading are the page's h1. */
+.section-body > .uslm-section > .uslm-num,
+.section-body > .uslm-section > .uslm-heading {
+  display: none;
+}
+
+.section-body .uslm-num {
+  font-weight: 700;
+  margin-right: 0.4em;
+}
+
+.section-body p,
+.section-body .uslm-content,
+.section-body .uslm-chapeau,
+.section-body .uslm-continuation,
+.section-body .uslm-proviso {
+  max-width: none;
+  margin: 0.5rem 0;
+}
+
+/* One step of indent per level below the root; the number hangs into it. */
+.section-body .prov {
+  padding-left: var(--indent-step);
+  margin-left: 0;
+  text-indent: 0;
+}
+
+.section-body .prov > .uslm-num {
+  display: inline-block;
+  min-width: var(--indent-step);
+  margin-left: calc(-1 * var(--indent-step));
+  margin-right: 0;
+  padding-right: 0.4em;
+  vertical-align: top;
+}
+
+.section-body .prov > .uslm-num + .uslm-content,
+.section-body .prov > .uslm-num + .uslm-chapeau,
+.section-body .prov > .uslm-num + .uslm-heading + .uslm-chapeau,
+.section-body .prov > .uslm-num + .uslm-heading + .uslm-content {
+  display: inline;
+}
+
+.section-body .uslm-quotedContent {
+  margin: 0.75rem 0 0.75rem 0;
+  padding: 0.25rem 0 0.25rem 1rem;
+  border-left: 3px solid var(--rule);
+}
+
+.section-body .uslm-toc {
+  margin: 0.75rem 0;
+  font-size: 0.95em;
+}
+
+.section-body .uslm-referenceItem {
+  margin: 0.1rem 0 0.1rem 1rem;
+}
+
+.section-body .uslm-designator {
+  margin-right: 0.4em;
+}
+
+.smallCaps {
+  font-variant: small-caps;
+}
+
+.centered {
+  text-align: center;
+}
+
+.section-body .uslm-editorialNote {
+  margin: 0.75rem 0;
+  font-family: var(--ui);
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* Cross references. */
+.section-body .uslm-ref {
+  color: var(--link);
+}
+
+.section-body .uslm-ref--plain {
+  font-style: normal;
+  color: inherit;
+}
+
+/* Marginal notes and page markers. */
+.uslm-sidenote {
+  font-family: var(--ui);
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--muted);
+  border-left: 2px solid var(--rule);
+  padding: 0.1rem 0 0.1rem 0.6rem;
+  margin: 0.4rem 0;
+}
+
+.uslm-sidenote p {
+  margin: 0;
+  max-width: none;
+}
+
+.uslm-page {
+  font-family: var(--ui);
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-decoration: none;
+  border: 1px solid var(--rule);
+  border-radius: 0.2rem;
+  padding: 0 0.3rem;
+  margin: 0 0.3rem;
+  vertical-align: super;
+  white-space: nowrap;
+}
+
+a.uslm-page:hover,
+a.uslm-page:focus {
+  color: var(--link);
+  border-color: var(--link);
+}
+
+@media (min-width: 64em) {
+  .reader-wrap--text {
+    max-width: calc(46rem + var(--margin-col));
+    padding-right: calc(1rem + var(--margin-col));
+  }
+
+  .uslm-sidenote {
+    float: right;
+    clear: right;
+    width: calc(var(--margin-col) - 1rem);
+    margin: 0 calc(-1 * var(--margin-col)) 0.5rem 0.5rem;
+    border-left: none;
+    padding-left: 0;
+  }
+}
+
+/* The provision the URL named, inside its section. */
+.target {
+  background: var(--target);
+  outline: 2px solid var(--target-edge);
+  outline-offset: 2px;
+  border-radius: 0.15rem;
+  scroll-margin-top: 1rem;
+}
+
+/* Tables scroll inside themselves. */
+.uslm-tablewrap {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.section-body .uslm-table {
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.section-body .uslm-td,
+.section-body .uslm-th {
+  border: 1px solid var(--rule);
+  padding: 0.25rem 0.5rem;
+  vertical-align: top;
+}
+
+.section-body .uslm-caption {
+  caption-side: top;
+  text-align: start;
+  font-weight: 700;
+}
+
+/* The front page. */
+.forms {
+  columns: 2 14rem;
+  margin: 0.5rem 0 1rem;
+  padding-left: 1.25rem;
+}
+
+.status {
+  margin: 1rem 0;
+}

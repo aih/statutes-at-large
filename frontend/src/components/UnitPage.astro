@@ -1,0 +1,230 @@
+---
+/**
+ * The enacted unit page, shared by `/app/us/pl/…`, `/app/us/pvtl/…` and
+ * `/app/us/act/…`. The route page loads the model (`lib/unitpage.ts`) and
+ * sets the response; this renders it. `level` decides the layout: a law, a
+ * hierarchy node, or a section with a provision marked inside it when the URL
+ * went below one.
+ */
+import Alternatives from "./Alternatives.astro";
+import CitedBy from "./CitedBy.astro";
+import Currency from "./Currency.astro";
+import ErrorPage from "./ErrorPage.astro";
+import LawSources from "./LawSources.astro";
+import Neighbors from "./Neighbors.astro";
+import Note from "./Note.astro";
+import Pages from "./Pages.astro";
+import Provenance from "./Provenance.astro";
+import TocList from "./TocList.astro";
+import Base from "../layouts/Base.astro";
+import { nestToc, unitLabel } from "../lib/toc";
+import type { Link } from "../lib/types";
+import type { UnitPageModel } from "../lib/unitpage";
+import { APP, apiHref, appHref, longDate } from "../lib/url";
+
+interface Props {
+  model: UnitPageModel;
+}
+
+const { model } = Astro.props;
+const { unit, failure, summary, citedBy, sectionHtml, neighbors } = model;
+
+const isLaw = unit?.level === "law";
+const isSection = unit?.level === "section";
+const isNode = unit !== null && !isLaw && !isSection;
+
+/** Home, the law, then the ancestors. */
+const crumbs: Link[] = [{ href: `${APP}/`, label: "Home" }];
+if (unit && !isLaw) {
+  crumbs.push({ href: appHref(unit.law.identifier), label: unit.law.label });
+  for (const ancestor of unit.ancestors) {
+    crumbs.push({ href: appHref(ancestor.identifier), label: unitLabel(ancestor.level, ancestor.num) });
+  }
+}
+const current = unit ? (isLaw ? unit.law.label : unitLabel(unit.level, unit.num)) : null;
+
+const lawTitle = unit ? (unit.law.short_titles[0] ?? unit.law.label) : "";
+const title = !unit
+  ? `${failure?.status ?? ""} — Statutes at Large`
+  : isLaw
+    ? `${lawTitle} — Statutes at Large`
+    : `${unitLabel(unit.level, unit.num)} — ${unit.law.label} — Statutes at Large`;
+
+/** The law's table of contents: the summary's reading-order `toc` for a
+ * public law, else the unit's `children`. */
+const tocNodes = unit ? nestToc(isLaw && summary ? summary.toc : unit.children) : [];
+---
+
+<Base title={title} crumbs={crumbs} current={current} text={isSection}>
+  {failure && <ErrorPage status={failure.status} detail={failure.detail} retryAfter={failure.retryAfter} />}
+
+  {
+    unit && isLaw && (
+      <>
+        <h1 class="doc-title">{lawTitle}</h1>
+        {unit.law.short_titles.length > 1 && (
+          <p class="doc-meta">Also cited as: {unit.law.short_titles.slice(1).join("; ")}</p>
+        )}
+        {unit.law.official_title && <p class="lede">{unit.law.official_title}</p>}
+
+        <dl class="facts">
+          <dt>Law</dt>
+          <dd>{unit.law.label}</dd>
+          {unit.law.doc_type && (
+            <>
+              <dt>Type</dt>
+              <dd>{unit.law.doc_type}</dd>
+            </>
+          )}
+          {unit.law.enacted && (
+            <>
+              <dt>Enacted</dt>
+              <dd>{longDate(unit.law.enacted)}</dd>
+            </>
+          )}
+          {unit.law.citation && (
+            <>
+              <dt>Citation</dt>
+              <dd>{unit.law.citation}</dd>
+            </>
+          )}
+          <dt>Identifiers</dt>
+          <dd>
+            <ul>
+              {unit.law.aliases.map((alias) => (
+                <li>
+                  <a href={appHref(alias)}>{alias}</a>
+                </li>
+              ))}
+            </ul>
+          </dd>
+          <dt>Source</dt>
+          <dd>
+            {unit.law.source.collection}, package <code>{unit.law.source.package}</code>
+            {unit.law.source.granule && (
+              <span>
+                , granule <code>{unit.law.source.granule}</code>
+              </span>
+            )}
+          </dd>
+        </dl>
+
+        <Note note={unit.note} />
+        <Currency amended={unit.currency.amended} />
+        <Provenance provenance={unit.provenance} />
+        <Pages pages={unit.pages} />
+        <Alternatives alternatives={unit.alternatives} />
+
+        <h2 class="group">Contents</h2>
+        {tocNodes.length > 0 ? <TocList nodes={tocNodes} /> : <p class="doc-meta">No units are listed under this law.</p>}
+
+        {summary && <LawSources sources={summary.sources} compilations={summary.compilations} />}
+
+        <p class="formats">
+          <a href={unit.xml_url}>Source XML</a>
+          <a href={apiHref(unit.identifier)}>JSON</a>
+        </p>
+        <p class="formats">
+          Citation URL: <span class="cite">{unit.identifier}</span>
+        </p>
+
+        <CitedBy answer={citedBy} />
+      </>
+    )
+  }
+
+  {
+    unit && isNode && (
+      <>
+        <h1 class="doc-title">
+          <span class="doc-title__num">{unitLabel(unit.level, unit.num)}</span>
+          {unit.heading}
+        </h1>
+        <p class="doc-meta">{unit.law.label}</p>
+        <Note note={unit.note} />
+        <Currency amended={unit.currency.amended} />
+        <Provenance provenance={unit.provenance} />
+        <Pages pages={unit.pages} />
+        <Alternatives alternatives={unit.alternatives} />
+
+        <h2 class="group">Contents</h2>
+        {tocNodes.length > 0 ? <TocList nodes={tocNodes} /> : <p class="doc-meta">No units are listed under this node.</p>}
+
+        <p class="formats">
+          <a href={unit.xml_url}>Source XML</a>
+          <a href={apiHref(unit.identifier)}>JSON</a>
+        </p>
+        <p class="formats">
+          Citation URL: <span class="cite">{unit.identifier}</span>
+        </p>
+      </>
+    )
+  }
+
+  {
+    unit && isSection && (
+      <>
+        <h1 class="doc-title">
+          <span class="doc-title__num">{unitLabel(unit.level, unit.num)}</span>
+          {unit.heading}
+        </h1>
+        <p class="doc-meta">
+          {unit.law.label}
+          {unit.law.short_titles.length > 0 && <span>, {unit.law.short_titles[0]}</span>}
+        </p>
+
+        <Note note={unit.note} />
+        <Currency amended={unit.currency.amended} />
+
+        {unit.provision &&
+          (unit.provision.found ? (
+            <p class="doc-meta">
+              Provision <code>{unit.provision.identifier}</code> is shown, marked, in the context of section{" "}
+              {unit.num}.
+            </p>
+          ) : (
+            <div class="usa-alert usa-alert--warning usa-alert--slim" role="status">
+              <div class="usa-alert__body">
+                <p class="usa-alert__text">
+                  Provision <code>{unit.provision.identifier}</code> is not in the text of this section.
+                </p>
+              </div>
+            </div>
+          ))}
+
+        {unit.occurrences > 1 && (
+          <p class="doc-meta">The source numbers {unit.occurrences} elements with this identifier.</p>
+        )}
+
+        {sectionHtml !== null ? (
+          <article class="section-body" set:html={sectionHtml} />
+        ) : (
+          <>
+            <p class="doc-meta">The source XML could not be fetched; this is the reading text.</p>
+            <article class="section-body">
+              <p>{unit.text}</p>
+            </article>
+          </>
+        )}
+
+        <Neighbors previous={neighbors.previous} next={neighbors.next} />
+
+        <section class="panel" aria-labelledby="about-h">
+          <h2 class="group" id="about-h">About this text</h2>
+          <Provenance provenance={unit.provenance} />
+          <Pages pages={unit.pages} />
+          <Alternatives alternatives={unit.alternatives} />
+          <p class="formats">
+            <a href={unit.xml_url}>Source XML</a>
+            <a href={apiHref(unit.identifier)}>JSON</a>
+          </p>
+          <p class="formats">
+            Citation URL: <span class="cite">{unit.identifier}</span>
+          </p>
+        </section>
+
+        <CitedBy answer={citedBy} />
+      </>
+    )
+  }
+</Base>

@@ -1,0 +1,34 @@
+---
+/** Previous and next section. */
+import type { Link } from "../lib/types";
+
+interface Props {
+  previous: Link | null;
+  next: Link | null;
+}
+
+const { previous, next } = Astro.props;
+---
+
+{
+  (previous || next) && (
+    <nav class="neighbors" aria-label="Previous and next section">
+      <div>
+        {previous && (
+          <a href={previous.href} rel="prev">
+            <span class="neighbors__dir">Previous</span>
+            <span>{previous.label}</span>
+          </a>
+        )}
+      </div>
+      <div class="neighbors__next">
+        {next && (
+          <a href={next.href} rel="next">
+            <span class="neighbors__dir">Next</span>
+            <span>{next.label}</span>
+          </a>
+        )}
+      </div>
+    </nav>
+  )
+}

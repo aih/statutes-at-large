@@ -1,0 +1,19 @@
+---
+/** Names the API and its docs, and the US Code site. */
+import { API, uscodeHref } from "../lib/url";
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <ul>
+      <li><a href={API}>API at {API}</a></li>
+      <li><a href="/docs">API docs at /docs</a></li>
+      <li><a href={uscodeHref("/")}>US Code</a></li>
+    </ul>
+    <p>
+      Statutes at Large and Statute Compilations served at the section level by the
+      identifiers the US Code cites. The text is GovInfo's USLM; every page says which
+      source and which identifier rule it came from.
+    </p>
+  </div>
+</footer>

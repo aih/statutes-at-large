@@ -1,0 +1,22 @@
+---
+/** The compiled currency line: `current_through`, `fetched`, `govinfo_last_modified`. */
+import type { CompiledCurrency } from "../lib/types";
+import { longDate } from "../lib/url";
+
+interface Props {
+  currency: CompiledCurrency;
+}
+
+const { currency } = Astro.props;
+const through = currency.current_through;
+---
+
+<p class="doc-meta">
+  <span>
+    Current through
+    {through.pl ? ` Public Law ${through.pl}` : " (no law recorded)"}
+    {through.enacted && ` (${longDate(through.enacted)})`}
+  </span>
+  {currency.fetched && <span>; fetched {longDate(currency.fetched)}</span>}
+  {currency.govinfo_last_modified && <span>; GovInfo last modified {currency.govinfo_last_modified}</span>}
+</p>

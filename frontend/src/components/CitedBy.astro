@@ -1,0 +1,60 @@
+---
+/**
+ * The "cited by" panel: `note` verbatim, `total`, `contexts`, and the citing
+ * US Code sections linked to `url`. Nothing when the call failed or the index
+ * holds nothing (the caller passes null).
+ */
+import type { CitedBy } from "../lib/types";
+import { citedByApiHref } from "../lib/url";
+
+interface Props {
+  answer: CitedBy | null;
+}
+
+const { answer } = Astro.props;
+const contexts = answer ? Object.entries(answer.contexts) : [];
+---
+
+{
+  answer && (
+    <section class="panel" aria-labelledby="cited-by-h">
+      <h2 class="group" id="cited-by-h">Cited by the US Code</h2>
+      <p class="doc-meta">{answer.note}</p>
+      <p class="doc-meta">
+        {answer.total} citing section{answer.total === 1 ? "" : "s"}
+        {contexts.length > 0 && (
+          <span>
+            {" ("}
+            {contexts.map(([context, count], index) => (
+              <span>
+                {index > 0 && ", "}
+                {context} {count}
+              </span>
+            ))}
+            {")"}
+          </span>
+        )}
+      </p>
+      {answer.sections.length > 0 && (
+        <ul class="toc">
+          {answer.sections.map((section) => (
+            <li>
+              <a class="usa-link usa-link--external" href={section.url}>
+                <span class="toc__num">{section.citation ?? section.identifier}</span>
+                <span class="toc__heading">{section.heading}</span>
+                <span class="toc__meta">{section.release_label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+      {answer.total > answer.sections.length && (
+        <p class="doc-meta">
+          <a href={citedByApiHref(answer.identifier, 200)}>
+            The rest in the API ({answer.total} in all)
+          </a>
+        </p>
+      )}
+    </section>
+  )
+}

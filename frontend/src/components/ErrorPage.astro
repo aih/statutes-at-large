@@ -1,0 +1,19 @@
+---
+/** The API's `detail`, printed as it came, under the API's status. */
+import { APP } from "../lib/url";
+
+interface Props {
+  status: number;
+  detail: string;
+  retryAfter?: string | null;
+}
+
+const { status, detail, retryAfter = null } = Astro.props;
+---
+
+<h1 class="doc-title">{status}</h1>
+<p class="lede">{detail}</p>
+{retryAfter && <p class="doc-meta">Retry after {retryAfter} seconds.</p>}
+<p class="doc-meta">
+  Try the citation box above, or <a href={`${APP}/`}>start from the front page</a>.
+</p>

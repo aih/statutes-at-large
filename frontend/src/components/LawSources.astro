@@ -1,0 +1,65 @@
+---
+/** From `/laws/{c}/{n}`: where the law is served from, its two packages, and
+ * its compilations. */
+import type { Compilation, LawSources } from "../lib/types";
+import { appHref, longDate } from "../lib/url";
+
+interface Props {
+  sources: LawSources;
+  compilations: Compilation[];
+}
+
+const { sources, compilations } = Astro.props;
+---
+
+<h2 class="group">Sources</h2>
+<dl class="facts">
+  <dt>Served from</dt>
+  <dd>{sources.served_from}, package <code>{sources.package}</code>, identifiers <code>{sources.identifiers}</code></dd>
+  <dt>Volume</dt>
+  <dd>
+    <code>{sources.volume.package}</code>
+    {sources.volume.loaded ? ", loaded" : ", not loaded"}
+    {sources.volume.govinfo && (
+      <span>
+        {" — "}
+        <a class="usa-link usa-link--external" href={sources.volume.govinfo}>GovInfo</a>
+      </span>
+    )}
+  </dd>
+  <dt>PLAW</dt>
+  <dd>
+    {sources.plaw.package ? <code>{sources.plaw.package}</code> : "no package"}
+    {sources.plaw.uslm ? ", USLM on GovInfo" : ", no USLM on GovInfo"}
+    {sources.plaw.loaded ? ", served from it" : ", not served from it"}
+    {sources.plaw.govinfo && (
+      <span>
+        {" — "}
+        <a class="usa-link usa-link--external" href={sources.plaw.govinfo}>GovInfo</a>
+      </span>
+    )}
+  </dd>
+  {
+    compilations.length > 0 && (
+      <>
+        <dt>Compilations</dt>
+        <dd>
+          <ul>
+            {compilations.map((comp) => (
+              <li>
+                <a href={appHref(comp.identifier_prefix)}>{comp.display_title ?? comp.identifier_prefix}</a>
+                {comp.current_through?.pl && (
+                  <span class="toc__meta">
+                    {" "}
+                    (current through Public Law {comp.current_through.pl}
+                    {comp.current_through.enacted && `, ${longDate(comp.current_through.enacted)}`})
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        </dd>
+      </>
+    )
+  }
+</dl>

@@ -1,0 +1,115 @@
+---
+/**
+ * `/app/`: what is loaded (from `/api/v1/status`), the citation box, the
+ * forms it accepts, and example links.
+ */
+import CiteBox from "../components/CiteBox.astro";
+import Base from "../layouts/Base.astro";
+import { fetchStatus } from "../lib/api";
+import { REVALIDATE } from "../lib/cache";
+import { appHref, gotoHref } from "../lib/url";
+
+/** `params.CITE_FORMS`, the same six strings. */
+const CITE_FORMS = [
+  "Pub. L. 104-333, § 814",
+  "110 Stat. 4196",
+  "Act of Aug. 25, 1916, ch. 408",
+  "Aug. 30, 1954, ch. 1073, § 2",
+  "Private Law 81-375",
+  "43 U.S.C. 1701",
+];
+
+const EXAMPLES: [string, string][] = [
+  ["/us/pl/81/740/s3", "Public Law 81-740, section 3"],
+  ["/us/act/1950-08-30/ch823/s3", "the same section under its chapter identifier"],
+  ["/us/sComp/83/703/tI/ch1./s1", "the Atomic Energy Act of 1954, section 1, as compiled"],
+  ["/us/stat/64/563", "64 Stat. 563"],
+];
+
+const status = await fetchStatus();
+Astro.response.headers.set("Cache-Control", REVALIDATE);
+
+const statute = status?.collections.STATUTE;
+const plaw = status?.collections.PLAW;
+const comps = status?.collections.COMPS;
+const number = (value: number) => value.toLocaleString("en-US");
+---
+
+<Base title="Statutes at Large">
+  <h1 class="doc-title">Statutes at Large</h1>
+  <p class="lede">
+    Public laws at the section level, by the identifiers the US Code cites, and the Statute
+    Compilations beside them.
+  </p>
+
+  <h2 class="group">Go to a citation</h2>
+  <CiteBox id="front-q" />
+  <p class="doc-meta">Forms the box reads:</p>
+  <ul class="forms">
+    {
+      CITE_FORMS.map((form) => (
+        <li>
+          <a href={gotoHref(form)}>{form}</a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2 class="group">Examples</h2>
+  <ul class="toc">
+    {
+      EXAMPLES.map(([identifier, label]) => (
+        <li>
+          <a href={appHref(identifier)}>
+            <span class="toc__num">{identifier}</span>
+            <span class="toc__heading">{label}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <h2 class="group">What is loaded</h2>
+  {
+    status ? (
+      <dl class="facts status">
+        <dt>Statutes at Large volumes</dt>
+        <dd>
+          {statute && statute.volumes.length > 0
+            ? `${statute.volumes.join(", ")} (${number(statute.laws)} laws, ${number(statute.units)} units)`
+            : "none"}
+        </dd>
+        <dt>Public laws from PLAW</dt>
+        <dd>
+          {plaw && plaw.congresses.length > 0
+            ? plaw.congresses
+                .map((congress) => `${congress}th Congress: ${number(plaw.laws_by_congress[String(congress)] ?? 0)}`)
+                .join("; ")
+            : "none"}
+        </dd>
+        <dt>Statute Compilations</dt>
+        <dd>{comps ? `${number(comps.packages_loaded)} packages` : "none"}</dd>
+        <dt>Citation index</dt>
+        <dd>
+          {number(status.citations.rows)} refs from {number(status.citations.citing_sections)} US Code sections
+          {status.citations.release_labels.length > 0 && (
+            <span>
+              ; release points{" "}
+              {status.citations.release_labels.map(([label, rows]) => `${label} (${number(rows)})`).join(", ")}
+            </span>
+          )}
+        </dd>
+        <dt>Classification tables</dt>
+        <dd>
+          {status.classifications.congresses.length > 0
+            ? `congresses ${status.classifications.congresses.join(", ")}, ${number(status.classifications.rows)} rows`
+            : "none"}
+        </dd>
+        <dt>Stale</dt>
+        <dd>{status.stale ? "yes" : "no"}</dd>
+      </dl>
+    ) : (
+      <p class="doc-meta">The API's status could not be read.</p>
+    )
+  }
+</Base>

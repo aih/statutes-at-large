@@ -1,0 +1,10 @@
+<section xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:gpo="http://www.gpo.gov/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" identifier="/us/sComp/83/703/tI/ch1./s1" style="-uslm-dtd:section" styleType="traditional-inline">
+                    <num style="-uslm-dtd:enum" value="1">Section 1. </num><heading style="-uslm-dtd:header">Declaration.—</heading><chapeau style="-uslm-dtd:text">Atomic energy is capable of application for peaceful as well as military purposes. It is therefore declared to be the policy of the United States that—</chapeau>
+                    <subsection class="leftIndentIncrease1" identifier="/us/sComp/83/703/tI/ch1./s1/a" style="-uslm-dtd:subsection" styleType="nuclear">
+                        <num style="-uslm-dtd:enum" value="a">a. </num><content style="-uslm-dtd:text">the development, use, and control of atomic energy shall be directed so as to make the maximum contribution to the general welfare, subject at all times to the paramount objective of making the maximum contribution to the common defense and security; and</content>
+                    </subsection>
+                    <subsection class="leftIndentIncrease1" identifier="/us/sComp/83/703/tI/ch1./s1/b" style="-uslm-dtd:subsection" styleType="nuclear">
+                        <num style="-uslm-dtd:enum" value="b">b. </num><content style="-uslm-dtd:text">the development, use, and control of atomic energy shall be directed so as to promote world peace, improve the general welfare, increase the standard of living, and strengthen free competition in private enterprise.</content>
+                    </subsection><editorialNote role="uscRef" style="-uslm-dtd:usc-reference"><b>[</b><ref href="/us/usc/t42/s2011">42 U.S.C. 2011</ref><b>]</b> </editorialNote>
+                </section>
+                

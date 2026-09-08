@@ -1,7 +1,9 @@
-# The site: Postgres, the API, and the proxy that owns the port.
+# The site: Postgres, the API, the reader, and the proxy that owns the port.
 #
-#   browser :8010 ── proxy ─┬── /app/*  → (the reader; not built yet, 503)
-#                           └── /*      → api:8001   (FastAPI)
+#   browser :8010 ── proxy ─┬── /app/*  → frontend:4321   (Astro SSR on Node)
+#                           └── /*      → api:8001        (FastAPI)
+#
+# The reader reads the API over HTTP (API_BASE_URL) and nothing else.
 #
 # Host ports 5434 and 8010 rather than 5432 and 8000: the US Code site's stack
 # runs on this machine with those.
@@ -41,10 +43,23 @@ services:
         "--proxy-headers", "--forwarded-allow-ips", "*",
       ]
 
+  frontend:
+    build: ./frontend
+    depends_on:
+      - api
+    environment:
+      API_BASE_URL: http://api:8001
+      USCODE_ORIGIN: ${USCODE_ORIGIN:-https://uscode.linkedlegislation.org}
+      HOST: 0.0.0.0
+      PORT: "4321"
+    expose:
+      - "4321"
+
   proxy:
     image: caddy:2-alpine
     depends_on:
       - api
+      - frontend
     ports:
       - "8010:8000"
     volumes:

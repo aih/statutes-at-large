@@ -1,0 +1,10 @@
+---
+import UnitPage from "../../../components/UnitPage.astro";
+import { identifierParam } from "../../../lib/params";
+import { applyResponse, loadUnitPage } from "../../../lib/unitpage";
+
+const model = await loadUnitPage(identifierParam("/us/pvtl", Astro.params.identifier));
+applyResponse(Astro.response, model);
+---
+
+<UnitPage model={model} />

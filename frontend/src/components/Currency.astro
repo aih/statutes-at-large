@@ -1,0 +1,25 @@
+---
+/** The enacted currency line: `currency.amended` as its fields. */
+import type { Amended } from "../lib/types";
+import { appHref, longDate } from "../lib/url";
+
+interface Props {
+  amended: Amended;
+}
+
+const { amended } = Astro.props;
+---
+
+<p class="doc-meta">
+  <span>Amended: <code>{amended.status}</code></span>
+  {
+    amended.latest && (
+      <span>
+        {" — "}
+        <a href={appHref(amended.latest.identifier)}>{amended.latest.label}</a>
+        {amended.latest.enacted && <span> ({longDate(amended.latest.enacted)})</span>}
+      </span>
+    )
+  }
+  {amended.evidence.length > 0 && <span>; evidence: {amended.evidence.join(", ")}</span>}
+</p>

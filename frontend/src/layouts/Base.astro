@@ -1,0 +1,43 @@
+---
+/**
+ * The shell every page shares: skip link, header with the citation box,
+ * breadcrumbs, one `<main>`, footer. No client JavaScript.
+ */
+import Breadcrumbs from "../components/Breadcrumbs.astro";
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import type { Link } from "../lib/types";
+import "../styles/site.scss";
+
+interface Props {
+  title: string;
+  /** The trail above the page, home first. */
+  crumbs?: Link[];
+  /** The page itself, unlinked, at the end of the trail. */
+  current?: string | null;
+  /** What the citation box already holds. */
+  query?: string | null;
+  /** Widens the column to leave room for sidenotes on a wide screen. */
+  text?: boolean;
+}
+
+const { title, crumbs = [], current = null, query = null, text = false } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content="Public laws from the Statutes at Large and the Statute Compilations, at the section level." />
+  </head>
+  <body>
+    <a class="usa-skipnav" href="#main">Skip to main content</a>
+    <SiteHeader query={query} />
+    <main id="main" class={text ? "reader-wrap reader-wrap--text" : "reader-wrap"}>
+      <Breadcrumbs crumbs={crumbs} current={current} />
+      <slot />
+    </main>
+    <SiteFooter />
+  </body>
+</html>

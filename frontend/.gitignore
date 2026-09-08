@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.astro/
+test-results/
+playwright-report/
+# Copied from @uswds/uswds by scripts/uswds-assets.mjs before dev and build.
+public/uswds/
