@@ -12,7 +12,7 @@ import hashlib
 
 from fastapi import Request, Response
 
-from api.alternatives import alternatives_for
+from api.alternatives import alternatives_for, codified_labels, compiled_link
 from api.schemas import NotFoundOut, StatPageOut, UnitOut
 from params import (
     IMMUTABLE,
@@ -29,10 +29,15 @@ from storage import Repository, StatPageResult, UnitResult
 XML_MEDIA_TYPE = "application/xml; charset=utf-8"
 
 
-def unit_note(result: UnitResult) -> str:
-    """The resolution sentence, when there is one, then the as-enacted note."""
+def unit_note(result: UnitResult, alternatives: list | None = None) -> str:
+    """The resolution sentence, when there is one, then the as-enacted note,
+    which names the compiled and codified texts the alternatives found."""
+    alternatives = alternatives or []
     enacted = enacted_note(
-        result, compiled_link=None, codified=[], amended_sentence=amended_unknown_sentence(result)
+        result,
+        compiled_link=compiled_link(alternatives),
+        codified=codified_labels(alternatives),
+        amended_sentence=amended_unknown_sentence(result),
     )
     served = served_note(result)
     return f"{served} {enacted}" if served else enacted
@@ -73,10 +78,11 @@ def unit_response(request: Request, repository: Repository, result: UnitResult, 
         )
         return Response(content=fragment, media_type=XML_MEDIA_TYPE, headers=headers)
 
+    alternatives = alternatives_for(repository, result)
     out = UnitOut.of(
         result,
-        note=unit_note(result),
-        alternatives=alternatives_for(repository, result),
+        note=unit_note(result, alternatives),
+        alternatives=alternatives,
         xml_url=xml_url_for(request),
     )
     return Response(content=out.model_dump_json(), media_type="application/json", headers=headers)
