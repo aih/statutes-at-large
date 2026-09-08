@@ -37,7 +37,7 @@ All under `/api/v1`. The bare identifier URL (`/us/pl/81/740/s3`) is a 307 to
 | `GET /laws/{c}/{n}/sections/{num}` | the section by number, ignoring hierarchy; same body as the identifier routes |
 
 Query parameters on the identifier routes: `view=enacted` (default) or
-`view=compiled` (a 404 with `alternatives` until stage 2 loads compilations),
+`view=compiled` (a 404 with `alternatives` when the unit has no compiled counterpart),
 `format=json` or `format=xml` (otherwise `Accept:`; XML is the stamped USLM
 element, the provision alone when the path went below a section), `through`
 (a compilation version; ignored on the enacted view).
@@ -48,15 +48,8 @@ of its identifier), `Cache-Control: public, max-age=31536000, immutable`,
 is immutable with an `ETag` over its documents. `labels`, `status`, and the law
 summary are `public, max-age=300`. `HEAD` is not registered and answers 405.
 
-`currency.amended` on an enacted unit is decided from three indexes
-(`api/currency.py`): a US Code source credit that cites the unit and names a
-later law, a classification-table row of a later law that amends a section the
-unit was classified to, and a compilation current through a later law whose
-section text differs. Any of them gives `known_amended`, with `evidence`
-listing which and `latest` the newest law (`{pl, identifier, label, enacted}`);
-none of them gives `no_record` when the indexes know the law and `unknown` for a
-private law or a law in no index. The note's amended sentence says the same in
-words. `labels` carries the same block, without the compiled-text comparison.
+`currency.amended` is decided from the stage 3 indexes (below); `labels`
+carries the same block, without the compiled-text comparison.
 
 Source: GovInfo `STATUTE` volume USLM from the Hub dataset
 `dreamproit/us-statutes-at-large` (`xmls/STATUTE-{n}.xml`). The volume files
@@ -96,13 +89,23 @@ Stage 3 (the indexes):
 
 | Route | Answer |
 |---|---|
-| `GET /api/v1/cited-by?identifier=/us/pl/104/333/s814` | the US Code sections whose source credits, notes, or text cite the law, the section (by number, whatever hierarchy the ref wrote), a path below it, or a Statutes at Large page; `context` (`sourceCredit`, `note`, `text`, repeatable), `limit` (1–200), `offset`; `law` is null when the law is not loaded; 404 when the index holds nothing for an unloaded law; ETag and `If-None-Match`; `max-age=300`; 60 requests then 2 per second |
+| `GET /api/v1/cited-by?identifier=/us/pl/104/333/s814` | the US Code sections whose source credits, notes, or text cite the law, the section (by number, whatever hierarchy the ref wrote), a path below it, or a Statutes at Large page: `{identifier, law_identifier, law, aliases, section_num, below, contexts, total, limit, offset, release_labels, index, sections: [{identifier, citation, heading, release_label, url, refs: [{href, context, note_topic, date}]}], note}`; `context` (`sourceCredit`, `note`, `text`, repeatable), `limit` (1 to 200), `offset`; `law` is null when the law is not loaded and the index answers alone; 404 when the index holds nothing for an unloaded law; ETag and `If-None-Match`; `max-age=300`; 60 requests then 2 per second |
+| `currency.amended` on every enacted unit and label | `{status, latest, evidence}`: `known_amended` when a US Code source credit that cites the unit names a later law, when a classification row of a later law amends a US Code section the unit was classified to, or when a compilation current through a later law has different section text; `no_record` when the indexes know the law and none of that matched; `unknown` for a private law or a law in no index. `latest` is `{pl, identifier, label, enacted}` of the newest law that matched; `evidence` lists `source_credit`, `classification`, `compilation` in that order. The note's amended sentence says the same (`params.amended_sentence`; ADR-0010) |
 
-Sources: the citation index is built from the `dreamproit/uscode` dataset's
-`current` config (`python -m ingest citations --from-hub`, ADR-0008); the
-classification tables are mirrored from the US Code site's API
-(`python -m ingest classifications`, one `classification_files` row per
-table, replaced wholesale when its rows change).
+The codified alternative of an enacted section names the compilation's own
+`uscRef` sections and then the US Code sections whose source credits cite it,
+at most 20.
+
+Sources: the citation index is the `dreamproit/uscode` dataset's `current`
+config, one row per `<ref href>` to `/us/pl/`, `/us/pvtl/`, `/us/act/` or
+`/us/stat/` with its context, replaced per US Code title
+(`python -m ingest citations --from-hub`, `make citations`, ADR-0008); the
+classification tables are mirrored from the US Code site's API, one
+`classification_files` row per table, replaced wholesale when its rows change
+(`python -m ingest classifications`, `make classifications`, ADR-0009).
+Loaded: the whole `current` config (1,081,463 rows from 65,938 sections) and
+the 31 `pl` tables from the 104th to the 119th Congress
+(`docs/verification/citations.json`, `classifications.json`).
 
 Other routes: `POST /api/v1/labels` (up to 100 identifiers, existence and
 heading, what the US Code site's reference resolver calls), `GET /api/v1/status`
@@ -155,15 +158,18 @@ the downloaded volumes under `data/statute/xmls`.
 ```
 ingest/      statute.py (volume USLM → laws and units), identifiers.py (the rules),
              numbering.py (law-number collisions), load.py, hub.py, comps.py (the
-             COMPS parser, loader and poller), govinfo.py (the API client), __main__.py
+             COMPS parser, loader and poller), govinfo.py (the API client),
+             citations.py (the citation index from the uscode dataset),
+             classifications.py (the classification tables mirror), __main__.py
 storage/     repository.py (the Repository protocol), postgres.py (the only SQL),
              identifiers.py (parsing served identifiers), session.py
 api/         routes.py (enacted view, stat pages, labels, status, laws), comps.py
-             (the compiled view, /comps), alternatives.py, schemas, responses
+             (the compiled view, /comps), cited_by.py, currency.py (currency.amended
+             from the indexes), alternatives.py, schemas, responses
 db/          SQLAlchemy models and Alembic migrations (db/migrations)
 params.py    served_note, not_found, cache_control, ETag, rate limits, Accept
 citation.py  the /us/… redirector
 uslmtext.py  reading text and fragment extraction from stored USLM
 docs/adr     decisions that depart from the design
-docs/verification  per-volume load reports
+docs/verification  per-volume load reports, the citation index and mirror counts
 ```

@@ -61,3 +61,22 @@ docs/verification` (`make citations`) and describes the `dreamproit/uscode`
 Fields: `refs_by_prefix` and `rows_by_context_and_kind` are the cross-tabs;
 `by_title` has rows, sections and release labels per citing title;
 `unparsed_samples` lists twenty of the hrefs that did not parse.
+
+## Classification tables mirror (stage 3)
+
+`classifications.json` is written by `python -m ingest classifications --report
+docs/verification` (`make classifications`) and describes one run of the
+mirror over the US Code site's API (ADR-0009). On 2026-09-08: 31 `pl` tables
+seen and loaded (2 ECCT files skipped), 144,885 rows, 78 s; the site's own
+check of uscode.house.gov was at 06:41 UTC that day and covered "Public Law
+119-70 and Public Laws 119-74 through 119-103".
+
+| Congress | Tables | Rows |
+|---|---|---|
+| 104 | 1 (whole congress) | 11,737 |
+| 105 to 118 | 2 each | 4,478 (118th) to 13,948 (105th) |
+| 119 | 2 | 3,614 |
+
+Fields: `files[]` has one line per table with `action` (`loaded`, `unchanged`,
+`skipped`), the rows held, pages fetched, the row hash and the covered-law
+sentence; `upstream_checked_at` and `upstream_covered_text` are the site's.

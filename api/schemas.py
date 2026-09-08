@@ -603,7 +603,7 @@ class CitingSectionOut(BaseModel):
 
 class CitationIndexOut(BaseModel):
     release_labels: list[list[Any]] = Field(
-        default_factory=list, description="`[label, rows]` pairs over the whole index."
+        default_factory=list, description="`[label, rows]` pairs, the ten labels with most rows; `/status` lists the same ten."
     )
     loaded_at: datetime.datetime | None
     dataset_revision: str | None
@@ -611,7 +611,7 @@ class CitationIndexOut(BaseModel):
     @classmethod
     def of(cls, status: CitationIndexStatus) -> CitationIndexOut:
         return cls(
-            release_labels=[[label, rows] for label, rows in status.release_labels],
+            release_labels=[[label, rows] for label, rows in status.release_labels[:10]],
             loaded_at=status.loaded_at,
             dataset_revision=status.dataset_revision,
         )

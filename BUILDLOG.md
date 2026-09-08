@@ -47,48 +47,50 @@ Decisions: ADR-0006 (restated acts), ADR-0007 (compilations).
 Verified: `make test` 153 passed; `make test-slow` over volumes 64, 72, 116,
 124, 137; the compose stack on :8010 serving both views from Postgres.
 
-## 2026-09-08 — stage 3, part (b): `currency.amended` from evidence
+## 2026-09-08 — stage 3: the citation index, the classification mirror, `cited-by`, `currency.amended`
 
-Asked: decide `currency.amended` for enacted units and `labels` from the
-citation index, the classification rows and the compilations, in a worktree
-beside part (a) (the classification mirror).
+Asked: build design stage 3 (sections 4, 5 and 6): the `citations` table from
+`dreamproit/uscode`, the `classifications` mirror, `GET /api/v1/cited-by`,
+and `currency.amended.status` from evidence.
 
-- `api/currency.py`: the decision (`decide`, `amended_for_unit`,
-  `amended_for_label`), the ordering (`later`, `newest`), and the citing
-  US Code sections the codified alternative reuses.
-- `api/schemas.py`: `LatestOut` (`pl`, `identifier`, `label`, `enacted`),
-  `AmendedOut.of`, `LabelCurrencyOut.amended`. `api/responses.py` wires
-  `params.amended_sentence`; `api/routes.py` gives `labels` the same block.
-- `api/alternatives.py`: the codified alternative adds the index's citing
-  sections after the compilation's own, capped at 20.
-- `tests/test_currency.py` (18 tests): the three statuses over the fixtures,
-  `latest`, the sentences, `labels`, the codified alternative, and
-  classification rows inserted for the module (PL 118-22 and 118-42 on
-  7 U.S.C. §§ 1627a and 1627b) and removed after.
+Main agent first: the schema (`citations`, `classification_files`,
+`classifications`, `classification_source_checks`; migration `4381d4019386`),
+the `Repository` index methods (`cited_by`, `source_credit_evidence`,
+`classification_rows`, `classification_amendments`, `index_coverage`,
+`enacted_dates`, the two statuses), the citations loader (`python -m ingest
+citations --from-hub | --from-dir`, one row per `<ref href>` and per `<a href>`
+in revision-note tables, replaced per US Code title, a `USCODE` source check
+with the dataset revision), a 57-row parquet fixture cut by
+`scripts/extract_citations_fixture.py`, `amended_sentence` and `cited_by_note`
+in `params.py`, pyarrow in a `dataset` dependency group.
 
-Decisions: ADR-0010.
+Two subagents in worktrees, neither touching `storage/`, `db/` or `params.py`:
 
-Verified: `make test` (192 passed, 5 deselected). No change under `storage/`,
-`db/` or `params.py`.
+- (a) `ingest/classifications.py` (`python -m ingest classifications
+  [--congress N] [--from-dir PATH] [--force] [--report DIR]`): the US Code
+  site's `classifications/tables` listing and `entries` pages, paced at ten
+  requests a second, 429 waited out, 5xx retried; one `classification_files`
+  row per `pl` table, replaced wholesale when the rows' hash changes, skipped
+  when the listing matches what is stored; a check row per run. `GET
+  /api/v1/cited-by` (`api/cited_by.py`), and `citations` and `classifications`
+  blocks on `/status`. Fixtures: the listing and the first 40 rows of tables
+  118-2 and 104 (`tests/fixtures/classifications/`). 30 tests.
+- (b) `api/currency.py`: `decide` over the three evidence calls, `later` by
+  (congress, number) then by date, `latest`, the codified alternative from the
+  index; `LatestOut`, `AmendedOut.of`, `LabelCurrencyOut.amended`. 18 tests,
+  with classification rows inserted for the module.
 
-## 2026-09-08 — stage 3a: the classifications mirror and `cited-by`
+Main agent after the merge: one ADR-0010 from the two drafts, README,
+this entry; the full `current` config and the 31 `pl` tables loaded into the
+dev Postgres (`docs/verification/citations.json`, `classifications.json`);
+the compose stack on :8010 checked on `/us/pl/83/703/s1`,
+`/us/act/1890-07-02/ch647/s1` and `cited-by?identifier=/us/pl/104/333/s814`.
 
-A subagent in a worktree, on top of the main agent's stage-3 base (the
-`citations` tables and loader, ADR-0008, the `Repository` index methods):
+Decisions: ADR-0008 (the citation index: `current` config, one row per ref,
+replaced per title), ADR-0009 (the tables mirrored through the US Code
+site's API), ADR-0010 (`currency.amended` at request time; the classification
+rule is a join).
 
-- `ingest/classifications.py`, `python -m ingest classifications
-  [--congress N] [--from-dir PATH] [--force] [--report DIR] [--json]`: the US
-  Code site's `classifications/tables` listing and `entries` pages, paced at
-  ten requests a second, 429 waited out, 5xx retried; one
-  `classification_files` row per `pl` table, replaced wholesale when the
-  rows' hash changes, skipped when the listing matches what is stored; a
-  `classification_source_checks` row per run. Fixtures in
-  `tests/fixtures/classifications/` (the listing and the first 40 rows of
-  tables 118-2 and 104).
-- `GET /api/v1/cited-by` (`api/cited_by.py`, `CitedByOut`): `identifier`,
-  `context`, `limit`, `offset`; ETag and 304; 60 requests then 2 a second.
-  `citations` and `classifications` blocks on `/api/v1/status`.
-- `tests/test_classifications.py` (18 tests) and `tests/test_cited_by.py`
-  (12 tests); `conftest.loaded` loads the classification fixtures.
-
-Verified: `make test` 202 passed in about 2 s, no network.
+Verified: `make test` 220 passed, 5 deselected, no network; the citation load
+over Postgres in 405 s (1,081,463 rows); the mirror in 78 s (144,885 rows,
+31 files, 104th to 119th Congress).
