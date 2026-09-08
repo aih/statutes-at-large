@@ -3,6 +3,19 @@
 Date: 2026-09-08. Status: accepted. Implements design section 4's
 `currency.amended` table; records what the implementation settles.
 
+## Context
+
+Design section 4 gives three kinds of evidence for `known_amended`: a US Code
+source credit that cites this section and lists a later law; "a classification
+row naming this law's section as amended"; a compilation current through a
+later law whose section text differs. A classification row names the *amending*
+law and its section (`118-35 §101(3) → 18 U.S.C. 3551 nt`), so no row ever
+names an earlier law's section as amended; the second kind needs a rule, and
+decision 3 below is it: the rows of this law's section name the US Code
+sections it was classified to, and a row of a later public law on any of those
+sections, with an action other than `new`, is the evidence
+(`Repository.classification_amendments`).
+
 ## Decisions
 
 1. **Nothing is precomputed.** `api/currency.py` decides the status per
@@ -55,6 +68,10 @@ Date: 2026-09-08. Status: accepted. Implements design section 4's
   `get_comp_unit`.
 - `latest` is `{pl, identifier, label, enacted}`; `pl` is null for an act and
   `enacted` is null when no index and no loaded law records a date.
+- A section repealed and restated into positive law (36 U.S.C. § 70902 from
+  the 1950 Future Farmers of America charter) is cited only in a revision
+  note, so it is `no_record`, and the note says amendment may still have
+  occurred.
 - Over the fixtures: the Sherman Act's section 1 is `known_amended` by
   `source_credit` and `compilation` with `latest` Public Law 108-237;
   `/us/pl/81/740/s3` (cited in notes only) is `no_record`; `/us/pvtl/81/375`
