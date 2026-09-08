@@ -8,8 +8,10 @@ conventions, ADR-0018 there). Nothing here touches a database session:
 
 from __future__ import annotations
 
+import datetime
 import threading
 import time
+from collections.abc import Sequence
 from typing import Annotated, Callable, Literal
 
 from fastapi import Depends, HTTPException, Query, Request, Response
@@ -86,11 +88,58 @@ def enacted_note(result: UnitResult, *, compiled_link: str | None, codified: lis
     return f"{first} {amended_sentence} To check for later amendments: " + "; ".join(checks) + "."
 
 
-def amended_unknown_sentence(result: UnitResult) -> str:
-    """The `amended` sentence while no index of later amendments exists
-    (`currency.amended.status = "unknown"`), worded for the level served."""
-    noun = "law" if result.level == "law" else ("section" if result.level == "section" else result.level)
+INDEXES = "the US Code's source credits, the classification tables, and the Statute Compilations"
+"""What `currency.amended` is decided from (design section 4)."""
+
+
+def _unit_noun(result: UnitResult) -> str:
+    return "law" if result.level == "law" else ("section" if result.level == "section" else result.level)
+
+
+def amended_sentence(
+    result: UnitResult,
+    status: str,
+    *,
+    latest_label: str | None = None,
+    latest_date: datetime.date | None = None,
+) -> str:
+    """The "{amended sentence}" of the as-enacted note (design section 4), one
+    per `currency.amended.status`, worded for the level served.
+
+    `known_amended` names the newest law the evidence recorded, with its date
+    when known; `no_record` says the indexes hold nothing and that amendment
+    may still have occurred; `unknown` says nothing is recorded.
+    """
+    noun = _unit_noun(result)
+    if status == "known_amended":
+        if latest_label:
+            when = f" ({long_date(latest_date)})" if latest_date else ""
+            return f"This {noun} has been amended since; the most recent law recorded is {latest_label}{when}."
+        return f"This {noun} has been amended since."
+    if status == "no_record":
+        return (
+            f"No later amendment of this {noun} is recorded in the indexes here ({INDEXES}); "
+            "amendment may still have occurred."
+        )
     return f"Whether this {noun} has been amended since is not recorded here."
+
+
+def amended_unknown_sentence(result: UnitResult) -> str:
+    """`amended_sentence(result, "unknown")`, kept for the callers that predate
+    the evidence rules."""
+    return amended_sentence(result, "unknown")
+
+
+def cited_by_note(*, what: str, total: int, release_labels: Sequence[str]) -> str:
+    """The `cited-by` answer's note: what was counted and from which release
+    points of the US Code (design section 5)."""
+    labels = ", ".join(release_labels) if release_labels else "no release point loaded"
+    count = "no sections" if total == 0 else ("1 section" if total == 1 else f"{total} sections")
+    return (
+        f"Sections of the United States Code whose source credits, notes, or text cite {what}: "
+        f"{count}, from the release points {labels}. A source-credit citation records that the law "
+        "enacted or amended the section; a note or text citation is a reference."
+    )
 
 
 def compiled_note(result: CompUnitResult, *, enacted_link: str | None, codified: list[str]) -> str:

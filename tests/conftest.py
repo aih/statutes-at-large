@@ -37,6 +37,10 @@ COMP_SLICES = [
     COMPS_FIXTURES / "COMPS-8755-slice.xml",
 ]
 VOLUME_DIR = REPO_ROOT / "data" / "statute" / "xmls"
+CITATIONS_SLICE = FIXTURES / "uscode-current-slice.parquet"
+"""57 US Code sections cut from the `dreamproit/uscode` `current` shards
+(`scripts/extract_citations_fixture.py`): the ones whose source credits cite
+the laws in the volume slices, plus 16 U.S.C. §§ 1 and 45f."""
 
 
 def require(path: Path) -> Path:
@@ -75,6 +79,10 @@ def loaded(session_factory) -> dict:
             for path in COMP_SLICES:
                 summary = COMPS_FIXTURES / (path.name.replace("-slice", "").replace(".xml", ".summary.json"))
                 reports[path.name] = load_comp_file(session, path, summary_path=summary if summary.exists() else None)
+    from ingest.citations import load_citations
+
+    with session_factory() as session:
+        reports[CITATIONS_SLICE.name] = load_citations(session, [CITATIONS_SLICE], revision="fixture")
     return reports
 
 

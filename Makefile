@@ -1,4 +1,4 @@
-.PHONY: dev migrate dev-data dev-up test test-slow test-all fixtures verify fetch load-all lint
+.PHONY: dev migrate dev-data dev-up test test-slow test-all fixtures verify fetch load-all lint fetch-uscode citations classifications
 
 # The API alone on :8001 against the compose Postgres (:5434 on the host).
 dev: dev-up migrate
@@ -21,6 +21,18 @@ load-all: migrate
 
 fetch:
 	uv run python -m ingest fetch-statute 26 64 68 72 116 124 137
+
+# Stage 3: the citation index from the dreamproit/uscode dataset (config
+# `current`, three parquet shards under data/uscode), and the classification
+# tables mirrored from the US Code site's API. Neither is part of `make test`.
+fetch-uscode:
+	uv run python -c "from pathlib import Path; from ingest.hub import fetch_uscode_shards; print(fetch_uscode_shards(Path('data/uscode')))"
+
+citations: migrate
+	uv run python -m ingest citations --from-hub --report docs/verification
+
+classifications: migrate
+	uv run python -m ingest classifications --report docs/verification
 
 # The specification. Runs over SQLite with the committed slices; needs no
 # database and no network.
@@ -46,6 +58,7 @@ fixtures:
 	uv run python scripts/extract_comp_fixture.py data/comps/COMPS-1630.xml tests/fixtures/comps/COMPS-1630-slice.xml 8
 	uv run python scripts/extract_comp_fixture.py data/comps/COMPS-8755.xml tests/fixtures/comps/COMPS-8755-slice.xml 3
 	uv run python scripts/extract_comp_fixture.py data/comps/COMPS-973.xml tests/fixtures/comps/COMPS-973-slice.xml 4
+	uv run python scripts/extract_citations_fixture.py data/uscode tests/fixtures/uscode-current-slice.parquet
 
 # Re-derive docs/verification/statute-{n}.json for the loaded volumes.
 verify: dev-data
