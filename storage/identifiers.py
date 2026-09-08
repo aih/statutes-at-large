@@ -186,3 +186,25 @@ def law_label(kind: str, congress: int | None, number: int | None,
 def long_date(value: datetime.date) -> str:
     """`August 30, 1954` on every platform (no `%-d`)."""
     return f"{value:%B} {value.day}, {value.year}"
+
+
+_PL_SECTION = re.compile(r"^\s*(?:sec(?:tion)?s?\.?\s*)?(?:§+\s*)?(?P<num>\d+[A-Za-z]*(?:-\d+)?)", re.IGNORECASE)
+
+
+def section_number_of(pl_section_raw: str | None) -> str | None:
+    """The section designator of a classification table's `Sec.` cell, in the
+    form `units.section_num` uses: `101(3)` → `101`, `2(a)(1)` → `2`, `''` and
+    `title I` → None."""
+    if not pl_section_raw:
+        return None
+    match = _PL_SECTION.match(pl_section_raw)
+    return match.group("num") if match else None
+
+
+def law_label_of_identifier(identifier: str) -> str:
+    """`/us/pl/104/333` → `Public Law 104-333`; an act by date and chapter;
+    the identifier itself when it is neither."""
+    parsed = parse_identifier(identifier)
+    if parsed is None:
+        return identifier
+    return law_label(parsed.kind, parsed.congress, parsed.number, parsed.chapter, parsed.enacted)

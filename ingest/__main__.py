@@ -4,6 +4,7 @@
     python -m ingest statute data/statute/xmls/STATUTE-64.xml --report docs/verification
     python -m ingest statute --volumes 1-137         # fetch what is missing, then load
     python -m ingest comps ...                       # the COMPS poller (ingest/comps.py)
+    python -m ingest citations --from-hub            # the citation index (ingest/citations.py)
 """
 
 from __future__ import annotations
@@ -98,6 +99,10 @@ def main(argv: list[str] | None = None) -> int:
         add_comps_commands = None
     if add_comps_commands is not None:
         add_comps_commands(sub)
+
+    from ingest.citations import add_citations_commands
+
+    add_citations_commands(sub)
 
     args = parser.parse_args(argv)
     return args.func(args)

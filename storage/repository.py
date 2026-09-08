@@ -342,6 +342,206 @@ class CollectionStatus:
     volumes: tuple[int, ...] = field(default=())
 
 
+# ------------------------------------------------------- stage 3: the indexes
+
+
+@dataclass(frozen=True, slots=True)
+class CitationRef:
+    """One `<ref>` from a US Code section to a law, act, or Stat. page."""
+
+    from_identifier: str
+    release_label: str
+    context: str
+    """`sourceCredit` | `note` | `text`."""
+    note_topic: str | None
+    seq: int
+    to_identifier: str
+    to_kind: str
+    """`pl` | `pvtl` | `act` | `stat`."""
+    to_law: str | None
+    to_section_num: str | None
+    to_congress: int | None
+    to_number: int | None
+    to_chapter: int | None
+    to_date: datetime.date | None
+
+
+@dataclass(frozen=True, slots=True)
+class CitingSection:
+    """A US Code section that cites the asked-for unit, with the refs that do."""
+
+    identifier: str
+    citation: str | None
+    heading: str | None
+    release_label: str
+    refs: tuple[CitationRef, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class CitedBy:
+    """The answer to "which US Code sections cite this unit" (design section 5)."""
+
+    requested_identifier: str
+    law_identifier: str
+    """The law's primary form when it is loaded, else the form asked for."""
+    law: LawRef | None
+    aliases: tuple[str, ...]
+    """Every identifier the citing side may have used for the law."""
+    section_num: str | None
+    below: str | None
+    """The path below the section that was asked for (`e/1`), when any."""
+    sections: tuple[CitingSection, ...]
+    total: int
+    """Distinct citing sections over every context asked for."""
+    contexts: dict[str, int]
+    """Matching refs per context, over the whole answer."""
+    release_labels: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class LawCite:
+    """A law named by a ref in one citing section's source credit."""
+
+    identifier: str
+    kind: str
+    congress: int | None
+    number: int | None
+    chapter: int | None
+    date: datetime.date | None
+    seq: int
+
+
+@dataclass(frozen=True, slots=True)
+class SourceCreditEvidence:
+    """One US Code section whose source credit cites the unit, and every law
+    that credit names, in order. Evidence for `currency.amended`."""
+
+    from_identifier: str
+    release_label: str
+    cites: tuple[str, ...]
+    """The hrefs in the credit that point at the asked-for unit."""
+    laws: tuple[LawCite, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class ClassificationRow:
+    congress: int
+    session: int
+    row_seq: int
+    usc_identifier: str | None
+    title_num: str | None
+    section_raw: str | None
+    is_note: bool
+    action: str | None
+    """`new`, `repealed`, `tr to`, …; None (the table's blank) means amended."""
+    description_raw: str | None
+    act_name: str | None
+    pl_congress: int | None
+    pl_num: int | None
+    pl_section_raw: str
+    pl_section_num: str | None
+    stat_volume: int | None
+    stat_page_labels: tuple[str, ...]
+
+    @property
+    def pl_identifier(self) -> str | None:
+        if self.pl_congress is None or self.pl_num is None:
+            return None
+        return f"/us/pl/{self.pl_congress}/{self.pl_num}"
+
+    @property
+    def pl_label(self) -> str | None:
+        if self.pl_congress is None or self.pl_num is None:
+            return None
+        return f"{self.pl_congress}-{self.pl_num}"
+
+
+@dataclass(frozen=True, slots=True)
+class IndexCoverage:
+    """Whether the indexes know a law at all: what tells `no_record` from
+    `unknown` (design section 4)."""
+
+    law_identifier: str
+    cited: bool
+    """Some US Code section cites the law (any section, any context)."""
+    classified: bool
+    """A classification row has this law as its public law."""
+    tables_cover: bool
+    """A mirrored classification table's covered ranges include the law number."""
+
+
+@dataclass(frozen=True, slots=True)
+class CitationIndexStatus:
+    rows: int
+    citing_sections: int
+    titles: int
+    release_labels: tuple[tuple[str, int], ...]
+    """(label, rows) pairs, most rows first."""
+    loaded_at: datetime.datetime | None
+    dataset_revision: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class ClassificationFileRef:
+    congress: int
+    session: int
+    session_label: str | None
+    kind: str
+    source_url: str | None
+    covered_laws_text: str | None
+    covered_ranges: tuple[str, ...]
+    first_law: int | None
+    last_law: int | None
+    prepared_date: datetime.date | None
+    stat_volume: int | None
+    row_count: int
+    upstream_fetched_at: datetime.datetime | None
+    mirrored_at: datetime.datetime
+
+    def covers(self, number: int) -> bool:
+        for span in self.covered_ranges:
+            lo, _, hi = span.partition("-")
+            try:
+                if int(lo) <= number <= int(hi or lo):
+                    return True
+            except ValueError:
+                continue
+        return False
+
+
+@dataclass(frozen=True, slots=True)
+class ClassificationCheckInfo:
+    checked_at: datetime.datetime
+    ok: bool
+    source_url: str
+    congress: int | None
+    files_seen: int | None
+    files_loaded: int | None
+    files_unchanged: int | None
+    rows_loaded: int | None
+    upstream_checked_at: datetime.datetime | None
+    upstream_covered_text: str | None
+    error: str | None
+
+    def age(self, *, now: datetime.datetime | None = None) -> datetime.timedelta:
+        now = now or datetime.datetime.now(datetime.timezone.utc)
+        checked_at = self.checked_at
+        if checked_at.tzinfo is None:
+            checked_at = checked_at.replace(tzinfo=datetime.timezone.utc)
+        return now - checked_at
+
+    def is_stale(self, *, now: datetime.datetime | None = None) -> bool:
+        return not self.ok or self.age(now=now) > SOURCE_CHECK_STALE_AFTER
+
+
+@dataclass(frozen=True, slots=True)
+class ClassificationStatus:
+    files: tuple[ClassificationFileRef, ...]
+    rows: int
+    congresses: tuple[int, ...]
+    last_check: ClassificationCheckInfo | None
+
+
 class Repository(Protocol):
     """Everything the API needs. Implemented by `PostgresRepository`."""
 
@@ -407,6 +607,56 @@ class Repository(Protocol):
     def enacted_counterpart(self, comp_prefix: str, section_num: str | None) -> UnitResult | None:
         """The enacted section with this number under the law a compilation
         prefix names, or the law itself when `section_num` is None."""
+        ...
+
+    # ---------------------------------------------------------------- indexes
+
+    def cited_by(self, identifier: str, *, contexts: Sequence[str] | None = None,
+                 limit: int = 50, offset: int = 0) -> CitedBy | None:
+        """US Code sections whose refs point at the unit (design section 5).
+
+        The law is matched through every alias it answers to (the Code cites
+        the Atomic Energy Act of 1954 as `/us/act/1954-08-30/ch1073`). A
+        section is matched by number, whatever hierarchy the ref wrote; a path
+        below a section matches refs to that path or under it; the law alone
+        matches refs to any of its sections (rule 2). `/us/stat/{vol}/{page}`
+        matches refs to that page. None when the identifier is not one this
+        site serves. `sections` is one page of distinct citing sections in
+        identifier order; `total` counts them all.
+        """
+        ...
+
+    def source_credit_evidence(self, law_identifier: str, section_num: str | None) -> tuple[SourceCreditEvidence, ...]:
+        """Every US Code section whose source credit cites the law's section
+        (or, with no section, the law), with all the laws that credit names."""
+        ...
+
+    def classification_rows(self, law_identifier: str, section_num: str | None = None) -> tuple[ClassificationRow, ...]:
+        """The classification table's rows for this public law; with a section
+        number, the rows whose `Sec.` cell names it. Empty for a private law
+        or an act with no public-law alias."""
+        ...
+
+    def classification_amendments(self, law_identifier: str, section_num: str | None) -> tuple[ClassificationRow, ...]:
+        """Rows of *later* public laws that classify to a US Code section this
+        law's section (or the law) was itself classified to: the tables'
+        evidence that the codified text was amended since."""
+        ...
+
+    def index_coverage(self, law_identifier: str) -> IndexCoverage:
+        ...
+
+    def enacted_dates(self, law_identifiers: Sequence[str]) -> dict[str, datetime.date]:
+        """Enactment dates for the laws that are loaded, by any alias."""
+        ...
+
+    def citation_index_status(self) -> CitationIndexStatus:
+        ...
+
+    def classification_status(self) -> ClassificationStatus:
+        ...
+
+    def last_classification_check(self) -> ClassificationCheckInfo | None:
         ...
 
     # ----------------------------------------------------------------- status

@@ -17,13 +17,37 @@ from __future__ import annotations
 import datetime
 from collections.abc import Sequence
 
-from sqlalchemy import Text, cast, func, or_, select
+from sqlalchemy import Text, and_, cast, func, or_, select
 from sqlalchemy.orm import Session
 
-from db.models import Comp, CompUnit, CompVersion, Law, LawAlias, SourceCheck, StatPage, Unit
-from storage.identifiers import ParsedIdentifier, parse_identifier
+from db.models import (
+    Citation,
+    ClassificationCheck,
+    ClassificationEntry,
+    ClassificationFile,
+    Comp,
+    CompUnit,
+    CompVersion,
+    Law,
+    LawAlias,
+    SourceCheck,
+    StatPage,
+    Unit,
+)
+from storage.identifiers import ParsedIdentifier, parse_identifier, parse_stat_page
 from storage.repository import (
+    CitationIndexStatus,
+    CitationRef,
+    CitedBy,
+    CitingSection,
+    ClassificationCheckInfo,
+    ClassificationFileRef,
+    ClassificationRow,
+    ClassificationStatus,
     CollectionStatus,
+    IndexCoverage,
+    LawCite,
+    SourceCreditEvidence,
     CompCounterpart,
     CompRef,
     CompUnitResult,
@@ -561,6 +585,313 @@ class PostgresRepository:
             fetched_at=version.fetched_at,
             content_hash=version.content_hash,
             is_current=version.is_current,
+        )
+
+    # ---------------------------------------------------------------- indexes
+
+    def cited_by(self, identifier: str, *, contexts: Sequence[str] | None = None,
+                 limit: int = 50, offset: int = 0) -> CitedBy | None:
+        stat = parse_stat_page(identifier)
+        if stat is not None:
+            target = and_(Citation.to_volume == stat.volume, Citation.to_page == stat.page)
+            return self._cited_by(identifier, identifier, None, (identifier,), None, None, target, contexts, limit, offset)
+        parsed = parse_identifier(identifier)
+        if parsed is None or parsed.kind == "sComp":
+            return None
+        law = self._law_by_alias(parsed.law_identifier)
+        law_ref = self._law_ref(law) if law is not None else None
+        aliases = law_ref.aliases if law_ref is not None else (parsed.law_identifier,)
+        section_num = parsed.section_num
+        below = "/".join(parsed.below_section) or None
+        clauses = [Citation.to_law.in_(list(aliases))]
+        if section_num is not None:
+            clauses.append(Citation.to_section_num == section_num)
+            if below:
+                tail = f"/s{section_num}/{below}"
+                clauses.append(or_(Citation.to_path.like(f"%{tail}"), Citation.to_path.like(f"%{tail}/%")))
+        elif parsed.path:
+            # A hierarchy node: refs written with that hierarchy, at it or under it.
+            clauses.append(or_(Citation.to_path == parsed.path, Citation.to_path.like(f"{parsed.path}/%")))
+        requested = parsed.law_identifier + parsed.path
+        law_identifier = law_ref.identifier if law_ref is not None else parsed.law_identifier
+        return self._cited_by(requested, law_identifier, law_ref, tuple(aliases), section_num, below, and_(*clauses), contexts, limit, offset)
+
+    def _cited_by(self, requested, law_identifier, law_ref, aliases, section_num, below, target, contexts, limit, offset) -> CitedBy:
+        where = [target]
+        if contexts:
+            where.append(Citation.context.in_(list(contexts)))
+        total = int(self._session.scalar(select(func.count(func.distinct(Citation.from_identifier))).where(*where)) or 0)
+        context_rows = self._session.execute(
+            select(Citation.context, func.count()).where(*where).group_by(Citation.context)
+        ).all()
+        labels = self._session.scalars(
+            select(Citation.release_label).where(*where).distinct().order_by(Citation.release_label)
+        ).all()
+        page = self._session.scalars(
+            select(Citation.from_identifier).where(*where).distinct().order_by(Citation.from_identifier).limit(limit).offset(offset)
+        ).all()
+        sections: list[CitingSection] = []
+        if page:
+            rows = self._session.scalars(
+                select(Citation).where(*where, Citation.from_identifier.in_(page)).order_by(Citation.from_identifier, Citation.seq)
+            ).all()
+            by_section: dict[str, list[Citation]] = {}
+            for row in rows:
+                by_section.setdefault(row.from_identifier, []).append(row)
+            for from_identifier in page:
+                group = by_section.get(from_identifier, [])
+                if not group:
+                    continue
+                first = group[0]
+                sections.append(
+                    CitingSection(
+                        identifier=from_identifier,
+                        citation=first.from_citation,
+                        heading=first.from_heading,
+                        release_label=first.release_label,
+                        refs=tuple(self._citation_ref(r) for r in group),
+                    )
+                )
+        return CitedBy(
+            requested_identifier=requested,
+            law_identifier=law_identifier,
+            law=law_ref,
+            aliases=aliases,
+            section_num=section_num,
+            below=below,
+            sections=tuple(sections),
+            total=total,
+            contexts={c: int(n) for c, n in sorted(context_rows)},
+            release_labels=tuple(labels),
+        )
+
+    @staticmethod
+    def _citation_ref(row: Citation) -> CitationRef:
+        return CitationRef(
+            from_identifier=row.from_identifier,
+            release_label=row.release_label,
+            context=row.context,
+            note_topic=row.note_topic,
+            seq=row.seq,
+            to_identifier=row.to_identifier,
+            to_kind=row.to_kind,
+            to_law=row.to_law,
+            to_section_num=row.to_section_num,
+            to_congress=row.to_congress,
+            to_number=row.to_number,
+            to_chapter=row.to_chapter,
+            to_date=row.to_date,
+        )
+
+    def _law_aliases_for(self, law_identifier: str) -> tuple[Law | None, tuple[str, ...]]:
+        parsed = parse_identifier(law_identifier)
+        if parsed is None or parsed.kind == "sComp":
+            return None, ()
+        law = self._law_by_alias(parsed.law_identifier)
+        if law is None:
+            return None, (parsed.law_identifier,)
+        aliases = self._session.scalars(select(LawAlias.identifier).where(LawAlias.law_id == law.id)).all()
+        return law, tuple(aliases)
+
+    def source_credit_evidence(self, law_identifier: str, section_num: str | None) -> tuple[SourceCreditEvidence, ...]:
+        _, aliases = self._law_aliases_for(law_identifier)
+        if not aliases:
+            return ()
+        clauses = [Citation.context == "sourceCredit", Citation.to_law.in_(list(aliases))]
+        if section_num is not None:
+            clauses.append(Citation.to_section_num == section_num)
+        citing = self._session.execute(
+            select(Citation.from_identifier, Citation.release_label, Citation.to_identifier)
+            .where(*clauses).order_by(Citation.from_identifier, Citation.seq)
+        ).all()
+        if not citing:
+            return ()
+        cites: dict[tuple[str, str], list[str]] = {}
+        for from_identifier, label, to_identifier in citing:
+            cites.setdefault((from_identifier, label), []).append(to_identifier)
+        credit_rows = self._session.scalars(
+            select(Citation)
+            .where(
+                Citation.context == "sourceCredit",
+                Citation.to_kind.in_(["pl", "pvtl", "act"]),
+                Citation.from_identifier.in_(sorted({k[0] for k in cites})),
+            )
+            .order_by(Citation.from_identifier, Citation.seq)
+        ).all()
+        laws: dict[tuple[str, str], list[LawCite]] = {}
+        for row in credit_rows:
+            key = (row.from_identifier, row.release_label)
+            if key not in cites:
+                continue
+            laws.setdefault(key, []).append(
+                LawCite(row.to_law or row.to_identifier, row.to_kind, row.to_congress, row.to_number, row.to_chapter, row.to_date, row.seq)
+            )
+        return tuple(
+            SourceCreditEvidence(from_identifier=key[0], release_label=key[1], cites=tuple(hrefs), laws=tuple(laws.get(key, ())))
+            for key, hrefs in cites.items()
+        )
+
+    def _pl_of(self, law_identifier: str) -> tuple[int, int] | None:
+        """The (congress, number) a classification table would write for the law."""
+        law, aliases = self._law_aliases_for(law_identifier)
+        if law is not None:
+            if law.kind == "pl" and law.congress is not None and law.number is not None:
+                return law.congress, law.number
+            return None
+        parsed = parse_identifier(law_identifier)
+        if parsed is not None and parsed.kind == "pl" and parsed.congress is not None and parsed.number is not None:
+            return parsed.congress, parsed.number
+        return None
+
+    def classification_rows(self, law_identifier: str, section_num: str | None = None) -> tuple[ClassificationRow, ...]:
+        pl = self._pl_of(law_identifier)
+        if pl is None:
+            return ()
+        clauses = [ClassificationEntry.pl_congress == pl[0], ClassificationEntry.pl_num == pl[1]]
+        if section_num is not None:
+            clauses.append(ClassificationEntry.pl_section_num == section_num)
+        rows = self._session.scalars(
+            select(ClassificationEntry).where(*clauses)
+            .order_by(ClassificationEntry.congress, ClassificationEntry.session, ClassificationEntry.row_seq)
+        ).all()
+        return tuple(self._classification_row(r) for r in rows)
+
+    def classification_amendments(self, law_identifier: str, section_num: str | None) -> tuple[ClassificationRow, ...]:
+        pl = self._pl_of(law_identifier)
+        if pl is None:
+            return ()
+        own = [ClassificationEntry.pl_congress == pl[0], ClassificationEntry.pl_num == pl[1], ClassificationEntry.usc_identifier.is_not(None)]
+        if section_num is not None:
+            own.append(ClassificationEntry.pl_section_num == section_num)
+        targets = select(ClassificationEntry.usc_identifier).where(*own).distinct()
+        later = or_(
+            ClassificationEntry.pl_congress > pl[0],
+            and_(ClassificationEntry.pl_congress == pl[0], ClassificationEntry.pl_num > pl[1]),
+        )
+        rows = self._session.scalars(
+            select(ClassificationEntry)
+            .where(ClassificationEntry.usc_identifier.in_(targets), later)
+            .order_by(ClassificationEntry.pl_congress, ClassificationEntry.pl_num, ClassificationEntry.row_seq)
+        ).all()
+        return tuple(self._classification_row(r) for r in rows)
+
+    @staticmethod
+    def _classification_row(row: ClassificationEntry) -> ClassificationRow:
+        return ClassificationRow(
+            congress=row.congress,
+            session=row.session,
+            row_seq=row.row_seq,
+            usc_identifier=row.usc_identifier,
+            title_num=row.title_num,
+            section_raw=row.section_raw,
+            is_note=row.is_note,
+            action=row.action,
+            description_raw=row.description_raw,
+            act_name=row.act_name,
+            pl_congress=row.pl_congress,
+            pl_num=row.pl_num,
+            pl_section_raw=row.pl_section_raw or "",
+            pl_section_num=row.pl_section_num,
+            stat_volume=row.stat_volume,
+            stat_page_labels=tuple(row.stat_page_labels or ()),
+        )
+
+    def index_coverage(self, law_identifier: str) -> IndexCoverage:
+        law, aliases = self._law_aliases_for(law_identifier)
+        primary = law.identifier if law is not None else law_identifier
+        cited = False
+        if aliases:
+            cited = self._session.scalar(select(Citation.id).where(Citation.to_law.in_(list(aliases))).limit(1)) is not None
+        classified = tables_cover = False
+        pl = self._pl_of(law_identifier)
+        if pl is not None:
+            classified = self._session.scalar(
+                select(ClassificationEntry.id).where(ClassificationEntry.pl_congress == pl[0], ClassificationEntry.pl_num == pl[1]).limit(1)
+            ) is not None
+            tables_cover = any(
+                self._classification_file_ref(f).covers(pl[1])
+                for f in self._session.scalars(select(ClassificationFile).where(ClassificationFile.congress == pl[0], ClassificationFile.kind == "pl")).all()
+            )
+        return IndexCoverage(law_identifier=primary, cited=cited, classified=classified, tables_cover=tables_cover)
+
+    def enacted_dates(self, law_identifiers: Sequence[str]) -> dict[str, datetime.date]:
+        wanted = [i for i in dict.fromkeys(law_identifiers) if i]
+        if not wanted:
+            return {}
+        rows = self._session.execute(
+            select(LawAlias.identifier, Law.enacted).join(Law, Law.id == LawAlias.law_id)
+            .where(LawAlias.identifier.in_(wanted), Law.enacted.is_not(None))
+        ).all()
+        return {identifier: enacted for identifier, enacted in rows}
+
+    def citation_index_status(self) -> CitationIndexStatus:
+        rows = int(self._session.scalar(select(func.count()).select_from(Citation)) or 0)
+        sections = int(self._session.scalar(select(func.count(func.distinct(Citation.from_identifier)))) or 0)
+        titles = int(self._session.scalar(select(func.count(func.distinct(Citation.from_title)))) or 0)
+        labels = self._session.execute(
+            select(Citation.release_label, func.count()).group_by(Citation.release_label).order_by(func.count().desc(), Citation.release_label)
+        ).all()
+        check = self._session.scalars(
+            select(SourceCheck).where(SourceCheck.collection == "USCODE").order_by(SourceCheck.checked_at.desc(), SourceCheck.id.desc())
+        ).first()
+        return CitationIndexStatus(
+            rows=rows,
+            citing_sections=sections,
+            titles=titles,
+            release_labels=tuple((label, int(n)) for label, n in labels),
+            loaded_at=check.checked_at if check is not None else None,
+            dataset_revision=check.newest_package if check is not None else None,
+        )
+
+    @staticmethod
+    def _classification_file_ref(f: ClassificationFile) -> ClassificationFileRef:
+        return ClassificationFileRef(
+            congress=f.congress,
+            session=f.session,
+            session_label=f.session_label,
+            kind=f.kind,
+            source_url=f.source_url,
+            covered_laws_text=f.covered_laws_text,
+            covered_ranges=tuple(f.covered_ranges or ()),
+            first_law=f.first_law,
+            last_law=f.last_law,
+            prepared_date=f.prepared_date,
+            stat_volume=f.stat_volume,
+            row_count=f.row_count,
+            upstream_fetched_at=f.upstream_fetched_at,
+            mirrored_at=f.mirrored_at,
+        )
+
+    def classification_status(self) -> ClassificationStatus:
+        files = self._session.scalars(
+            select(ClassificationFile).order_by(ClassificationFile.congress.desc(), ClassificationFile.session.desc())
+        ).all()
+        rows = int(self._session.scalar(select(func.count()).select_from(ClassificationEntry)) or 0)
+        return ClassificationStatus(
+            files=tuple(self._classification_file_ref(f) for f in files),
+            rows=rows,
+            congresses=tuple(sorted({f.congress for f in files})),
+            last_check=self.last_classification_check(),
+        )
+
+    def last_classification_check(self) -> ClassificationCheckInfo | None:
+        row = self._session.scalars(
+            select(ClassificationCheck).order_by(ClassificationCheck.checked_at.desc(), ClassificationCheck.id.desc())
+        ).first()
+        if row is None:
+            return None
+        return ClassificationCheckInfo(
+            checked_at=row.checked_at,
+            ok=row.ok,
+            source_url=row.source_url,
+            congress=row.congress,
+            files_seen=row.files_seen,
+            files_loaded=row.files_loaded,
+            files_unchanged=row.files_unchanged,
+            rows_loaded=row.rows_loaded,
+            upstream_checked_at=row.upstream_checked_at,
+            upstream_covered_text=row.upstream_covered_text,
+            error=row.error,
         )
 
     # ----------------------------------------------------------------- status

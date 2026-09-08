@@ -302,3 +302,177 @@ class SourceCheck(Base):
     packages_seen: Mapped[int | None] = mapped_column(Integer)
     new_packages: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
     error: Mapped[str | None] = mapped_column(Text)
+
+
+# ------------------------------------------------------------ stage 3: indexes
+
+
+class Citation(Base):
+    """One `<ref href>` in a US Code section that points at a law, an act, or a
+    Statutes at Large page, from the `dreamproit/uscode` dataset (`current`
+    config). The citing side is a US Code identifier; the cited side is the
+    href as written, with the law and section parsed out for the index.
+    """
+
+    __tablename__ = "citations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    from_identifier: Mapped[str] = mapped_column(Text, nullable=False, index=True)
+    """`/us/usc/t16/s45f`."""
+    from_title: Mapped[str] = mapped_column(Text, nullable=False, index=True)
+    """The dataset's `title` column: `16`, `50a`. The loader replaces rows per title."""
+    from_citation: Mapped[str | None] = mapped_column(Text)
+    """`16 U.S.C. § 45f`."""
+    from_heading: Mapped[str | None] = mapped_column(Text)
+    release_label: Mapped[str] = mapped_column(Text, nullable=False, index=True)
+    """The release point the citing section's text is from: `119-102not101`."""
+    release_seq: Mapped[int | None] = mapped_column(Integer)
+
+    context: Mapped[str] = mapped_column(Text, nullable=False)
+    """`sourceCredit` | `note` | `text`, from the ref's nearest enclosing element."""
+    note_topic: Mapped[str | None] = mapped_column(Text)
+    """The `topic` of the enclosing `note` (`amendments`, `shortTitle`), for `note` context."""
+    seq: Mapped[int] = mapped_column(Integer, nullable=False)
+    """Document order of the ref among the section's stored refs."""
+
+    to_identifier: Mapped[str] = mapped_column(Text, nullable=False, index=True)
+    """The href verbatim: `/us/pl/104/333/dI/tVIII/s814/e/1`."""
+    to_kind: Mapped[str] = mapped_column(Text, nullable=False)
+    """`pl` | `pvtl` | `act` | `stat`."""
+    to_law: Mapped[str | None] = mapped_column(Text)
+    """`/us/pl/104/333`, `/us/act/1916-08-25/ch408`; null for a `stat` page."""
+    to_path: Mapped[str | None] = mapped_column(Text)
+    """The path under the law: `/dI/tVIII/s814/e/1`; empty for the law itself."""
+    to_section_num: Mapped[str | None] = mapped_column(Text)
+    """`814`, from the `s…` segment of the path."""
+    to_congress: Mapped[int | None] = mapped_column(Integer)
+    to_number: Mapped[int | None] = mapped_column(Integer)
+    to_chapter: Mapped[int | None] = mapped_column(Integer)
+    to_date: Mapped[datetime.date | None] = mapped_column(Date)
+    """An act's date from its identifier; for a public law, the `<date>` that
+    follows the ref in the same source credit or note, when there is one."""
+    to_volume: Mapped[int | None] = mapped_column(Integer)
+    to_page: Mapped[str | None] = mapped_column(Text)
+    """For a `stat` target: the volume and lower-case page label."""
+
+    __table_args__ = (
+        Index("ix_citations_to_law_section", "to_law", "to_section_num"),
+        Index("ix_citations_to_stat", "to_volume", "to_page"),
+    )
+
+
+class ClassificationFile(Base):
+    """One OLRC classification table (`tbl{congress}pl_{session}.htm`) as the US
+    Code site holds it, mirrored through that site's API. Rows are replaced
+    wholesale per file (the US Code site's ADR-0067, decision 3)."""
+
+    __tablename__ = "classification_files"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    congress: Mapped[int] = mapped_column(Integer, nullable=False)
+    session: Mapped[int] = mapped_column(Integer, nullable=False)
+    """`1`, `2`; `0` for a whole-congress table (the 104th)."""
+    session_label: Mapped[str | None] = mapped_column(Text)
+    kind: Mapped[str] = mapped_column(Text, nullable=False, default="pl")
+    source_url: Mapped[str | None] = mapped_column(Text)
+    """OLRC's own URL of the table, as the US Code site records it."""
+    source_filename: Mapped[str | None] = mapped_column(Text)
+    covered_laws_text: Mapped[str | None] = mapped_column(Text)
+    """`Public Laws 118-35 to 118-274`, verbatim."""
+    covered_ranges: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    """`['70-70', '74-103']`: the law-number ranges the table covers, gap-aware."""
+    first_law: Mapped[int | None] = mapped_column(Integer)
+    last_law: Mapped[int | None] = mapped_column(Integer)
+    prepared_date: Mapped[datetime.date | None] = mapped_column(Date)
+    stat_volume: Mapped[int | None] = mapped_column(Integer)
+    upstream_fetched_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True))
+    """When the US Code site fetched the table from OLRC."""
+    row_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    content_hash: Mapped[str | None] = mapped_column(Text)
+    """sha256 over the mirrored rows, so an unchanged file is not rewritten."""
+    mirrored_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    entries: Mapped[list["ClassificationEntry"]] = relationship(
+        back_populates="file", cascade="all, delete-orphan", order_by="ClassificationEntry.row_seq"
+    )
+
+    __table_args__ = (
+        UniqueConstraint("congress", "session", "kind", name="uq_classification_files"),
+    )
+
+
+class ClassificationEntry(Base):
+    """One row of a classification table: what a section of a public law did to
+    a section of the Code. The columns mirror the US Code site's entry shape."""
+
+    __tablename__ = "classifications"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    file_id: Mapped[int] = mapped_column(
+        ForeignKey("classification_files.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    congress: Mapped[int] = mapped_column(Integer, nullable=False)
+    """The table's congress (the law's congress is `pl_congress`)."""
+    session: Mapped[int] = mapped_column(Integer, nullable=False)
+    row_seq: Mapped[int] = mapped_column(Integer, nullable=False)
+    raw_line: Mapped[str | None] = mapped_column(Text)
+
+    title_raw: Mapped[str | None] = mapped_column(Text)
+    title_num: Mapped[str | None] = mapped_column(Text)
+    is_appendix: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    section_raw: Mapped[str | None] = mapped_column(Text)
+    section_norm: Mapped[str | None] = mapped_column(Text)
+    description_raw: Mapped[str | None] = mapped_column(Text)
+    is_note: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    action: Mapped[str | None] = mapped_column(Text)
+    """`new`, `repealed`, `tr to`, …; null (the table's blank) means amended."""
+    transfer_counterpart: Mapped[str | None] = mapped_column(Text)
+    act_name: Mapped[str | None] = mapped_column(Text)
+    usc_identifier: Mapped[str | None] = mapped_column(Text, index=True)
+    """`/us/usc/t42/s254c–2` (en dash, as the corpus spells it); null when the
+    row names no single section (ADR-0067 there, decision 7)."""
+
+    pl_congress: Mapped[int | None] = mapped_column(Integer)
+    pl_num: Mapped[int | None] = mapped_column(Integer)
+    pl_label: Mapped[str | None] = mapped_column(Text)
+    pl_section_raw: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    """`101(3)`; `''` for the whole law."""
+    pl_section_num: Mapped[str | None] = mapped_column(Text)
+    """`101`, the section designator of `pl_section_raw`
+    (`storage.identifiers.section_number_of`); null for `''` or a non-section cell."""
+    new_section_quote: Mapped[str | None] = mapped_column(Text)
+    stat_volume: Mapped[int | None] = mapped_column(Integer)
+    stat_pages: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+    stat_page_labels: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
+
+    file: Mapped[ClassificationFile] = relationship(back_populates="entries")
+
+    __table_args__ = (
+        UniqueConstraint("file_id", "row_seq", name="uq_classifications_row"),
+        Index("ix_classifications_pl", "pl_congress", "pl_num", "pl_section_num"),
+    )
+
+
+class ClassificationCheck(Base):
+    """One run of the classification mirror, successful or not (a row either
+    way, ADR-0036's shape on the US Code site). Separate from `source_checks`
+    so `/status`'s answer about the source collections does not flap."""
+
+    __tablename__ = "classification_source_checks"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    checked_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    ok: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    source_url: Mapped[str] = mapped_column(Text, nullable=False)
+    """The US Code site's tables endpoint the run read."""
+    congress: Mapped[int | None] = mapped_column(Integer)
+    """Set when the run was limited to one congress."""
+    files_seen: Mapped[int | None] = mapped_column(Integer)
+    files_loaded: Mapped[int | None] = mapped_column(Integer)
+    files_unchanged: Mapped[int | None] = mapped_column(Integer)
+    rows_loaded: Mapped[int | None] = mapped_column(Integer)
+    upstream_checked_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True))
+    """The US Code site's own last check of uscode.house.gov."""
+    upstream_covered_text: Mapped[str | None] = mapped_column(Text)
+    """The newest table's covered-law sentence, as the site reports it."""
+    error: Mapped[str | None] = mapped_column(Text)
