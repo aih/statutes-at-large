@@ -383,6 +383,8 @@ def test_status(client):
     comps = body["collections"]["COMPS"]
     assert comps["packages_loaded"] == 4 and comps["latest_package"] == "COMPS-1630"
     assert comps["units"] > 0 and comps["volumes"] == []
+    assert statute["congresses"] == [] and statute["laws_by_congress"] == {}
+    assert comps["congresses"] == [] and comps["laws_by_congress"] == {}
     check = body["checks"]["STATUTE"]
     assert check["ok"] is True and check["stale"] is False and check["newest_package"] == "STATUTE-137"
     assert set(check) == {
@@ -393,7 +395,10 @@ def test_status(client):
     assert body["checks"]["COMPS"] is None or body["checks"]["COMPS"]["ok"] is True
     plaw = body["collections"]["PLAW"]
     assert plaw["packages_loaded"] == 4 and plaw["laws"] == 4 and plaw["latest_package"] == "PLAW-119publ1"
+    assert plaw["volumes"] == [137, 139] and plaw["congresses"] == [118, 119]
+    assert plaw["laws_by_congress"] == {"118": 3, "119": 1}
     assert body["checks"]["PLAW"]["ok"] is True and body["checks"]["PLAW"]["newest_package"] == "PLAW-119publ1"
+    assert body["checks"]["PLAW"]["stale"] is False
     # COMPS packages are loaded and never polled in the fixture database, so the
     # mirror as a whole reports stale: a collection with packages and no check.
     assert body["stale"] is True
@@ -406,7 +411,8 @@ def test_law_summary(client):
     response = client.get("/api/v1/laws/81/910")
     assert response.status_code == 200
     body = response.json()
-    assert set(body) == {"law", "toc", "section_count", "compilations"}
+    assert set(body) == {"law", "toc", "section_count", "compilations", "sources"}
+    assert body["sources"]["served_from"] == "STATUTE" and body["sources"]["plaw"]["package"] is None
     assert body["law"]["label"] == "Public Law 81-910"
     assert body["section_count"] == 11
     assert body["toc"][0] == {

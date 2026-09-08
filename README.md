@@ -32,8 +32,8 @@ All under `/api/v1`. The bare identifier URL (`/us/pl/81/740/s3`) is a 307 to
 | `GET /us/pl/{c}/{n}[/{path}]`, `/us/pvtl/…`, `/us/act/{date}/ch{n}[/{path}]` | the unit: `identifier`, `served_identifier`, `view`, `resolution`, `law`, `currency`, `alternatives`, `note`, `provenance`, `pages`, `text`, `xml_url`, `level`, `num`, `heading`, `ancestors`, `children`, `provision`, `occurrences` |
 | `GET /us/stat/{volume}/{page}` | `{page, identifier, volume, documents: [{identifier, kind, title, label, citation, enacted, starts_here, unit_on_page}], pdf}` |
 | `POST /labels` `{"identifiers": […]}`, `GET /labels?identifier=…` | per identifier: `{exists: true, served_identifier, resolution, num, heading, level, kind, law_identifier, law_label, currency}` or `{exists: false}`; 1 to 100 per request; 300 requests then 30 per second per address |
-| `GET /status` | `{collections: {STATUTE, COMPS, PLAW}, checks: {…}, stale}` |
-| `GET /laws/{c}/{n}` | `{law, toc, section_count, compilations}` |
+| `GET /status` | `{collections: {STATUTE, COMPS, PLAW}, checks: {…}, stale, citations, classifications}`; the `PLAW` block adds `congresses` and `laws_by_congress` |
+| `GET /laws/{c}/{n}` | `{law, toc, section_count, compilations, sources}`; `sources` is `{served_from, package, identifiers, volume: {package, loaded, govinfo}, plaw: {package, uslm, loaded, govinfo}}` |
 | `GET /laws/{c}/{n}/sections/{num}` | the section by number, ignoring hierarchy; same body as the identifier routes |
 
 Query parameters on the identifier routes: `view=enacted` (default) or
@@ -56,7 +56,9 @@ Source: GovInfo `STATUTE` volume USLM from the Hub dataset
 carry no identifiers; the loader assigns them by the rules in the OCR plan,
 section 7 (`ingest/identifiers.py`, version `rules-1.0`), and stamps them into
 the stored XML. `provenance` on every response records `gpo-uslm` text and
-`rules-1.0` identifiers.
+where the identifiers came from: `rules-1.0` (assigned by the volume loader),
+`gpo-uslm` (read from a PLAW file, stage 4), or `gpo-uslm+rules-1.0` (a PLAW
+file with some levels filled in by rule).
 
 Loaded and verified so far: volumes 26, 64, 68, 72, 124 and 137
 (`docs/verification/`), and eleven more volumes from every era run through the
@@ -107,6 +109,36 @@ Loaded: the whole `current` config (1,081,463 rows from 65,938 sections) and
 the 31 `pl` tables from the 104th to the 119th Congress
 (`docs/verification/citations.json`, `classifications.json`).
 
+Stage 4 (public laws from `PLAW`):
+
+Public laws of the 113th Congress onward are loaded from GovInfo's PLAW bulk
+data (`https://www.govinfo.gov/bulkdata/PLAW/{congress}/public/`, no key), one
+USLM file per law with GPO's own identifiers on every level. A PLAW load
+replaces the volume-derived copy of the same law; a volume load leaves a
+PLAW-derived law alone and lists it in its report (`laws_kept_from_plaw`).
+`law.source` on a unit names the collection and package the served copy came
+from, and `provenance.identifiers` is `gpo-uslm` for a PLAW-derived law. The
+`/us/stat/{volume}/{page}` routes, `alternatives`, `currency.amended` and the
+enacted note are the same over either source. Private laws are not in bulk
+data and stay volume-derived; so do laws of the 104th to 112th Congresses,
+which GovInfo holds as PDF and text only, until the pipeline's digital profile
+(`../statute-pdf-to-xml`) lands.
+
+`GET /api/v1/laws/{c}/{n}` carries `sources`: `served_from` (`STATUTE` or
+`PLAW`), the `package`, the `identifiers` provenance, `volume` (the
+`STATUTE-{n}` package, whether it is loaded, the GovInfo link to the law's
+first page) and `plaw` (the `PLAW-{c}publ{n}` package, whether GovInfo has USLM
+for it, whether the law is served from it, the GovInfo link; `package` is
+null before the 104th Congress). `/status`'s `PLAW` block carries
+`congresses` and `laws_by_congress` (`{"118": 274}`, one package per law), and
+`volumes` lists the volumes its laws print in.
+
+```
+python -m ingest plaw fetch 113-119                    # the per-congress zips into data/plaw
+python -m ingest plaw load 118 --report docs/verification
+make fetch-plaw / make plaw                            # the two above, congresses 113 to 119
+```
+
 Other routes: `POST /api/v1/labels` (up to 100 identifiers, existence and
 heading, what the US Code site's reference resolver calls), `GET /api/v1/status`
 (what is loaded per collection, the last poll, `stale` after a week;
@@ -123,8 +155,9 @@ routed (405).
 
 ## Not yet served
 
-- `PLAW` packages (the 104th Congress onward) as a separate source; those laws
-  come from the volume USLM until design stage 4.
+- Laws of the 104th to 112th Congresses from `PLAW` (PDF and text only; they
+  come from the volumes until the pipeline's digital profile lands).
+- Private laws from `PLAW` (no USLM on GovInfo); they come from the volumes.
 - Concurrent resolutions, proclamations, treaties, and agreements printed in
   the volumes. They are counted in the load report and skipped.
 - The reader at `/app` and the citation parser (design stage 5). The citation
@@ -147,6 +180,8 @@ python -m ingest comps poll --since 2026-09-01      # walk the collection
 python -m ingest comps report
 python -m ingest citations --from-hub --report docs/verification    # the citation index
 python -m ingest classifications --report docs/verification         # the classification tables
+python -m ingest plaw fetch 113-119                 # PLAW bulk-data zips into data/plaw
+python -m ingest plaw load 118 --report docs/verification           # public laws from the zip
 ```
 
 `make test` needs no database and no network: the suite loads verbatim slices
@@ -160,7 +195,8 @@ ingest/      statute.py (volume USLM → laws and units), identifiers.py (the ru
              numbering.py (law-number collisions), load.py, hub.py, comps.py (the
              COMPS parser, loader and poller), govinfo.py (the API client),
              citations.py (the citation index from the uscode dataset),
-             classifications.py (the classification tables mirror), __main__.py
+             classifications.py (the classification tables mirror), plaw.py (the
+             PLAW bulk-data parser and loader), __main__.py
 storage/     repository.py (the Repository protocol), postgres.py (the only SQL),
              identifiers.py (parsing served identifiers), session.py
 api/         routes.py (enacted view, stat pages, labels, status, laws), comps.py
