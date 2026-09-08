@@ -133,11 +133,34 @@ null before the 104th Congress). `/status`'s `PLAW` block carries
 `congresses` and `laws_by_congress` (`{"118": 274}`, one package per law), and
 `volumes` lists the volumes its laws print in.
 
+`python -m ingest plaw poll` keeps the collection current from the bulk
+listings (`https://www.govinfo.gov/bulkdata/json/PLAW` and `…/PLAW/{c}/public`):
+a file is due when no PLAW-derived copy is stored, when the listing shows it
+modified after the stored copy's `loaded_at`, or under `--force`. A congress
+with nothing PLAW-derived stored, or with more than half its files due, is
+loaded from its zip (`data/plaw/PLAW-{c}-public.zip`, re-downloaded when the
+listing's zip is newer); otherwise the due files are fetched one by one.
+Options: `--congress N` (repeatable), `--since YYYY-MM-DD` (default: the newest
+listing time the last poll saw, less a day), `--force`, `--limit N`,
+`--from-dir PATH` (listings and files from a directory, no network),
+`--report DIR` (writes `DIR/plaw-poll.json`), `--json`. Every run writes a
+`source_checks` row with collection `PLAW`; `ok` is false only when a listing
+could not be read.
+
 ```
 python -m ingest plaw fetch 113-119                    # the per-congress zips into data/plaw
 python -m ingest plaw load 118 --report docs/verification
-make fetch-plaw / make plaw                            # the two above, congresses 113 to 119
+python -m ingest plaw poll --report docs/verification  # what changed on GovInfo
+make fetch-plaw / make plaw / make plaw-poll           # the three above, congresses 113 to 119
 ```
+
+Loaded: the 113th to 119th Congresses, 2,149 public laws, 55,897 units
+(`docs/verification/plaw-{congress}.json`); the 34 laws of volume 137 the Hub
+file holds are now served from their PLAW packages, and on those laws GPO's
+identifiers and the rules-1.0 set agree on every level (ADR-0013). Where a
+PLAW file leaves a level unidentified, the rules fill it in and
+`provenance.identifiers` says `gpo-uslm+rules-1.0` (133 laws). Precedence
+between the sources is ADR-0011; what stays volume-derived is ADR-0012.
 
 Other routes: `POST /api/v1/labels` (up to 100 identifiers, existence and
 heading, what the US Code site's reference resolver calls), `GET /api/v1/status`
@@ -182,6 +205,7 @@ python -m ingest citations --from-hub --report docs/verification    # the citati
 python -m ingest classifications --report docs/verification         # the classification tables
 python -m ingest plaw fetch 113-119                 # PLAW bulk-data zips into data/plaw
 python -m ingest plaw load 118 --report docs/verification           # public laws from the zip
+python -m ingest plaw poll --report docs/verification               # what changed on GovInfo
 ```
 
 `make test` needs no database and no network: the suite loads verbatim slices
@@ -196,7 +220,7 @@ ingest/      statute.py (volume USLM → laws and units), identifiers.py (the ru
              COMPS parser, loader and poller), govinfo.py (the API client),
              citations.py (the citation index from the uscode dataset),
              classifications.py (the classification tables mirror), plaw.py (the
-             PLAW bulk-data parser and loader), __main__.py
+             PLAW bulk-data parser and loader), plaw_poll.py (its poller), __main__.py
 storage/     repository.py (the Repository protocol), postgres.py (the only SQL),
              identifiers.py (parsing served identifiers), session.py
 api/         routes.py (enacted view, stat pages, labels, status, laws), comps.py

@@ -65,7 +65,13 @@ the rules-1.0 set and GPO's; none is in one set only (ADR-0013). The other
 congresses have no loaded volume to compare against (the Hub ends at volume
 137); `--volumes-dir` compares against any volume file on disk.
 
-Fields:
+`plaw-poll.json` is written by `python -m ingest plaw poll --report
+docs/verification` (`make plaw-poll`): one run over the bulk listings, per
+congress `listed`, `due`, `fetched`, `via_zip`, `loaded`, and the totals with
+the newest listing time seen. The run of 2026-09-08 after the load listed
+2,149 files across seven congresses, none due, in 12 s.
+
+Fields of `plaw-{congress}.json`:
 
 - `laws_loaded`, `laws_new`, `laws_replaced_statute`, `laws_replaced_plaw`,
   `laws_failed`, `failures`: files loaded, and what each replaced (ADR-0011).

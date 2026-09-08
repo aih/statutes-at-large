@@ -16,6 +16,7 @@ os.environ.setdefault("GOVINFO_API_KEY", "")
 import pytest
 from sqlalchemy.orm import Session, sessionmaker
 
+from db import models  # noqa: F401  (the tables must be registered before create_all)
 from db.base import Base, make_engine
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
