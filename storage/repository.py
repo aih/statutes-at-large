@@ -510,6 +510,10 @@ class CitationIndexStatus:
     release_labels: tuple[tuple[str, int], ...]
     """(label, rows) pairs, most rows first."""
     loaded_at: datetime.datetime | None
+    """When the index was last built (the last `USCODE` check that loaded shards)."""
+    checked_at: datetime.datetime | None
+    """When the dataset was last asked about, loaded or not
+    (`citations --from-hub --if-changed` records a check either way)."""
     dataset_revision: str | None
 
 

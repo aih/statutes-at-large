@@ -15,7 +15,7 @@ import VersionPicker from "../../../components/VersionPicker.astro";
 import Base from "../../../layouts/Base.astro";
 import { ApiError, fetchCompUnit, fetchCompUnitXml, fetchLabels } from "../../../lib/api";
 import { NO_STORE, copiedCacheControl } from "../../../lib/cache";
-import { identifierParam } from "../../../lib/params";
+import { clientAddressOf, identifierParam } from "../../../lib/params";
 import { citedIdentifiers } from "../../../lib/refs";
 import { nestToc, unitLabel } from "../../../lib/toc";
 import type { CompUnit, Link } from "../../../lib/types";
@@ -24,6 +24,7 @@ import { hrefs, parseFragment, render } from "../../../lib/uslm";
 
 const identifier = identifierParam("/us/sComp", Astro.params.identifier);
 const through = Astro.url.searchParams.get("through")?.trim() || null;
+const call = { clientAddress: clientAddressOf(Astro) };
 
 interface Failure {
   status: number;
@@ -35,7 +36,7 @@ let unit: CompUnit | null = null;
 let failure: Failure | null = null;
 let cacheControl: string | null = null;
 try {
-  const answer = await fetchCompUnit(identifier, through);
+  const answer = await fetchCompUnit(identifier, through, call);
   unit = answer.body;
   cacheControl = answer.cacheControl;
 } catch (error) {
@@ -59,10 +60,10 @@ const isRoot = unit?.level === "compilation";
 
 let sectionHtml: string | null = null;
 if (unit && isSection) {
-  const xml = await fetchCompUnitXml(unit.served_identifier, through).catch(() => null);
+  const xml = await fetchCompUnitXml(unit.served_identifier, through, call).catch(() => null);
   if (xml) {
     const fragment = parseFragment(xml);
-    const labels = await fetchLabels(citedIdentifiers(hrefs(fragment)));
+    const labels = await fetchLabels(citedIdentifiers(hrefs(fragment)), call);
     const target = unit.provision?.found ? unit.provision.identifier : null;
     sectionHtml = render(fragment, { target, labels });
   }

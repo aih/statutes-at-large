@@ -7,6 +7,7 @@ import CiteBox from "../components/CiteBox.astro";
 import Base from "../layouts/Base.astro";
 import { fetchStatus } from "../lib/api";
 import { REVALIDATE } from "../lib/cache";
+import { clientAddressOf } from "../lib/params";
 import { appHref, gotoHref } from "../lib/url";
 
 /** `params.CITE_FORMS`, the same six strings. */
@@ -26,7 +27,7 @@ const EXAMPLES: [string, string][] = [
   ["/us/stat/64/563", "64 Stat. 563"],
 ];
 
-const status = await fetchStatus();
+const status = await fetchStatus({ clientAddress: clientAddressOf(Astro) });
 Astro.response.headers.set("Cache-Control", REVALIDATE);
 
 const statute = status?.collections.STATUTE;

@@ -1,4 +1,4 @@
-.PHONY: dev dev-api dev-web migrate dev-data dev-up test test-web test-e2e test-slow test-all fixtures verify fetch load-all lint fetch-uscode citations classifications fetch-plaw plaw plaw-poll cite
+.PHONY: dev dev-api dev-web migrate dev-data dev-up test test-web test-e2e test-slow test-all fixtures verify fetch load-all lint fetch-uscode citations classifications fetch-plaw plaw plaw-poll cite load-prod update-prod update-prod-check
 
 # The API on :8001 and the reader's dev server on :4321, against the compose
 # Postgres (:5434 on the host). The reader's Vite proxy sends /api/v1, /health,
@@ -111,3 +111,34 @@ SITE ?= http://localhost:8010
 cite:
 	uv run python -m citeparse "$(Q)"
 	curl -sG "$(SITE)/api/v1/cite" --data-urlencode "q=$(Q)" | python3 -m json.tool
+
+# The deployed site (docs/plans/2026-09-08-deployment-plan.md, sections 5 and
+# 6). Both run on the box, in the checkout beside docker-compose.prod.yml,
+# every step inside the `api` container.
+#
+#   make load-prod          the whole corpus: the 137 volumes from the Hub
+#                           (~1 hour under nice), PLAW 113-119, the citation
+#                           index, the classification tables, then the COMPS
+#                           walk in slices of 400 packages (repeat `comps poll`
+#                           until it reports nothing due). Every step is
+#                           idempotent; re-run to resume.
+#   make update-prod        the weekly update (deploy/update-sources.sh): each
+#                           source asked what changed, loaded only when it did,
+#                           a dump to S3 when something was loaded.
+#   make update-prod-check  the same, recording the checks and loading nothing.
+PROD_COMPOSE = docker compose -f docker-compose.prod.yml
+PROD_INGEST = $(PROD_COMPOSE) exec -T api nice -n 10 uv run python -m ingest
+load-prod:
+	$(PROD_INGEST) fetch-statute 1-137
+	$(PROD_INGEST) statute --volumes 1-137 --report data/verification
+	$(PROD_INGEST) plaw fetch 113-119
+	$(PROD_INGEST) plaw load 113-119 --report data/verification
+	$(PROD_INGEST) citations --from-hub --report data/verification
+	$(PROD_INGEST) classifications --report data/verification
+	$(PROD_INGEST) comps poll --limit 400
+
+update-prod:
+	bash deploy/update-sources.sh
+
+update-prod-check:
+	bash deploy/update-sources.sh --check-only

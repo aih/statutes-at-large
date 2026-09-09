@@ -184,7 +184,7 @@ def test_cited_by_is_rate_limited_for_a_person(client):
 def test_status_carries_the_index_blocks(client):
     body = client.get("/api/v1/status").json()
     citations = body["citations"]
-    assert set(citations) == {"rows", "citing_sections", "titles", "release_labels", "loaded_at", "dataset_revision"}
+    assert set(citations) == {"rows", "citing_sections", "titles", "release_labels", "loaded_at", "checked_at", "dataset_revision"}
     assert citations["rows"] > 500 and citations["citing_sections"] == 57 and citations["titles"] == 9
     assert citations["dataset_revision"] == "fixture" and citations["loaded_at"]
     labels = citations["release_labels"]

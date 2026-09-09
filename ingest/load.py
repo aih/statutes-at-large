@@ -9,7 +9,6 @@ volume.
 from __future__ import annotations
 
 import datetime
-import hashlib
 import json
 import time
 from collections import Counter
@@ -20,6 +19,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session
 
 from db.models import Comp, Law, LawAlias, SourceCheck, StatPage, Unit
+from ingest.hub import sha256_of
 from ingest.statute import (
     IDENTIFIER_RULES_VERSION,
     TEXT_PROVENANCE,
@@ -95,12 +95,48 @@ class VolumeLoadReport:
     last_law: str | None = None
 
 
-def sha256_of(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1 << 20), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+def recorded_volume_sha(session: Session, volume: int) -> str | None:
+    """The sha256 of the file the last load of `STATUTE-{volume}` read, from
+    its `source_checks` row; None when the volume was never loaded or the row
+    predates the column."""
+    return session.scalar(
+        select(SourceCheck.source_sha256)
+        .where(SourceCheck.collection == "STATUTE", SourceCheck.newest_package == f"STATUTE-{volume}")
+        .order_by(SourceCheck.checked_at.desc(), SourceCheck.id.desc())
+        .limit(1)
+    )
+
+
+def record_source_check(
+    session: Session,
+    collection: str,
+    *,
+    ok: bool,
+    packages_seen: int | None,
+    new_packages: list[str],
+    newest_package: str | None = None,
+    error: str | None = None,
+    now: datetime.datetime | None = None,
+) -> SourceCheck:
+    """One row for a check that loaded nothing by itself: a Hub listing
+    (`fetch-statute --if-changed`), a `statute --changed-only` run that found
+    every file unchanged, a `citations --if-changed` run that found the
+    revision unchanged. `newest_package` stays null unless the check names a
+    package it holds, because `law_sources` reads a `STATUTE-{n}` there as the
+    volume having been loaded."""
+    row = SourceCheck(
+        collection=collection,
+        checked_at=now or datetime.datetime.now(datetime.timezone.utc),
+        ok=ok,
+        newest_last_modified=None,
+        newest_package=newest_package,
+        packages_seen=packages_seen,
+        new_packages=new_packages,
+        error=error,
+    )
+    session.add(row)
+    session.commit()
+    return row
 
 
 def load_volume(session: Session, path: Path, *, record_check: bool = True) -> VolumeLoadReport:
@@ -196,6 +232,7 @@ def load_volume(session: Session, path: Path, *, record_check: bool = True) -> V
                 packages_seen=1,
                 new_packages=[report.package],
                 error=None,
+                source_sha256=report.source_sha256,
             )
         )
     session.commit()

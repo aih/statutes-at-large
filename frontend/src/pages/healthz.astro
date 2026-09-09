@@ -1,0 +1,13 @@
+---
+/**
+ * `/app/healthz`: 200 with no API call. The compose healthcheck and the
+ * watchdog read it to tell "the reader process is up" from "the API is up",
+ * which `/app/` (a status call) cannot.
+ */
+export const prerender = false;
+
+return new Response("ok\n", {
+  status: 200,
+  headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "private, no-store" },
+});
+---

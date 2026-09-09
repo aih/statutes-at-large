@@ -1,9 +1,11 @@
 ---
 import UnitPage from "../../../components/UnitPage.astro";
-import { identifierParam } from "../../../lib/params";
+import { clientAddressOf, identifierParam } from "../../../lib/params";
 import { applyResponse, loadUnitPage } from "../../../lib/unitpage";
 
-const model = await loadUnitPage(identifierParam("/us/pvtl", Astro.params.identifier));
+const model = await loadUnitPage(identifierParam("/us/pvtl", Astro.params.identifier), {
+  clientAddress: clientAddressOf(Astro),
+});
 applyResponse(Astro.response, model);
 ---
 

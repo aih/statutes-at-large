@@ -443,6 +443,17 @@ def load_citations(session: Session, paths: list[Path], *, revision: str | None 
     return report
 
 
+def last_recorded_revision(session: Session) -> str | None:
+    """The dataset revision the last `USCODE` check recorded (a load's or a
+    skipped one's), or None."""
+    return session.scalar(
+        select(SourceCheck.newest_package)
+        .where(SourceCheck.collection == COLLECTION)
+        .order_by(SourceCheck.checked_at.desc(), SourceCheck.id.desc())
+        .limit(1)
+    )
+
+
 def _loaded_aliases(session: Session, identifiers: set[str]) -> set[str]:
     found: set[str] = set()
     wanted = sorted(identifiers)
@@ -474,9 +485,24 @@ def cmd_citations(args) -> int:
 
     revision: str | None = None
     if args.from_hub:
-        from ingest.hub import fetch_uscode_shards
+        from ingest.hub import fetch_uscode_shards, uscode_dataset_info
 
-        revision, paths = fetch_uscode_shards(Path(args.dir), config=CONFIG, force=args.force)
+        info = uscode_dataset_info()
+        revision = info.get("sha") or None
+        if args.if_changed and revision is not None:
+            with SessionLocal() as session:
+                recorded = last_recorded_revision(session)
+                if recorded == revision:
+                    # The same commit as the last load: one row saying the
+                    # Hub was asked, nothing downloaded, nothing reloaded.
+                    from ingest.load import record_source_check
+
+                    record_source_check(
+                        session, COLLECTION, ok=True, packages_seen=0, new_packages=[], newest_package=revision,
+                    )
+                    print(f"{COLLECTION} {CONFIG}: revision {revision} unchanged since the last load; nothing to do")
+                    return 0
+        revision, paths = fetch_uscode_shards(Path(args.dir), config=CONFIG, force=args.force, info=info)
     else:
         directory = Path(args.from_dir or args.dir)
         paths = shard_paths(directory)
@@ -507,6 +533,10 @@ def add_citations_commands(sub) -> None:
     source.add_argument("--from-dir", help="load the parquet shards in this directory")
     parser.add_argument("--dir", default=str(DATA_DIR), help="where --from-hub keeps the shards")
     parser.add_argument("--force", action="store_true", help="re-download shards already present")
+    parser.add_argument(
+        "--if-changed", action="store_true",
+        help="with --from-hub: skip the download and the load when the dataset revision equals the recorded one; records a `source_checks` row either way",
+    )
     parser.add_argument("--report", help="directory for citations.json")
     parser.add_argument("--json", action="store_true", help="print the report")
     parser.set_defaults(func=cmd_citations)

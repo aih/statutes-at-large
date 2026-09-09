@@ -868,16 +868,19 @@ class PostgresRepository:
         labels = self._session.execute(
             select(Citation.release_label, func.count()).group_by(Citation.release_label).order_by(func.count().desc(), Citation.release_label)
         ).all()
-        check = self._session.scalars(
-            select(SourceCheck).where(SourceCheck.collection == "USCODE").order_by(SourceCheck.checked_at.desc(), SourceCheck.id.desc())
-        ).first()
+        # A check that loaded nothing (`--if-changed`, the revision unchanged)
+        # has `packages_seen` 0; the load's row is the one with shards.
+        newest = select(SourceCheck).where(SourceCheck.collection == "USCODE").order_by(SourceCheck.checked_at.desc(), SourceCheck.id.desc())
+        check = self._session.scalars(newest).first()
+        load = self._session.scalars(newest.where(SourceCheck.packages_seen > 0)).first()
         return CitationIndexStatus(
             rows=rows,
             citing_sections=sections,
             titles=titles,
             release_labels=tuple((label, int(n)) for label, n in labels),
-            loaded_at=check.checked_at if check is not None else None,
-            dataset_revision=check.newest_package if check is not None else None,
+            loaded_at=load.checked_at if load is not None else None,
+            checked_at=check.checked_at if check is not None else None,
+            dataset_revision=load.newest_package if load is not None else None,
         )
 
     @staticmethod

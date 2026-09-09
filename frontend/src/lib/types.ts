@@ -261,6 +261,8 @@ export interface CitationsStatus {
   titles: number;
   release_labels: [string, number][];
   loaded_at: string | null;
+  /** When the dataset was last asked about, reloaded or not. */
+  checked_at: string | null;
   dataset_revision: string | null;
 }
 

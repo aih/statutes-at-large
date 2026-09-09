@@ -302,6 +302,10 @@ class SourceCheck(Base):
     packages_seen: Mapped[int | None] = mapped_column(Integer)
     new_packages: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
     error: Mapped[str | None] = mapped_column(Text)
+    source_sha256: Mapped[str | None] = mapped_column(Text)
+    """The sha256 of the source file a `STATUTE` load read, so `statute
+    --changed-only` can tell a changed file from the one it loaded. Null on
+    every other row."""
 
 
 # ------------------------------------------------------------ stage 3: indexes

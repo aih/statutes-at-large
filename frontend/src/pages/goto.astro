@@ -10,6 +10,7 @@ import Base from "../layouts/Base.astro";
 import { ApiError, fetchCite } from "../lib/api";
 import { NO_STORE } from "../lib/cache";
 import type { Cite, Link } from "../lib/types";
+import { clientAddressOf } from "../lib/params";
 import { APP, appHref } from "../lib/url";
 
 const query = (Astro.url.searchParams.get("q") ?? "").trim();
@@ -18,7 +19,7 @@ let found: Cite | null = null;
 let failure: { status: number; detail: string; retryAfter: string | null } | null = null;
 if (query) {
   try {
-    found = await fetchCite(query);
+    found = await fetchCite(query, { clientAddress: clientAddressOf(Astro) });
   } catch (error) {
     if (error instanceof ApiError) {
       failure = { status: error.status, detail: error.detail, retryAfter: error.retryAfter };

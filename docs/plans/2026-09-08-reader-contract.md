@@ -192,6 +192,23 @@ the `pdf` link, and `documents`: each `label`, `title`, `citation`,
 `unit_on_page` is set, a link to `/app{unit_on_page}` labelled as the unit
 the page marker falls in. A 404 shows the API's `detail`.
 
+## The forwarded address
+
+Every server-side call the reader makes carries the browser's address as
+`X-Forwarded-For` (`CallOptions.clientAddress` in `src/lib/api.ts`, read
+from `Astro.clientAddress` in each page by `clientAddressOf`). The address
+is the one the proxy set: `deploy/Caddyfile` overwrites `X-Forwarded-For`
+with `{client_ip}` on the way to the reader, which is the client the edge
+named when the peer is the edge and the peer itself otherwise. The API's
+`client_key` reads it through uvicorn's `--proxy-headers`, so `cite`
+(`/app/goto`) and `cited-by` (the panel) are limited per reader at 60
+requests then 2 a second, the same buckets a direct API caller uses. A call
+without an address (a page rendered with no adapter address) sends no
+header and is keyed on the reader container.
+
+`/app/healthz` answers 200 with `ok` and no API call; the compose
+healthcheck and the watchdog read it.
+
 ## Errors
 
 A 404 from any route renders the `detail` verbatim with status 404. A 429

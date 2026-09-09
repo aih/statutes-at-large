@@ -5,7 +5,7 @@
  * `Cache-Control` are set before the response starts.
  */
 
-import { ApiError, fetchCitedBy, fetchLabels, fetchLawSummary, fetchUnit, fetchUnitXml } from "./api";
+import { ApiError, type CallOptions, fetchCitedBy, fetchLabels, fetchLawSummary, fetchUnit, fetchUnitXml } from "./api";
 import { NO_STORE, copiedCacheControl } from "./cache";
 import { citedIdentifiers } from "./refs";
 import { sectionNeighbors } from "./toc";
@@ -53,7 +53,8 @@ export function applyResponse(
   }
 }
 
-export async function loadUnitPage(identifier: string): Promise<UnitPageModel> {
+/** `options.clientAddress` is the browser's address, forwarded on every call. */
+export async function loadUnitPage(identifier: string, options: CallOptions = {}): Promise<UnitPageModel> {
   const model: UnitPageModel = {
     identifier,
     unit: null,
@@ -67,7 +68,7 @@ export async function loadUnitPage(identifier: string): Promise<UnitPageModel> {
 
   let unit: Unit;
   try {
-    const answer = await fetchUnit(identifier);
+    const answer = await fetchUnit(identifier, options);
     unit = answer.body;
     model.unit = unit;
     model.cacheControl = answer.cacheControl;
@@ -88,12 +89,12 @@ export async function loadUnitPage(identifier: string): Promise<UnitPageModel> {
 
   const [summary, citedBy, xml, parentChildren] = await Promise.all([
     isPublicLaw && (isLaw || isSection)
-      ? fetchLawSummary(law.congress!, law.number!).catch(() => null)
+      ? fetchLawSummary(law.congress!, law.number!, options).catch(() => null)
       : Promise.resolve(null),
-    isLaw || isSection ? fetchCitedBy(unit.served_identifier, 20) : Promise.resolve(null),
-    isSection ? fetchUnitXml(unit.served_identifier).catch(() => null) : Promise.resolve(null),
+    isLaw || isSection ? fetchCitedBy(unit.served_identifier, 20, options) : Promise.resolve(null),
+    isSection ? fetchUnitXml(unit.served_identifier, options).catch(() => null) : Promise.resolve(null),
     isSection && !isPublicLaw
-      ? fetchUnit(parentIdentifier)
+      ? fetchUnit(parentIdentifier, options)
           .then((answer) => answer.body.children)
           .catch((): TocEntry[] => [])
       : Promise.resolve<TocEntry[]>([]),
@@ -103,7 +104,7 @@ export async function loadUnitPage(identifier: string): Promise<UnitPageModel> {
 
   if (isSection && xml) {
     const fragment = parseFragment(xml);
-    const labels = await fetchLabels(citedIdentifiers(hrefs(fragment)));
+    const labels = await fetchLabels(citedIdentifiers(hrefs(fragment)), options);
     const target = unit.provision?.found ? unit.provision.identifier : null;
     model.sectionHtml = render(fragment, { target, labels });
   }

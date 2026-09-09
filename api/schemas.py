@@ -609,7 +609,10 @@ class CitationsStatusOut(BaseModel):
     release_labels: list[list[Any]] = Field(
         default_factory=list, description="`[label, rows]` pairs, most rows first; the first 10."
     )
-    loaded_at: datetime.datetime | None
+    loaded_at: datetime.datetime | None = Field(description="When the index was last built.")
+    checked_at: datetime.datetime | None = Field(
+        description="When the dataset was last asked about, whether or not it was reloaded."
+    )
     dataset_revision: str | None = Field(description="The `dreamproit/uscode` commit the index was built from.")
 
     @classmethod
@@ -620,6 +623,7 @@ class CitationsStatusOut(BaseModel):
             titles=status.titles,
             release_labels=[[label, rows] for label, rows in status.release_labels[:10]],
             loaded_at=status.loaded_at,
+            checked_at=status.checked_at,
             dataset_revision=status.dataset_revision,
         )
 
@@ -745,6 +749,7 @@ class CitationIndexOut(BaseModel):
         return cls(
             release_labels=[[label, rows] for label, rows in status.release_labels[:10]],
             loaded_at=status.loaded_at,
+            checked_at=status.checked_at,
             dataset_revision=status.dataset_revision,
         )
 

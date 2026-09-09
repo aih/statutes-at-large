@@ -2,8 +2,16 @@
 # reader (Astro SSR on Node, frontend:4321) and everything else is FastAPI.
 # The citation URL at /us/… redirects browsers to /app and programs to /api/v1.
 {
+	# Who may name the client. `{client_ip}` below is the forwarded address
+	# when the peer is in this range and the peer itself otherwise. The range
+	# is the `edge` network deploy/edge/up.sh creates (EDGE_SUBNET), so behind
+	# the edge the address it forwards survives this hop, and on the dev stack
+	# a workstation (192.168.65.1 on Docker Desktop, a bridge gateway on
+	# Linux) is not trusted and its X-Forwarded-For is dropped. Not
+	# `private_ranges`: a workstation peer is in a private range too, and would
+	# be trusted to forge the address the rate limiter keys on (ADR-0017).
 	servers {
-		trusted_proxies static private_ranges
+		trusted_proxies static 10.83.0.0/24
 	}
 }
 
@@ -18,11 +26,17 @@
 			ROBOTS 200
 	}
 
-	# The reader. The same X-Forwarded-For overwrite as the API block, so a
-	# limiter in front of the reader keys on the real peer.
+	# The reader. `header_up X-Forwarded-For {client_ip}` overwrites the header
+	# (uvicorn and Astro's Node adapter both read the leftmost value under
+	# `--forwarded-allow-ips *`). `{client_ip}` is the same line on the dev
+	# stack and behind the edge: from a trusted peer (the edge, which has
+	# already overwritten the header with the real client) it is the forwarded
+	# address; from anyone else it is the peer. The reader reads it as
+	# `Astro.clientAddress` and forwards it on its own API calls, so `cite` and
+	# `cited-by` are limited per reader and not per frontend container.
 	handle /app* {
 		reverse_proxy frontend:4321 {
-			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-For {client_ip}
 			transport http {
 				dial_timeout 5s
 				response_header_timeout 30s
@@ -31,11 +45,11 @@
 	}
 
 	# Everything else is FastAPI: /api/v1, the citation redirector at /us/…,
-	# /health, and the OpenAPI docs. `header_up X-Forwarded-For {remote_host}`
-	# overwrites the header, so the rate limiter keys on the real peer.
+	# /health, and the OpenAPI docs. The same overwrite, so the rate limiter
+	# keys on the client the trusted hop named, or on the peer.
 	handle {
 		reverse_proxy api:8001 {
-			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-For {client_ip}
 			transport http {
 				dial_timeout 5s
 				response_header_timeout 30s
