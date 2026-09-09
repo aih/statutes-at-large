@@ -410,7 +410,53 @@ export interface CompUnit {
   provision: Provision | null;
 }
 
-// ------------------------------------------------------------------ pages
+// ------------------------------------------------------------------ search
+
+/** One value a facet link can add or remove, with its count over the whole
+ * result set (not the page). */
+export interface SearchFacetValue {
+  value: string;
+  count: number;
+}
+
+/** `SearchFacets`: counts over `congress`, `kind` and `view`. */
+export interface SearchFacets {
+  congress: SearchFacetValue[];
+  kind: SearchFacetValue[];
+  view: SearchFacetValue[];
+}
+
+/**
+ * `SearchResult`: one row (`api/search.py`).
+ *
+ * `heading` is not highlighted: the highlighter runs over `heading` too, but
+ * `_result_of` reads only `highlight.text` into `snippets`, so a result's
+ * heading and `num` print plain and only the body snippets carry `<em>`.
+ */
+export interface SearchResultItem {
+  identifier: string;
+  law_identifier: string | null;
+  law_label: string | null;
+  level: string | null;
+  num: string | null;
+  heading: string | null;
+  snippets: string[];
+  enacted: string | null;
+  citation: string | null;
+  view: string;
+  comp_prefix: string | null;
+  url: string;
+}
+
+/** `SearchResponse`: `GET /api/v1/search`. */
+export interface SearchResponse {
+  results: SearchResultItem[];
+  total: number;
+  facets: SearchFacets;
+  note: string;
+}
+
+// ------------------------------------------------------------------- pages
 
 /** One breadcrumb or one navigation link the pages build. */
 export interface Link {
