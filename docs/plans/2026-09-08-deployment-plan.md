@@ -194,11 +194,12 @@ That mounts the new volume at `/var/lib/statutes` with `pgdata`, `data`,
 generated `POSTGRES_PASSWORD`, and installs the cron file.
 
 The cut-over to the edge is the one step that touches the US Code site,
-and it is one short interruption: deploy the US Code site's branch (its
-proxy stops publishing 80 and 443 and joins the `edge` network), then
-`bash deploy/edge/up.sh` (the network, the edge Caddy on 80 and 443, the
-certificate for `uscode.linkedlegislation.org` re-issued to the edge's own
-store). Check the US Code site through the edge before going on. Then the
+and it is one short interruption: `bash deploy/edge/up.sh --network-only`
+(the `edge` network, which the US Code site's compose file declares as
+external and needs before its deploy can run), deploy the US Code site's
+branch (its proxy stops publishing 80 and 443 and joins the network), then
+`bash deploy/edge/up.sh` (the edge Caddy on 80 and 443, the certificate
+for `uscode.linkedlegislation.org` re-issued to the edge's own store). Check the US Code site through the edge before going on. Then the
 first deploy of this site is the same command continuous deploy uses:
 
 ```

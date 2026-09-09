@@ -16,15 +16,14 @@ Files:
   `STATUTES_SITE_ADDRESS`, production hostnames by default.
 - `up.sh` — creates the network with the subnet when absent, refuses a
   network named `edge` with another subnet, brings the Caddy up. Idempotent.
+  `--network-only` stops after the network.
 
-On the box:
+On the box, in this order:
 
 ```
-bash deploy/edge/up.sh
+bash deploy/edge/up.sh --network-only   # before the US Code site's deploy: its compose file needs the network
+bash deploy/edge/up.sh                  # after that deploy, before deploy/deploy-on-box.sh here
 ```
-
-after the US Code site's proxy has joined the network (its own compose file)
-and before `deploy/deploy-on-box.sh` here.
 
 ## The rehearsal on a workstation
 

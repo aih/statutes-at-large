@@ -70,11 +70,14 @@ container calling the API on the reader's behalf).
    `SITE_ORIGIN`, `USCODE_ORIGIN`, `BACKUP_BUCKET`; the scripts derive the
    bare hostname from `SITE_ADDRESS`.
 
-6. **Cut-over order.** Deploy the US Code site's `shared-edge` branch (its
-   proxy stops publishing 80 and 443 and joins `edge`), run
-   `deploy/edge/up.sh` from this repository's checkout on the box, check
-   the US Code site through the edge, then `deploy/deploy-on-box.sh <sha>`
-   here. Rollback is the US Code site's proxy publishing 80 and 443 again
+6. **Cut-over order.** Create the network first, `deploy/edge/up.sh
+   --network-only` from this repository's checkout on the box: the US Code
+   site's compose file declares it as external, and its deploy fails at
+   `up` while the network is absent (measured 2026-09-09, before any
+   container was touched). Then deploy the US Code site's `shared-edge`
+   branch (its proxy stops publishing 80 and 443 and joins `edge`), run
+   `deploy/edge/up.sh`, check the US Code site through the edge, then
+   `deploy/deploy-on-box.sh <sha>` here. Rollback is the US Code site's proxy publishing 80 and 443 again
    with the edge stopped (its `docs/deploy.md`, "Sharing the box").
 
 7. **`robots.txt` answers `Disallow: /` on both sites**, served by each

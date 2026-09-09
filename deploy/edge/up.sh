@@ -1,12 +1,18 @@
 #!/usr/bin/env bash
 # The `edge` network and the edge Caddy (deploy/edge/docker-compose.yml).
 #
-#   bash deploy/edge/up.sh
+#   bash deploy/edge/up.sh                  # the network, then the Caddy
+#   bash deploy/edge/up.sh --network-only   # the network alone
 #
 # Creates the network with the subnet EDGE_SUBNET (default 10.83.0.0/24, the
 # range the inner Caddyfiles trust) when it is absent, and refuses to go on
 # when a network named `edge` exists with another subnet. Then brings the
 # Caddy up and waits for it. Idempotent; prints what it reused.
+#
+# --network-only is the cut-over's first step: the US Code site's compose
+# file declares the network as external, so its deploy fails before touching
+# a container while the network is absent, and the Caddy cannot bind 80 and
+# 443 while that site's old proxy still publishes them (ADR-0017).
 #
 # The site addresses, ports and DATA_ROOT come from the environment
 # (docker-compose.yml here lists them); the production defaults need none.
@@ -15,6 +21,12 @@ cd "$(dirname "$0")"
 
 NETWORK="edge"
 EDGE_SUBNET="${EDGE_SUBNET:-10.83.0.0/24}"
+NETWORK_ONLY=""
+case "${1:-}" in
+    --network-only) NETWORK_ONLY=1 ;;
+    "") ;;
+    *) echo "usage: $0 [--network-only]" >&2; exit 2 ;;
+esac
 
 echo "==> network $NETWORK ($EDGE_SUBNET)"
 if docker network inspect "$NETWORK" >/dev/null 2>&1; then
@@ -32,6 +44,8 @@ else
     docker network create --subnet "$EDGE_SUBNET" "$NETWORK" >/dev/null
     echo "    created $NETWORK"
 fi
+
+[ -z "$NETWORK_ONLY" ] || exit 0
 
 echo "==> edge caddy"
 docker compose -p edge -f docker-compose.yml up -d --wait
