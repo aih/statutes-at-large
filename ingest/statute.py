@@ -35,7 +35,7 @@ from ingest.identifiers import (
     identify_law,
     segment,
 )
-from uslmtext import USLM_NS, content_hash, local_name, plain_text, serialize
+from uslmtext import USLM_NS, content_hash, local_name, page_label, plain_text, serialize
 
 if False:  # imported for type names only
     from ingest.numbering import Claim, NumberingPlan
@@ -51,7 +51,6 @@ TEXT_PROVENANCE = "gpo-uslm"
 SKIP_SUBTREES = frozenset({"quotedContent", "toc", "sidenote", "footnote", "note"})
 
 _STAT_CITE = re.compile(r"(?P<volume>\d+)\s*Stat\.?\s*(?P<page>[0-9A-Za-z]+(?:-\d+)?)", re.IGNORECASE)
-_PAGE_ID = re.compile(r"^/us/stat/(?P<volume>\d+)/(?P<page>[^/@]+)")
 _LEADING_LAW = re.compile(r"^(?:Public|Private)\s+Law\s+[\d–-]+:\s*", re.IGNORECASE)
 _PREFACE_CHAPTER = re.compile(r"\bchapter\s+(\d+)", re.IGNORECASE)
 
@@ -588,16 +587,6 @@ def _heading_of(element: etree._Element) -> str | None:
         return None
     text = plain_text(heading)
     return text or None
-
-
-def page_label(identifier: str | None) -> str | None:
-    """`/us/stat/64/B3` → `b3`; None for a marker with no usable identifier."""
-    if not identifier:
-        return None
-    match = _PAGE_ID.match(identifier.strip())
-    if not match:
-        return None
-    return "".join(match.group("page").split()).lower()
 
 
 def _all_pages(component: etree._Element) -> list[str]:
