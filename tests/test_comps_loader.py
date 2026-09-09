@@ -170,8 +170,9 @@ def test_poll_limit_counts_fetched_not_seen(db):
     """A package already current is skipped without a call and does not use
     up the limit, so a bounded walk of a newest-first listing advances."""
     since = datetime.datetime(2019, 1, 1, tzinfo=datetime.timezone.utc)
-    packages = [{"packageId": "COMPS-3055", "lastModified": "2020-01-01T00:00:00Z"}, {"packageId": "COMPS-8755", "lastModified": "2020-01-01T00:00:00Z"}]
-    poll(db, _FakeClient(packages), since=since, limit=1)
+    # COMPS-3055 is current in the fixture database; COMPS-8755 is listed
+    # with a later lastModified, so it is due.
+    packages = [{"packageId": "COMPS-3055", "lastModified": "2020-01-01T00:00:00Z"}, {"packageId": "COMPS-8755", "lastModified": "2030-01-01T00:00:00Z"}]
     client = _FakeClient(packages)
     report = poll(db, client, since=since, limit=1)
     assert report.seen == 2 and report.skipped == 1 and report.fetched == 1

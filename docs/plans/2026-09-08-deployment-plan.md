@@ -222,11 +222,16 @@ $C statute --volumes 1-137 --report data/verification   # ~1 hour; per-volume re
 $C plaw fetch 113-119 && $C plaw load 113-119 --report data/verification   # ~2 minutes
 $C citations --from-hub --report data/verification      # ~7 minutes
 $C classifications --report data/verification           # ~2 minutes
-$C comps poll --limit 400                     # repeat until the walk reports nothing due; ~6 hours over the API's 1,000 calls an hour
+$C comps poll --limit 400                     # the first 400 packages
+$C comps poll --since 1990-01-01 --limit 400  # `make comps-walk`: once an hour until it reports 0 fetched; ~6 hours over the API's 1,000 calls an hour
 ```
 
-`make load-all` is the first two lines; the plan adds a `make load-prod`
-target that runs the whole sequence with the compose prefix. The site
+`make load-all` is the first two lines; `make load-prod` runs the sequence
+through the first COMPS run with the compose prefix, and `make comps-walk`
+is the repeated line. GovInfo lists the collection newest first and a
+poll's default start is the newest date an earlier check saw, so the walk
+names its start; packages already current are skipped without a call and
+do not count toward the limit. The site
 serves every law as soon as its volume is loaded, so nothing waits for the
 end. When `/status` shows 137 `STATUTE` volumes, seven `PLAW` congresses
 and the two indexes, take the first dump:
