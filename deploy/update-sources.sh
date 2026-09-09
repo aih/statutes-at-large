@@ -15,17 +15,21 @@
 #   3  fetch-statute 1-137 --if-changed, then statute --volumes 1-137 --changed-only
 #   4  citations --from-hub --if-changed
 #   5  classifications
-#   6  pg_dump to s3://${BACKUP_BUCKET}/db/statutes-<date>.dump, only when a
+#   6  reindex-search --if-changed, then reindex-search --since <the day
+#      before this run started> (ADR-0023; the shared cluster, so a failed
+#      rebuild is logged and the run goes on)
+#   7  pg_dump to s3://${BACKUP_BUCKET}/db/statutes-<date>.dump, only when a
 #      step wrote rows: /api/v1/status is read before and after the steps with
 #      `checks`, `stale`, `citations.checked_at` and `classifications.last_check`
 #      removed (the members every check moves), and a difference means a load.
-#   7  /api/v1/status into the log, with `stale` asserted false
+#   8  /api/v1/status into the log, with `stale` asserted false
 #
 # --check-only runs the two polls with --limit 0 (the check row is written,
 # nothing is fetched) and fetch-statute --if-changed (changed volume files are
-# downloaded, not loaded); steps 4 to 6 are skipped. --force runs plaw poll
+# downloaded, not loaded); steps 4 to 7 are skipped. --force runs plaw poll
 # --force, comps poll --force, statute without --changed-only, citations
-# without --if-changed and classifications --force.
+# without --if-changed and classifications --force; the search step is
+# unchanged, since a mapping change is what decides a rebuild, not the mode.
 #
 # flock on ${DATA_ROOT}/update.lock; the log is ${DATA_ROOT}/logs/update-<date>.log.
 # The API is read inside the container (python, no jq on the box), never
@@ -120,6 +124,19 @@ dump_to_bucket() {
     echo "dumped to $key"
 }
 
+# reindex-search --if-changed rebuilds only when the mapping moved; --since
+# picks up the laws and compilation versions the steps above just loaded
+# (ADR-0023). Both run, and the step fails if either does, whether or not
+# the cluster is reachable at all — the search index is not the record of
+# what was loaded, so a search failure here does not stop the dump.
+# shellcheck disable=SC2317,SC2329  # invoked through `step`
+reindex_search_step() {
+    local status=0
+    "${INGEST[@]}" reindex-search --if-changed || status=1
+    "${INGEST[@]}" reindex-search --since "$SEARCH_SINCE" || status=1
+    return "$status"
+}
+
 # /api/v1/status into the log; exit 1 when `stale` is not false.
 # shellcheck disable=SC2317,SC2329  # invoked through `step`
 status_report() {
@@ -144,6 +161,9 @@ if [ -z "$SINCE" ]; then
     echo "could not read the last COMPS check; using --since $SINCE"
 fi
 
+# The date this run started, minus one day (UTC).
+SEARCH_SINCE="$(date -u -d 'yesterday' +%F 2>/dev/null || date -u -v-1d +%F)"
+
 case "$MODE" in
     check-only)
         step plaw "${INGEST[@]}" plaw poll --limit 0
@@ -158,6 +178,7 @@ case "$MODE" in
         step statute "${INGEST[@]}" statute --volumes 1-137 --report data/verification
         step citations "${INGEST[@]}" citations --from-hub --report data/verification
         step classifications "${INGEST[@]}" classifications --force --report data/verification
+        step reindex-search reindex_search_step
         ;;
     auto)
         step plaw "${INGEST[@]}" plaw poll --report data/verification
@@ -166,6 +187,7 @@ case "$MODE" in
         step statute "${INGEST[@]}" statute --volumes 1-137 --changed-only --report data/verification
         step citations "${INGEST[@]}" citations --from-hub --if-changed --report data/verification
         step classifications "${INGEST[@]}" classifications --report data/verification
+        step reindex-search reindex_search_step
         ;;
 esac
 

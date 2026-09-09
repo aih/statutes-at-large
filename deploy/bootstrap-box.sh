@@ -6,14 +6,19 @@
 #   ECR_REGISTRY=739065237548.dkr.ecr.us-east-1.amazonaws.com \
 #   BACKUP_BUCKET=statutes-linkedlegislation \
 #   GOVINFO_API_KEY=… \
+#   SEARCH_PASSWORD=… \
 #     sudo -E bash bootstrap-box.sh
 #
-# Mounts the data volume deploy/provision.sh attached at /var/lib/statutes,
-# clones the repository beside ~/uscode-redesign, writes .env once and
-# installs the cron file. Idempotent: re-running it formats nothing that has
-# a filesystem, re-clones nothing, and keeps an existing .env. Docker, the
-# compose plugin and git are usually on the box already; each is installed
-# only when absent. No secret is echoed.
+# SEARCH_PASSWORD is the US Code site's OpenSearch admin password (ADR-0023);
+# optional, empty is allowed, and it never appears in a transcript because it
+# is passed as an environment variable inside the SSM session rather than
+# typed at a prompt. Mounts the data volume deploy/provision.sh attached at
+# /var/lib/statutes, clones the repository beside ~/uscode-redesign, writes
+# .env once and installs the cron file. Idempotent: re-running it formats
+# nothing that has a filesystem, re-clones nothing, and keeps an existing
+# .env — so on a box that already has one, add SEARCH_PASSWORD to it by hand
+# instead. Docker, the compose plugin and git are usually on the box already;
+# each is installed only when absent. No secret is echoed.
 set -euo pipefail
 
 SITE_HOST="${SITE_ADDRESS:?set SITE_ADDRESS to the public hostname}"
@@ -21,6 +26,7 @@ SITE_HOST="${SITE_HOST#*://}"; SITE_HOST="${SITE_HOST%%/*}"; SITE_HOST="${SITE_H
 ECR_REGISTRY="${ECR_REGISTRY:?set ECR_REGISTRY}"
 BACKUP_BUCKET="${BACKUP_BUCKET:-statutes-linkedlegislation}"
 GOVINFO_API_KEY="${GOVINFO_API_KEY:-}"
+SEARCH_PASSWORD="${SEARCH_PASSWORD:-}"
 DATA_ROOT="${DATA_ROOT:-/var/lib/statutes}"
 USCODE_ORIGIN="${USCODE_ORIGIN:-https://uscode.linkedlegislation.org}"
 REPO_URL="${REPO_URL:-https://github.com/aih/statutes-at-large.git}"
@@ -137,6 +143,7 @@ BACKUP_BUCKET=${BACKUP_BUCKET}
 GOVINFO_API_KEY=${GOVINFO_API_KEY}
 SITE_ORIGIN=https://${SITE_HOST}
 USCODE_ORIGIN=${USCODE_ORIGIN}
+SEARCH_PASSWORD=${SEARCH_PASSWORD}
 ENVEOF
     chown ec2-user:ec2-user "$ENV_FILE"
     chmod 600 "$ENV_FILE"

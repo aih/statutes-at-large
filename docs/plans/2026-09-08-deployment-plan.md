@@ -56,6 +56,7 @@ Protections per application:
 | Data | a second EBS volume, 40 GB gp3, at `/var/lib/statutes`, `DeleteOnTermination=false`; the US Code site's volume and its usage alarm are untouched |
 | Database | this site's own Postgres container, `shared_buffers=256MB`, no published port |
 | Memory | compose `mem_limit`: `statutes-db` 768 MB, `statutes-api` 512 MB, `statutes-frontend` 384 MB, `statutes-proxy` 64 MB; about 1.3 GB beside the US Code site's ~5 GB on 8 GB |
+| Search | the US Code site's OpenSearch, 2 GB heap, shared over `uscode-redesign_default`; this site adds no container on the box (ADR-0023) |
 | CPU | the one-hour initial load under `nice -n 10`; the credit-balance alarm already exists on the box |
 | Deploys | separate repositories, locks (`${DATA_ROOT}/deploy.lock` per site), logs and image tags; a deploy of one site never recreates the other's containers or the edge |
 | Watchdog | each site's watchdog probes its own hostname through the edge and restarts only its own services; the edge is restarted by neither |

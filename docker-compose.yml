@@ -8,6 +8,33 @@
 # Host ports 5434 and 8010 rather than 5432 and 8000: the US Code site's stack
 # runs on this machine with those.
 services:
+  # The dev search cluster, on host port 9201 (9200 is the US Code site's dev
+  # cluster on this machine). On the box this site joins that project's
+  # cluster instead (docker-compose.prod.yml); this service exists only here.
+  opensearch:
+    image: opensearchproject/opensearch:2.14.0
+    environment:
+      - discovery.type=single-node
+      # From .env (copy .env.example). The security plugin rejects a password
+      # that resembles the username, so it must not contain "admin" — the
+      # container exits 1 at boot if it does, and the only sign is a line in
+      # its log.
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=${SEARCH_PASSWORD:-}
+    ports:
+      - "9201:9200"
+    volumes:
+      - osdata:/usr/share/opensearch/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "curl -skf -u admin:\"$$OPENSEARCH_INITIAL_ADMIN_PASSWORD\" https://localhost:9200/_cluster/health || exit 1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+
   db:
     image: postgres:16
     environment:
@@ -29,9 +56,19 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      # Not `service_healthy`: the healthcheck needs SEARCH_PASSWORD to pass,
+      # and the stack must still come up with none set (search is then
+      # unconfigured, not a reason the API refuses to start).
+      opensearch:
+        condition: service_started
     environment:
       DATABASE_URL: postgresql+psycopg://statutes:statutes@db:5432/statutes
       GOVINFO_API_KEY: ${GOVINFO_API_KEY:-}
+      SEARCH_URL: https://opensearch:9200
+      SEARCH_PASSWORD: ${SEARCH_PASSWORD:-}
+      # False *only here*. The image generates a self-signed certificate at
+      # first boot, so verification cannot succeed against the dev stack.
+      SEARCH_VERIFY_CERTS: "false"
     expose:
       - "8001"
     volumes:
@@ -69,3 +106,4 @@ services:
 volumes:
   pgdata:
   caddydata:
+  osdata:

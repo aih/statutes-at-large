@@ -252,6 +252,8 @@ python -m ingest plaw poll --report docs/verification               # what chang
 python -m ingest fetch-statute 1-137 --if-changed   # the Hub's tree listing against the files on disk
 python -m ingest statute --volumes 1-137 --changed-only             # only files that differ from their last load
 python -m ingest citations --from-hub --if-changed  # skip the reload when the dataset revision is the recorded one
+python -m ingest reindex-search [--if-changed] [--since YYYY-MM-DD] [--recreate]   # the OpenSearch index (ADR-0023)
+make reindex-search                                 # reindex-search --if-changed against the dev cluster
 ```
 
 On the box (`docs/plans/2026-09-08-deployment-plan.md`, sections 4 to 6):

@@ -71,6 +71,11 @@ copied from `../uscode-redesign` (its CLAUDE.md is the fuller reference).
     stack; the edge's forwarded address survives on the box (ADR-0017). The
     reader forwards `Astro.clientAddress` on every API call, so `cite` and
     `cited-by` are limited per reader.
+14. **The production search cluster is the US Code site's**, reached over the
+    external network `uscode-redesign_default` (ADR-0023); this site runs no
+    OpenSearch container of its own on the box. `SEARCH_PASSWORD` is the
+    cluster's admin password, typed into this site's `.env` on the box by the
+    user, never generated or rotated here.
 
 ## Fixtures
 
@@ -129,6 +134,8 @@ python -m ingest plaw fetch 113-119              the per-congress bulk-data zips
 python -m ingest plaw load 118 … [--from-dir PATH] [--report DIR]   public laws from the zips
 python -m ingest plaw poll [--congress N] [--since YYYY-MM-DD] [--force] [--from-dir PATH]
 make fetch-plaw / plaw / plaw-poll   the three above, congresses 113 to 119
+python -m ingest reindex-search [--if-changed] [--since YYYY-MM-DD] [--recreate]   the OpenSearch index (ADR-0023)
+make reindex-search              reindex-search --if-changed against the dev cluster
 make load-prod / update-prod / update-prod-check   on the box: the first load; the weekly update; the checks only
 bash deploy/deploy-on-box.sh <sha> / deploy/edge/up.sh   the deploy; the shared edge (plan sections 4 to 7)
 ```
