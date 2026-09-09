@@ -1,0 +1,80 @@
+# Three jobs on every push and pull request: the Python suite (SQLite, no
+# database service), the reader's Vitest suite, and the deploy configuration
+# (the production compose file, both Caddyfiles, the shell scripts).
+# `make test-e2e` needs a running site and is not here.
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: make test (SQLite)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - run: uv sync --frozen
+
+      - run: make test
+
+  web:
+    name: make test-web (Vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        working-directory: frontend
+        run: npm ci
+
+      - name: Test
+        working-directory: frontend
+        run: npm test
+
+  compose:
+    name: deploy config validates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # `config` resolves interpolation without building or starting anything.
+      - name: docker-compose.prod.yml validates
+        run: docker compose --env-file .env.prod.example -f docker-compose.prod.yml config -q
+
+      - name: deploy/edge/docker-compose.yml validates
+        run: docker compose -f deploy/edge/docker-compose.yml config -q
+
+      # Both Caddyfiles are bind mounts; a syntax error surfaces as a proxy
+      # that will not start. `validate` adapts and provisions without binding.
+      - name: deploy/Caddyfile validates
+        run: |
+          docker run --rm -e SITE_ADDRESS=http://statutes.linkedlegislation.org:8000 \
+            -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile
+
+      - name: deploy/edge/Caddyfile validates
+        run: |
+          docker run --rm \
+            -v "$PWD/deploy/edge/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile
+
+      - name: shellcheck
+        run: shellcheck deploy/*.sh deploy/edge/*.sh

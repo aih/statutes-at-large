@@ -1,0 +1,31 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "TheInstanceRolesBackupGrant",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetRole",
+        "iam:PutRolePolicy"
+      ],
+      "Resource": "arn:aws:iam::739065237548:role/uscode-site"
+    },
+    {
+      "Sid": "TheGitHubDeployRole",
+      "Effect": "Allow",
+      "Action": [
+        "iam:CreateRole",
+        "iam:GetRole",
+        "iam:PutRolePolicy",
+        "iam:UpdateAssumeRolePolicy"
+      ],
+      "Resource": "arn:aws:iam::739065237548:role/statutes-github-deploy"
+    },
+    {
+      "Sid": "ListsThatCannotBeScoped",
+      "Effect": "Allow",
+      "Action": "iam:ListOpenIDConnectProviders",
+      "Resource": "*"
+    }
+  ]
+}

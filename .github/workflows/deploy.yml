@@ -1,0 +1,135 @@
+# Deploy to the box after CI goes green on main, or on demand (docs/plans/
+# 2026-09-08-deployment-plan.md, section 7). Builds both images natively on
+# arm64, pushes them to ECR tagged with the sha and `latest`, then runs
+# deploy/deploy-on-box.sh <sha> on the box over SSM. The box checks out the
+# exact commit this workflow built.
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: 739065237548.dkr.ecr.us-east-1.amazonaws.com
+
+jobs:
+  deploy:
+    # AWS_DEPLOY_ROLE_ARN is set once deploy/admin-grant.sh has run; until
+    # then this job skips rather than failing every merge.
+    if: >-
+      vars.AWS_DEPLOY_ROLE_ARN != '' &&
+      (github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'))
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Resolve sha
+        id: sha
+        run: echo "sha=${{ github.event.workflow_run.head_sha || github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.sha.outputs.sha }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push api image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/statutes-api:${{ steps.sha.outputs.sha }}
+            ${{ env.ECR_REGISTRY }}/statutes-api:latest
+          cache-from: type=gha,scope=statutes-api
+          cache-to: type=gha,mode=max,scope=statutes-api
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          platforms: linux/arm64
+          push: true
+          tags: |
+            ${{ env.ECR_REGISTRY }}/statutes-frontend:${{ steps.sha.outputs.sha }}
+            ${{ env.ECR_REGISTRY }}/statutes-frontend:latest
+          cache-from: type=gha,scope=statutes-frontend
+          cache-to: type=gha,mode=max,scope=statutes-frontend
+
+      - name: Deploy on the box via SSM
+        id: dispatch
+        env:
+          SHA: ${{ steps.sha.outputs.sha }}
+        run: |
+          # By instance id: a tag-targeted command reports no instance ids to
+          # poll. The IAM condition on the tag holds either way.
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=uscode-site" \
+                      "Name=instance-state-name,Values=running" \
+            --query "Reservations[0].Instances[0].InstanceId" --output text)
+          if [ -z "$INSTANCE_ID" ] || [ "$INSTANCE_ID" = "None" ]; then
+            echo "no running instance tagged Name=uscode-site" >&2
+            exit 1
+          fi
+          echo "instance_id=$INSTANCE_ID" >> "$GITHUB_OUTPUT"
+
+          INNER="cd ~/statutes-at-large && git fetch origin && git checkout --force ${SHA} && bash deploy/deploy-on-box.sh ${SHA}"
+          REMOTE_CMD="sudo -iu ec2-user bash -c '${INNER}'"
+          PARAMS=$(jq -n --arg cmd "$REMOTE_CMD" \
+            '{commands: [$cmd], executionTimeout: ["1800"]}')
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --comment "statutes deploy $SHA" \
+            --parameters "$PARAMS" \
+            --query "Command.CommandId" --output text)
+          echo "command_id=$COMMAND_ID" >> "$GITHUB_OUTPUT"
+          echo "Dispatched SSM command $COMMAND_ID to $INSTANCE_ID for deploy of $SHA"
+
+      - name: Wait for the box to finish
+        env:
+          COMMAND_ID: ${{ steps.dispatch.outputs.command_id }}
+          INSTANCE_ID: ${{ steps.dispatch.outputs.instance_id }}
+        run: |
+          echo "Polling command $COMMAND_ID on instance $INSTANCE_ID"
+          STATUS="InProgress"
+          while [ "$STATUS" = "InProgress" ] || [ "$STATUS" = "Pending" ] || [ "$STATUS" = "Delayed" ]; do
+            sleep 10
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" \
+              --query "Status" --output text)
+            echo "status: $STATUS"
+          done
+
+          INVOCATION=$(aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID")
+          echo "=== stdout ==="
+          echo "$INVOCATION" | jq -r ".StandardOutputContent"
+          if [ "$STATUS" != "Success" ]; then
+            echo "=== stderr ==="
+            echo "$INVOCATION" | jq -r ".StandardErrorContent"
+            echo "Deploy command ended in status $STATUS" >&2
+            exit 1
+          fi

@@ -1,0 +1,93 @@
+# The weekly source update (docs/plans/2026-09-08-deployment-plan.md, section
+# 6): one SSM command running deploy/update-sources.sh on the box, Mondays and
+# on demand. The box's own cron runs the same script on Thursdays
+# (deploy/install-crons.sh); the two schedules fail independently.
+name: Update sources
+
+on:
+  schedule:
+    # Monday 07:53 UTC.
+    - cron: "53 7 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: update-sources
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  update-sources:
+    # Skips until deploy/admin-grant.sh has run — see deploy.yml.
+    if: vars.AWS_DEPLOY_ROLE_ARN != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Dispatch the update on the box via SSM
+        id: dispatch
+        run: |
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=uscode-site" \
+                      "Name=instance-state-name,Values=running" \
+            --query "Reservations[0].Instances[0].InstanceId" --output text)
+          if [ -z "$INSTANCE_ID" ] || [ "$INSTANCE_ID" = "None" ]; then
+            echo "no running instance tagged Name=uscode-site" >&2
+            exit 1
+          fi
+          echo "instance_id=$INSTANCE_ID" >> "$GITHUB_OUTPUT"
+
+          REMOTE_CMD="sudo -iu ec2-user bash /home/ec2-user/statutes-at-large/deploy/update-sources.sh"
+          # executionTimeout 4 hours: a full volume reload is about an hour.
+          PARAMS=$(jq -n --arg cmd "$REMOTE_CMD" \
+            '{commands: [$cmd], executionTimeout: ["14400"]}')
+          COMMAND_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --comment "statutes weekly source update" \
+            --parameters "$PARAMS" \
+            --query "Command.CommandId" --output text)
+          echo "command_id=$COMMAND_ID" >> "$GITHUB_OUTPUT"
+          echo "Dispatched SSM command $COMMAND_ID to $INSTANCE_ID"
+
+      - name: Poll until done or this job's time runs out
+        env:
+          COMMAND_ID: ${{ steps.dispatch.outputs.command_id }}
+          INSTANCE_ID: ${{ steps.dispatch.outputs.instance_id }}
+        run: |
+          echo "Polling command $COMMAND_ID on instance $INSTANCE_ID"
+          # GitHub caps a job at 6 hours; poll for at most 330 minutes so the
+          # job can still report. SSM keeps running the command regardless.
+          DEADLINE=$(( $(date +%s) + 330 * 60 ))
+          STATUS="InProgress"
+          while [ "$STATUS" = "InProgress" ] || [ "$STATUS" = "Pending" ] || [ "$STATUS" = "Delayed" ]; do
+            if [ "$(date +%s)" -ge "$DEADLINE" ]; then
+              echo "::notice::source update still running on the box (command $COMMAND_ID); SSM continues without this job"
+              exit 0
+            fi
+            sleep 60
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID" \
+              --query "Status" --output text)
+            echo "status: $STATUS"
+          done
+
+          INVOCATION=$(aws ssm get-command-invocation \
+            --command-id "$COMMAND_ID" --instance-id "$INSTANCE_ID")
+          echo "=== stdout ==="
+          echo "$INVOCATION" | jq -r ".StandardOutputContent"
+          if [ "$STATUS" != "Success" ]; then
+            echo "=== stderr ==="
+            echo "$INVOCATION" | jq -r ".StandardErrorContent"
+            echo "Source update ended in status $STATUS" >&2
+            exit 1
+          fi
