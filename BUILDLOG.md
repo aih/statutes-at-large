@@ -288,34 +288,88 @@ Next, with the user's go-ahead: plan section 3 (AWS, once), section 4 (the
 box and the cut-over), section 5 (the load), then `STATUTES_ORIGIN` on the
 US Code site once `statutes-links` is merged.
 
-## 2026-09-09 — go-live, preflight
+## 2026-09-09 — go-live: AWS, the box, the cut-over, the load
 
-Asked: take the site live per `docs/plans/2026-09-09-go-live-prompt.md`.
+Asked: take the site live per `docs/plans/2026-09-09-go-live-prompt.md`,
+one section at a time.
 
-Preflight (no side effects), under `AWS_PROFILE=uscode-admin`, which is the
-IAM user `linkedlegislation-deploy` (the `uscode` profile is the mirror
-user; neither, nor `hershowitz-deploy`, holds any IAM read or write):
+Preflight. `AWS_PROFILE=uscode-admin` is the IAM user
+`linkedlegislation-deploy`, the ordinary deploy identity; no profile on
+the workstation holds IAM, so the IAM step ran from CloudShell under the
+user's administrator login. CI on `822bd82` had failed in shellcheck:
+Ubuntu's 0.9.0 reports SC2317 on every line of a function invoked only
+through `step`; 0.11.0 here does not. Fixed with SC2317 in the two
+directives. The box: `i-06b433caacd78fd96`, `t4g.large`, us-east-1a,
+Elastic IP `52.1.30.78`, 7.8 GB memory with 2.9 GB available, the US Code
+volume 120 GB at 36%; Docker Compose v5.3.1; no `make`.
 
-- `main` is pushed; CI on `822bd82` failed in the shellcheck step: Ubuntu's
-  shellcheck 0.9.0 reports SC2317 on every line of a function invoked
-  only through `step` (`dump_to_bucket`, `status_report` in
-  `deploy/update-sources.sh`); 0.11.0 here does not. Fixed by adding
-  SC2317 to the two directives; checked with both versions.
-- The box: `i-06b433caacd78fd96`, `t4g.large`, us-east-1a, Elastic IP
-  `52.1.30.78`, instance profile `uscode-site`, SSM online (Amazon Linux,
-  agent 3.3.4624.0). Disks: `nvme0n1` 20 GB root (54% used), `nvme1n1`
-  120 GB at `/var/lib/uscode` (36% used). 7.8 GB memory, 2.9 GB
-  available. Docker Compose v5.3.1. The US Code proxy publishes 80 and
-  443; no `edge` network yet. `/etc/cron.d/uscode` and the CloudWatch
-  agent's `amazon-cloudwatch-agent.d/uscode.json` are the US Code site's.
-- Nothing of this site's exists on AWS: no `statutes-data` volume, no
-  bucket, no ECR repositories, no `statutes-*` alarms; the zone
-  `linkedlegislation.org` is Route 53 `Z007577931KDAIYFR232H`, holding
-  `uscode` A `52.1.30.78`; `statutes.linkedlegislation.org` does not
-  resolve. `AWS_DEPLOY_ROLE_ARN` is unset on the repository.
-- The US Code site's `shared-edge` branch: three commits over `main`, not
-  pushed; `statutes-links` four commits, not pushed.
+Section 3, AWS. `admin-grant.sh` (CloudShell): the inline policy
+`statutes-backups` on `uscode-site`, the OIDC role
+`arn:aws:iam::739065237548:role/statutes-github-deploy`. Its existence
+check had swallowed the error text, so an invalid token read as "role
+does not exist"; it now prints the error and the identity. `provision.sh`
+(CloudShell): the volume `vol-01fbc07d5cab61539`, 40 GB gp3, attached as
+`/dev/xvdc`; the bucket with its lifecycle and public-access block; the
+two ECR repositories with the ten-tag lifecycle. The A record in zone
+`Z007577931KDAIYFR232H`. `deploy/provision-policy.json`, the actions the
+deploy identity lacked (S3 bucket, ECR, SNS, Route 53 writes and the IAM
+reads), attached as the managed policy `statutes-provision`: at 2,057
+bytes it is over the 2,048-byte inline limit for a user. The harness's
+permission classifier declined every AWS write and SSM write from this
+session; the user ran the AWS writes, and the SSM writes went through a
+one-file runner the user allowed.
 
-`deploy/provision.sh` and the Route 53 record were not run from this
-session: the harness's permission classifier declined both writes, so
-they are the user's commands, listed in the session report.
+Section 4, the box. `bootstrap-box.sh` in the user's SSM session, the key
+read with `read -rs` so it is in no history: `/dev/nvme2n1` formatted and
+mounted by UUID at `/var/lib/statutes`, the clone, `.env` mode 600 with
+the eight keys, `/etc/cron.d/statutes`. The cut-over: the US Code `.env`
+set to `SITE_ADDRESS=http://uscode.linkedlegislation.org:8000`; the user
+merged `shared-edge` (rebased over one PR merged since); its first deploy
+failed at `up` with "network edge declared as external, but could not be
+found" before touching a container, so the network was created by hand
+(`docker network create --subnet 10.83.0.0/24 edge`) and the deploy
+dispatched again; it ended at its robots check as its runbook says;
+`deploy/edge/up.sh` brought the edge up; the US Code site answered
+through it within a minute with a fresh Let's Encrypt certificate. The
+fix: `up.sh --network-only` as the cut-over's first step, ADR-0017
+decision 6, the plan, the edge README, and the US Code site's
+`docs/deploy.md` section 9 (its PR #77). Then `AWS_DEPLOY_ROLE_ARN`,
+`deploy.yml` on dispatch: images built and pushed in 2m37s, the box's
+deploy from `0a926d5` through the robots check. `alarms.sh`:
+`statutes-alerts`, `statutes-site-down`, `statutes-disk-high`; the
+CloudWatch agent's `uscode.json` gained `/var/lib/statutes` under `disk`
+and was reloaded (`mount_points` shows all three). `make` installed.
+
+Section 5, the load. `make load-prod` detached under `nice`, 06:41 to
+07:38 UTC: 137 volumes fetched (2.3 GB), all 137 loaded in 35 minutes
+with no error, volumes 7 and 8 empty (the treaty volumes), 137 reports in
+`data/verification/`; PLAW 113th to 119th, 2,149 laws in 8 minutes
+(1,773 replaced volume-derived, 342 new: the Hub's volume 137 holds 34
+laws); citations 1,081,463 rows over 56 titles in 481 s, dataset revision
+`a34c462`; classifications 31 files, 144,885 rows; the first COMPS run
+397 of 400 packages, three failed (GovInfo 400 on the USLM of
+COMPS-17514 and COMPS-10414; COMPS-77777777 carries no identifier). The
+database is 2,676 MB. `/status` lists 126 `STATUTE` volumes, not 137:
+the count is of volumes with volume-derived laws, and the PLAW load
+replaced every public law of volumes 127 to 137 except the private laws
+of 132 and 136 (ADR-0011). The first dump:
+`s3://statutes-linkedlegislation/db/statutes-2026-09-09.dump`, 621 MiB.
+The smoke test passed; Playwright 26 passed after the two 404 cases were
+pointed at `/us/stat/999/1` (they had assumed volume 110 absent, true of
+the fixture database only). `make update-prod-check`: three checks
+written, 137 volumes listed and unchanged, nothing fetched, `stale`
+false. The COMPS walk: GovInfo lists newest first and a poll's default
+start is the newest date seen, so the plan's repeated `--limit 400`
+re-saw the same packages; `--limit` now counts packages fetched, `make
+comps-walk` names the start, and the unit `statutes-comps-walk` runs it
+hourly until a run fetches nothing (log `logs/comps-walk.log`).
+
+Decisions: none new. ADR-0017 decision 6 amended (the network first).
+
+Verified: `make test` 420 passed, 5 deselected; the smoke test and 26
+Playwright tests over the live site; both hostnames through the edge;
+the dump in the bucket; the alarms in `INSUFFICIENT_DATA` until the
+watchdog and the agent publish. Not done: `STATUTES_ORIGIN` on the US
+Code site (`statutes-links` unmerged there); the SNS subscription awaits
+the user's confirmation; the remaining worktrees `agent-a09…`, `a8e4…`,
+`ad80…`, `ae81…`, `aefd…` are earlier stages' and were left.
