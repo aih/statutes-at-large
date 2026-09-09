@@ -75,4 +75,5 @@ Date: 2026-09-07. Status: accepted. Implements design sections 4 to 6 for
   names them in `error`; the check stays `ok`. The README lists them.
 - A failed package counts as fetched, so a walk with `--limit` is complete
   when a run reports no new packages and no new versions, not when it
-  reports 0 fetched.
+  reports 0 fetched. `deploy/comps-walk.sh` stops on that line
+  (`ingest.comps.NOTHING_NEW`; `tests/test_comps_walk.py`).
