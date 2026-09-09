@@ -33,7 +33,7 @@ from typing import Any, Iterable
 
 from opensearchpy import helpers
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Bundle, Session
 
 from db.models import Comp, CompUnit, CompVersion, Law, Unit
 from storage.identifiers import law_label
@@ -300,9 +300,24 @@ def unit_documents(
     `--since` re-syncs.
 
     Each item is `{"_id": …, "_source": {…}}`; the index is `sync`'s to name.
+
+    The unit's columns are selected by name and `Unit.xml` is never read: a
+    batch of 500 rows carrying each section's XML held hundreds of megabytes
+    on the box, and the API container's limit is 512 MB.
     """
+    unit_columns = Bundle(
+        "unit",
+        Unit.identifier,
+        Unit.level,
+        Unit.num,
+        Unit.heading,
+        Unit.text,
+        Unit.first_page,
+        Unit.seq,
+        Unit.occurrence,
+    )
     stmt = (
-        select(Unit, Law)
+        select(unit_columns, Law)
         .join(Law, Law.id == Unit.law_id)
         .where((Unit.text.is_not(None)) | (Unit.heading.is_not(None)))
         .order_by(Law.id, Unit.seq)
@@ -342,9 +357,23 @@ def comp_documents(
     `citation_sort` is absent, so those documents sort last in citation order.
 
     `since` limits the stream to versions fetched at or after that moment.
+
+    The unit's and the version's columns are selected by name: `CompUnit.xml`
+    is never read, and `CompVersion.xml`, the whole compilation, would
+    otherwise travel once per row of the join.
     """
+    unit_columns = Bundle(
+        "unit",
+        CompUnit.identifier,
+        CompUnit.level,
+        CompUnit.num,
+        CompUnit.heading,
+        CompUnit.text,
+        CompUnit.seq,
+    )
+    version_columns = Bundle("version", CompVersion.current_through_pl)
     stmt = (
-        select(CompUnit, CompVersion, Comp, Law)
+        select(unit_columns, version_columns, Comp, Law)
         .join(CompVersion, CompVersion.id == CompUnit.comp_version_id)
         .join(Comp, Comp.id == CompVersion.comp_id)
         .outerjoin(Law, Law.id == Comp.law_id)
