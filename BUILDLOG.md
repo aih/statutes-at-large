@@ -446,3 +446,45 @@ a fake poll: it ends on the first run that loaded nothing and stops at
 Makefile name the script and the `systemd-run` line that starts it.
 
 Decisions: none new; ADR-0007's consequence names the script.
+
+## 2026-09-09 — the reader improvements: six packages in three waves, and the site-down alert
+
+Asked: build the plan's six packages A to F in three waves with a model per
+package; merge each into main in order; run `make test`, `make test-web`,
+`make test-e2e` after each merge; push once per wave; finish with the
+acceptance list measured on the box. Later the user asked for the "site down"
+mail to be reviewed and fixed as a separate wave.
+
+Packages A to E delivered in three waves (subagents in worktrees): A — law
+`text` empty and XML deferred; B1 — stat page slice and API shape;
+E1–E3 — OpenSearch cluster connection, search sync, CLI and route (ADR-0023);
+C — sticky header, rail, disclosures; B2 — stat page rendering the slice;
+E4 — search results and syntax pages; D — keyboard shortcuts.
+
+Package F (this one): the documentation pass. Read each page file under
+`frontend/src/pages/` and its components once; verified every sentence of
+`docs/plans/2026-09-08-reader-contract.md` against the code. The `/app/goto`
+outcomes, `/app/search` facets and pager, `/app/search/syntax` static prose,
+and the stat page's "Begins inside Sec. N" phrasing all match. The contract
+is accurate; no stale sentences found. Updated `README.md` reader section
+with chrome (56 px sticky header, rail, Contents and Pages disclosures, top
+and end links), keyboard shortcuts (all ten, what they do), and stat page
+text (`?format=xml` slice, "Begins inside", numeric neighbours).
+`CLAUDE.md` commands block (`make reindex-search`, `python -m ingest
+reindex-search`) unchanged; test descriptions already say "vitest" and
+"Playwright and axe" with no counts. Added ADRs 0019–0024 to the
+Documentation duties list.
+
+Decisions: none new.
+
+Verified: `make test` 556 passed, 5 deselected; `make test-web` 107;
+`make test-e2e` 65 over `make dev`. Contract reconciled end to end; every
+route, field, status code, and wording matches code. Live after the last
+merge: `/app/us/pl/117/328` 0.39–0.45 s (about 1 s over TLS);
+`/app/us/stat/110/4196` prints the slice and "Begins inside Sec. 814"
+in 0.7 s; `[` and `]` step provisions, `?` lists keys; all nine scope words
+(`law:`, `congress:`, etc.) search correctly; facet links edit the query
+string; sort and view controls mark the current choice. Not done at the time
+of writing: `SEARCH_PASSWORD` on the box (the user's, in an SSM session);
+the reindex (the user's); the site-down alarm's 5-of-7 damping shape (the
+user's); the same damping recommended for the US Code site.
