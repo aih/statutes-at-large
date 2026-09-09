@@ -27,12 +27,14 @@ of this one on an 8 GB `t4g.large`.
    a compiled section of the same law are two answers, never collapsed into
    one.
 
-2. **The production cluster is the US Code site's, shared.** This site's
-   `api` container joins the US Code compose project's default network,
-   `uscode-redesign_default`, as an external network in
-   `docker-compose.prod.yml`, and reaches the cluster at
-   `SEARCH_URL=https://opensearch:9200`. Nothing in `../uscode-redesign`
-   changes. The dev stack runs its own single-node cluster
+2. **The production cluster is the US Code site's, shared.** Amended
+   2026-09-09 (ADR-0024): the connection is made by `search-relay`, a socat
+   on this project's network and on the US Code compose project's default
+   network `uscode-redesign_default`, and the API reaches the cluster at
+   `SEARCH_URL=https://search-relay:9200`. The `api` container itself joined
+   that network until `d75ec7e` and shadowed the US Code site's own `api` in
+   Docker's DNS. Nothing in `../uscode-redesign` changes.
+   The dev stack runs its own single-node cluster
    (`docker-compose.yml`, `opensearch`), published on host port 9201 — 9200 on
    this machine is the US Code site's dev cluster. `SEARCH_VERIFY_CERTS=false`
    on both stacks: the OpenSearch image's self-signed certificate cannot be

@@ -270,6 +270,8 @@ sudo systemd-run --unit statutes-comps-walk --uid ec2-user --working-directory $
 make update-prod                         # the weekly update (deploy/update-sources.sh); update-prod-check records the checks only
 bash deploy/watchdog.sh                  # one probe; cron runs it every minute
 bash deploy/edge/up.sh                   # the shared edge proxy (once per box)
+ALERT_EMAIL=<address> bash deploy/alarms.sh <instance-id>
+                                         # the SNS topic and the two alarms; re-run it to apply a change of shape
 ```
 
 `make test` needs no database, no network and no Node: the suite loads
@@ -288,6 +290,13 @@ resources, the box, the first load, the weekly update (ADR-0018),
 continuous deploy and the alarms. `deploy/` holds the scripts it names;
 `deploy/edge/` the edge and its README (the rehearsal on a workstation);
 `.github/workflows/` CI, the deploy and the weekly update.
+
+Search runs on the US Code site's OpenSearch cluster, reached through
+`search-relay` — the only service of this project attached to that project's
+Docker network, and named nothing that project names (ADR-0024). The watchdog
+publishes `Statutes/SiteUp`, `ApiUp`, `AppUp` and `EdgeUp` every minute;
+`statutes-site-down` alarms on five of the last seven minutes of `SiteUp`
+below 1.
 
 ## Layout
 

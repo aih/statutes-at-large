@@ -56,10 +56,10 @@ Protections per application:
 | Data | a second EBS volume, 40 GB gp3, at `/var/lib/statutes`, `DeleteOnTermination=false`; the US Code site's volume and its usage alarm are untouched |
 | Database | this site's own Postgres container, `shared_buffers=256MB`, no published port |
 | Memory | compose `mem_limit`: `statutes-db` 768 MB, `statutes-api` 512 MB, `statutes-frontend` 384 MB, `statutes-proxy` 64 MB; about 1.3 GB beside the US Code site's ~5 GB on 8 GB |
-| Search | the US Code site's OpenSearch, 2 GB heap, shared over `uscode-redesign_default`; this site adds no container on the box (ADR-0023) |
+| Search | the US Code site's OpenSearch, 2 GB heap, reached through `search-relay` on `uscode-redesign_default`; that relay is the only service of this project on that network and this site runs no cluster of its own (ADR-0023, ADR-0024) |
 | CPU | the one-hour initial load under `nice -n 10`; the credit-balance alarm already exists on the box |
 | Deploys | separate repositories, locks (`${DATA_ROOT}/deploy.lock` per site), logs and image tags; a deploy of one site never recreates the other's containers or the edge |
-| Watchdog | each site's watchdog probes its own hostname through the edge and restarts only its own services; the edge is restarted by neither |
+| Watchdog | each site's watchdog probes its own hostname through the edge and restarts only its own services; the edge is restarted by neither. This site's restarts the half that failed, and nothing when the edge is refusing connections (ADR-0024) |
 | Backups | `pg_dump` to `s3://statutes-linkedlegislation/db/`, a bucket of its own |
 | Bots | `robots.txt` answers `Disallow: /` on both sites |
 | Cross-site links | plain navigations between the two hostnames, allowed by both sites' CSP (`form-action` and `connect-src` govern forms and scripts, not links) and `Referrer-Policy: strict-origin-when-cross-origin`; the US Code site's server-side `labels` call reaches this site through the public hostname and arrives with the box's own address, within the server-sized `labels` limit |
@@ -323,6 +323,24 @@ older commit.
 `bash deploy/alarms.sh <instance-id>` with `ALERT_EMAIL` set: CPU credit
 balance, status check, bytes out, data-volume usage, and the watchdog's
 `Statutes/SiteUp` metric. Confirm the SNS subscription from the mailbox.
+
+`statutes-site-down` reads `SiteUp` as the minimum over one-minute
+periods and alarms on five of the last seven, with missing data breaching
+and an OK action on the same topic (ADR-0024). Five minutes down pages,
+as does a box that has stopped publishing; two isolated minutes in seven
+do not, and the alarm leaves ALARM on three good minutes of seven, so a
+site recovering in bursts mails one pair of messages rather than a pair
+per burst. Re-run `deploy/alarms.sh` to apply a change of shape;
+`put-metric-alarm` upserts and the state history survives it.
+
+The watchdog publishes `Statutes/ApiUp`, `Statutes/AppUp` and
+`Statutes/EdgeUp` beside `SiteUp` in one `put-metric-data` call. No alarm
+reads them: they are the graph that says which half failed. A probe that
+fails while `deploy-on-box.sh`'s marker file
+(`${DATA_ROOT}/watchdog/deploying`, written under the deploy lock and
+removed as the script exits, current for 900 seconds) is in place
+publishes `SiteUp=1` and is not counted toward a restart, so the one
+failed probe a deploy's proxy recreate costs neither pages nor restarts.
 
 Losing the instance is the US Code site's runbook first (its
 `provision.sh` reuses both data volumes by tag), then `bootstrap-box.sh`,
