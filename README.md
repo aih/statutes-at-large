@@ -210,13 +210,18 @@ routed (405).
 The reader at `/app` (`frontend/`, Astro 5 with TypeScript and USWDS 3,
 server-rendered on Node behind Caddy) reads `/api/v1` and prints the API's
 `note`, `message` and `detail` sentences verbatim
-(`docs/plans/2026-09-08-reader-contract.md`, ADR-0014). A sticky header, a
-rail listing the page's own panels and the law's contents, and disclosures
-for Contents and Pages sit around that text (ADR-0021); each page carries
-budgeted inline scripts, under the ceiling `docs/js-budgets.json` states for
-its route. Keyboard shortcuts move between sections, up the hierarchy, and
-to the contents, the pages, and the citation box; `?` lists them (ADR-0022).
-Pages:
+(`docs/plans/2026-09-08-reader-contract.md`, ADR-0014). Chrome: a sticky
+header at 56 px holds a skip link, the citation box, and breadcrumbs; a rail
+beside the page from 64em shows the page's panels and the law's contents
+nested by level; Contents and Pages are closed disclosures, open on
+sections; top and end links are beside the content. Each page carries
+budgeted inline scripts under the ceiling `docs/js-budgets.json` states for
+its route (ADR-0021). Keyboard shortcuts: `←`/`j` and `→`/`k` move between
+sections, `u` goes up to the nearest ancestor, `c` reaches Contents, `[` and
+`]` step through a section's top-level provisions, `p` opens Pages, `a`
+reaches About, `v` reaches Versions on a compiled page, `t`/`b` go to top
+and bottom, `/` focuses the citation box, `?` opens the shortcut list
+(ADR-0022). Pages:
 
 | Page | Shows |
 |---|---|
@@ -225,7 +230,7 @@ Pages:
 | `/app/us/pl/{c}/{n}`, `/us/pvtl/…`, `/us/act/…` | the law: titles, dates, citation, aliases, sources, table of contents, the "cited by" panel |
 | `/app/us/pl/{c}/{n}/{path}` (and the other kinds) | a hierarchy node's contents, or a section's text rendered from `?format=xml` with a provision marked, the note, the currency line, alternatives, Stat. pages with govinfo links, breadcrumbs, previous and next, cross references resolved through `/labels`, the "cited by" panel, provenance |
 | `/app/us/sComp/{c}/{n}[/{path}]` | the compiled view with the version picker (`?through=`) and the enacted counterpart |
-| `/app/us/stat/{vol}/{page}` | the documents on the page |
+| `/app/us/stat/{vol}/{page}` | the page label and volume, numeric neighbours, the text the law prints on the page (the slice between page markers from `?format=xml`, rendered through the USLM renderer), "Begins inside Sec. N — Read section N in full" for each unit on the page, and every law that starts on or spans the page (ADR-0020) |
 | `/app/search?q=` | keyword results over `/api/v1/search`: law and unit linked, highlighted snippets, facets that edit the query, a sort and view control, a pager, the note; zero results links the syntax page and the six citation forms (ADR-0023) |
 | `/app/search/syntax` | the search operators and scope words, static, no API call |
 
