@@ -287,3 +287,35 @@ Postgres. Not run: anything against AWS, the box scripts end to end.
 Next, with the user's go-ahead: plan section 3 (AWS, once), section 4 (the
 box and the cut-over), section 5 (the load), then `STATUTES_ORIGIN` on the
 US Code site once `statutes-links` is merged.
+
+## 2026-09-09 — go-live, preflight
+
+Asked: take the site live per `docs/plans/2026-09-09-go-live-prompt.md`.
+
+Preflight (no side effects), under `AWS_PROFILE=uscode-admin`, which is the
+IAM user `linkedlegislation-deploy` (the `uscode` profile is the mirror
+user; neither, nor `hershowitz-deploy`, holds any IAM read or write):
+
+- `main` is pushed; CI on `822bd82` failed in the shellcheck step: Ubuntu's
+  shellcheck 0.9.0 reports SC2317 on every line of a function invoked
+  only through `step` (`dump_to_bucket`, `status_report` in
+  `deploy/update-sources.sh`); 0.11.0 here does not. Fixed by adding
+  SC2317 to the two directives; checked with both versions.
+- The box: `i-06b433caacd78fd96`, `t4g.large`, us-east-1a, Elastic IP
+  `52.1.30.78`, instance profile `uscode-site`, SSM online (Amazon Linux,
+  agent 3.3.4624.0). Disks: `nvme0n1` 20 GB root (54% used), `nvme1n1`
+  120 GB at `/var/lib/uscode` (36% used). 7.8 GB memory, 2.9 GB
+  available. Docker Compose v5.3.1. The US Code proxy publishes 80 and
+  443; no `edge` network yet. `/etc/cron.d/uscode` and the CloudWatch
+  agent's `amazon-cloudwatch-agent.d/uscode.json` are the US Code site's.
+- Nothing of this site's exists on AWS: no `statutes-data` volume, no
+  bucket, no ECR repositories, no `statutes-*` alarms; the zone
+  `linkedlegislation.org` is Route 53 `Z007577931KDAIYFR232H`, holding
+  `uscode` A `52.1.30.78`; `statutes.linkedlegislation.org` does not
+  resolve. `AWS_DEPLOY_ROLE_ARN` is unset on the repository.
+- The US Code site's `shared-edge` branch: three commits over `main`, not
+  pushed; `statutes-links` four commits, not pushed.
+
+`deploy/provision.sh` and the Route 53 record were not run from this
+session: the harness's permission classifier declined both writes, so
+they are the user's commands, listed in the session report.

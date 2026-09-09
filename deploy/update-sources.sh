@@ -103,7 +103,7 @@ print((t - datetime.timedelta(days=1)).date().isoformat())
 
 # The dump, and each half of the pipe checked: with pipefail alone an `aws`
 # that uploaded a truncated stream after pg_dump died still exits 0.
-# shellcheck disable=SC2329  # invoked through `step`
+# shellcheck disable=SC2317,SC2329  # invoked through `step`
 dump_to_bucket() {
     local key
     key="s3://${BACKUP_BUCKET}/db/statutes-$(date -u +%F).dump"
@@ -121,7 +121,7 @@ dump_to_bucket() {
 }
 
 # /api/v1/status into the log; exit 1 when `stale` is not false.
-# shellcheck disable=SC2329  # invoked through `step`
+# shellcheck disable=SC2317,SC2329  # invoked through `step`
 status_report() {
     "${COMPOSE[@]}" exec -T api python -c '
 import json, sys, urllib.request
