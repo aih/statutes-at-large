@@ -1,0 +1,137 @@
+# The deployed site (docs/plans/2026-09-08-deployment-plan.md). A complete
+# file, used instead of docker-compose.yml, never layered over it: compose
+# merges `ports` by appending, and this file publishes none.
+#
+#   :443 ── edge (deploy/edge/, TLS for both hostnames)
+#            └── statutes-proxy:8000 ── proxy ─┬── /app/*  → frontend:4321
+#                                              └── /*      → api:8001
+#
+# The proxy is reached only through the external `edge` network, under the
+# alias `statutes-proxy`; `deploy/edge/up.sh` creates that network.
+#
+# Required in .env beside this file (deploy/bootstrap-box.sh writes it):
+#   SITE_ADDRESS=http://statutes.linkedlegislation.org:8000   plain HTTP behind the edge
+#   POSTGRES_PASSWORD=…                  openssl rand -base64 32
+#
+# Optional in .env:
+#   DATA_ROOT=/var/lib/statutes          the mounted data volume (the default)
+#   ECR_REGISTRY=…                       pull api/frontend from here; unset falls
+#                                         back to `local`, which `build:` produces
+#   IMAGE_TAG=…                          the tag to pull; deploy-on-box.sh pins the sha
+#   GOVINFO_API_KEY=…                    the COMPS poller's key (never in source)
+#   SITE_ORIGIN=https://statutes.linkedlegislation.org   this site's public origin
+#   USCODE_ORIGIN=https://uscode.linkedlegislation.org   the US Code site's origin
+#   BACKUP_BUCKET=statutes-linkedlegislation   pg_dump target (deploy/update-sources.sh)
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: statutes
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: statutes
+    volumes:
+      - ${DATA_ROOT:-/var/lib/statutes}/pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    shm_size: 256mb
+    mem_limit: 768m
+    command:
+      - postgres
+      - -c
+      - shared_buffers=256MB
+      - -c
+      - max_wal_size=2GB
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U statutes"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: ${ECR_REGISTRY:-local}/statutes-api:${IMAGE_TAG:-latest}
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://statutes:${POSTGRES_PASSWORD}@db:5432/statutes
+      GOVINFO_API_KEY: ${GOVINFO_API_KEY:-}
+      SITE_ORIGIN: ${SITE_ORIGIN:-https://statutes.linkedlegislation.org}
+      USCODE_ORIGIN: ${USCODE_ORIGIN:-https://uscode.linkedlegislation.org}
+    expose:
+      - "8001"
+    volumes:
+      # The downloaded volumes, PLAW zips, parquet shards, COMPS files and the
+      # data/verification reports outlive the image.
+      - ${DATA_ROOT:-/var/lib/statutes}/data:/app/data
+    restart: unless-stopped
+    mem_limit: 512m
+    # No --reload: the image is what runs. --limit-concurrency answers 503
+    # past 64 requests in flight instead of queueing them.
+    command:
+      [
+        "uv", "run", "python", "-m", "uvicorn",
+        "main:app", "--host", "0.0.0.0", "--port", "8001",
+        "--proxy-headers", "--forwarded-allow-ips", "*",
+        "--limit-concurrency", "64", "--timeout-keep-alive", "15",
+      ]
+    # No curl in python:3.12-slim; urllib is stdlib.
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8001/health', timeout=3)",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  frontend:
+    image: ${ECR_REGISTRY:-local}/statutes-frontend:${IMAGE_TAG:-latest}
+    build: ./frontend
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      API_BASE_URL: http://api:8001
+      USCODE_ORIGIN: ${USCODE_ORIGIN:-https://uscode.linkedlegislation.org}
+      HOST: 0.0.0.0
+      PORT: "4321"
+    expose:
+      - "4321"
+    restart: unless-stopped
+    mem_limit: 384m
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4321/app/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  proxy:
+    image: caddy:2-alpine
+    depends_on:
+      api:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    environment:
+      # `http://<host>:8000`: plain HTTP on 8000, matched on the hostname the
+      # edge passes through. The edge terminates TLS.
+      SITE_ADDRESS: ${SITE_ADDRESS:?set SITE_ADDRESS in .env}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${DATA_ROOT:-/var/lib/statutes}/caddy:/data
+    networks:
+      default: {}
+      edge:
+        aliases:
+          - statutes-proxy
+    restart: unless-stopped
+    mem_limit: 64m
+
+networks:
+  edge:
+    external: true

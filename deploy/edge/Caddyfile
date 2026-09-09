@@ -1,0 +1,44 @@
+# The edge (docs/plans/2026-09-08-deployment-plan.md, section 1): TLS for
+# both hostnames, each handed to its site's own Caddy over the `edge` network.
+#
+# The site addresses come from the environment with the production defaults;
+# a bare hostname means automatic HTTPS. The rehearsal sets plain-HTTP
+# addresses with a port (`http://statutes.localhost:8020`).
+#
+# No `trusted_proxies`: the peer is the internet. `header_up X-Forwarded-For
+# {remote_host}` overwrites the header with the real peer, and the inner
+# proxies trust this hop (their `trusted_proxies static 10.83.0.0/24`, the
+# network deploy/edge/up.sh creates) and pass that address on. `Host` goes
+# through unchanged so each inner site block matches its own hostname.
+
+{$USCODE_SITE_ADDRESS:uscode.linkedlegislation.org} {
+	reverse_proxy uscode-proxy:8000 {
+		header_up X-Forwarded-For {remote_host}
+		header_up Host {host}
+		transport http {
+			dial_timeout 5s
+			response_header_timeout 30s
+		}
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
+
+{$STATUTES_SITE_ADDRESS:statutes.linkedlegislation.org} {
+	reverse_proxy statutes-proxy:8000 {
+		header_up X-Forwarded-For {remote_host}
+		header_up Host {host}
+		transport http {
+			dial_timeout 5s
+			response_header_timeout 30s
+		}
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

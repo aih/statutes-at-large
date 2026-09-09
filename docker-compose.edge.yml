@@ -1,0 +1,19 @@
+# The rehearsal override for the dev stack: the dev proxy joins the external
+# `edge` network under the alias the edge Caddy dials (deploy/edge/README.md).
+#
+#   docker compose -f docker-compose.yml -f docker-compose.edge.yml up -d --no-deps --force-recreate proxy
+#
+# Undo it by recreating the proxy from the dev file alone:
+#
+#   docker compose up -d --no-deps --force-recreate proxy
+services:
+  proxy:
+    networks:
+      default: {}
+      edge:
+        aliases:
+          - statutes-proxy
+
+networks:
+  edge:
+    external: true
