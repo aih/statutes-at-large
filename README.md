@@ -231,6 +231,19 @@ python -m ingest classifications --report docs/verification         # the classi
 python -m ingest plaw fetch 113-119                 # PLAW bulk-data zips into data/plaw
 python -m ingest plaw load 118 --report docs/verification           # public laws from the zip
 python -m ingest plaw poll --report docs/verification               # what changed on GovInfo
+python -m ingest fetch-statute 1-137 --if-changed   # the Hub's tree listing against the files on disk
+python -m ingest statute --volumes 1-137 --changed-only             # only files that differ from their last load
+python -m ingest citations --from-hub --if-changed  # skip the reload when the dataset revision is the recorded one
+```
+
+On the box (`docs/plans/2026-09-08-deployment-plan.md`, sections 4 to 6):
+
+```
+bash deploy/deploy-on-box.sh <sha>       # what continuous deploy runs: pull, migrate, up, the proxy recreated
+make load-prod                           # the first load: volumes, PLAW, the indexes, the COMPS walk
+make update-prod                         # the weekly update (deploy/update-sources.sh); update-prod-check records the checks only
+bash deploy/watchdog.sh                  # one probe; cron runs it every minute
+bash deploy/edge/up.sh                   # the shared edge proxy (once per box)
 ```
 
 `make test` needs no database, no network and no Node: the suite loads
@@ -238,6 +251,17 @@ verbatim slices of the source files (`tests/fixtures/`) into SQLite, and the
 citation parser's accepted-forms table runs with no fixtures at all.
 `make test-slow` parses the downloaded volumes under `data/statute/xmls`.
 `make test-web` and `make test-e2e` are the reader's suites.
+
+## Deployment
+
+`statutes.linkedlegislation.org` runs on the US Code site's box as a
+second compose project behind one edge Caddy that terminates TLS for both
+hostnames (ADR-0017). The plan and runbook is
+`docs/plans/2026-09-08-deployment-plan.md`: what is measured, the AWS
+resources, the box, the first load, the weekly update (ADR-0018),
+continuous deploy and the alarms. `deploy/` holds the scripts it names;
+`deploy/edge/` the edge and its README (the rehearsal on a workstation);
+`.github/workflows/` CI, the deploy and the weekly update.
 
 ## Layout
 
@@ -261,6 +285,8 @@ citeparse.py the citation parser (pure; tests/test_citeparse.py is its accepted-
 uslmtext.py  reading text and fragment extraction from stored USLM
 frontend/    the reader: src/pages (the routes), src/lib (api, types, url, refs, uslm), src/components,
              tests (vitest), tests/e2e (Playwright, axe)
+deploy/      Caddyfile, the box scripts (provision, bootstrap, deploy-on-box, update-sources,
+             watchdog, alarms, install-crons, admin-grant), edge/ (the shared proxy)
 docs/adr     decisions that depart from the design
 docs/verification  per-volume load reports, the citation index and mirror counts
 ```

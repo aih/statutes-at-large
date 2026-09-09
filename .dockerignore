@@ -1,0 +1,12 @@
+# What `COPY . .` in Dockerfile leaves out of the api image: the local
+# environment, the downloaded sources and the reader (its own image).
+.git
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+data
+frontend
+.env
+.claude
+.ci-data

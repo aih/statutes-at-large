@@ -222,3 +222,68 @@ cross-site link rule in both directions).
 Verified: `make test` 408 passed, 5 deselected, no Node, no network;
 `make test-web` 62 passed; `make test-e2e` over the compose stack 26 passed;
 `npx astro check` 0 errors.
+
+## 2026-09-08 — the deployment: the shared box, the edge, the weekly update
+
+Asked: build the deployment of statutes.linkedlegislation.org per
+`docs/plans/2026-09-08-deployment-plan.md` (accepted: the US Code site's
+`t4g.large`, a second compose project behind one edge Caddy, bots
+disallowed, cross-site links allowed) and its counterpart on the US Code
+site. Nothing touches AWS until told.
+
+Main agent first: the reader forwards the browser's address on every
+server-side call (`CallOptions.clientAddress` in `frontend/src/lib/api.ts`,
+`clientAddressOf` in each page, a vitest unit over the header),
+`/app/healthz` (200, no API call), `deploy/Caddyfile` with `header_up
+X-Forwarded-For {client_ip}` and `trusted_proxies static 10.83.0.0/24` (the
+edge subnet; `private_ranges` would trust a workstation peer on the dev
+stack), the weekly update's flags (`fetch-statute --if-changed` over the
+Hub tree listing, `statute --changed-only` over `source_checks.source_sha256`
+with migration `9c1f2b7d3e40`, `citations --from-hub --if-changed` over the
+dataset revision; `/status` `citations.checked_at`), `make load-prod`,
+`update-prod`, `update-prod-check`, and the reader contract's forwarded
+address section. Checked on the compose stack: a forged `X-Forwarded-For`
+from the workstation is keyed on the peer, `/app/goto` is keyed on the
+browser's address. Committed before delegating.
+
+Two subagents in worktrees:
+
+- (a) this repository's deployment files: `docker-compose.prod.yml` (no
+  published ports, ECR images with `build:` fallback, healthchecks,
+  `mem_limit` 768m/512m/384m/64m, the proxy on `edge` as
+  `statutes-proxy`), `.env.prod.example`, `deploy/edge/` (compose,
+  Caddyfile, `up.sh`, README), `docker-compose.edge.yml` (the rehearsal
+  override), `deploy/lib.sh`, `provision.sh`, `admin-grant.sh` and its
+  bootstrap policy, `bootstrap-box.sh`, `deploy-on-box.sh`,
+  `update-sources.sh`, `install-crons.sh`, `watchdog.sh`, `alarms.sh`,
+  and the three workflows. `shellcheck`, `actionlint`, `docker compose
+  config` and `caddy validate` clean. The rehearsal on this machine: the
+  edge on :8020, both dev proxies joined.
+- (b) the US Code site's branch `shared-edge` (three commits in
+  `../uscode-redesign/.claude/worktrees/shared-edge`, not pushed): the
+  proxy without ports on `edge` as `uscode-proxy`, its Caddyfile with the
+  same trust rule and `{client_ip}`, the deploy check and watchdog through
+  the edge by hostname, `docs/deploy.md` section 9 "Sharing the box",
+  ADR-0020 and ADR-0029 amended, `docs/verification/xff.md` with the
+  measurement. There: 867 passed 2 skipped; 473 vitest.
+
+Main agent after the merge: the end-to-end rehearsal through the edge
+(both hostnames, the bare citation URLs redirecting a browser, robots,
+the forged header replaced at the edge, one address drained while another
+answers), `.dockerignore` for both images, ADR-0017, ADR-0018, README,
+CLAUDE.md, this entry; the rehearsal taken down with both dev stacks left
+running.
+
+Decisions: ADR-0017 (two sites, one edge: what is shared, the trusted
+subnet, the reader's forwarded address, the cut-over order), ADR-0018
+(the weekly update: what each step asks its source, the dump that follows
+the data, the two schedules).
+
+Verified: `make test` 419 passed, 5 deselected, no Node, no network;
+`make test-web` 68 passed; `make test-e2e` over the edge on :8020 26
+passed; `npx astro check` 0 errors; `alembic upgrade head` on the dev
+Postgres. Not run: anything against AWS, the box scripts end to end.
+
+Next, with the user's go-ahead: plan section 3 (AWS, once), section 4 (the
+box and the cut-over), section 5 (the load), then `STATUTES_ORIGIN` on the
+US Code site once `statutes-links` is merged.
