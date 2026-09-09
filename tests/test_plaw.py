@@ -327,9 +327,11 @@ def test_resolution_rules_over_plaw_units(repo):
     by_number = repo.get_unit("/us/pl/118/22/s102")
     assert by_number.resolution == "section_number" and by_number.served_identifier == "/us/pl/118/22/dB/tI/s102"
     node = repo.get_unit("/us/pl/118/22/dB/tII/stA")
-    assert node.level == "subtitle" and node.xml.startswith("<subtitle") and len(node.children) == 3
+    assert node.level == "subtitle" and node.text == "" and len(node.children) == 3
+    assert repo.get_unit("/us/pl/118/22/dB/tII/stA", wanted="xml").xml.startswith("<subtitle")
     law = repo.get_unit("/us/pl/118/22")
-    assert law.level == "law" and law.xml.startswith("<pLaw") and len(law.children) == 5
+    assert law.level == "law" and law.text == "" and len(law.children) == 5
+    assert repo.get_unit("/us/pl/118/22", wanted="xml").xml.startswith("<pLaw")
     filled = repo.get_unit("/us/pl/118/1/s1")
     assert filled.resolution == "exact" and filled.law.provenance_identifiers == "gpo-uslm+rules-1.0"
     assert repo.get_law("/us/pl/119/1").section_count == 3

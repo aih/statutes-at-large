@@ -81,7 +81,7 @@ class PostgresRepository:
 
     # ---------------------------------------------------------------- enacted
 
-    def get_unit(self, identifier: str) -> UnitResult | None:
+    def get_unit(self, identifier: str, *, wanted: str = "json") -> UnitResult | None:
         parsed = parse_identifier(identifier)
         if parsed is None or parsed.kind == "sComp":
             return None
@@ -90,8 +90,8 @@ class PostgresRepository:
             return None
         base = "exact" if parsed.law_identifier == law.identifier else "alias"
         if not parsed.path:
-            return self._law_result(law, parsed.law_identifier + parsed.path, base)
-        return self._resolve_under(law, parsed, base)
+            return self._law_result(law, parsed.law_identifier + parsed.path, base, wanted=wanted)
+        return self._resolve_under(law, parsed, base, wanted=wanted)
 
     def get_law(self, identifier: str) -> LawSummary | None:
         parsed = parse_identifier(identifier)
@@ -211,7 +211,7 @@ class PostgresRepository:
             .order_by(Law.id)
         ).first()
 
-    def _resolve_under(self, law: Law, parsed: ParsedIdentifier, base: str) -> UnitResult | None:
+    def _resolve_under(self, law: Law, parsed: ParsedIdentifier, base: str, *, wanted: str = "json") -> UnitResult | None:
         requested = parsed.law_identifier + parsed.path
         segments = list(parsed.segments)
         # 1. exact
@@ -222,20 +222,24 @@ class PostgresRepository:
                 continue
             rest = segments[cut:]
             if not rest:
-                return self._unit_result(law, unit, requested, base, provision_path=None)
+                return self._unit_result(law, unit, requested, base, provision_path=None, wanted=wanted)
             # 2. a stored prefix; below a section the rest is cut from the XML.
             if unit.level == "section":
-                return self._unit_result(law, unit, requested, base, provision_path=requested if base == "exact" else candidate + "/" + "/".join(rest))
-            return self._unit_result(law, unit, requested, "prefix", provision_path=None)
+                return self._unit_result(
+                    law, unit, requested, base,
+                    provision_path=requested if base == "exact" else candidate + "/" + "/".join(rest),
+                    wanted=wanted,
+                )
+            return self._unit_result(law, unit, requested, "prefix", provision_path=None, wanted=wanted)
         # 3. the section-number index
         if parsed.section_num is not None:
             unit = self._section_by_number(law, parsed.section_num)
             if unit is not None:
                 below = "/".join(parsed.below_section)
                 provision_path = f"{unit.identifier}/{below}" if below else None
-                return self._unit_result(law, unit, requested, "section_number", provision_path=provision_path)
+                return self._unit_result(law, unit, requested, "section_number", provision_path=provision_path, wanted=wanted)
         # 2 again: the law itself is the longest stored prefix.
-        return self._law_result(law, requested, "prefix")
+        return self._law_result(law, requested, "prefix", wanted=wanted)
 
     def _unit(self, law: Law, identifier: str) -> Unit | None:
         return self._session.scalars(
@@ -265,7 +269,10 @@ class PostgresRepository:
             or 0
         )
 
-    def _law_result(self, law: Law, requested: str, resolution: str) -> UnitResult:
+    def _law_result(self, law: Law, requested: str, resolution: str, *, wanted: str = "json") -> UnitResult:
+        """`text` is always empty for a law: it is never in the JSON answer,
+        and computing it means parsing the whole `pLaw` element (ADR-0019).
+        `xml` (a deferred column) is fetched only for `wanted == "xml"`."""
         ref = self._law_ref(law)
         pages = self._session.scalars(
             select(StatPage.page).where(StatPage.law_id == law.id).order_by(StatPage.starts_here.desc(), StatPage.id)
@@ -278,8 +285,8 @@ class PostgresRepository:
             level="law",
             num=None,
             heading=law.official_title,
-            xml=law.xml,
-            text=plain_text(fragment_by_identifier(law.xml, "") or _root(law.xml)),
+            xml=law.xml if wanted == "xml" else "",
+            text="",
             content_hash=law.content_hash,
             ancestors=(),
             children=self._children(law, None),
@@ -287,7 +294,9 @@ class PostgresRepository:
             provision=None,
         )
 
-    def _unit_result(self, law: Law, unit: Unit, requested: str, resolution: str, *, provision_path: str | None) -> UnitResult:
+    def _unit_result(
+        self, law: Law, unit: Unit, requested: str, resolution: str, *, provision_path: str | None, wanted: str = "json"
+    ) -> UnitResult:
         provision = None
         if unit.level == "section":
             xml = unit.xml or ""
@@ -303,10 +312,15 @@ class PostgresRepository:
                         resolution = "prefix"
             children: tuple[UnitRef, ...] = ()
         else:
-            # A hierarchy node: its XML is the node cut from the law's XML.
-            fragment = fragment_by_identifier(law.xml, unit.identifier)
-            xml = serialize(fragment) if fragment is not None else ""
-            text = plain_text(fragment) if fragment is not None else ""
+            # A hierarchy node: its XML is the node cut from the law's XML,
+            # fetched only for `wanted == "xml"`; `text` is always empty
+            # (ADR-0019).
+            if wanted == "xml":
+                fragment = fragment_by_identifier(law.xml, unit.identifier)
+                xml = serialize(fragment) if fragment is not None else ""
+            else:
+                xml = ""
+            text = ""
             digest = unit.content_hash or law.content_hash
             children = self._children(law, unit.identifier)
         pages = [unit.first_page] if unit.first_page else []

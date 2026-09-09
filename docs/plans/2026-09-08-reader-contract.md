@@ -96,7 +96,8 @@ No JavaScript. The 404 and 422 pages are `Cache-Control: private, no-store`.
 ### `/app/us/pl/{c}/{n}`, `/app/us/pvtl/{c}/{n}`, `/app/us/act/{date}/ch{n}`
 
 The law. Calls `GET /api/v1{identifier}` (a `UnitOut` with `level: "law"`)
-and, for a public law, `GET /api/v1/laws/{c}/{n}`. Shows:
+and, for a public law, `GET /api/v1/laws/{c}/{n}`. `UnitOut.text` is empty on
+a law; the page never renders it. Shows:
 
 - `law.short_titles` (first as the page title, the rest listed),
   `law.official_title` (also `heading` on the unit), `law.label`,
@@ -132,8 +133,8 @@ A hierarchy node, a section, or a provision. Calls `GET /api/v1{identifier}`
 
 - A hierarchy node (`division`, `title`, `subtitle`, `chapter`, `subchapter`,
   `part`, `subpart`): heading, `ancestors` as breadcrumbs, `children` as the
-  table of contents, `note`, `provenance`, `pages`. The text is not rendered;
-  `xml_url` is linked.
+  table of contents, `note`, `provenance`, `pages`. `UnitOut.text` is empty
+  here; the text is not rendered, and `xml_url` is linked instead.
 - A section: the text rendered from `GET /api/v1{served_identifier}?format=xml`
   (the whole section, always; `xml_url` on a provision request returns the
   provision alone) by the typed USLM renderer (`frontend/src/lib/uslm.ts`,

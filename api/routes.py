@@ -92,10 +92,10 @@ def enacted_unit(request: Request, repository: Repository, identifier: str, quer
     path = normalize_identifier(identifier)
     if query.view == "compiled":
         return compiled_view(request, repository, path, query)
-    result = repository.get_unit(path)
+    wanted = negotiated_format(request, query.format, allowed=MACHINE_FORMATS)
+    result = repository.get_unit(path, wanted=wanted)
     if result is None:
         raise HTTPException(status_code=404, detail=not_found(path))
-    wanted = negotiated_format(request, query.format, allowed=MACHINE_FORMATS)
     return unit_response(request, repository, result, wanted)
 
 

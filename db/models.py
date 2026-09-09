@@ -66,7 +66,10 @@ class Law(Base):
 
     provenance_text: Mapped[str] = mapped_column(Text, nullable=False)
     provenance_identifiers: Mapped[str] = mapped_column(Text, nullable=False)
-    xml: Mapped[str] = mapped_column(Text, nullable=False)
+    xml: Mapped[str] = mapped_column(Text, nullable=False, deferred=True)
+    """The whole `pLaw` element. Deferred: a query for a `Law` row does not
+    fetch it; `storage.postgres` loads it only for `format=xml` or to cut a
+    hierarchy node's fragment (ADR-0019)."""
     content_hash: Mapped[str] = mapped_column(Text, nullable=False)
     loaded_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
