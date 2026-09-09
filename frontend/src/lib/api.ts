@@ -129,6 +129,12 @@ export async function fetchStatPage(volume: string, page: string, options: CallO
   return getJson<StatPage>(apiHref(`/us/stat/${volume}/${page}`), options);
 }
 
+/** The page as USLM: `GET /api/v1/us/stat/{volume}/{page}?format=xml`, one
+ * `slice` per document, in the same order as `fetchStatPage`'s `documents`. */
+export async function fetchStatPageXml(volume: string, page: string, options: CallOptions = {}): Promise<string> {
+  return getXml(apiHref(`/us/stat/${volume}/${page}`, { format: "xml" }), options);
+}
+
 /** `GET /api/v1/status`; null when the call failed. */
 export async function fetchStatus(options: CallOptions = {}): Promise<Status | null> {
   try {

@@ -21,7 +21,7 @@ the ceiling `docs/js-budgets.json` states for its route.
 (`Rail.astro`) beside it from 64em, after it below 64em. The rail lists two
 things, either of which can be empty: **On this page**, the panels the page
 actually rendered, by id (`#text`, `#contents`, `#pages`, `#sources`,
-`#about-h`, `#cited-by-h`, `#versions`); and **In this law**, the law's or
+`#about-h`, `#cited-by-h`, `#versions`, `#documents`); and **In this law**, the law's or
 compilation's nested contents, bounded above 300 units to the hierarchy plus
 the branch being read (`lib/rail.ts`). A unit or a law page's Contents and
 Pages panels are `<details class="disclosure">`, closed by default except
@@ -202,20 +202,31 @@ cacheable for a year only when the API answered `immutable`.
 
 ### `/app/us/stat/{vol}/{page}`
 
-Calls `GET /api/v1/us/stat/{vol}/{page}`. Shows the page label and volume,
-the `pdf` link, and `documents`: each `label`, `title`, `citation`,
-`enacted`, linked to `/app{identifier}`, with `starts_here` and, when
-`unit_on_page` is set, a link to `/app{unit_on_page}` labelled as the unit
-the page marker falls in. A 404 shows the API's `detail`.
+Calls `GET /api/v1/us/stat/{vol}/{page}` and, when it lists any document,
+`GET …?format=xml`. Shows the page label and volume, the `pdf` link, and the
+numeric neighbours (`Neighbors.astro`, reused): `/app/us/stat/{vol}/{page-1}`
+and `{page+1}`, omitted on a lettered page (`a12`) and at the volume's first
+page. A neighbour nothing prints on is the API's 404. A 404 for the page
+itself shows the API's `detail`.
 
-Each document also carries what the law prints on the page (ADR-0020):
-`text`, the reading text of the slice between the page's marker and the
-next one, and `units`, the units the page touches — `unit_on_page` first,
-then the units that start on the page, each with `identifier`, `level`,
-`num` and `heading`. `GET /api/v1/us/stat/{vol}/{page}?format=xml` serves
-the same slices as USLM: a `statPage` element holding one `slice` per
-document, with `law`, `from` and, unless the range runs to the end of the
-law, `to`.
+**Text on this page** (`#text`, skipped when `documents` is empty): one block
+per document, headed by its `label` and `title` linked to `/app{identifier}`.
+`units[0]` and `unitLabel` build "Begins inside Sec. 3 — Read section 3 in
+full", linked to `units[0].identifier`; each further unit of `units` gets its
+own "Read … in full" line. An empty `units` with `starts_here` true prints
+"{label} begins on this page." instead. Below that, the slice from
+`?format=xml`'s matching `slice` element, rendered by `render()` into an
+`article.section-body` — `slice`, and the `pLaw`/`main` it wraps, are not in
+the element map and so render as plain containers around the law's USLM. The
+slice's `ref/@href`s, gathered across every document on the page, resolve
+through one `fetchLabels` call, as on a section page. A failed `format=xml`
+call falls back to the document's plain `text` field, with the same notice a
+section page gives when its own XML call fails.
+
+**Documents on this page** (`#documents`): each `label`, `title`, `citation`,
+`enacted`, linked to `/app{identifier}`, with `starts_here` printed as
+"starts on this page" and, otherwise, "begins at {citation} and prints on
+this page".
 
 ## The forwarded address
 

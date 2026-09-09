@@ -39,6 +39,20 @@ export function parseFragment(xml: string): UslmElement {
   return doc.documentElement as unknown as UslmElement;
 }
 
+/** The `<slice>` children of a `<statPage>` root, in document order — one per
+ * document of a Statutes at Large page (B2). Neither `statPage` nor `slice`
+ * carries an `@identifier`, and neither is in the element map below, so each
+ * renders as a plain `div` container; `slice`'s own children are the law's
+ * USLM between the page's markers. */
+export function sliceElements(root: UslmElement): UslmElement[] {
+  const found: UslmElement[] = [];
+  for (let i = 0; i < root.childNodes.length; i++) {
+    const node = root.childNodes[i];
+    if (node.nodeType === ELEMENT_NODE && tagOf(node as UslmElement) === "slice") found.push(node as UslmElement);
+  }
+  return found;
+}
+
 /** Every `ref/@href` in the fragment, in document order. */
 export function hrefs(fragment: UslmElement): string[] {
   const found: string[] = [];

@@ -1,14 +1,25 @@
 ---
 /**
  * `/app/us/stat/{volume}/{page}`: the page label and volume, the `pdf` link,
- * and every law that starts on or spans the page.
+ * the numeric neighbours, what the page prints (ADR-0020), and every law
+ * that starts on or spans the page.
+ *
+ * Two calls, as on a section page: `fetchStatPage` (JSON) for the documents,
+ * their labels and the units each touches; `fetchStatPageXml` for the same
+ * slices as USLM, one `<slice>` per document in the same order, rendered
+ * through `render()`. A slice's cross references resolve through
+ * `fetchLabels`, gathered once across every slice on the page.
  */
 import ErrorPage from "../../../../components/ErrorPage.astro";
+import Neighbors from "../../../../components/Neighbors.astro";
 import Base from "../../../../layouts/Base.astro";
-import { ApiError, fetchStatPage } from "../../../../lib/api";
+import { ApiError, fetchLabels, fetchStatPage, fetchStatPageXml } from "../../../../lib/api";
 import { NO_STORE, REVALIDATE } from "../../../../lib/cache";
 import { clientAddressOf } from "../../../../lib/params";
-import type { Link, StatPage } from "../../../../lib/types";
+import { citedIdentifiers } from "../../../../lib/refs";
+import { unitLabel } from "../../../../lib/toc";
+import type { Link, StatPage, TocEntry } from "../../../../lib/types";
+import { hrefs, parseFragment, render, sliceElements } from "../../../../lib/uslm";
 import { APP, apiHref, appHref, longDate } from "../../../../lib/url";
 
 const volume = Astro.params.volume ?? "";
@@ -42,9 +53,57 @@ if (failure) {
 
 const label = stat ? `${stat.volume} Stat. ${stat.page}` : `${volume} Stat. ${page}`;
 const crumbs: Link[] = [{ href: `${APP}/`, label: "Home" }];
+
+// The rendered slice per document, in the JSON answer's order; null when the
+// XML call failed or the answer carried fewer slices than documents.
+let sliceHtml: (string | null)[] = [];
+if (stat && stat.documents.length > 0) {
+  sliceHtml = stat.documents.map(() => null);
+  try {
+    const xml = await fetchStatPageXml(volume, page, { clientAddress: clientAddressOf(Astro) });
+    const slices = sliceElements(parseFragment(xml));
+    const allHrefs = slices.flatMap((slice) => hrefs(slice));
+    const labels = await fetchLabels(citedIdentifiers(allHrefs), { clientAddress: clientAddressOf(Astro) });
+    sliceHtml = stat.documents.map((_document, index) => {
+      const slice = slices[index];
+      return slice ? render(slice, { target: null, labels }) : null;
+    });
+  } catch {
+    // sliceHtml stays every entry null; each document falls back to its
+    // plain `text` below, as a section page falls back when its XML fails.
+  }
+}
+
+/** "section 3", "chapter II": the word a "Read … in full" link uses, unlike
+ * `unitLabel`'s abbreviated "Sec. 3". */
+function readInFull(entry: TocEntry): string {
+  return entry.num ? `${entry.level} ${entry.num}` : entry.level;
+}
+
+// Numeric pages only: a lettered page (`a12`) has no arithmetic neighbour.
+let previous: Link | null = null;
+let next: Link | null = null;
+if (stat && /^\d+$/u.test(stat.page)) {
+  const number = Number(stat.page);
+  if (number > 1) {
+    previous = { href: appHref(`/us/stat/${stat.volume}/${number - 1}`), label: `${stat.volume} Stat. ${number - 1}` };
+  }
+  next = { href: appHref(`/us/stat/${stat.volume}/${number + 1}`), label: `${stat.volume} Stat. ${number + 1}` };
+}
+
+const sections: Link[] = [];
+if (stat && stat.documents.length > 0) sections.push({ href: "#text", label: "Text" });
+if (stat) sections.push({ href: "#documents", label: "Documents" });
 ---
 
-<Base title={`${label} — Statutes at Large`} crumbs={crumbs} current={label}>
+<Base
+  title={`${label} — Statutes at Large`}
+  crumbs={crumbs}
+  current={label}
+  text={true}
+  sections={sections}
+  toc={null}
+>
   {failure && <ErrorPage status={failure.status} detail={failure.detail} retryAfter={failure.retryAfter} />}
 
   {
@@ -56,30 +115,71 @@ const crumbs: Link[] = [{ href: `${APP}/`, label: "Home" }];
           <a class="usa-link usa-link--external" href={stat.pdf}>the printed page on GovInfo</a>
         </p>
 
-        <h2 class="group">Documents on this page</h2>
-        {stat.documents.length === 0 && <p class="doc-meta">No loaded law prints on this page.</p>}
-        <ul class="toc">
-          {stat.documents.map((document) => (
-            <li>
-              <a href={appHref(document.identifier)}>
-                <span class="toc__num">{document.label}</span>
-                <span class="toc__heading">{document.title}</span>
-                <span class="toc__meta">
-                  {document.citation}
-                  {document.enacted && `, ${longDate(document.enacted)}`}
-                  {document.starts_here ? "; starts on this page" : "; continues onto this page"}
-                </span>
-              </a>
-              {document.unit_on_page && (
-                <p class="doc-meta">
-                  The page marker falls in <a href={appHref(document.unit_on_page)}>{document.unit_on_page}</a>.
-                </p>
-              )}
-            </li>
-          ))}
-        </ul>
+        <Neighbors previous={previous} next={next} />
+
+        {stat.documents.length > 0 && (
+          <section class="panel" aria-labelledby="text">
+            <h2 class="group" id="text">Text on this page</h2>
+            {stat.documents.map((document, index) => (
+              <div class="stat-slice">
+                <h3 class="stat-slice__heading">
+                  <a href={appHref(document.identifier)}>
+                    {document.label}
+                    {document.title && ` — ${document.title}`}
+                  </a>
+                </h3>
+                {document.units.length > 0 ? (
+                  <p class="doc-meta">
+                    Begins inside {unitLabel(document.units[0].level, document.units[0].num)} —{" "}
+                    <a href={appHref(document.units[0].identifier)}>Read {readInFull(document.units[0])} in full</a>
+                  </p>
+                ) : (
+                  document.starts_here && <p class="doc-meta">{document.label} begins on this page.</p>
+                )}
+                {document.units.slice(1).map((unit) => (
+                  <p class="doc-meta">
+                    <a href={appHref(unit.identifier)}>Read {readInFull(unit)} in full</a>
+                  </p>
+                ))}
+                {sliceHtml[index] !== null ? (
+                  <article class="section-body" set:html={sliceHtml[index]} />
+                ) : (
+                  <>
+                    <p class="doc-meta">The source XML could not be fetched; this is the reading text.</p>
+                    <article class="section-body">
+                      <p>{document.text}</p>
+                    </article>
+                  </>
+                )}
+              </div>
+            ))}
+          </section>
+        )}
+
+        <section class="panel" aria-labelledby="documents">
+          <h2 class="group" id="documents">Documents on this page</h2>
+          {stat.documents.length === 0 && <p class="doc-meta">No loaded law prints on this page.</p>}
+          <ul class="toc">
+            {stat.documents.map((document) => (
+              <li>
+                <a href={appHref(document.identifier)}>
+                  <span class="toc__num">{document.label}</span>
+                  <span class="toc__heading">{document.title}</span>
+                  <span class="toc__meta">
+                    {document.citation}
+                    {document.enacted && `, ${longDate(document.enacted)}`}
+                    {document.starts_here
+                      ? "; starts on this page"
+                      : `; begins at ${document.citation} and prints on this page`}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
 
         <p class="formats">
+          <a href={apiHref(stat.identifier, { format: "xml" })}>Source XML</a>
           <a href={apiHref(stat.identifier)}>JSON</a>
         </p>
         <p class="formats">
