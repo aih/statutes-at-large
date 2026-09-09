@@ -33,9 +33,10 @@ Before starting the session:
      these), `s3:CreateBucket` and the bucket configuration calls on
      `statutes-linkedlegislation`, `ecr:CreateRepository` and
      `ecr:PutLifecyclePolicy` on `statutes-*`, `sns:*` on
-     `statutes-alerts`, `cloudwatch:PutMetricAlarm`. Read
-     `deploy/provision.sh` and `deploy/alarms.sh` for the exact calls; the
-     session will report an `AccessDenied` rather than work around it.
+     `statutes-alerts`, `cloudwatch:PutMetricAlarm`.
+     `deploy/provision-policy.json` is that set, scoped to this site's
+     names, ready to attach; the session will report an `AccessDenied`
+     rather than work around it.
 4. **DNS**: an A record `statutes.linkedlegislation.org` pointing at the
    box's Elastic IP, in the zone that holds `uscode.linkedlegislation.org`.
    The deploy identity has no Route 53 permissions; create the record by
