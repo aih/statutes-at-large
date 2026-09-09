@@ -526,6 +526,13 @@ had not fired since the cut-over.
 
 Also: the search route answered 500 on the box with `SEARCH_PASSWORD`
 unset; `SearchNotConfigured` is now a 503 with the same sentence. The
+first reindex on the box was OOM-killed at 506 MB inside the api
+container's 512 MB limit after 434,025 of 434,044 enacted documents: a
+500-row batch carried every section's `xml`, and the compiled join carried
+the whole compilation's `xml` once per row. The streams now select the
+unit's columns by name; measured locally over 75,154 documents, peak RSS
+went from 2.29 GB to 222 MB (`80ae003`), and the deploy's `--if-changed`
+step finished the box's index. The
 vitest run rewrites `docs/verification/js-bytes.json`, which blocked one
 merge until the artifact was discarded; it is regenerated and committed
 after each merge. A worktree branches from the pushed `main`, not the local
