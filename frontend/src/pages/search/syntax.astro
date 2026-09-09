@@ -1,0 +1,143 @@
+---
+/**
+ * `/app/search/syntax` — what you can type into the search box.
+ *
+ * Documents the `simple_query_string` operators the API honours, the scope
+ * words that filter a search, and the sort orders available.
+ */
+import Base from "../../layouts/Base.astro";
+import { REVALIDATE } from "../../lib/cache";
+import { APP } from "../../lib/url";
+
+/** Static prose about a parser — it changes when the code does, not per
+ * request, and never per reader. Revalidate rather than pin. */
+Astro.response.headers.set("Cache-Control", REVALIDATE);
+---
+
+<Base title="Search syntax · Statutes at Large" crumbs={[{ label: "Home", href: `${APP}/` }, { label: "Search", href: `${APP}/search` }]} current="Syntax">
+  <h1 class="doc-title">Search syntax</h1>
+  <p class="lede">Words are matched as typed, every word must appear, and a phrase in double quotes is matched in order.</p>
+
+  <h2 class="group" id="operators">Operators</h2>
+  <table class="usa-table">
+    <thead>
+      <tr>
+        <th scope="col">Operator</th>
+        <th scope="col">Example</th>
+        <th scope="col">What it matches</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>+</code> (required)</td>
+        <td><code>+statute +law</code></td>
+        <td>Both words required; the default is to require all words anyway.</td>
+      </tr>
+      <tr>
+        <td><code>-</code> (excluded)</td>
+        <td><code>statute -amend</code></td>
+        <td>Sections containing <em>statute</em> but not <em>amend</em>.</td>
+      </tr>
+      <tr>
+        <td><code>|</code> (either)</td>
+        <td><code>water | conservation</code></td>
+        <td>Sections containing one or the other; a section with both ranks higher.</td>
+      </tr>
+      <tr>
+        <td><code>"…"</code> (phrase)</td>
+        <td><code>"wild horses"</code></td>
+        <td>The two words in order; they can be up to two words apart.</td>
+      </tr>
+      <tr>
+        <td><code>*</code> (prefix)</td>
+        <td><code>conserv*</code></td>
+        <td><em>conserve</em>, <em>conservation</em>, <em>conservative</em>, and so on.</td>
+      </tr>
+      <tr>
+        <td><code>~N</code> (fuzzy, word)</td>
+        <td><code>conservtion~1</code></td>
+        <td>A word within one character edit: <em>conservation</em>, <em>conversation</em>, etc.</td>
+      </tr>
+      <tr>
+        <td><code>~N</code> (fuzzy, phrase)</td>
+        <td><code>"wild horses"~5</code></td>
+        <td>The words within five word positions of each other.</td>
+      </tr>
+      <tr>
+        <td><code>( )</code> (grouping)</td>
+        <td><code>(forest | grassland) -timber</code></td>
+        <td>Group operators the way arithmetic uses parentheses.</td>
+      </tr>
+      <tr>
+        <td><code>\</code> (escape)</td>
+        <td><code>size:small \*-\*</code></td>
+        <td>Escape a special character to search for it literally.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2 class="group" id="scopes">Scope words</h2>
+  <p>Scope words narrow a search to a field. Combine them — <code>congress:117 kind:pvtl</code> — to filter by multiple fields.</p>
+  <table class="usa-table">
+    <thead>
+      <tr>
+        <th scope="col">Scope word</th>
+        <th scope="col">Example</th>
+        <th scope="col">What it restricts</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>law:</code></td>
+        <td><code>law:117-328</code></td>
+        <td>A law by its congress and number, e.g. <code>117-328</code>, or its full identifier (<code>/us/pl/117/328</code>, <code>/us/pvtl/81/375</code>, <code>/us/act/1890-07-02/ch647</code>).</td>
+      </tr>
+      <tr>
+        <td><code>congress:</code></td>
+        <td><code>congress:117</code></td>
+        <td>The congress that enacted the law.</td>
+      </tr>
+      <tr>
+        <td><code>year:</code></td>
+        <td><code>year:1996</code></td>
+        <td>The year the law was enacted.</td>
+      </tr>
+      <tr>
+        <td><code>vol:</code></td>
+        <td><code>vol:110</code></td>
+        <td>The Statutes at Large volume number.</td>
+      </tr>
+      <tr>
+        <td><code>kind:</code></td>
+        <td><code>kind:pl</code></td>
+        <td>The kind of law: <code>pl</code> (public law), <code>pvtl</code> (private law), or <code>act</code> (statute compilation act).</td>
+      </tr>
+      <tr>
+        <td><code>view:</code></td>
+        <td><code>view:compiled</code></td>
+        <td>Which version of a law: <code>enacted</code> (as printed), <code>compiled</code> (from a Statute Compilation), or <code>all</code> (both). This setting in the query overrides the page's view control.</td>
+      </tr>
+      <tr>
+        <td><code>heading:</code></td>
+        <td><code>heading:"conservation"</code></td>
+        <td>Match only in section headings and titles, not the full text.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="doc-meta">A scope value this site cannot read stays as ordinary words in the search, so a colon is a search rather than an empty result set.</p>
+
+  <h2 class="group" id="sorting">Sorting</h2>
+  <p>Results come back sorted by relevance by default. The sort control above the results accepts:</p>
+  <ul>
+    <li><code>relevance</code> — the best matches first.</li>
+    <li><code>date</code> — newest laws first, by date enacted.</li>
+    <li><code>citation</code> — Statutes at Large order: volume and page.</li>
+  </ul>
+
+  <h2 class="group">Example queries</h2>
+  <ul>
+    <li><a href={`${APP}/search?q=${encodeURIComponent("wild horses")}`}>wild horses</a> — phrases in double quotes.</li>
+    <li><a href={`${APP}/search?q=${encodeURIComponent("congress:117 kind:pl")}`}>congress:117 kind:pl</a> — scope words narrow the search.</li>
+    <li><a href={`${APP}/search?q=${encodeURIComponent("conservation -water")}`}>conservation -water</a> — exclude a word with <code>-</code>.</li>
+  </ul>
+</Base>
