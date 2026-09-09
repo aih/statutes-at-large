@@ -1,9 +1,22 @@
 # statutes-linkedlegislation
 
-Public laws from the Statutes at Large at the section level, addressed by the
-identifiers the US Code writes in its source credits, plus the Statute
-Compilations the House Office of the Legislative Counsel maintains. Design:
+`statutes.linkedlegislation.org` serves the Statutes at Large at the section
+level, addressed by the identifiers the US Code writes in its source
+credits, plus the Statute Compilations the House Office of the Legislative
+Counsel maintains. Design:
 `../statute-pdf-to-xml/docs/plans/2026-09-07-statutes-api-design.md`.
+
+## What is live
+
+- 137 Statutes at Large volumes.
+- Public laws of the 113th to 119th Congress, from GovInfo's PLAW bulk data.
+- 2,675 of 2,685 Statute Compilation packages; the 10 that fail to load are
+  documented below.
+- The citation index: 1,081,463 rows over 56 US Code titles.
+- The classification tables: 144,885 rows.
+- Keyword search over 434,025 enacted and 83,366 compiled documents, through
+  the US Code site's OpenSearch cluster.
+- A weekly update, Mondays and Thursdays.
 
 ## What is served
 
@@ -181,6 +194,18 @@ PLAW file leaves a level unidentified, the rules fill it in and
 `provenance.identifiers` says `gpo-uslm+rules-1.0` (133 laws). Precedence
 between the sources is ADR-0011; what stays volume-derived is ADR-0012.
 
+Search:
+
+| Route | Answer |
+|---|---|
+| `GET /api/v1/search?q=` | keyword search over the units and compiled sections that carry text: `q` (the query, scopes `law:`, `congress:`, `year:`, `vol:`, `kind:`, `view:`, `heading:`, quoted phrases), `limit` (1 to 100, default 20), `offset` (0 to 1000), `sort` (`relevance`, `date`, `citation`), `view` (`enacted`, default; `compiled`; `all`); `{results: [{identifier, law_identifier, law_label, level, num, heading, snippets, enacted, citation, view, comp_prefix, url}], total, facets: {congress, kind, view}, note}`; 400 on a bad `sort` or an empty query, 503 when the cluster is unavailable; `max-age=300`; 120 requests then 10 per second per address (ADR-0023) |
+
+Runs over the US Code site's OpenSearch cluster, reached through
+`search-relay` (ADR-0024); this project runs no cluster of its own on the
+box. `python -m ingest reindex-search` builds the index (`ingest/search_sync.py`,
+`storage/search.py`, `storage/searchquery.py`); `--if-changed` skips a
+rebuild when the mapping has not changed since the last run.
+
 Other routes: `POST /api/v1/labels` (up to 100 identifiers, existence and
 heading, what the US Code site's reference resolver calls), `GET /api/v1/status`
 (what is loaded per collection, the last poll, `stale` after a week;
@@ -300,6 +325,10 @@ resources, the box, the first load, the weekly update (ADR-0018),
 continuous deploy and the alarms. `deploy/` holds the scripts it names;
 `deploy/edge/` the edge and its README (the rehearsal on a workstation);
 `.github/workflows/` CI, the deploy and the weekly update.
+
+Every page's footer names the version (`frontend/package.json`'s `version`)
+and the commit it was built from, which `.github/workflows/deploy.yml`
+passes into both image builds as the sha it deployed.
 
 Search runs on the US Code site's OpenSearch cluster, reached through
 `search-relay` — the only service of this project attached to that project's

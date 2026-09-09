@@ -8,7 +8,7 @@ import Base from "../layouts/Base.astro";
 import { fetchStatus } from "../lib/api";
 import { REVALIDATE } from "../lib/cache";
 import { clientAddressOf } from "../lib/params";
-import { appHref, gotoHref } from "../lib/url";
+import { appHref, gotoHref, searchHref } from "../lib/url";
 
 /** `params.CITE_FORMS`, the same six strings. */
 const CITE_FORMS = [
@@ -20,11 +20,14 @@ const CITE_FORMS = [
   "43 U.S.C. 1701",
 ];
 
+/** `[href, label]`; `identifier`-shaped hrefs go through `appHref`, `searchHref` for the one search example. */
 const EXAMPLES: [string, string][] = [
-  ["/us/pl/81/740/s3", "Public Law 81-740, section 3"],
-  ["/us/act/1950-08-30/ch823/s3", "the same section under its chapter identifier"],
-  ["/us/sComp/83/703/tI/ch1./s1", "the Atomic Energy Act of 1954, section 1, as compiled"],
-  ["/us/stat/64/563", "64 Stat. 563"],
+  [appHref("/us/pl/81/740/s3"), "Public Law 81-740, section 3"],
+  [appHref("/us/act/1950-08-30/ch823/s3"), "the same section under its chapter identifier"],
+  [appHref("/us/sComp/83/703/tI/ch1./s1"), "the Atomic Energy Act of 1954, section 1, as compiled"],
+  [appHref("/us/stat/64/563"), "64 Stat. 563"],
+  [appHref("/us/stat/110/4196"), "110 Stat. 4196, a page printed in the middle of a section"],
+  [searchHref("wild horses"), "wild horses, a keyword search"],
 ];
 
 const status = await fetchStatus({ clientAddress: clientAddressOf(Astro) });
@@ -48,7 +51,8 @@ const number = (value: number) => value.toLocaleString("en-US");
   <h1 class="doc-title">Statutes at Large</h1>
   <p class="lede">
     Public laws at the section level, by the identifiers the US Code cites, and the Statute
-    Compilations beside them.
+    Compilations beside them. The box below takes a citation or words; a Statutes at Large page
+    shows the text it prints.
   </p>
 
   <h2 class="group">Go to a citation</h2>
@@ -67,10 +71,10 @@ const number = (value: number) => value.toLocaleString("en-US");
   <h2 class="group">Examples</h2>
   <ul class="toc">
     {
-      EXAMPLES.map(([identifier, label]) => (
+      EXAMPLES.map(([href, label]) => (
         <li>
-          <a href={appHref(identifier)}>
-            <span class="toc__num">{identifier}</span>
+          <a href={href}>
+            <span class="toc__num">{href}</span>
             <span class="toc__heading">{label}</span>
           </a>
         </li>
