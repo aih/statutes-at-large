@@ -795,3 +795,16 @@ main[id] {
     position: static;
   }
 }
+
+/* The Statutes at Large page (B2): one law's slice per document, a page
+ * shared by two laws holds more than one. */
+.stat-slice + .stat-slice {
+  margin-top: 1.75rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--rule);
+}
+
+.stat-slice__heading {
+  font-size: 1.1rem;
+  margin: 0 0 0.25rem;
+}

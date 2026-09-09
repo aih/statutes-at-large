@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import type { Labels } from "../src/lib/types";
-import { hrefs, parseFragment, render } from "../src/lib/uslm";
+import { hrefs, parseFragment, render, sliceElements } from "../src/lib/uslm";
 
 const NS = 'xmlns="http://schemas.gpo.gov/xml/uslm"';
 
@@ -227,5 +227,26 @@ describe("the fixtures", () => {
     expect(out).toContain('<div class="uslm-referenceItem">');
     // The quoted section is a section of the 1954 act, not of Public Law 83-703.
     expect(out).toContain('<div class="uslm-section prov');
+  });
+
+  it("renders a Statutes at Large page's slice, a mid-law page (B2)", () => {
+    const root = parseFragment(fixture("statpage-64-564.xml"));
+    const slices = sliceElements(root);
+    expect(slices).toHaveLength(1);
+
+    const out = render(slices[0], { target: null, labels: {} });
+    // The slice is a plain container: `slice`, `pLaw` and `main` are not in
+    // the element map, so each falls to the default div wrap.
+    expect(out).toContain('<div class="uslm-slice">');
+    expect(out).toContain('<div class="uslm-pLaw">');
+    expect(out).toContain('<div class="uslm-main">');
+    // Section 3 continues from the previous page; section 4 starts here.
+    expect(out).toContain('<div class="uslm-section firstIndent1 fontsize10" id="/us/pl/81/740/s3">');
+    expect(out).toContain('<div class="uslm-section firstIndent1 fontsize10" id="/us/pl/81/740/s4">');
+    // The page's own opening marker links to this page; the page's closing
+    // marker, inherited from the next one, links to the next.
+    expect(out).toContain('<a class="uslm-page" id="/us/stat/64/564" href="https://www.govinfo.gov/link/statute/64/564">64 Stat. 564</a>');
+    expect(out).toContain('href="https://www.govinfo.gov/link/statute/64/565">64 Stat. 565</a>');
+    expect(out).toContain('<aside class="uslm-sidenote" role="note">');
   });
 });

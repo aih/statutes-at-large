@@ -178,6 +178,12 @@ export interface StatPageDocument {
   enacted: string | null;
   starts_here: boolean;
   unit_on_page: string | null;
+  /** The units the page touches: `unit_on_page` first, then the units that
+   * start on the page, in reading order. */
+  units: TocEntry[];
+  /** The reading text of the slice. `?format=xml` serves the same slice as
+   * USLM; the reader renders that, not this field. */
+  text: string;
 }
 
 /** `StatPageOut`: `/api/v1/us/stat/{volume}/{page}`. */
