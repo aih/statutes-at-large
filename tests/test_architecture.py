@@ -77,3 +77,26 @@ def test_the_citation_parser_is_pure():
     names = _imports(REPO_ROOT / "citeparse.py")
     offenders = sorted(n for n in names if n.split(".")[0] in {"storage", "db", "fastapi", "sqlalchemy", "httpx", "api", "params"})
     assert offenders == []
+
+
+def test_the_search_query_builder_is_pure():
+    """`storage/searchquery.py` turns a query string into a request body and
+    knows nothing else: no cluster, no database, no API. Anything that measures
+    the ranking runs the query the site sends, rather than a second copy of the
+    builder."""
+    names = _imports(REPO_ROOT / "storage" / "searchquery.py")
+    offenders = sorted(
+        n
+        for n in names
+        if n.split(".")[0]
+        in {"api", "ingest", "db", "sqlalchemy", "fastapi", "httpx", "opensearchpy", "params"}
+    )
+    assert offenders == []
+
+
+def test_the_index_builder_does_not_import_the_api():
+    """`ingest/search_sync.py` is the one module in `ingest/` that reaches a
+    cluster. It reads `storage/` and `db/`; `api/` is the other side of the
+    line."""
+    names = _imports(REPO_ROOT / "ingest" / "search_sync.py")
+    assert sorted(n for n in names if n.split(".")[0] == "api") == []
