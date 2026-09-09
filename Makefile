@@ -137,6 +137,12 @@ load-prod:
 	$(PROD_INGEST) classifications --report data/verification
 	$(PROD_INGEST) comps poll --limit 400
 
+# The rest of the first COMPS walk: GovInfo lists newest first, so the walk
+# names its start; already-current packages are skipped without a call and
+# do not count toward the limit. Once an hour until it reports 0 fetched.
+comps-walk:
+	$(PROD_INGEST) comps poll --since 1990-01-01 --limit 400
+
 update-prod:
 	bash deploy/update-sources.sh
 

@@ -19,7 +19,7 @@ test("names the unit the page marker falls in", async ({ page }) => {
 });
 
 test("a page nothing prints on is the API's 404", async ({ page }) => {
-  const response = await page.goto("/app/us/stat/110/4196");
+  const response = await page.goto("/app/us/stat/999/1");
   expect(response?.status()).toBe(404);
-  await expect(page.locator(".lede")).toContainText("nothing at /us/stat/110/4196");
+  await expect(page.locator(".lede")).toContainText("nothing at /us/stat/999/1");
 });

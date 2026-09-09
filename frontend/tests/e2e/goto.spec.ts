@@ -20,14 +20,14 @@ test("a US Code citation is sent to the US Code site", async ({ request }) => {
 });
 
 test("a citation naming nothing loaded is a 404 with the note", async ({ page }) => {
-  const response = await page.goto("/app/goto?q=110%20Stat.%204196");
+  const response = await page.goto("/app/goto?q=999%20Stat.%201");
   expect(response?.status()).toBe(404);
   expect(response?.headers()["cache-control"]).toBe("private, no-store");
   await expect(page.locator(".usa-alert--warning")).toContainText(
-    "110 Stat. 4196 is /us/stat/110/4196; no loaded law prints on that page.",
+    "999 Stat. 1 is /us/stat/999/1; no loaded law prints on that page.",
   );
-  await expect(page.locator(".usa-alert--warning")).toContainText("/us/stat/110/4196");
-  await expect(page.locator("main input[name=q]")).toHaveValue("110 Stat. 4196");
+  await expect(page.locator(".usa-alert--warning")).toContainText("/us/stat/999/1");
+  await expect(page.locator("main input[name=q]")).toHaveValue("999 Stat. 1");
 });
 
 test("text that is not a citation is a 422 with the detail", async ({ page }) => {

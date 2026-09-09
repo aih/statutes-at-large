@@ -166,6 +166,18 @@ def test_poll_with_limit_and_force(db):
     assert ("uslm", "COMPS-3055") in client.calls and ("uslm", "COMPS-8755") not in client.calls
 
 
+def test_poll_limit_counts_fetched_not_seen(db):
+    """A package already current is skipped without a call and does not use
+    up the limit, so a bounded walk of a newest-first listing advances."""
+    since = datetime.datetime(2019, 1, 1, tzinfo=datetime.timezone.utc)
+    packages = [{"packageId": "COMPS-3055", "lastModified": "2020-01-01T00:00:00Z"}, {"packageId": "COMPS-8755", "lastModified": "2020-01-01T00:00:00Z"}]
+    poll(db, _FakeClient(packages), since=since, limit=1)
+    client = _FakeClient(packages)
+    report = poll(db, client, since=since, limit=1)
+    assert report.seen == 2 and report.skipped == 1 and report.fetched == 1
+    assert ("uslm", "COMPS-3055") not in client.calls and ("uslm", "COMPS-8755") in client.calls
+
+
 def test_a_failed_walk_is_recorded_and_raised(db):
     import pytest
 

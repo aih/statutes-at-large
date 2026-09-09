@@ -692,7 +692,12 @@ def poll(
     newest: datetime.datetime | None = None
     try:
         for package in client.collection(COLLECTION, since):
-            if limit is not None and report.seen >= limit:
+            # The limit counts packages fetched, not seen: a package already
+            # current costs no API call, and GovInfo lists newest first, so a
+            # walk of the whole collection (`--since 1990-01-01 --limit 400`,
+            # repeated hourly under the 1,000 calls an hour) advances past
+            # what earlier runs loaded.
+            if limit is not None and report.fetched >= limit:
                 break
             report.seen += 1
             package_id = str(package.get("packageId") or "").strip()
@@ -922,7 +927,7 @@ def add_comps_commands(sub: argparse._SubParsersAction) -> None:
 
     poll_parser = inner.add_parser("poll", help="walk collections/COMPS/{since} and load what changed")
     poll_parser.add_argument("--since", help="YYYY-MM-DD; default: the newest lastModified seen, less a day")
-    poll_parser.add_argument("--limit", type=int, help="stop after this many packages")
+    poll_parser.add_argument("--limit", type=int, help="stop after fetching this many packages (already-current ones do not count)")
     poll_parser.add_argument("--force", action="store_true", help="fetch packages already current")
     poll_parser.add_argument("--json", action="store_true")
     poll_parser.set_defaults(func=cmd_poll)
