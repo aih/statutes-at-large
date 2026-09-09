@@ -60,6 +60,10 @@ services:
       GOVINFO_API_KEY: ${GOVINFO_API_KEY:-}
       SITE_ORIGIN: ${SITE_ORIGIN:-https://statutes.linkedlegislation.org}
       USCODE_ORIGIN: ${USCODE_ORIGIN:-https://uscode.linkedlegislation.org}
+      # The US Code site's cluster. `api` is not attached to that project's
+      # network: a service named `api` there shadows the US Code site's own
+      # `api` in Docker's DNS (measured 2026-09-09). Until a relay is in
+      # place the cluster is unreachable from here and search answers 503.
       SEARCH_URL: https://opensearch:9200
       SEARCH_PASSWORD: ${SEARCH_PASSWORD:-}
       # False on both stacks: the cluster is reached over a private Docker
@@ -71,9 +75,6 @@ services:
       # The downloaded volumes, PLAW zips, parquet shards, COMPS files and the
       # data/verification reports outlive the image.
       - ${DATA_ROOT:-/var/lib/statutes}/data:/app/data
-    networks:
-      default: {}
-      uscode-redesign_default: {}
     restart: unless-stopped
     mem_limit: 512m
     # No --reload: the image is what runs. --limit-concurrency answers 503
@@ -145,10 +146,4 @@ services:
 
 networks:
   edge:
-    external: true
-  # The US Code compose project's default network, so `api` can reach its
-  # OpenSearch cluster at `opensearch:9200` (plan section E1). The name is
-  # read on the box with `docker network ls`; nothing in `../uscode-redesign`
-  # changes.
-  uscode-redesign_default:
     external: true
