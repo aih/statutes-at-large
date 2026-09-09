@@ -18,7 +18,7 @@ from opensearchpy import OpenSearch
 from pydantic import BaseModel
 
 from params import SEARCH_UNAVAILABLE, public_cache, rate_limit, search_note
-from storage.search import UNITS_ALIAS, get_search_client
+from storage.search import UNITS_ALIAS, SearchNotConfigured, get_search_client
 from storage.searchquery import (
     DEFAULT_VIEW,
     SORTS,
@@ -43,7 +43,13 @@ a keyword search is useful."""
 
 
 def search_client_dependency() -> OpenSearch:
-    return get_search_client()
+    """The cluster's client; a deployment with no `SEARCH_PASSWORD` answers
+    503 with the same sentence a failing cluster does, the reason in the log."""
+    try:
+        return get_search_client()
+    except SearchNotConfigured:
+        log.warning("search is not configured: SEARCH_PASSWORD is unset")
+        raise HTTPException(status_code=503, detail=SEARCH_UNAVAILABLE) from None
 
 
 SearchClientDep = Annotated[OpenSearch, Depends(search_client_dependency)]

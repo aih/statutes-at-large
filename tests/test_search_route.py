@@ -151,3 +151,19 @@ def test_the_query_wins_over_the_view_parameter(api_client):
 
     assert response.status_code == 200
     assert response.json()["note"] == "Results are the sections and headings of the Statute Compilations' current text."
+
+
+def test_an_unconfigured_cluster_answers_503_with_the_same_sentence(api_client, monkeypatch):
+    """A deployment without `SEARCH_PASSWORD` (the box until the password is
+    typed into `.env`) answers 503, not 500."""
+    from main import app
+    from storage.search import reset_search_client
+
+    app.dependency_overrides.pop(search_client_dependency, None)
+    monkeypatch.delenv("SEARCH_PASSWORD", raising=False)
+    reset_search_client()
+
+    response = api_client.get(ROUTE, params={"q": "wild horses"})
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == SEARCH_UNAVAILABLE
