@@ -1,16 +1,25 @@
 ---
 /**
  * The shell every page shares: skip link, header with the citation box,
- * breadcrumbs, one `<main>` holding the rail beside the page (C2), footer.
+ * breadcrumbs, one `<main>` holding the rail beside the page (C2), footer,
+ * the keyboard shortcut dialog and its island (D, ADR-0022).
  *
- * The inline script is the reader's first (C5, ADR-0021): a fragment naming
- * a `<details>`, or an element inside one, opens every `<details>` ancestor
- * and scrolls to it. Without it a jump to a closed `#contents` or `#pages`
- * lands on a summary with the answer hidden inside it.
+ * The first inline script is the reader's original one (C5, ADR-0021): a
+ * fragment naming a `<details>`, or an element inside one, opens every
+ * `<details>` ancestor and scrolls to it. Without it a jump to a closed
+ * `#contents` or `#pages` lands on a summary with the answer hidden inside
+ * it.
+ *
+ * `#keysay` is the `role="status"` region `KeyboardNav`'s island writes
+ * into when a key finds nothing to reach; it has to be in the document
+ * before the text arrives or the announcement is missed, so it renders
+ * empty on every page rather than being added when first needed.
  */
 import Breadcrumbs from "../components/Breadcrumbs.astro";
 import EndLinks from "../components/EndLinks.astro";
+import KeyboardNav from "../components/KeyboardNav.astro";
 import Rail from "../components/Rail.astro";
+import ShortcutsDialog from "../components/ShortcutsDialog.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import type { TocNode } from "../lib/toc";
@@ -33,6 +42,11 @@ interface Props {
   toc?: TocNode[] | null;
   /** The identifier the rail marks `aria-current` and opens the branch of. */
   currentIdentifier?: string | null;
+  /** The previous and next section, and the nearest ancestor (or the law),
+   * for the `j`/`k` and `u` keys. Null where the page has none. */
+  previous?: Link | null;
+  next?: Link | null;
+  up?: Link | null;
 }
 
 const {
@@ -44,6 +58,9 @@ const {
   sections = [],
   toc = null,
   currentIdentifier = null,
+  previous = null,
+  next = null,
+  up = null,
 } = Astro.props;
 
 const hasRail = sections.length > 0 || (toc !== null && toc.length > 0);
@@ -79,5 +96,8 @@ const layoutClass = hasRail ? "reader-layout" : "reader-layout reader-layout--si
       function h(){if(location.hash.length>1)o(decodeURIComponent(location.hash.slice(1)))}
       addEventListener("load",h);addEventListener("hashchange",h);
     </script>
+    <ShortcutsDialog />
+    <p class="keysay" id="keysay" role="status" aria-live="polite"></p>
+    <KeyboardNav previous={previous} next={next} up={up} />
   </body>
 </html>

@@ -213,8 +213,10 @@ server-rendered on Node behind Caddy) reads `/api/v1` and prints the API's
 (`docs/plans/2026-09-08-reader-contract.md`, ADR-0014). A sticky header, a
 rail listing the page's own panels and the law's contents, and disclosures
 for Contents and Pages sit around that text (ADR-0021); each page carries
-one small inline script, under the ceiling `docs/js-budgets.json` states for
-its route. Pages:
+budgeted inline scripts, under the ceiling `docs/js-budgets.json` states for
+its route. Keyboard shortcuts move between sections, up the hierarchy, and
+to the contents, the pages, and the citation box; `?` lists them (ADR-0022).
+Pages:
 
 | Page | Shows |
 |---|---|

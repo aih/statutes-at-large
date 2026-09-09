@@ -1,0 +1,51 @@
+---
+/**
+ * The keyboard shortcut list, as a modal dialog on every page (ADR-0022).
+ *
+ * A `<dialog>` opened with `showModal()`: the one element that gives a
+ * focus trap, `Escape`, an inert background and the top layer without any
+ * of them being written here.
+ *
+ * The rows come from `lib/shortcuts.ts`, which is also where
+ * `KeyboardNav.astro`'s island gets its bindings, so a key that is listed
+ * is a key that fires.
+ */
+import { SHORTCUT_GROUPS } from "../lib/shortcuts";
+---
+
+<dialog id="shortcuts" class="shortcuts" aria-labelledby="shortcuts-heading">
+  <div class="shortcuts__head">
+    <h2 class="shortcuts__heading" id="shortcuts-heading">Keyboard shortcuts</h2>
+    <button class="usa-button usa-button--unstyled shortcuts__close" type="button" data-shortcuts-close>
+      Close
+    </button>
+  </div>
+
+  {
+    SHORTCUT_GROUPS.map((group) => (
+      <section class="shortcuts__group">
+        <h3 class="shortcuts__groupname">
+          {group.name}
+          {group.sectionOnly && <span class="shortcuts__scope">on a section page</span>}
+        </h3>
+        <dl class="shortcuts__list">
+          {group.items.map((item) => (
+            <div class="shortcuts__row">
+              <dt class="shortcuts__keys">
+                {item.keys.map((key, index) => (
+                  <>
+                    {index > 0 && <span class="shortcuts__or"> or </span>}
+                    <kbd>{key}</kbd>
+                  </>
+                ))}
+              </dt>
+              <dd class="shortcuts__what">{item.what}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+    ))
+  }
+
+  <p class="shortcuts__note">A key typed into the citation box is left alone.</p>
+</dialog>
