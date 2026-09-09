@@ -30,9 +30,12 @@ test("a citation naming nothing loaded is a 404 with the note", async ({ page })
   await expect(page.locator("main input[name=q]")).toHaveValue("999 Stat. 1");
 });
 
-test("text that is not a citation is a 422 with the detail", async ({ page }) => {
-  const response = await page.goto("/app/goto?q=garbage");
-  expect(response?.status()).toBe(422);
-  await expect(page.locator(".usa-alert--error")).toContainText("'garbage' is not a citation this site can read.");
-  await expect(page.locator(".usa-alert--error")).toContainText("'43 U.S.C. 1701'");
+test("text that is not a citation redirects to search, the query prefilled", async ({ request, page }) => {
+  const response = await request.get("/app/goto?q=garbage", { maxRedirects: 0 });
+  expect(response.status()).toBe(307);
+  expect(response.headers()["location"]).toBe("/app/search?q=garbage");
+
+  await page.goto("/app/goto?q=garbage");
+  await expect(page).toHaveURL(/\/app\/search\?q=garbage$/u);
+  await expect(page.locator("header input[name=q]")).toHaveValue("garbage");
 });

@@ -15,6 +15,8 @@ const PAGES = [
   "/app/us/sComp/83/703/tI/ch1./s1",
   "/app/us/stat/137/112",
   "/app/search/syntax",
+  "/app/search?q=rubber",
+  "/app/search?q=zzzznoresultsforthissearchxyz",
   "/app/goto?q=110%20Stat.%204196",
   "/app/goto?q=garbage",
   "/app/us/pl/99/99999",

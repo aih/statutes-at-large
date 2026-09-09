@@ -1,9 +1,12 @@
 ---
 /**
- * `/app/goto?q=`: `GET /api/v1/cite?q=`, then one of four outcomes. A 422
- * prints the `detail` with status 422; `exists: true` is a 307 to
- * `/app{identifier}`; `kind: "usc"` is a 307 to `url`; `exists: false` prints
- * the `note` with status 404. No JavaScript; failures are `no-store`.
+ * `/app/goto?q=`: `GET /api/v1/cite?q=`, then one of three outcomes.
+ * `exists: true` is a 307 to `/app{identifier}`; `kind: "usc"` is a 307 to
+ * `url`; `exists: false` prints the `note` with status 404. A 422 — text
+ * `cite` cannot read as a citation — is a 307 to `/app/search?q=` with the
+ * query carried over: a citation still wins over a search, but text that is
+ * not one is words rather than a dead end. No JavaScript; failures are
+ * `no-store`.
  */
 import CiteBox from "../components/CiteBox.astro";
 import Base from "../layouts/Base.astro";
@@ -11,7 +14,7 @@ import { ApiError, fetchCite } from "../lib/api";
 import { NO_STORE } from "../lib/cache";
 import type { Cite, Link } from "../lib/types";
 import { clientAddressOf } from "../lib/params";
-import { APP, appHref } from "../lib/url";
+import { APP, appHref, searchHref } from "../lib/url";
 
 const query = (Astro.url.searchParams.get("q") ?? "").trim();
 
@@ -21,6 +24,9 @@ if (query) {
   try {
     found = await fetchCite(query, { clientAddress: clientAddressOf(Astro) });
   } catch (error) {
+    if (error instanceof ApiError && error.status === 422) {
+      return Astro.redirect(searchHref(query), 307);
+    }
     if (error instanceof ApiError) {
       failure = { status: error.status, detail: error.detail, retryAfter: error.retryAfter };
     } else {
