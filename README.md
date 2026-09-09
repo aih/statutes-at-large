@@ -102,9 +102,9 @@ The 10 it could not load fail the same way on every poll and are listed in
   summary names no law. The act is served title by title from its per-title
   packages under `/us/sComp/78/410`.
 
-A poll counts a failed package as fetched, so a walk of the whole collection
-ends when a run reports no new packages and no new versions, not when it
-reports 0 fetched.
+A poll counts a failed package as fetched, so `deploy/comps-walk.sh` ends the
+walk on a run that reports `0 new, 0 new versions`, not on one that reports
+0 fetched.
 
 Stage 3 (the indexes):
 
@@ -260,7 +260,9 @@ On the box (`docs/plans/2026-09-08-deployment-plan.md`, sections 4 to 6):
 
 ```
 bash deploy/deploy-on-box.sh <sha>       # what continuous deploy runs: pull, migrate, up, the proxy recreated
-make load-prod                           # the first load: volumes, PLAW, the indexes, the COMPS walk
+make load-prod                           # the first load: volumes, PLAW, the indexes, the first 400 COMPS packages
+sudo systemd-run --unit statutes-comps-walk --uid ec2-user --working-directory $PWD bash deploy/comps-walk.sh
+                                         # the rest of the COMPS walk: `make comps-walk` hourly until a run loads nothing
 make update-prod                         # the weekly update (deploy/update-sources.sh); update-prod-check records the checks only
 bash deploy/watchdog.sh                  # one probe; cron runs it every minute
 bash deploy/edge/up.sh                   # the shared edge proxy (once per box)

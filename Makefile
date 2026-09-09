@@ -124,8 +124,8 @@ cite:
 #   make load-prod          the whole corpus: the 137 volumes from the Hub
 #                           (~1 hour under nice), PLAW 113-119, the citation
 #                           index, the classification tables, then the COMPS
-#                           walk in slices of 400 packages (repeat `comps poll`
-#                           until it reports nothing due). Every step is
+#                           walk in slices of 400 packages (deploy/comps-walk.sh
+#                           repeats `comps poll` hourly). Every step is
 #                           idempotent; re-run to resume.
 #   make update-prod        the weekly update (deploy/update-sources.sh): each
 #                           source asked what changed, loaded only when it did,
@@ -142,9 +142,10 @@ load-prod:
 	$(PROD_INGEST) classifications --report data/verification
 	$(PROD_INGEST) comps poll --limit 400
 
-# The rest of the first COMPS walk: GovInfo lists newest first, so the walk
+# One slice of the first COMPS walk: GovInfo lists newest first, so the walk
 # names its start; already-current packages are skipped without a call and
-# do not count toward the limit. Once an hour until it reports 0 fetched.
+# do not count toward the limit. deploy/comps-walk.sh repeats it hourly until
+# a run reports 0 new and 0 new versions (a failed package counts as fetched).
 comps-walk:
 	$(PROD_INGEST) comps poll --since 1990-01-01 --limit 400
 

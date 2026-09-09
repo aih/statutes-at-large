@@ -843,17 +843,28 @@ def cmd_poll(args: argparse.Namespace) -> int:
         except Exception as exc:
             print(f"COMPS poll FAILED: {_error_text(exc)}", file=sys.stderr)
             return 1
-    print(
-        f"COMPS since {report.since}: {report.seen} seen, {report.skipped} already current, "
-        f"{report.fetched} fetched, {report.new} new, {report.new_versions} new versions, "
-        f"{report.unchanged} unchanged, {report.failed} failed, newest {report.newest_last_modified} "
-        f"({report.newest_package}), {report.seconds}s"
-    )
+    print(summary_line(report))
     for failure in report.failures:
         print(f"  failed {failure['package']}: {failure['error']}", file=sys.stderr)
     if args.json:
         print(json.dumps(asdict(report), indent=2))
     return 1 if report.failed and not (report.new or report.new_versions or report.unchanged or report.skipped) else 0
+
+
+NOTHING_NEW = ", 0 new, 0 new versions,"
+"""The part of `summary_line` that says a run loaded nothing. `deploy/comps-walk.sh`
+stops on it: a package that fails to load counts as fetched and fails again on
+the next run, so "0 fetched" never comes while any package fails."""
+
+
+def summary_line(report: PollReport) -> str:
+    """The one line `comps poll` prints for a run."""
+    return (
+        f"COMPS since {report.since}: {report.seen} seen, {report.skipped} already current, "
+        f"{report.fetched} fetched, {report.new} new, {report.new_versions} new versions, "
+        f"{report.unchanged} unchanged, {report.failed} failed, newest {report.newest_last_modified} "
+        f"({report.newest_package}), {report.seconds}s"
+    )
 
 
 def cmd_load(args: argparse.Namespace) -> int:

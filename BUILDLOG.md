@@ -429,3 +429,20 @@ prints the packages loaded against the packages the last check saw and a
 sentence for the difference (`Status.checks` added to the reader's types).
 
 Decisions: none new.
+
+## 2026-09-09 — the walk script in the repo, stopping on a run that loaded nothing
+
+Asked: fix the walk's stop rule, in a worktree, as a PR.
+
+Written: `deploy/comps-walk.sh`, the loop the box ran from an ad hoc
+`/var/lib/statutes/comps-walk.sh`, now in the repo: `make comps-walk`
+(overridable as `WALK_CMD`) every `INTERVAL` seconds, at most `MAX_RUNS`,
+each run logged whole, ending on a run whose summary line carries
+`ingest.comps.NOTHING_NEW` (`, 0 new, 0 new versions,`). `summary_line`
+is the one line `comps poll` prints, extracted so the test can build the
+lines the script sees. `tests/test_comps_walk.py` runs the script against
+a fake poll: it ends on the first run that loaded nothing and stops at
+`MAX_RUNS` otherwise. README, the deployment plan, ADR-0007 and the
+Makefile name the script and the `systemd-run` line that starts it.
+
+Decisions: none new; ADR-0007's consequence names the script.
