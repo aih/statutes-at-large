@@ -39,6 +39,7 @@ from api.schemas import (
     LabelsIn,
     LawSummaryOut,
     NotFoundOut,
+    SiteOut,
     SourceCheckOut,
     StatPageOut,
     StatusOut,
@@ -56,6 +57,7 @@ from params import (
     public_cache,
     rate_limit,
 )
+from site_version import GIT_COMMIT, SITE_VERSION
 from storage import Repository, normalize_page, parse_stat_page
 
 api = APIRouter(prefix="/api/v1", tags=["api"], dependencies=[Depends(public_cache)])
@@ -321,7 +323,9 @@ def status(repository: RepositoryDep) -> StatusOut:
     collection with packages has no recorded check or one older than a week
     (`storage.SOURCE_CHECK_STALE_AFTER`). `citations` is the citation index
     and `classifications` the classification tables mirror, each with its
-    last run; `stale` does not read them."""
+    last run; `stale` does not read them. `site` is this process's own
+    version and commit (`site_version.py`), the same values `/health`
+    answers."""
     collections = {c: CollectionStatusOut.of(repository.collection_status(c)) for c in COLLECTIONS}
     checks: dict[str, SourceCheckOut | None] = {}
     for collection in COLLECTIONS:
@@ -336,6 +340,7 @@ def status(repository: RepositoryDep) -> StatusOut:
         stale=stale,
         citations=CitationsStatusOut.of(repository.citation_index_status()),
         classifications=ClassificationsStatusOut.of(repository.classification_status()),
+        site=SiteOut(version=SITE_VERSION, commit=GIT_COMMIT),
     )
 
 

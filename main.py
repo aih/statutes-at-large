@@ -17,6 +17,7 @@ from api.comps import comps_router
 from api.routes import api
 from api.search import search_router
 from citation import router as citation_router
+from site_version import GIT_COMMIT, SITE_VERSION
 from storage import RepositoryUnavailableError
 
 DESCRIPTION = """
@@ -26,13 +27,16 @@ Compilations the House Office of the Legislative Counsel maintains.
 
 * `/api/v1/us/pl/81/740/s3` — section 3 of Public Law 81-740 as enacted.
 * `/api/v1/us/act/1950-08-30/ch823/s3` — the same section by its chapter form.
-* `/api/v1/us/stat/64/564` — every law on a Statutes at Large page.
+* `/api/v1/us/stat/64/564` — every law on a Statutes at Large page, with the
+  text the page prints.
 * `/api/v1/us/sComp/83/703/tI/ch1./s1` — the compiled text, current through the
   law the response names.
 * `/api/v1/cited-by?identifier=/us/pl/104/333/s814` — the US Code sections
   whose source credits, notes, or text cite the section.
 * `/api/v1/cite?q=Pub. L. 81-740, § 3` — a written citation, resolved to its
   identifier and checked.
+* `/api/v1/search?q=wild horses` — keyword search over the laws as enacted
+  and as compiled.
 
 The bare citation URL (`/us/pl/81/740/s3`) is a **307 redirect** to whichever
 surface the caller can read, so `curl` it with `-L` or address `/api/v1`.
@@ -40,7 +44,7 @@ surface the caller can read, so `curl` it with `-L` or address `/api/v1`.
 
 app = FastAPI(
     title="statutes-linkedlegislation",
-    version="0.1.0",
+    version=SITE_VERSION,
     summary="Statutes at Large and Statute Compilations, by the identifiers the US Code cites.",
     description=DESCRIPTION,
 )
@@ -55,9 +59,10 @@ app.include_router(citation_router)
 
 @app.get("/health", tags=["ops"], summary="Liveness check")
 def health() -> dict[str, str]:
-    """`{"status": "ok"}` if the process is up. Says nothing about the database;
-    for that, ask `/api/v1/status`."""
-    return {"status": "ok"}
+    """`{"status": "ok", "version": "0.1.0", "commit": "<sha or unknown>"}` if
+    the process is up. Says nothing about the database; for that, ask
+    `/api/v1/status`."""
+    return {"status": "ok", "version": SITE_VERSION, "commit": GIT_COMMIT}
 
 
 @app.exception_handler(RepositoryUnavailableError)

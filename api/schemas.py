@@ -703,6 +703,14 @@ class ClassificationsStatusOut(BaseModel):
         )
 
 
+class SiteOut(BaseModel):
+    """The running process's own version and commit (`site_version.py`), the
+    same values `/health` answers."""
+
+    version: str
+    commit: str
+
+
 class StatusOut(BaseModel):
     collections: dict[str, CollectionStatusOut] = Field(description="Keyed `STATUTE`, `COMPS`, `PLAW`.")
     checks: dict[str, SourceCheckOut | None] = Field(
@@ -713,6 +721,7 @@ class StatusOut(BaseModel):
     )
     citations: CitationsStatusOut
     classifications: ClassificationsStatusOut
+    site: SiteOut
 
 
 # ----------------------------------------------------------------- cited-by

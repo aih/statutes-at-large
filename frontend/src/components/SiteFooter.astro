@@ -1,6 +1,20 @@
 ---
-/** Names the API and its docs, and the US Code site. */
+/**
+ * Names the API and its docs, and the US Code site. The version and commit
+ * line names the build (`astro.config.mjs`'s `__SITE_VERSION__` and
+ * `__COMMIT_HASH__`, the US Code site's approach in its SiteFooter.astro):
+ * plain text, no script, so it costs nothing against the byte budget
+ * (ADR-0021). A build with no `GIT_COMMIT` prints "commit unknown" with no
+ * link, since there is nothing on GitHub to point at.
+ */
 import { API, uscodeHref } from "../lib/url";
+
+declare const __COMMIT_HASH__: string;
+declare const __SITE_VERSION__: string;
+const commitHash: string = __COMMIT_HASH__;
+const siteVersion: string = __SITE_VERSION__;
+const shortHash = commitHash.slice(0, 7);
+const repoUrl = "https://github.com/aih/statutes-at-large";
 ---
 
 <footer id="site-footer" class="site-footer">
@@ -16,5 +30,15 @@ import { API, uscodeHref } from "../lib/url";
       identifiers the US Code cites. The text is GovInfo's USLM; every page says which
       source and which identifier rule it came from.
     </p>
+    <div class="site-footer__version">
+      Source: <a href={repoUrl}>github.com/aih/statutes-at-large</a> — version {siteVersion}, commit{" "}
+      {commitHash === "unknown" ? (
+        "unknown"
+      ) : (
+        <a href={`${repoUrl}/commit/${commitHash}`}>
+          <code>{shortHash}</code>
+        </a>
+      )}
+    </div>
   </div>
 </footer>
