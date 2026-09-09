@@ -538,6 +538,20 @@ merge until the artifact was discarded; it is regenerated and committed
 after each merge. A worktree branches from the pushed `main`, not the local
 one, so each wave-2 and wave-3 agent merged `main` first.
 
+After the acceptance list, at the user's request: a version and commit
+line at the foot of every page in the US Code site's form (`Source:
+github.com/aih/statutes-at-large — version 0.1.0, commit <sha>`), the sha
+carried into both images as `GIT_COMMIT` by `.github/workflows/deploy.yml`'s
+build args and read by `frontend/astro.config.mjs`'s Vite defines and by
+`site_version.py`; `GET /health` and `GET /api/v1/status`'s `site` block
+answer the same version and commit. README gained "What is live" with the
+load numbers and the `GET /api/v1/search` row; the front page's lede and
+examples name search and a mid-page Stat. citation; `/docs` names the
+search route. `docs/plans/2026-09-09-compilations-prompt.md` holds the
+prompt for the compilations session: the compiled side of ADR-0019
+(`/us/sComp/74/271` answers 8.4 MB in 4.6 s) and the bare prefix of a
+per-title compilation.
+
 Decisions: ADR-0019 to ADR-0024; ADR-0017 decisions 2 and 9 and ADR-0023
 decision 2 amended.
 
