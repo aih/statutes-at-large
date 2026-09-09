@@ -33,6 +33,14 @@ Astro.response.headers.set("Cache-Control", REVALIDATE);
 const statute = status?.collections.STATUTE;
 const plaw = status?.collections.PLAW;
 const comps = status?.collections.COMPS;
+const compsCheck = status?.checks?.COMPS ?? null;
+// A weekly poll sees only what changed since the last check; the comparison
+// is printed only when the last check walked the whole collection.
+const compsSeen =
+  comps && compsCheck?.packages_seen != null && compsCheck.packages_seen >= comps.packages_loaded
+    ? compsCheck.packages_seen
+    : null;
+const compsNotLoaded = comps && compsSeen !== null ? compsSeen - comps.packages_loaded : 0;
 const number = (value: number) => value.toLocaleString("en-US");
 ---
 
@@ -89,7 +97,17 @@ const number = (value: number) => value.toLocaleString("en-US");
             : "none"}
         </dd>
         <dt>Statute Compilations</dt>
-        <dd>{comps ? `${number(comps.packages_loaded)} packages` : "none"}</dd>
+        <dd>
+          {comps ? `${number(comps.packages_loaded)} packages` : "none"}
+          {comps && compsSeen !== null && (
+            <span>
+              {" "}
+              of the {number(compsSeen)} GovInfo lists
+              {compsNotLoaded > 0 &&
+                `; the ${number(compsNotLoaded)} not loaded have no USLM text on GovInfo or a file with no body`}
+            </span>
+          )}
+        </dd>
         <dt>Citation index</dt>
         <dd>
           {number(status.citations.rows)} refs from {number(status.citations.citing_sections)} US Code sections

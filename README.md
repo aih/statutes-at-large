@@ -84,9 +84,27 @@ Source: the GovInfo API (`collections/COMPS/{since}`, `packages/{id}/summary`,
 `packages/{id}/uslm`) with `GOVINFO_API_KEY` from the environment. Each fetch
 that changes a package's content hash is a new `comp_versions` row; GovInfo
 keeps only the current text, so the history starts at the first ingest.
-Loaded so far: COMPS-1630 (Atomic Energy Act of 1954), COMPS-973 (Federal
-Food, Drug, and Cosmetic Act), COMPS-3055 (Sherman Act), COMPS-8755 (Social
-Security Act, title II), and two packages a poll since 2026-09-04 found.
+The first walk of the whole collection (2026-09-09, `make comps-walk` hourly
+under the API's 1,000 calls an hour) saw 2,685 packages and loaded 2,675.
+The 10 it could not load fail the same way on every poll and are listed in
+`checks.COMPS.error` on `/status`:
+
+- Four have no USLM on GovInfo, only a PDF; the `uslm` endpoint answers 400:
+  COMPS-1826 (Railway Labor Act), COMPS-17514 (Consolidated Appropriations
+  Act, 2023), COMPS-15409 (Indian Tribal Energy Development and
+  Self-Determination Act Amendments of 2017), COMPS-10414 (flexible
+  regulation of interest rates on deposits).
+- Five are USLM files of 2 to 7 KB holding a `meta` block and no `main`:
+  COMPS-305, 332, 3061, 3126, 5336. The loader reports `no /us/sComp/
+  identifier in the document and no law in the summary`.
+- COMPS-77777777 is the whole Public Health Service Act in one 13 MB file
+  whose identifiers have an empty law slot (`/us/sComp//tI/s1`) and whose
+  summary names no law. The act is served title by title from its per-title
+  packages under `/us/sComp/78/410`.
+
+A poll counts a failed package as fetched, so a walk of the whole collection
+ends when a run reports no new packages and no new versions, not when it
+reports 0 fetched.
 
 Stage 3 (the indexes):
 

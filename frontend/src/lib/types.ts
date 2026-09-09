@@ -272,8 +272,21 @@ export interface ClassificationsStatus {
 }
 
 /** `StatusOut`, the fields the front page shows. */
+/** `SourceCheckOut`: the last poll of a collection's source. */
+export interface SourceCheck {
+  checked_at: string;
+  ok: boolean;
+  newest_package: string | null;
+  newest_last_modified: string | null;
+  packages_seen: number | null;
+  new_packages: string[];
+  error: string | null;
+  stale: boolean;
+}
+
 export interface Status {
   collections: Record<string, CollectionStatus>;
+  checks: Record<string, SourceCheck | null>;
   stale: boolean;
   citations: CitationsStatus;
   classifications: ClassificationsStatus;

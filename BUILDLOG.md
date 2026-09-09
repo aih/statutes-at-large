@@ -400,3 +400,32 @@ acceptance list) and `2026-09-09-reader-improvements-prompt.md`.
 
 Decisions: recorded in the plan, to be filed as ADRs by the packages.
 Nothing built; nothing committed.
+
+## 2026-09-09 — the COMPS walk ends; its failures documented
+
+Asked: read the walk's state on the box after the monitor saw the loaded
+count hold at 2,675 for 100 minutes; document the packages that failed to
+load; push the held commit.
+
+Found: the unit `statutes-comps-walk` was still active after seven runs.
+The seventh saw 2,685 packages, 2,675 already current, 10 fetched and 10
+failed, 0 new; the walk's stop rule was "0 fetched" and a failed package
+counts as fetched, so it would have retried the same 10 every hour. The
+user stopped the unit over SSM. The 10, from their summaries and USLM:
+four with no USLM on GovInfo (the `uslm` endpoint answers 400: the Railway
+Labor Act, the Consolidated Appropriations Act 2023, two more); five USLM
+files of 2 to 7 KB with `meta` and no `main`; and COMPS-77777777, the whole
+Public Health Service Act in 13 MB, whose 25,701 identifiers have an empty
+law slot (`/us/sComp//tI/s1`) and whose summary names no law. The act is
+served title by title under `/us/sComp/78/410`; the bare prefix resolves to
+the title XXXII file (marked repealed), since ADR-0007's whole-act rule has
+no whole-act file to pick. Left as a follow-up with the walk's stop rule
+in the box script.
+
+Written: the README's compilation section, ADR-0007's consequences, the
+deployment plan's walk line, a Statute Compilations section in
+`docs/verification/README.md`, and the reader's front page, which now
+prints the packages loaded against the packages the last check saw and a
+sentence for the difference (`Status.checks` added to the reader's types).
+
+Decisions: none new.

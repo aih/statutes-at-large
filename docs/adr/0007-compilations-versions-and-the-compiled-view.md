@@ -66,3 +66,13 @@ Date: 2026-09-07. Status: accepted. Implements design sections 4 to 6 for
   (ADR-0006).
 - Live on 2026-09-07: COMPS-1630, 973, 3055, 8755 loaded from the API, then a
   poll since 2026-09-04 walked 3 packages and loaded 2 new ones.
+- The first walk of the collection (2026-09-09) loaded 2,675 of 2,685
+  packages. The 10 that fail are of three kinds and fail on every poll:
+  packages with no USLM (a PDF only; the `uslm` endpoint answers 400),
+  USLM files with a `meta` block and no `main`, and the whole-act Public
+  Health Service Act file (COMPS-77777777) whose identifiers have an empty
+  law slot (`/us/sComp//tI/s1`). Decision 7 counts them in the report and
+  names them in `error`; the check stays `ok`. The README lists them.
+- A failed package counts as fetched, so a walk with `--limit` is complete
+  when a run reports no new packages and no new versions, not when it
+  reports 0 fetched.

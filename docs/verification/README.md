@@ -87,6 +87,21 @@ Fields of `plaw-{congress}.json`:
   instruction` (no `citableAs` names a Stat. page), `section without a number
   after the first; not addressable`, `… occurs 2 times`.
 
+## Statute Compilations (stage 2)
+
+No report file: `python -m ingest comps report` prints the state of the
+`comps` tables and the last check, and `/status` carries the same under
+`collections.COMPS` and `checks.COMPS`. The first walk of the collection on
+the box (2026-09-09, seven hourly runs of `make comps-walk`) saw 2,685
+packages and loaded 2,675, 83,423 units. The 10 not loaded, in
+`checks.COMPS.error`:
+
+| Packages | Failure | Cause |
+|---|---|---|
+| COMPS-1826, 17514, 15409, 10414 | `GovInfoError: HTTP 400 for …/uslm` | GovInfo holds a PDF and no USLM for the package |
+| COMPS-305, 332, 3061, 3126, 5336 | `no /us/sComp/ identifier in the document and no law in the summary` | a USLM file of 2 to 7 KB with `meta` and no `main` |
+| COMPS-77777777 | the same | the whole Public Health Service Act, 13 MB, identifiers with an empty law slot (`/us/sComp//tI/s1`); the act is served from its per-title packages |
+
 ## Citation index (stage 3)
 
 `citations.json` is written by `python -m ingest citations --from-hub --report
