@@ -210,13 +210,14 @@ routed (405).
 The reader at `/app` (`frontend/`, Astro 5 with TypeScript and USWDS 3,
 server-rendered on Node behind Caddy) reads `/api/v1` and prints the API's
 `note`, `message` and `detail` sentences verbatim
-(`docs/plans/2026-09-08-reader-contract.md`, ADR-0014). Chrome: a sticky
-header at 56 px holds a skip link, the citation box, and breadcrumbs; a rail
-beside the page from 64em shows the page's panels and the law's contents
-nested by level; Contents and Pages are closed disclosures, open on
-sections; top and end links are beside the content. Each page carries
-budgeted inline scripts under the ceiling `docs/js-budgets.json` states for
-its route (ADR-0021). Keyboard shortcuts: `←`/`j` and `→`/`k` move between
+(`docs/plans/2026-09-08-reader-contract.md`, ADR-0014). The header (the
+site name and the citation box, one row of 56 px at every width) sticks to
+the top; from 64em a rail beside the page lists the page's panels and the
+law's contents nested by level; Contents and Pages are closed disclosures on
+a law or node page and open on a section; two fixed links at the lower
+right reach the top and the end of the page. Each page carries budgeted
+inline scripts under the ceiling `docs/js-budgets.json` states for its
+route (ADR-0021). Keyboard shortcuts: `←`/`j` and `→`/`k` move between
 sections, `u` goes up to the nearest ancestor, `c` reaches Contents, `[` and
 `]` step through a section's top-level provisions, `p` opens Pages, `a`
 reaches About, `v` reaches Versions on a compiled page, `t`/`b` go to top

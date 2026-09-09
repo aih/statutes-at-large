@@ -449,42 +449,99 @@ Decisions: none new; ADR-0007's consequence names the script.
 
 ## 2026-09-09 — the reader improvements: six packages in three waves, and the site-down alert
 
-Asked: build the plan's six packages A to F in three waves with a model per
-package; merge each into main in order; run `make test`, `make test-web`,
-`make test-e2e` after each merge; push once per wave; finish with the
-acceptance list measured on the box. Later the user asked for the "site down"
-mail to be reviewed and fixed as a separate wave.
+Asked: build `docs/plans/2026-09-09-reader-improvements-plan.md`, packages
+A to F in three waves, each package a subagent in its own worktree on the
+model the plan's wave table names; merge into `main` in order; run `make
+test`, `make test-web` and `make test-e2e` after each merge; push once per
+wave; leave the compilations session's files alone; finish with the
+acceptance list measured on the box. Later in the session: the "site down"
+mail arrives too often; review and fix it as a separate wave.
 
-Packages A to E delivered in three waves (subagents in worktrees): A — law
-`text` empty and XML deferred; B1 — stat page slice and API shape;
-E1–E3 — OpenSearch cluster connection, search sync, CLI and route (ADR-0023);
-C — sticky header, rail, disclosures; B2 — stat page rendering the slice;
-E4 — search results and syntax pages; D — keyboard shortcuts.
+Wave 1. A (Sonnet): `Law.xml` is a deferred column, `get_unit` takes
+`wanted`, a law's and a node's `text` is empty and their XML is read only
+for `format=xml`; the compiled side is left to the compilations session
+(ADR-0019). B1 (Opus): `uslmtext.slice_between` and `page_slice`; each
+document of `GET /api/v1/us/stat/{vol}/{page}` gains `units` and `text`;
+`format=xml` answers one `slice` per law; the slice is cached on `(law.id,
+content_hash, page)` at 256 entries; `page_label` moved to `uslmtext.py`.
+Measured on the dev database, `/us/stat/136/5000` inside Public Law
+117-328 (11.3 MB of XML): 1.41 s first, 0.16 s cached, 0.11 s for the 304,
+so no `stat_page_slices` table (ADR-0020). E1 to E3 (Opus for the query
+builder and the sync, Sonnet for the CLI, the route, the compose files and
+the deploy steps): `storage/search.py`, `storage/searchquery.py` (the scopes
+`law:`, `congress:`, `year:`, `vol:`, `kind:`, `view:`, `heading:`;
+`simple_query_string` with `default_operator: and`, no fuzziness, the
+`<em>` highlighter, facets over `congress`, `kind` and `view`, three
+sorts), `ingest/search_sync.py` (one document per unit with text or
+heading, plus the compiled sections of each compilation's current version;
+the mapping fingerprint; the alias `statutes_units` promoted in one call),
+`python -m ingest reindex-search`, `make reindex-search`, `GET
+/api/v1/search`, the dev `opensearch` on host port 9201, the deploy's
+`--if-changed` step and the weekly update's step (ADR-0023). `law:117-328`
+filters `law_identifier`; a compiled document's `_id` carries its COMPS
+package; `citation_sort` is the padded volume, the page with its letter
+prefix, then `seq`. The dev index built in 60 s: 75,154 enacted and 687
+compiled documents.
 
-Package F (this one): the documentation pass. Read each page file under
-`frontend/src/pages/` and its components once; verified every sentence of
-`docs/plans/2026-09-08-reader-contract.md` against the code. The `/app/goto`
-outcomes, `/app/search` facets and pager, `/app/search/syntax` static prose,
-and the stat page's "Begins inside Sec. N" phrasing all match. The contract
-is accurate; no stale sentences found. Updated `README.md` reader section
-with chrome (56 px sticky header, rail, Contents and Pages disclosures, top
-and end links), keyboard shortcuts (all ten, what they do), and stat page
-text (`?format=xml` slice, "Begins inside", numeric neighbours).
-`CLAUDE.md` commands block (`make reindex-search`, `python -m ingest
-reindex-search`) unchanged; test descriptions already say "vitest" and
-"Playwright and axe" with no counts. Added ADRs 0019–0024 to the
-Documentation duties list.
+Wave 2. C (Sonnet, the sticky header and the end links drafted on Haiku):
+the header is one row of 56 px at 375, 700 and 1280 (`--sticky-h` 3.5rem);
+`Rail.astro` lists the page's panels and the law's contents, bounded to the
+open branch above 300 units (checked against Public Law 117-328's
+2,155-unit toc); Contents and Pages are closed disclosures; the reader's
+first inline script (380 bytes) opens a disclosure a fragment names;
+`jsbudget.test.ts` and `docs/js-budgets.json` ported (ADR-0021). B2
+(Sonnet): the stat page renders its slice through the USLM renderer with
+numeric neighbours, "Begins inside Sec. N — Read section N in full", and
+the Documents list reworded. E4 (Sonnet, the syntax page on Haiku):
+`/app/search`, `/app/search/syntax`, `/app/goto`'s 422 becomes a 307 to
+`/app/search?q=`, the box's placeholder is "Citation or words"; facet links
+are edited in TypeScript from the query string, not built from the facet
+counts.
 
-Decisions: none new.
+Wave 3. D (Sonnet): `lib/shortcuts.ts`, `KeyboardNav.astro` (2,759 bytes)
+and `ShortcutsDialog.astro`; every route under `Base.astro` ships 3,139
+bytes of inline script and the ceilings rose from 1,000 to 3,500
+(ADR-0022); `[` and `]` step the `[id]` children of the rendered section;
+`c` reaches the rail when pinned, else `#contents`. F (Haiku): README,
+CLAUDE.md's ADR list, this entry; the Haiku draft of the README's chrome
+sentences and of this entry was corrected by hand.
 
-Verified: `make test` 556 passed, 5 deselected; `make test-web` 107;
-`make test-e2e` 65 over `make dev`. Contract reconciled end to end; every
-route, field, status code, and wording matches code. Live after the last
-merge: `/app/us/pl/117/328` 0.39–0.45 s (about 1 s over TLS);
-`/app/us/stat/110/4196` prints the slice and "Begins inside Sec. 814"
-in 0.7 s; `[` and `]` step provisions, `?` lists keys; all nine scope words
-(`law:`, `congress:`, etc.) search correctly; facet links edit the query
-string; sort and view controls mark the current choice. Not done at the time
-of writing: `SEARCH_PASSWORD` on the box (the user's, in an SSM session);
-the reindex (the user's); the site-down alarm's 5-of-7 damping shape (the
-user's); the same damping recommended for the US Code site.
+The alert wave (Opus). The mail was the US Code site's `uscode-site-down`.
+This site's deploy of `dd76171` at 16:36 UTC attached
+`statutes-at-large-api-1` to `uscode-redesign_default`, where Docker
+registers the service name `api` as an alias; the US Code reader's
+`API_BASE_URL=http://api:8001` reached this site's API, its pages answered
+404 and 500, and its watchdog restarted its stack six times. `d75ec7e`, a
+hotfix pushed between waves, detached the API; `search-relay`
+(`alpine/socat:1.8.1.3`, 32 MB, no ports) now carries the cluster
+connection and is the only service of this project on that network;
+`tests/test_compose_networks.py` asserts the rule. The watchdog publishes
+`ApiUp`, `AppUp` and `EdgeUp` beside `SiteUp`, restarts only the half that
+failed, restarts nothing when 443 refuses, and reads a probe inside the
+deploy's marker window as up; `statutes-site-down` evaluates five of the
+last seven minutes with `breaching` and its OK action kept, applied with
+`deploy/alarms.sh` (ADR-0024). `--limit-concurrency`, every `mem_limit`,
+the restart threshold and the cooldown are unchanged. This site's own alarm
+had not fired since the cut-over.
+
+Also: the search route answered 500 on the box with `SEARCH_PASSWORD`
+unset; `SearchNotConfigured` is now a 503 with the same sentence. The
+vitest run rewrites `docs/verification/js-bytes.json`, which blocked one
+merge until the artifact was discarded; it is regenerated and committed
+after each merge. A worktree branches from the pushed `main`, not the local
+one, so each wave-2 and wave-3 agent merged `main` first.
+
+Decisions: ADR-0019 to ADR-0024; ADR-0017 decisions 2 and 9 and ADR-0023
+decision 2 amended.
+
+Verified after the last merge: `make test` 556 passed, 5 deselected; `make
+test-web` 107; `make test-e2e` 65 over `make dev`; `npx astro check` 0
+errors on every frontend package; shellcheck on the deploy scripts. Live
+after wave 1: `GET /api/v1/us/pl/117/328` 146,610 bytes in 0.39 to 0.45 s
+inside the box, about 1 s over TLS from a workstation; `/us/stat/136/5000`
+10 ms cached. Live after wave 2: `/app/us/stat/110/4196` prints the slice,
+"Begins inside Sec. 814" and the link to `/app/us/pl/104/333/d1/tVIII/s814`
+in 0.7 s; `/app/goto?q=wild horses` is a 307 to `/app/search?q=wild+horses`;
+the citation form still lands on the section. Not done at the time of
+writing: `SEARCH_PASSWORD` on the box and the first reindex (the user's, in
+an SSM session); the same alarm damping recommended for the US Code site.
