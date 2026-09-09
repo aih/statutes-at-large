@@ -16,6 +16,12 @@
 # DeleteOnTermination applies only to volumes created by RunInstances, and this
 # one is attached afterwards. The instance, security group, Elastic IP and
 # instance role are the US Code site's and are not touched.
+#
+# deploy/provision-policy.json is the set of actions this script,
+# deploy/alarms.sh and the DNS record need, scoped to this site's names, for
+# a deploy identity that lacks them (the US Code site's
+# `linkedlegislation-deploy` holds ec2 and ssm, not s3 bucket, ecr, sns or
+# route53 writes).
 set -euo pipefail
 
 REGION="${AWS_REGION:-us-east-1}"

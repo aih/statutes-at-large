@@ -1,0 +1,110 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DescribeWhatProvisionReads",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstances",
+        "ec2:DescribeVolumes",
+        "ec2:DescribeAddresses"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "TheDataVolume",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:CreateVolume",
+        "ec2:AttachVolume",
+        "ec2:CreateTags"
+      ],
+      "Resource": [
+        "arn:aws:ec2:us-east-1:739065237548:volume/*",
+        "arn:aws:ec2:us-east-1:739065237548:instance/*"
+      ]
+    },
+    {
+      "Sid": "TheBackupBucket",
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:ListBucket",
+        "s3:GetObject",
+        "s3:PutBucketPublicAccessBlock",
+        "s3:GetBucketPublicAccessBlock",
+        "s3:PutLifecycleConfiguration",
+        "s3:GetLifecycleConfiguration"
+      ],
+      "Resource": [
+        "arn:aws:s3:::statutes-linkedlegislation",
+        "arn:aws:s3:::statutes-linkedlegislation/*"
+      ]
+    },
+    {
+      "Sid": "TheImageRepositories",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:DescribeRepositories",
+        "ecr:CreateRepository",
+        "ecr:PutLifecyclePolicy",
+        "ecr:GetLifecyclePolicy",
+        "ecr:DescribeImages"
+      ],
+      "Resource": "arn:aws:ecr:us-east-1:739065237548:repository/statutes-*"
+    },
+    {
+      "Sid": "TheAlarms",
+      "Effect": "Allow",
+      "Action": [
+        "sns:CreateTopic",
+        "sns:Subscribe",
+        "sns:ListSubscriptionsByTopic"
+      ],
+      "Resource": "arn:aws:sns:us-east-1:739065237548:statutes-alerts"
+    },
+    {
+      "Sid": "TheAlarmDefinitions",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:SetAlarmState"
+      ],
+      "Resource": "arn:aws:cloudwatch:us-east-1:739065237548:alarm:statutes-*"
+    },
+    {
+      "Sid": "TheDnsRecord",
+      "Effect": "Allow",
+      "Action": [
+        "route53:ChangeResourceRecordSets",
+        "route53:ListResourceRecordSets"
+      ],
+      "Resource": "arn:aws:route53:::hostedzone/Z007577931KDAIYFR232H",
+      "Condition": {
+        "ForAllValues:StringEquals": {
+          "route53:ChangeResourceRecordSetsNormalizedRecordNames": "statutes.linkedlegislation.org",
+          "route53:ChangeResourceRecordSetsRecordTypes": "A"
+        }
+      }
+    },
+    {
+      "Sid": "TheDnsChangeStatus",
+      "Effect": "Allow",
+      "Action": "route53:GetChange",
+      "Resource": "arn:aws:route53:::change/*"
+    },
+    {
+      "Sid": "VerifyingTheIamStep",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetRole",
+        "iam:GetRolePolicy"
+      ],
+      "Resource": [
+        "arn:aws:iam::739065237548:role/statutes-github-deploy",
+        "arn:aws:iam::739065237548:role/uscode-site"
+      ]
+    }
+  ]
+}
