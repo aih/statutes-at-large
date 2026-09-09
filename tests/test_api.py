@@ -192,6 +192,7 @@ def test_the_law_itself_with_its_table_of_contents(client):
     assert body["children"][0]["level"] == "title" and body["children"][0]["is_section"] is False
     assert body["law"]["enacted"] == "1951-01-06"
     assert body["pages"][0]["page"] == "/us/stat/64/1221"
+    assert body["text"] == ""
 
 
 def test_a_private_law(client):
@@ -208,6 +209,7 @@ def test_a_hierarchy_node(client):
     assert body["children"] and all(c["identifier"].startswith("/us/pl/111/344/tI/") for c in body["children"])
     assert body["children"][0]["level"] == "subtitle" and body["children"][0]["is_section"] is False
     assert body["note"].startswith("This is title I of Public Law 111-344 as enacted on December 29, 2010")
+    assert body["text"] == ""
     assert client.get("/api/v1/us/pl/111/344/tI?format=xml").text.startswith("<title")
 
 

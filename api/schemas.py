@@ -233,7 +233,10 @@ class UnitOut(BaseModel):
     note: str
     provenance: ProvenanceOut
     pages: list[PageOut] = Field(description="The Statutes at Large pages the unit spans, with GovInfo links.")
-    text: str = Field(description="The served unit's reading text.")
+    text: str = Field(
+        description="The served unit's reading text. Empty for `level: \"law\"` and for a hierarchy "
+        "level; a section (and a `provision`) carries its own text."
+    )
     xml_url: str = Field(description="This request's URL with `format=xml`.")
     ancestors: list[AncestorOut] = Field(default_factory=list)
     children: list[TocEntryOut] = Field(

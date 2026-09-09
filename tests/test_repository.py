@@ -59,17 +59,31 @@ def test_the_law_itself(repo):
     result = repo.get_unit("/us/pl/81/910")
     assert result.level == "law" and result.resolution == "exact"
     assert [c.identifier for c in result.children][:2] == ["/us/pl/81/910/tI", "/us/pl/81/910/tI–A"]
-    assert result.xml.startswith("<pLaw")
     assert result.law.enacted == datetime.date(1951, 1, 6)
     summary = repo.get_law("/us/act/1951-01-06/ch1212")
     assert summary.section_count == 11 and summary.toc[0].level == "title"
 
 
+def test_a_laws_text_is_empty_and_its_xml_is_loaded_only_when_asked_for(repo):
+    """ADR-0019: a law's `text` is never computed; `xml` (a deferred column)
+    is fetched only for `wanted="xml"`."""
+    result = repo.get_unit("/us/pl/81/910")
+    assert result.text == "" and result.xml == ""
+    with_xml = repo.get_unit("/us/pl/81/910", wanted="xml")
+    assert with_xml.xml.startswith("<pLaw")
+
+
 def test_a_hierarchy_node(repo):
     result = repo.get_unit("/us/pl/111/344/tI")
     assert result.level == "title" and result.heading.startswith("EXTENSION OF TRADE")
-    assert result.xml.startswith("<title")
     assert result.children and all(c.identifier.startswith("/us/pl/111/344/tI/") for c in result.children)
+
+
+def test_a_hierarchy_nodes_text_is_empty_and_its_xml_is_loaded_only_when_asked_for(repo):
+    result = repo.get_unit("/us/pl/111/344/tI")
+    assert result.text == "" and result.xml == ""
+    with_xml = repo.get_unit("/us/pl/111/344/tI", wanted="xml")
+    assert with_xml.xml.startswith("<title")
 
 
 def test_nothing_loaded(repo):

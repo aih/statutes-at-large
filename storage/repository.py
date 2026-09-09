@@ -583,7 +583,7 @@ class Repository(Protocol):
 
     # ---------------------------------------------------------------- enacted
 
-    def get_unit(self, identifier: str) -> UnitResult | None:
+    def get_unit(self, identifier: str, *, wanted: str = "json") -> UnitResult | None:
         """Resolve an enacted-view identifier (design section 3).
 
         1. Exact match on a stored unit or on the law.
@@ -594,6 +594,10 @@ class Repository(Protocol):
         4. A law is found by any of its aliases.
 
         None when no law answers to the identifier.
+
+        `wanted` is `"json"` or `"xml"`. A law's and a hierarchy node's `xml`
+        is loaded only for `"xml"`; their `text` is always empty (ADR-0019).
+        A section carries both regardless of `wanted`.
         """
         ...
 
