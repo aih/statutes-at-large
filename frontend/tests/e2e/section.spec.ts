@@ -55,6 +55,9 @@ test("a provision is marked inside its section", async ({ page }) => {
 test("a law with divisions lists its contents nested", async ({ page }) => {
   await page.goto("/app/us/pl/118/22");
   await expect(page.locator("h1")).toHaveText("Further Continuing Appropriations and Other Extensions Act, 2024");
+  const contents = page.locator("details#contents");
+  await expect(contents).not.toHaveJSProperty("open", true);
+  await contents.locator("summary").click();
   await expect(page.locator(".toc .toc a").first()).toBeVisible();
   await expect(page.locator(".toc a", { hasText: "Division A" })).toHaveAttribute("href", "/app/us/pl/118/22/dA");
   await expect(page.getByRole("heading", { name: "Cited by the US Code" })).toBeVisible();

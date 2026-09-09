@@ -19,7 +19,7 @@ function selected(version: CompVersion): boolean {
 
 {
   versions.length > 0 && (
-    <nav class="panel" aria-labelledby="versions-h">
+    <nav class="panel" id="versions" aria-labelledby="versions-h">
       <h2 class="group" id="versions-h">Versions</h2>
       <ul class="versions">
         {versions.map((version) => (

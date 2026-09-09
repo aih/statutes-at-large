@@ -1,0 +1,49 @@
+---
+/**
+ * The left-hand rail from 64em, a block after `main`'s content below it
+ * (C2). Two lists, either of which may be empty: the page's own panels
+ * ("On this page") and the law's nested contents ("In this law"), bounded
+ * by `railNodes` (`lib/rail.ts`) so a law of thousands of units puts only
+ * the open branch's sections on the page.
+ */
+import RailList from "./RailList.astro";
+import { railNodes } from "../lib/rail";
+import type { TocNode } from "../lib/toc";
+import type { Link } from "../lib/types";
+
+interface Props {
+  sections: Link[];
+  toc: TocNode[] | null;
+  current: string | null;
+}
+
+const { sections, toc, current } = Astro.props;
+const nodes = toc ? railNodes(toc, current) : [];
+---
+
+{
+  (sections.length > 0 || nodes.length > 0) && (
+    <nav class="rail" aria-label="On this page and in this law">
+      {sections.length > 0 && (
+        <>
+          <p class="rail__title">On this page</p>
+          <ul class="rail__list">
+            {sections.map((link) => (
+              <li>
+                <a class="rail__link" href={link.href}>
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      {nodes.length > 0 && (
+        <>
+          <p class="rail__title">In this law</p>
+          <RailList nodes={nodes} current={current} />
+        </>
+      )}
+    </nav>
+  )
+}

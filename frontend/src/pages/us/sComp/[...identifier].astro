@@ -93,9 +93,28 @@ const title = !unit
     : `${unitLabel(unit.level, unit.num)} — ${unit.compilation.display_title ?? unit.compilation.identifier_prefix} (compiled) — Statutes at Large`;
 
 const tocNodes = unit ? nestToc(unit.children) : [];
+const unitsCount = unit ? unit.children.length : 0;
+const sectionsCount = unit ? unit.children.filter((entry) => entry.is_section).length : 0;
+const contentsSummary = `Contents — ${unitsCount.toLocaleString("en-US")} unit${unitsCount === 1 ? "" : "s"}, ${sectionsCount.toLocaleString("en-US")} section${sectionsCount === 1 ? "" : "s"}`;
+
+const sections: Link[] = [];
+if (unit) {
+  if (isSection) sections.push({ href: "#text", label: "Text" });
+  else sections.push({ href: "#contents", label: "Contents" });
+  if (unit.versions.length > 0) sections.push({ href: "#versions", label: "Versions" });
+  sections.push({ href: "#about-h", label: "About this text" });
+}
 ---
 
-<Base title={title} crumbs={crumbs} current={current} text={isSection}>
+<Base
+  title={title}
+  crumbs={crumbs}
+  current={current}
+  text={isSection}
+  sections={sections}
+  toc={unit ? tocNodes : null}
+  currentIdentifier={unit?.served_identifier ?? null}
+>
   {failure && <ErrorPage status={failure.status} detail={failure.detail} retryAfter={failure.retryAfter} />}
 
   {
@@ -147,25 +166,25 @@ const tocNodes = unit ? nestToc(unit.children) : [];
 
         {isSection &&
           (sectionHtml !== null ? (
-            <article class="section-body" set:html={sectionHtml} />
+            <article id="text" class="section-body" set:html={sectionHtml} />
           ) : (
             <>
               <p class="doc-meta">The source XML could not be fetched; this is the reading text.</p>
-              <article class="section-body">
+              <article id="text" class="section-body">
                 <p>{unit.text}</p>
               </article>
             </>
           ))}
 
         {!isSection && (
-          <>
-            <h2 class="group">Contents</h2>
+          <details id="contents" class="disclosure">
+            <summary>{contentsSummary}</summary>
             {tocNodes.length > 0 ? (
               <TocList nodes={tocNodes} query={query} />
             ) : (
               <p class="doc-meta">No units are listed under this node.</p>
             )}
-          </>
+          </details>
         )}
 
         <VersionPicker identifier={unit.identifier} versions={unit.versions} through={through} />

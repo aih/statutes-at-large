@@ -1,0 +1,16 @@
+{
+  "note": "Per-route ceilings on inline <script is:inline> bytes, enforced by frontend/tests/jsbudget.test.ts in `make test-web` (ADR-0021, ported from the US Code site's ADR-0046). Raising a ceiling is a decision: do it in the same commit as the growth and say why in BUILDLOG.md.",
+  "counted": "Bytes inside <script is:inline> across each route's transitive .astro import graph. Where two page files serve one route, the ceiling is the heavier of the two, since a request reaches one and never both. Comments inside those scripts are counted, because Astro ships inline scripts verbatim and a reader downloads them.",
+  "headroom": "Each ceiling is the measured size plus 200 bytes, rounded up to the next 500, so an ordinary comment edit does not fail the build but real growth does.",
+  "budgets": {
+    "/app/": 1000,
+    "/app/goto": 1000,
+    "/app/healthz": 500,
+    "/app/search/syntax": 500,
+    "/app/us/act": 1000,
+    "/app/us/pl": 1000,
+    "/app/us/pvtl": 1000,
+    "/app/us/sComp": 1000,
+    "/app/us/stat/[volume]": 1000
+  }
+}

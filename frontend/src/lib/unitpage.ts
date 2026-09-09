@@ -30,6 +30,11 @@ export interface UnitPageModel {
   /** The rendered section; null on a hierarchy node, a law, or a failed XML call. */
   sectionHtml: string | null;
   neighbors: { previous: Link | null; next: Link | null };
+  /** A private law's or an act's nearest ancestor's `children` — the rail's
+   * "In this law" list on a section that has no `/laws/{c}/{n}` toc. Empty
+   * for a public law's section, where the rail uses the law summary's `toc`
+   * instead. */
+  parentChildren: TocEntry[];
 }
 
 export function describeFailure(error: unknown): Failure {
@@ -64,6 +69,7 @@ export async function loadUnitPage(identifier: string, options: CallOptions = {}
     citedBy: null,
     sectionHtml: null,
     neighbors: { previous: null, next: null },
+    parentChildren: [],
   };
 
   let unit: Unit;
@@ -101,6 +107,7 @@ export async function loadUnitPage(identifier: string, options: CallOptions = {}
   ]);
   model.summary = summary;
   model.citedBy = citedBy;
+  model.parentChildren = parentChildren;
 
   if (isSection && xml) {
     const fragment = parseFragment(xml);
