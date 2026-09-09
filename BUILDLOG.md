@@ -373,3 +373,30 @@ watchdog and the agent publish. Not done: `STATUTES_ORIGIN` on the US
 Code site (`statutes-links` unmerged there); the SNS subscription awaits
 the user's confirmation; the remaining worktrees `agent-a09…`, `a8e4…`,
 `ad80…`, `ae81…`, `aefd…` are earlier stages' and were left.
+
+## 2026-09-09 — planning: the reader improvements
+
+Asked: plan seven reader changes for later sessions to build on
+cost-efficient models: the text of a Statutes at Large page, the law
+page's load time and its pages list, a fixed header, a side rail with
+the page's panels and the law's contents, top and bottom links,
+keyboard shortcuts, and keyword search in the citation box as on the
+US Code site.
+
+Measured on the live site: `GET /api/v1/us/pl/117/328` is 4,748,777
+bytes in 4.8 s (`text` is the whole law's plain text, 4,548,249
+characters, parsed from the 20 MB law XML on every request; `pages`
+lists 1,653 rows); `/app/us/pl/117/328` is 565,162 bytes in 4.0 s;
+`/us/stat/110/4196` holds Public Law 104-333 with the marker in
+section 814. The US Code site's search is the OpenSearch engine
+(its ADR-0028, 0031, 0051), not the browser description format; the
+box has 8 GB with that site's cluster at a 2 GB heap, so a second
+cluster does not fit and the plan shares that one over its network.
+
+Written: `docs/plans/2026-09-09-reader-improvements-plan.md` (six
+packages A to F with API shapes, file ownership, tests, ADRs 0019 to
+0023, a wave table with a model per package, and a measured
+acceptance list) and `2026-09-09-reader-improvements-prompt.md`.
+
+Decisions: recorded in the plan, to be filed as ADRs by the packages.
+Nothing built; nothing committed.
