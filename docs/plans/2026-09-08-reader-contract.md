@@ -97,16 +97,16 @@ field `q`, and the forms it accepts are listed from `params.CITE_FORMS`
 
 ### `/app/goto?q=`
 
-Calls `GET /api/v1/cite?q=`. Four outcomes:
+Calls `GET /api/v1/cite?q=`. Three outcomes:
 
 | API | Reader |
 |---|---|
-| 422 | status 422; the `detail` printed verbatim; the box again with the query |
+| 422 | 307 to `searchHref(q)` (`/app/search?q=…`); a citation still wins over a search, but text that is not one is words |
 | 200, `exists: true` | 307 to `/app{identifier}` (the identifier asked for, not `served_identifier`; the unit page says which unit answered) |
 | 200, `kind: "usc"` | 307 to `url` (the US Code site) |
 | 200, `exists: false` | status 404; `note` printed verbatim; `label` and `identifier` shown; `message` when present; the box again |
 
-No JavaScript. The 404 and 422 pages are `Cache-Control: private, no-store`.
+No JavaScript. The 404 page is `Cache-Control: private, no-store`.
 
 ### `/app/us/pl/{c}/{n}`, `/app/us/pvtl/{c}/{n}`, `/app/us/act/{date}/ch{n}`
 
@@ -217,6 +217,44 @@ the same slices as USLM: a `statPage` element holding one `slice` per
 document, with `law`, `from` and, unless the range runs to the end of the
 law, `to`.
 
+### `/app/search?q=` (E4)
+
+Calls `GET /api/v1/search?q=&limit=20&offset=&sort=&view=` when `q` is not
+empty. `limit` is always 20; `offset` from `pageOffset` (`?offset=`, or
+`?page=` times 20); `sort` one of `relevance` (default), `date`, `citation`,
+read from `?sort=`, anything else treated as `relevance`; `view` from
+`?view=` (`enacted`, `compiled`, `all`), left off the call when absent or
+unrecognised, which reads as the API's own default, `enacted`.
+
+Shows, per result (`SearchResult`): `law_label` linked to `/app{law_identifier}`,
+`level` and `num` (`lib/toc.ts`'s `unitLabel`) and `heading` linked to `url`,
+a `Compiled` tag when `view` is `compiled`, `snippets` with `<em>` kept and
+everything else escaped (`lib/search.ts`'s `highlightSnippet`), `citation`
+and `enacted` (long date). `facets.congress`, `.kind` and `.view` are printed
+as links: following one adds `congress:117` (etc.) to the query; an active
+facet's link removes it (`lib/search.ts`'s `toggleScope`, mirroring
+`with_filter`/`without_filter` in `storage/searchquery.py` for the three
+scope words a facet produces). The sort and view controls are three links
+each, the current one marked `aria-current`, `q` kept and `offset` dropped.
+`note` is printed verbatim. A pager shows "Results 21 to 40 of 312" and
+previous/next links at 20 a page. Zero results prints a link to
+`/app/search/syntax` and the six forms of `params.CITE_FORMS`. An empty `q`
+renders the box with no call made.
+
+A 400 (an empty parse, or a bad `sort`) and a 503 (the cluster is
+unavailable) render the API's `detail` verbatim, at that status. A 429
+copies `Retry-After`. `Cache-Control` is `max-age=300` on a 200, `no-store`
+on any of the three.
+
+The rail's "On this page" list carries `#results` when there are results and
+`#facets` when a facet group has values to show; `toc` is always `null` — a
+search has no single law's contents to nest.
+
+### `/app/search/syntax`
+
+Static: the `simple_query_string` operators and the scope words, one page,
+no API call. `Cache-Control: max-age=300`.
+
 ## The forwarded address
 
 Every server-side call the reader makes carries the browser's address as
@@ -227,22 +265,25 @@ with `{client_ip}` on the way to the reader, which is the client the edge
 named when the peer is the edge and the peer itself otherwise. The API's
 `client_key` reads it through uvicorn's `--proxy-headers`, so `cite`
 (`/app/goto`) and `cited-by` (the panel) are limited per reader at 60
-requests then 2 a second, the same buckets a direct API caller uses. A call
-without an address (a page rendered with no adapter address) sends no
-header and is keyed on the reader container.
+requests then 2 a second, and `search` (`/app/search`) at 120 then 10 a
+second, the same buckets a direct API caller uses. A call without an
+address (a page rendered with no adapter address) sends no header and is
+keyed on the reader container.
 
 `/app/healthz` answers 200 with `ok` and no API call; the compose
 healthcheck and the watchdog read it.
 
 ## Errors
 
-A 404 from any route renders the `detail` verbatim with status 404. A 429
-renders `detail` with status 429 and the `Retry-After` header copied. A 503
-(`RepositoryUnavailableError`) renders `detail` with status 503.
+A 404 from any route renders the `detail` verbatim with status 404. A 400
+(`/app/search` on a query with nothing to search for, or a bad `sort`)
+renders `detail` with status 400. A 429 renders `detail` with status 429 and
+the `Retry-After` header copied. A 503 (`RepositoryUnavailableError`, or the
+search cluster unavailable) renders `detail` with status 503.
 
 ## Caching
 
 The reader copies the API's `Cache-Control` for a unit page (`immutable` for
 an enacted unit and a pinned compilation, `max-age=300` otherwise) and sets
-`max-age=300` on `/app/` and the stat page. `/app/goto` failures are
-`no-store`.
+`max-age=300` on `/app/`, the stat page, `/app/search` (a 200) and
+`/app/search/syntax`. `/app/search` is `no-store` on a 400, 429 or 503.
