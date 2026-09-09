@@ -21,7 +21,13 @@
 # deploy/alarms.sh and the DNS record need, scoped to this site's names, for
 # a deploy identity that lacks them (the US Code site's
 # `linkedlegislation-deploy` holds ec2 and ssm, not s3 bucket, ecr, sns or
-# route53 writes).
+# route53 writes). It is over the 2,048-byte inline limit for a user, so
+# attach it as a managed policy:
+#
+#   aws iam create-policy --policy-name statutes-provision \
+#       --policy-document file://deploy/provision-policy.json
+#   aws iam attach-user-policy --user-name linkedlegislation-deploy \
+#       --policy-arn arn:aws:iam::739065237548:policy/statutes-provision
 set -euo pipefail
 
 REGION="${AWS_REGION:-us-east-1}"
