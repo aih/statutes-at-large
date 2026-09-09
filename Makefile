@@ -1,4 +1,4 @@
-.PHONY: dev dev-api dev-web migrate dev-data dev-up test test-web test-e2e test-slow test-all fixtures verify fetch load-all lint fetch-uscode citations classifications fetch-plaw plaw plaw-poll cite load-prod update-prod update-prod-check
+.PHONY: dev dev-api dev-web migrate dev-data dev-up test test-web test-e2e test-slow test-all fixtures verify fetch load-all lint fetch-uscode citations classifications fetch-plaw plaw plaw-poll cite load-prod update-prod update-prod-check reindex-search
 
 # The API on :8001 and the reader's dev server on :4321, against the compose
 # Postgres (:5434 on the host). The reader's Vite proxy sends /api/v1, /health,
@@ -59,6 +59,11 @@ plaw: migrate
 # congress that is new or mostly due, single files otherwise (ingest/plaw_poll.py).
 plaw-poll: migrate
 	uv run python -m ingest plaw poll --report docs/verification
+
+# The OpenSearch index (ingest/reindex_search.py, ADR-0023). Needs
+# SEARCH_PASSWORD in .env; DISABLE_SEARCH_SYNC=1 skips it entirely.
+reindex-search:
+	uv run python -m ingest reindex-search --if-changed
 
 # The specification. Runs over SQLite with the committed slices; needs no
 # database and no network.

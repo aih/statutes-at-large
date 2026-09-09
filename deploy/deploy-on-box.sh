@@ -5,11 +5,12 @@
 #   bash deploy/deploy-on-box.sh <image-tag>
 #
 # ECR login, the tag pinned into .env as IMAGE_TAG, pull, the migration with
-# the new image before it serves, `up -d --wait`, the proxy recreated so the
-# bind-mounted Caddyfile is re-read, then robots.txt fetched through the edge
-# on this box and asserted, then prune. flock on ${DATA_ROOT}/deploy.lock;
-# everything logs to ${DATA_ROOT}/logs/deploy.log. It never recreates the
-# edge or the US Code site's containers.
+# the new image before it serves, `up -d --wait`, the search index rebuilt if
+# this release changed its mapping (`|| echo`: never fatal, ADR-0023), the
+# proxy recreated so the bind-mounted Caddyfile is re-read, then robots.txt
+# fetched through the edge on this box and asserted, then prune. flock on
+# ${DATA_ROOT}/deploy.lock; everything logs to ${DATA_ROOT}/logs/deploy.log.
+# It never recreates the edge or the US Code site's containers.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 # shellcheck source=deploy/lib.sh
@@ -62,6 +63,13 @@ $COMPOSE run --rm --no-deps api uv run alembic upgrade head
 
 echo "=== bringing the stack up ==="
 $COMPOSE up -d --wait
+
+# A failed rebuild leaves the alias where it was, per ADR-0051 of the US Code
+# site, which this site's ADR-0023 cites: stale search on a deployed site
+# beats rolling back everything else because a reindex timed out.
+echo "=== rebuilding the search index if this release changed its mapping ==="
+$COMPOSE exec -T api uv run python -m ingest reindex-search --if-changed \
+    || echo "reindex-search failed; the live index stays"
 
 # A bind-mounted file's bytes are not a service definition change, and
 # `git checkout --force` gives the file a new inode; recreating the container

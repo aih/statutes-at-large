@@ -15,6 +15,7 @@ from api.cite import cite_router
 from api.cited_by import cited_by_router
 from api.comps import comps_router
 from api.routes import api
+from api.search import search_router
 from citation import router as citation_router
 from storage import RepositoryUnavailableError
 
@@ -48,6 +49,7 @@ app.include_router(api)
 app.include_router(comps_router)
 app.include_router(cited_by_router)
 app.include_router(cite_router)
+app.include_router(search_router)
 app.include_router(citation_router)
 
 
