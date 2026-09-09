@@ -9,6 +9,7 @@ belong to the representation.
 from __future__ import annotations
 
 import hashlib
+from xml.sax.saxutils import quoteattr
 
 from fastapi import Request, Response
 
@@ -26,6 +27,7 @@ from params import (
     served_note,
 )
 from storage import Repository, StatPageResult, UnitResult
+from uslmtext import content_hash
 
 XML_MEDIA_TYPE = "application/xml; charset=utf-8"
 
@@ -113,15 +115,39 @@ def compiled_not_found(repository: Repository, path: str, enacted: UnitResult | 
     )
 
 
-def stat_page_response(request: Request, page: StatPageResult) -> Response:
-    """A printed page never changes: immutable, with an ETag over the documents on it."""
+def stat_page_xml(page: StatPageResult) -> str:
+    """The page as USLM: one `slice` per law, holding the law's markup between
+    the page's marker and the next one (ADR-0020)."""
+    parts = [
+        f"<statPage identifier={quoteattr(page.identifier)} "
+        f"volume={quoteattr(str(page.volume))} page={quoteattr(page.page)}>"
+    ]
+    for document in page.documents:
+        to = f" to={quoteattr(document.to_identifier)}" if document.to_identifier else ""
+        parts.append(
+            f"<slice law={quoteattr(document.law.identifier)} from={quoteattr(page.identifier)}{to}>"
+        )
+        parts.append(document.xml or "")
+        parts.append("</slice>")
+    parts.append("</statPage>")
+    return "".join(parts)
+
+
+def stat_page_response(request: Request, page: StatPageResult, wanted: str = "json") -> Response:
+    """A printed page never changes: immutable, with an ETag over the documents
+    on it and the slice each one prints."""
     digest = hashlib.sha256(
-        "\n".join(f"{d.law.identifier}\t{d.starts_here}\t{d.unit_identifier or ''}" for d in page.documents).encode()
+        "\n".join(
+            f"{d.law.identifier}\t{d.starts_here}\t{d.unit_identifier or ''}\t{content_hash(d.xml or '')}"
+            for d in page.documents
+        ).encode()
     ).hexdigest()
     etag = f'"{digest}"'
-    headers = {"ETag": etag, "Cache-Control": IMMUTABLE}
+    headers = {"ETag": etag, "Cache-Control": IMMUTABLE, "Vary": "Accept"}
     if if_none_match(request, etag):
         return Response(status_code=304, headers=headers)
+    if wanted == "xml":
+        return Response(content=stat_page_xml(page), media_type=XML_MEDIA_TYPE, headers=headers)
     return Response(
         content=StatPageOut.of(page).model_dump_json(), media_type="application/json", headers=headers
     )

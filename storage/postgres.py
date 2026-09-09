@@ -14,7 +14,9 @@ test suite runs it over SQLite.
 
 from __future__ import annotations
 
+import contextvars
 import datetime
+import functools
 from collections.abc import Sequence
 
 from sqlalchemy import Text, and_, cast, func, or_, select
@@ -64,7 +66,29 @@ from storage.repository import (
     UnitRef,
     UnitResult,
 )
-from uslmtext import fragment_by_identifier, plain_text, serialize
+from uslmtext import PageSlice, fragment_by_identifier, page_slice, plain_text, serialize
+
+
+_slice_source: contextvars.ContextVar[Law] = contextvars.ContextVar("law_of_the_slice")
+"""The law `_page_slice` reads its XML from: the cache is keyed on the law and
+the page and holds the slice's strings, never a row."""
+
+
+@functools.lru_cache(maxsize=256)
+def _page_slice(law_id: int, content_hash: str, page: str) -> PageSlice:
+    """The slice, cached on the law and the page (ADR-0020). The law itself is
+    not an argument, so the cache holds no row and reads the XML on a miss
+    only."""
+    return page_slice(_slice_source.get().xml, page)
+
+
+def _law_page_slice(law: Law, page: str) -> PageSlice:
+    """The page's slice of the law, computed once per (law, hash, page)."""
+    token = _slice_source.set(law)
+    try:
+        return _page_slice(law.id, law.content_hash, page)
+    finally:
+        _slice_source.reset(token)
 
 
 FIRST_PLAW_CONGRESS = 104
@@ -123,7 +147,7 @@ class PostgresRepository:
         resolution = "exact" if unit.identifier == requested else "section_number"
         return self._unit_result(law, unit, requested, resolution, provision_path=None)
 
-    def stat_page(self, volume: int, page: str) -> StatPageResult | None:
+    def stat_page(self, volume: int, page: str, *, with_slices: bool = False) -> StatPageResult | None:
         rows = self._session.execute(
             select(StatPage, Law)
             .join(Law, Law.id == StatPage.law_id)
@@ -132,18 +156,43 @@ class PostgresRepository:
         ).all()
         if not rows:
             return None
-        return StatPageResult(
-            volume=volume,
-            page=page,
-            documents=tuple(
+        documents = []
+        for sp, law in rows:
+            cut = _law_page_slice(law, page) if with_slices else None
+            documents.append(
                 StatPageDocument(
                     law=self._law_ref(law),
                     starts_here=sp.starts_here,
                     unit_identifier=sp.unit_identifier,
+                    units=self._units_on_page(law, page, sp.unit_identifier) if with_slices else (),
+                    xml=cut.xml if cut is not None else None,
+                    text=cut.text if cut is not None else None,
+                    to_identifier=cut.to if cut is not None else None,
                 )
-                for sp, law in rows
-            ),
-        )
+            )
+        return StatPageResult(volume=volume, page=page, documents=tuple(documents))
+
+    def _units_on_page(self, law: Law, page: str, unit_identifier: str | None) -> tuple[UnitRef, ...]:
+        """The unit the page marker falls in, then the units that start on the
+        page, in reading order."""
+        starting = self._session.scalars(
+            select(Unit)
+            .where(Unit.law_id == law.id, Unit.occurrence == 1, Unit.first_page == page)
+            .order_by(Unit.seq)
+        ).all()
+        units = list(starting)
+        if unit_identifier is not None:
+            if any(u.identifier == unit_identifier for u in units):
+                units.sort(key=lambda u: (u.identifier != unit_identifier, u.seq))
+            else:
+                head = self._session.scalars(
+                    select(Unit).where(
+                        Unit.law_id == law.id, Unit.occurrence == 1, Unit.identifier == unit_identifier
+                    )
+                ).first()
+                if head is not None:
+                    units.insert(0, head)
+        return tuple(self._unit_ref(u) for u in units)
 
     def labels(self, identifiers: Sequence[str]) -> dict[str, LabelInfo]:
         found: dict[str, LabelInfo] = {}

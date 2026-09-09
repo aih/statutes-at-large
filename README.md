@@ -15,7 +15,7 @@ Stage 1 (this repository, enacted view):
 | `/us/pl/{congress}/{num}/{path}` | a section or a level below it, `{path}` in GPO's PLAW form (`/tI/s101`, `/s3/1`) |
 | `/us/pvtl/{congress}/{num}[/{path}]` | a private law |
 | `/us/act/{YYYY-MM-DD}/ch{n}[/{path}]` | a chapter-numbered act; laws from 1901 to 1957 answer to this form and to their law number |
-| `/us/stat/{volume}/{page}` | every law that starts on or spans the page, with the unit the page marker falls in |
+| `/us/stat/{volume}/{page}` | every law that starts on or spans the page, with the unit the page marker falls in and the text it prints there |
 
 Resolution: exact match; otherwise the longest stored prefix, with a path below a
 section cut from the section's XML; otherwise the section number under the law,
@@ -30,7 +30,7 @@ All under `/api/v1`. The bare identifier URL (`/us/pl/81/740/s3`) is a 307 to
 | Route | Answer |
 |---|---|
 | `GET /us/pl/{c}/{n}[/{path}]`, `/us/pvtl/…`, `/us/act/{date}/ch{n}[/{path}]` | the unit: `identifier`, `served_identifier`, `view`, `resolution`, `law`, `currency`, `alternatives`, `note`, `provenance`, `pages`, `text`, `xml_url`, `level`, `num`, `heading`, `ancestors`, `children`, `provision`, `occurrences` |
-| `GET /us/stat/{volume}/{page}` | `{page, identifier, volume, documents: [{identifier, kind, title, label, citation, enacted, starts_here, unit_on_page}], pdf}` |
+| `GET /us/stat/{volume}/{page}[?format=xml]` | `{page, identifier, volume, documents: [{identifier, kind, title, label, citation, enacted, starts_here, unit_on_page, units, text}], pdf}`; `text` and `units` are what the law prints on the page, the slice between its page markers (ADR-0020), and `format=xml` serves the slices as USLM |
 | `POST /labels` `{"identifiers": […]}`, `GET /labels?identifier=…` | per identifier: `{exists: true, served_identifier, resolution, num, heading, level, kind, law_identifier, law_label, currency}`, for a `/us/stat/{vol}/{page}` identifier `{exists: true, level: "page", kind: "stat", volume, page, documents: [{identifier, label, kind, starts_here}], pdf}`, or `{exists: false}`; 1 to 100 per request; 300 requests then 30 per second per address |
 | `GET /cite?q=Pub. L. 104-333, § 814` | a written citation parsed (`citeparse.py`) and checked: `{query, kind, identifier, section_identifier, law_identifier, label, exists, served_identifier, resolution, level, num, heading, law_label, url, stat_page, hierarchy, note, message}`; 422 when the text is not a citation, `exists: false` when nothing is loaded at the identifier, `exists: true` with the citation URL; `kind: "usc"` with the US Code site's URL and `exists: null` for a US Code citation; `max-age=300`, ETag; 60 requests then 2 per second per address |
 | `GET /status` | `{collections: {STATUTE, COMPS, PLAW}, checks: {…}, stale, citations, classifications}`; the `PLAW` block adds `congresses` and `laws_by_congress` |
@@ -46,7 +46,7 @@ element, the provision alone when the path went below a section), `through`
 Headers on a unit: `ETag` (the content hash; a found provision appends a hash
 of its identifier), `Cache-Control: public, max-age=31536000, immutable`,
 `Vary: Accept`, `X-Served-Identifier`. `If-None-Match` answers 304. A stat page
-is immutable with an `ETag` over its documents. `labels`, `status`, and the law
+is immutable with an `ETag` over its documents and their slices. `labels`, `status`, and the law
 summary are `public, max-age=300`. `HEAD` is not registered and answers 405.
 
 `currency.amended` is decided from the stage 3 indexes (below); `labels`

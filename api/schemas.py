@@ -422,6 +422,14 @@ class StatPageDocumentOut(BaseModel):
     enacted: datetime.date | None
     starts_here: bool
     unit_on_page: str | None = Field(description="The unit the page marker falls in, when it falls inside one.")
+    units: list[TocEntryOut] = Field(
+        default_factory=list,
+        description="The units the page touches: the one the marker falls in, then the units that start on the page, in reading order.",
+    )
+    text: str = Field(
+        default="",
+        description="The reading text of what the law prints on the page. `?format=xml` serves the same slice as USLM.",
+    )
 
     @classmethod
     def of(cls, document: StatPageDocument) -> StatPageDocumentOut:
@@ -435,6 +443,8 @@ class StatPageDocumentOut(BaseModel):
             enacted=law.enacted,
             starts_here=document.starts_here,
             unit_on_page=document.unit_identifier,
+            units=[TocEntryOut.of(u) for u in document.units],
+            text=document.text or "",
         )
 
 

@@ -193,6 +193,15 @@ the `pdf` link, and `documents`: each `label`, `title`, `citation`,
 `unit_on_page` is set, a link to `/app{unit_on_page}` labelled as the unit
 the page marker falls in. A 404 shows the API's `detail`.
 
+Each document also carries what the law prints on the page (ADR-0020):
+`text`, the reading text of the slice between the page's marker and the
+next one, and `units`, the units the page touches — `unit_on_page` first,
+then the units that start on the page, each with `identifier`, `level`,
+`num` and `heading`. `GET /api/v1/us/stat/{vol}/{page}?format=xml` serves
+the same slices as USLM: a `statPage` element holding one `slice` per
+document, with `law`, `from` and, unless the range runs to the end of the
+law, `to`.
+
 ## The forwarded address
 
 Every server-side call the reader makes carries the browser's address as
