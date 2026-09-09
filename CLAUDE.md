@@ -71,11 +71,15 @@ copied from `../uscode-redesign` (its CLAUDE.md is the fuller reference).
     stack; the edge's forwarded address survives on the box (ADR-0017). The
     reader forwards `Astro.clientAddress` on every API call, so `cite` and
     `cited-by` are limited per reader.
-14. **The production search cluster is the US Code site's**, reached over the
-    external network `uscode-redesign_default` (ADR-0023); this site runs no
-    OpenSearch container of its own on the box. `SEARCH_PASSWORD` is the
-    cluster's admin password, typed into this site's `.env` on the box by the
-    user, never generated or rotated here.
+14. **The production search cluster is the US Code site's**, reached through
+    `search-relay` (ADR-0023, ADR-0024); this site runs no OpenSearch container
+    of its own on the box. That relay is the only service of this project on
+    the external network `uscode-redesign_default`: Docker registers a service
+    name as a DNS alias on every network its container joins, so a service
+    named `db`, `opensearch`, `redis`, `api`, `frontend` or `proxy` would
+    answer there for the US Code site's own. `SEARCH_PASSWORD` is the cluster's
+    admin password, typed into this site's `.env` on the box by the user, never
+    generated or rotated here.
 
 ## Fixtures
 

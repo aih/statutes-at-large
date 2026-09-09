@@ -11,6 +11,10 @@
 # fetched through the edge on this box and asserted, then prune. flock on
 # ${DATA_ROOT}/deploy.lock; everything logs to ${DATA_ROOT}/logs/deploy.log.
 # It never recreates the edge or the US Code site's containers.
+#
+# ${DATA_ROOT}/watchdog/deploying holds this run's start time and is removed
+# as the script exits: deploy/watchdog.sh reads it and publishes SiteUp=1 for
+# a probe that lands in the second the proxy is being recreated.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 # shellcheck source=deploy/lib.sh
@@ -39,6 +43,10 @@ if ! flock -n 9; then
     echo "deploy already running"
     exit 1
 fi
+
+mkdir -p "$DATA_ROOT/watchdog"
+date +%s > "$DATA_ROOT/watchdog/deploying"
+trap 'rm -f "$DATA_ROOT/watchdog/deploying"' EXIT
 
 echo "=== $(date -u +%FT%TZ) deploying $TAG ==="
 
@@ -75,7 +83,7 @@ $COMPOSE exec -T api uv run python -m ingest reindex-search --if-changed \
 # `git checkout --force` gives the file a new inode; recreating the container
 # is what re-reads deploy/Caddyfile.
 echo "=== recreating the proxy so it picks up deploy/Caddyfile ==="
-$COMPOSE up -d --no-deps --force-recreate proxy
+$COMPOSE up -d --no-deps --force-recreate --wait proxy
 
 # Through the edge, over the real hostname, on this box. The edge is compose
 # project `edge` (deploy/edge/up.sh); it needs to be up and to hold the

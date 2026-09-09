@@ -1,0 +1,52 @@
+"""What `docker-compose.prod.yml` may attach to the US Code compose project's
+network, and under what name (ADR-0024). Docker registers a service's name as a
+DNS alias on every network its container joins, so a service of this project
+named like one of that project's services answers for it there."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+import yaml
+
+ROOT = Path(__file__).resolve().parent.parent
+FOREIGN = "uscode-redesign_default"
+# The US Code site's `docker-compose.prod.yml`, read on 2026-09-09.
+USCODE_SERVICES = {"db", "opensearch", "redis", "api", "frontend", "proxy"}
+
+
+@pytest.fixture(scope="module")
+def compose() -> dict:
+    return yaml.safe_load((ROOT / "docker-compose.prod.yml").read_text())
+
+
+def networks_of(service: dict) -> set[str]:
+    networks = service.get("networks") or {}
+    return set(networks) if isinstance(networks, dict) else set(networks)
+
+
+def test_only_the_relay_joins_the_us_code_projects_network(compose: dict) -> None:
+    joined = {name for name, service in compose["services"].items() if FOREIGN in networks_of(service)}
+    assert joined == {"search-relay"}
+    assert compose["networks"][FOREIGN] == {"external": True}
+
+
+def test_nothing_on_that_network_carries_a_name_that_project_uses(compose: dict) -> None:
+    assert "search-relay" not in USCODE_SERVICES
+    for name, service in compose["services"].items():
+        if FOREIGN in networks_of(service):
+            assert name not in USCODE_SERVICES
+
+
+def test_the_api_is_on_this_projects_network_alone(compose: dict) -> None:
+    assert networks_of(compose["services"]["api"]) <= {"default"}
+    assert compose["services"]["api"]["environment"]["SEARCH_URL"] == "https://search-relay:9200"
+
+
+def test_the_relay_publishes_no_ports_and_is_bounded(compose: dict) -> None:
+    relay = compose["services"]["search-relay"]
+    assert "ports" not in relay
+    assert relay["mem_limit"] == "32m"
+    assert relay["restart"] == "unless-stopped"
+    assert relay["image"].startswith("alpine/socat:") and relay["image"] != "alpine/socat:latest"

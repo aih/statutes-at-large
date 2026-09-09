@@ -1173,6 +1173,7 @@ dataset = [
 dev = [
     { name = "pytest" },
     { name = "pytest-cov" },
+    { name = "pyyaml" },
     { name = "respx" },
 ]
 
@@ -1194,6 +1195,7 @@ dataset = [{ name = "pyarrow", specifier = ">=21" }]
 dev = [
     { name = "pytest", specifier = ">=8.3" },
     { name = "pytest-cov", specifier = ">=5" },
+    { name = "pyyaml", specifier = ">=6.0.3" },
     { name = "respx", specifier = ">=0.21" },
 ]
 

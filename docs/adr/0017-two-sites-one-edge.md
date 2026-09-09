@@ -31,7 +31,12 @@ container calling the API on the reader's behalf).
    `/var/lib/statutes`), images, Caddyfile, `robots.txt`, headers, deploy
    lock, logs, watchdog, cron file, backup bucket, memory limits
    (`statutes-db` 768 MB, `statutes-api` 512 MB, `statutes-frontend`
-   384 MB, `statutes-proxy` 64 MB).
+   384 MB, `statutes-proxy` 64 MB). Amended 2026-09-09: the US Code site's
+   OpenSearch cluster is shared too (ADR-0023), reached over that project's
+   default network `uscode-redesign_default`. One service of this project is
+   attached to it — `search-relay`, 32 MB — and no other; a service of this
+   project on that network answers there under its own name, and the names
+   that project uses are its own (ADR-0024).
 
 3. **The inner proxies trust the edge subnet, not `private_ranges`.** The
    plan wrote `trusted_proxies static private_ranges` with
@@ -96,7 +101,11 @@ container calling the API on the reader's behalf).
    `restart: unless-stopped`. Each watchdog restarts its own `api`,
    `frontend` and `proxy`; the inner proxy is restarted with
    `docker compose restart`, which keeps the container and so its `edge`
-   attachment and alias.
+   attachment and alias. Amended 2026-09-09 (ADR-0024): this site's
+   `deploy/watchdog.sh` reads curl's exit 7 on both probes as the edge
+   refusing connections, logs it and restarts nothing, and otherwise
+   restarts the half that failed — `api`, `frontend`, or both with `proxy`
+   when neither surface answered.
 
 10. **The US Code site's side** is its branch `shared-edge` (three
     commits, not pushed): the proxy without `ports` on `edge` as
