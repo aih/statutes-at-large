@@ -1,0 +1,119 @@
+---
+/**
+ * Every keyboard shortcut the reader has, bound (ADR-0022). Rendered by
+ * `Base.astro` on every page, ported from the US Code site's
+ * `KeyboardNav.astro` (its ADR-0055) with this site's actions.
+ *
+ * ## Where the bindings come from
+ *
+ * `lib/shortcuts.ts`, handed to the script below as JSON. An `is:inline`
+ * script can import nothing, and this component renders the list nowhere
+ * (`ShortcutsDialog.astro` does), so a binding written here would be a
+ * second copy of it. The script switches on an action name; the module
+ * owns which key produces it.
+ *
+ * `previous`, `next` and `up` are page navigations the server already
+ * knows and the browser does not: the neighbouring section (from
+ * `neighbors`, a section page only) and the nearest ancestor, or the law
+ * (a unit page other than the law). A neighbour the page does not have is
+ * an empty target, so the key does nothing rather than navigating to
+ * `/app`.
+ *
+ * ## What it will not do
+ *
+ * No Alt, Ctrl or ⌘ binding: this site has one box and no page commands,
+ * so a held modifier has nothing of its own to reach and is left to the
+ * browser. Nothing fires while focus is in a text field or a `<select>`,
+ * or while a `dialog[open]` exists, so a key behind an open dialog does
+ * not scroll or navigate a document the reader cannot see. `Escape` is
+ * printed in the help list and bound to nothing here: a `<dialog>` closes
+ * on it by itself.
+ *
+ * ## In-page jumps move focus as well as the scroll position
+ *
+ * `goTo` gives its target `tabindex="-1"` at the moment it is jumped to
+ * and focuses it with `preventScroll`, so a keyboard reader's next Tab
+ * continues from the target rather than the top of the document. A jump
+ * whose target is a `<details>` opens it first. `scroll-margin-top` does
+ * the rest (`site.scss`), applying to `scrollIntoView` the same as to a
+ * fragment jump, so nothing here has to know how tall the sticky header
+ * is at this viewport.
+ *
+ * ## `c`: the contents
+ *
+ * The rail's "In this law" list when the rail is pinned beside the text
+ * (64em and up, C2): jumping into `.rail` reaches it directly. Below
+ * 64em the rail renders after the page's own content, so `c` reaches the
+ * `#contents` disclosure there instead when the page has one; a page
+ * with neither (a hierarchy node's rail carrying only "On this page")
+ * falls back to the rail.
+ *
+ * ## `[` `]`: stepping through a section's provisions
+ *
+ * The top-level provisions are the `[id]` children of `.uslm-section`,
+ * the element `uslm.ts`'s renderer wraps the section itself in (`article
+ * #text`'s one child, carrying the section's own identifier as its own
+ * id) — its direct children in document order, the section wrapper
+ * excluded. No second definition of "top-level" is needed: it is the
+ * same set of elements the renderer already gave an id. Which
+ * provision is "current" is decided against the reading line, not the
+ * top of the viewport: the sticky header covers the first few rem, so a
+ * provision just jumped to sits under it rather than at zero, and
+ * comparing against zero is what would make `]` land on the provision it
+ * started from. The offset is the target's own computed
+ * `scroll-margin-top`, the same number the jump itself lands on. A
+ * section with no top-level provisions has nothing to step through;
+ * `say()` writes one sentence into the `role="status"` region
+ * `Base.astro` renders and clears it after five seconds, returning true
+ * so the key is treated as handled.
+ */
+import type { Link } from "../lib/types";
+import { keyMap } from "../lib/shortcuts";
+
+interface Props {
+  previous?: Link | null;
+  next?: Link | null;
+  up?: Link | null;
+}
+
+const { previous = null, next = null, up = null } = Astro.props;
+
+const targets = {
+  "previous-section": previous?.href ?? "",
+  "next-section": next?.href ?? "",
+  "up-level": up?.href ?? "",
+};
+---
+
+<script type="application/json" data-shortcut-keys set:html={JSON.stringify(keyMap())} />
+<script type="application/json" data-shortcut-targets set:html={JSON.stringify(targets)} />
+
+<script is:inline>
+{
+const read=s=>JSON.parse(document.querySelector(s)?.textContent||"{}");
+const keys=read("[data-shortcut-keys]"),targets=read("[data-shortcut-targets]"),dialog=document.getElementById("shortcuts");
+function goTo(el,block){if(!el)return false;if(el instanceof HTMLDetailsElement)el.open=true;el.scrollIntoView({block:block||"start",behavior:"smooth"});if(!el.hasAttribute("tabindex"))el.setAttribute("tabindex","-1");el.focus({preventScroll:true});return true}
+let timer;
+function say(m){const b=document.getElementById("keysay");if(b){b.textContent=m;clearTimeout(timer);timer=setTimeout(()=>b.textContent="",5000)}return true}
+function provisions(){const r=document.querySelector("#text>.uslm-section");return r?[...r.children].filter(e=>e.id):[]}
+function step(d){const l=provisions();if(!l.length)return say("This section has no provisions to step through.");let c=-1;l.forEach((e,i)=>{const y=parseFloat(getComputedStyle(e).scrollMarginTop)||0;if(e.getBoundingClientRect().top<=y+2)c=i});return goTo(l[c+d])}
+function contentsTarget(){const r=document.querySelector(".rail");if(r&&matchMedia("(min-width: 64em)").matches)return r;return document.getElementById("contents")||r}
+function openHelp(){if(dialog&&!dialog.open)dialog.showModal();return true}
+function run(a){const h=targets[a];if(h){location.assign(h);return true}switch(a){
+case "top": return goTo(document.getElementById("main"));
+case "bottom": return goTo(document.getElementById("site-footer"),"end");
+case "contents": return goTo(contentsTarget());
+case "pages": return goTo(document.getElementById("pages"));
+case "about": return goTo(document.getElementById("about-h"));
+case "versions": return goTo(document.getElementById("versions"));
+case "previous-provision": return step(-1);
+case "next-provision": return step(1);
+case "search": {const i=document.getElementById("cite-q");if(!i)return false;i.focus();i.select?.();return true}
+case "help": return openHelp();
+default: return false}}
+document.addEventListener("keydown",e=>{if(e.altKey||e.metaKey||e.ctrlKey)return;if(document.querySelector("dialog[open]"))return;if(e.shiftKey&&e.key!=="?")return;const el=e.target;if(el&&(el.isContentEditable||["INPUT","TEXTAREA","SELECT"].includes(el.tagName)))return;const a=keys[e.key];if(a&&run(a))e.preventDefault()});
+for(const o of document.querySelectorAll("[data-shortcuts-open]"))o.addEventListener("click",e=>{if(!dialog)return;e.preventDefault();openHelp()});
+dialog?.querySelector("[data-shortcuts-close]")?.addEventListener("click",()=>dialog.close());
+dialog?.addEventListener("click",e=>{if(e.target!==dialog)return;const b=dialog.getBoundingClientRect();const inside=e.clientX>=b.left&&e.clientX<=b.right&&e.clientY>=b.top&&e.clientY<=b.bottom;if(!inside)dialog.close()});
+}
+</script>

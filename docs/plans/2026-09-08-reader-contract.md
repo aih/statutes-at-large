@@ -11,9 +11,10 @@ API call; the base is `/app`; the reader never rephrases a `note`. Links to
 this site's own identifiers are `/app{identifier}`; links to the US Code
 site are `USCODE_ORIGIN{identifier}` (`https://uscode.linkedlegislation.org`);
 links to a printed page are the `pdf` field the API gives. Client
-JavaScript is budgeted rather than absent (ADR-0021): every page carries one
-small inline script (opening a disclosure a fragment names) and stays under
-the ceiling `docs/js-budgets.json` states for its route.
+JavaScript is budgeted rather than absent (ADR-0021, ADR-0022): every page
+carries one script that opens a disclosure a fragment names and one that
+binds the keyboard shortcuts, and stays under the ceiling
+`docs/js-budgets.json` states for its route.
 
 ## Chrome
 
@@ -27,6 +28,17 @@ the branch being read (`lib/rail.ts`). A unit or a law page's Contents and
 Pages panels are `<details class="disclosure">`, closed by default except
 Pages on a section page, which prints open. A fragment naming a closed
 `<details>` opens it, on load and on `hashchange`.
+
+**Keyboard shortcuts** (ADR-0022): `lib/shortcuts.ts` lists them,
+`ShortcutsDialog.astro` renders the list in a `<dialog id="shortcuts">` on
+every page, and `KeyboardNav.astro`'s island binds them. `←`/`j` and
+`→`/`k` move between sections; `u` goes up to the nearest ancestor, else
+the law; `c` reaches the contents; `[`/`]` step through a section's
+top-level provisions; `p` opens the Pages disclosure; `a` reaches About
+this text; `v` reaches Versions on a compiled page; `t`/`b` go to the top
+and bottom of the page; `/` focuses the citation box; `?` opens the
+dialog. `[` and `]` on a section with no top-level provisions write one
+sentence into `#keysay`, a `role="status"` region on every page.
 
 ## Sentences printed verbatim
 
@@ -106,7 +118,9 @@ Calls `GET /api/v1/cite?q=`. Three outcomes:
 | 200, `kind: "usc"` | 307 to `url` (the US Code site) |
 | 200, `exists: false` | status 404; `note` printed verbatim; `label` and `identifier` shown; `message` when present; the box again |
 
-No JavaScript. The 404 page is `Cache-Control: private, no-store`.
+The page carries the same budgeted scripts as any other (the disclosure
+jump and the keyboard shortcuts, ADR-0021, ADR-0022) and none of its own.
+The 404 page is `Cache-Control: private, no-store`.
 
 ### `/app/us/pl/{c}/{n}`, `/app/us/pvtl/{c}/{n}`, `/app/us/act/{date}/ch{n}`
 

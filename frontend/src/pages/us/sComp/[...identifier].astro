@@ -3,7 +3,9 @@
  * `/app/us/sComp/{c}/{n}[/{path}][?through=]`: the compiled view. The
  * compilation's title, the enacted law, the compiled currency line, `note`
  * verbatim, `provenance`, `usc_refs`, the table of contents or the rendered
- * text, the version picker and the alternatives.
+ * text, the version picker and the alternatives. Passes `up` to `Base` for
+ * the `u` keyboard shortcut (D, ADR-0022); `previous` and `next` stay null,
+ * since this view fetches no neighbouring section.
  */
 import Alternatives from "../../../components/Alternatives.astro";
 import CompiledCurrency from "../../../components/CompiledCurrency.astro";
@@ -104,6 +106,20 @@ if (unit) {
   if (unit.versions.length > 0) sections.push({ href: "#versions", label: "Versions" });
   sections.push({ href: "#about-h", label: "About this text" });
 }
+
+/** The `u` key's target: the nearest ancestor, else the compilation root;
+ * null on the root itself, which has neither. The compiled view fetches no
+ * neighbouring section, so `previous` and `next` stay null here. */
+function upLink(): Link | null {
+  if (!unit || isRoot) return null;
+  const nearest = unit.ancestors[unit.ancestors.length - 1];
+  if (nearest) return { href: appHref(nearest.identifier, query), label: unitLabel(nearest.level, nearest.num) };
+  return {
+    href: appHref(unit.compilation.identifier_prefix, query),
+    label: unit.compilation.display_title ?? unit.compilation.identifier_prefix,
+  };
+}
+const up = upLink();
 ---
 
 <Base
@@ -114,6 +130,9 @@ if (unit) {
   sections={sections}
   toc={unit ? tocNodes : null}
   currentIdentifier={unit?.served_identifier ?? null}
+  previous={null}
+  next={null}
+  up={up}
 >
   {failure && <ErrorPage status={failure.status} detail={failure.detail} retryAfter={failure.retryAfter} />}
 

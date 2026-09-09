@@ -11,6 +11,10 @@
  * rendered section, `#contents` and `#pages` on their disclosures, `#sources`
  * on the law's sources panel, `about-h` and `cited-by-h` on the two panels
  * that already had heading ids.
+ *
+ * Passes `previous`, `next` and `up` to `Base` for the keyboard shortcuts
+ * (D, ADR-0022): the first two are `neighbors`, set only on a section; `up`
+ * is the nearest ancestor, or the law, and is null on the law page.
  */
 import Alternatives from "./Alternatives.astro";
 import CitedBy from "./CitedBy.astro";
@@ -97,6 +101,16 @@ if (unit) {
   if (isSection) sections.push({ href: "#about-h", label: "About this text" });
   if ((isLaw || isSection) && citedBy) sections.push({ href: "#cited-by-h", label: "Cited by the US Code" });
 }
+
+/** The `u` key's target: the nearest ancestor, else the law; null on the
+ * law page, which has neither. */
+function upLink(): Link | null {
+  if (!unit || isLaw) return null;
+  const nearest = unit.ancestors[unit.ancestors.length - 1];
+  if (nearest) return { href: appHref(nearest.identifier), label: unitLabel(nearest.level, nearest.num) };
+  return { href: appHref(unit.law.identifier), label: unit.law.label };
+}
+const up = upLink();
 ---
 
 <Base
@@ -107,6 +121,9 @@ if (unit) {
   sections={sections}
   toc={unit ? tocNodes : null}
   currentIdentifier={unit?.served_identifier ?? null}
+  previous={neighbors.previous}
+  next={neighbors.next}
+  up={up}
 >
   {failure && <ErrorPage status={failure.status} detail={failure.detail} retryAfter={failure.retryAfter} />}
 

@@ -3,15 +3,15 @@
   "counted": "Bytes inside <script is:inline> across each route's transitive .astro import graph. Where two page files serve one route, the ceiling is the heavier of the two, since a request reaches one and never both. Comments inside those scripts are counted, because Astro ships inline scripts verbatim and a reader downloads them.",
   "headroom": "Each ceiling is the measured size plus 200 bytes, rounded up to the next 500, so an ordinary comment edit does not fail the build but real growth does.",
   "budgets": {
-    "/app/": 1000,
-    "/app/goto": 1000,
+    "/app/": 3500,
+    "/app/goto": 3500,
     "/app/healthz": 500,
-    "/app/search": 500,
-    "/app/search/syntax": 500,
-    "/app/us/act": 1000,
-    "/app/us/pl": 1000,
-    "/app/us/pvtl": 1000,
-    "/app/us/sComp": 1000,
-    "/app/us/stat/[volume]": 1000
+    "/app/search": 3500,
+    "/app/search/syntax": 3500,
+    "/app/us/act": 3500,
+    "/app/us/pl": 3500,
+    "/app/us/pvtl": 3500,
+    "/app/us/sComp": 3500,
+    "/app/us/stat/[volume]": 3500
   }
 }
