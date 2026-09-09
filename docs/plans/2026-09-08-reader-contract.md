@@ -6,12 +6,27 @@ needs is already served; this page lists, per reader page, the routes it
 calls, what it shows, and the sentences it prints verbatim from the API.
 
 Conventions the reader keeps from the US Code site (its ADR-0010, 0011,
-0015): every page is server-rendered with no client JavaScript by default;
-one typed client module makes every API call; the base is `/app`; the reader
-never rephrases a `note`. Links to this site's own identifiers are
-`/app{identifier}`; links to the US Code site are `USCODE_ORIGIN{identifier}`
-(`https://uscode.linkedlegislation.org`); links to a printed page are the
-`pdf` field the API gives.
+0015): every page is server-rendered; one typed client module makes every
+API call; the base is `/app`; the reader never rephrases a `note`. Links to
+this site's own identifiers are `/app{identifier}`; links to the US Code
+site are `USCODE_ORIGIN{identifier}` (`https://uscode.linkedlegislation.org`);
+links to a printed page are the `pdf` field the API gives. Client
+JavaScript is budgeted rather than absent (ADR-0021): every page carries one
+small inline script (opening a disclosure a fragment names) and stays under
+the ceiling `docs/js-budgets.json` states for its route.
+
+## Chrome
+
+`Base.astro` wraps every page's content in `.reader-layout`: the rail
+(`Rail.astro`) beside it from 64em, after it below 64em. The rail lists two
+things, either of which can be empty: **On this page**, the panels the page
+actually rendered, by id (`#text`, `#contents`, `#pages`, `#sources`,
+`#about-h`, `#cited-by-h`, `#versions`); and **In this law**, the law's or
+compilation's nested contents, bounded above 300 units to the hierarchy plus
+the branch being read (`lib/rail.ts`). A unit or a law page's Contents and
+Pages panels are `<details class="disclosure">`, closed by default except
+Pages on a section page, which prints open. A fragment naming a closed
+`<details>` opens it, on load and on `hashchange`.
 
 ## Sentences printed verbatim
 

@@ -1,0 +1,78 @@
+{
+  "generated_by": "frontend/tests/jsbudget.test.ts, via `make test-web`",
+  "counts": "Bytes inside <script is:inline> across each route's transitive .astro import graph. A component behind a false condition is still counted, so this is what a route can ship, not always what it did.",
+  "client_bundles": "None. `astro build` emits no client JavaScript for this site; dist/client/_astro holds only CSS, because every island is is:inline and Astro never bundles those.",
+  "total_bytes": 2660,
+  "routes": [
+    {
+      "route": "/app/",
+      "page": "pages/index.astro",
+      "bytes": 380,
+      "scripts": 1,
+      "components": [
+        "Base.astro"
+      ]
+    },
+    {
+      "route": "/app/goto",
+      "page": "pages/goto.astro",
+      "bytes": 380,
+      "scripts": 1,
+      "components": [
+        "Base.astro"
+      ]
+    },
+    {
+      "route": "/app/healthz",
+      "page": "pages/healthz.astro",
+      "bytes": 0,
+      "scripts": 0,
+      "components": []
+    },
+    {
+      "route": "/app/us/act",
+      "page": "pages/us/act/[...identifier].astro",
+      "bytes": 380,
+      "scripts": 1,
+      "components": [
+        "Base.astro"
+      ]
+    },
+    {
+      "route": "/app/us/pl",
+      "page": "pages/us/pl/[...identifier].astro",
+      "bytes": 380,
+      "scripts": 1,
+      "components": [
+        "Base.astro"
+      ]
+    },
+    {
+      "route": "/app/us/pvtl",
+      "page": "pages/us/pvtl/[...identifier].astro",
+      "bytes": 380,
+      "scripts": 1,
+      "components": [
+        "Base.astro"
+      ]
+    },
+    {
+      "route": "/app/us/sComp",
+      "page": "pages/us/sComp/[...identifier].astro",
+      "bytes": 380,
+      "scripts": 1,
+      "components": [
+        "Base.astro"
+      ]
+    },
+    {
+      "route": "/app/us/stat/[volume]",
+      "page": "pages/us/stat/[volume]/[page].astro",
+      "bytes": 380,
+      "scripts": 1,
+      "components": [
+        "Base.astro"
+      ]
+    }
+  ]
+}

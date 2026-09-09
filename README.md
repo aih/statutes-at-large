@@ -208,9 +208,13 @@ routed (405).
 ## Reader
 
 The reader at `/app` (`frontend/`, Astro 5 with TypeScript and USWDS 3,
-server-rendered on Node behind Caddy, no client JavaScript) reads `/api/v1`
-and prints the API's `note`, `message` and `detail` sentences verbatim
-(`docs/plans/2026-09-08-reader-contract.md`, ADR-0014). Pages:
+server-rendered on Node behind Caddy) reads `/api/v1` and prints the API's
+`note`, `message` and `detail` sentences verbatim
+(`docs/plans/2026-09-08-reader-contract.md`, ADR-0014). A sticky header, a
+rail listing the page's own panels and the law's contents, and disclosures
+for Contents and Pages sit around that text (ADR-0021); each page carries
+one small inline script, under the ceiling `docs/js-budgets.json` states for
+its route. Pages:
 
 | Page | Shows |
 |---|---|
