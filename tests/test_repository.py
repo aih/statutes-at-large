@@ -90,6 +90,49 @@ def test_stat_pages(repo):
     assert repo.stat_page(64, "99999") is None
 
 
+def test_a_stat_page_slice(repo):
+    """Public Law 81-740 starts on 64 Stat. 563: the slice begins with the
+    preface and ends at the marker for 564."""
+    first = repo.stat_page(64, "563", with_slices=True).documents[0]
+    assert first.to_identifier == "/us/stat/64/564"
+    assert first.text.startswith("[CHAPTER 823] AN ACT To incorporate the Future Farmers of America")
+    assert [u.identifier for u in first.units] == [
+        "/us/pl/81/740/s1",
+        "/us/pl/81/740/s2",
+        "/us/pl/81/740/s3",
+    ]
+    later = repo.stat_page(64, "564", with_slices=True).documents[0]
+    assert later.to_identifier == "/us/stat/64/565"
+    assert later.text.startswith("(3) to create and nurture a love of country life")
+    assert "Future Farmers of America, and for other purposes" not in later.text
+    assert [u.identifier for u in later.units] == ["/us/pl/81/740/s3", "/us/pl/81/740/s4"]
+    assert later.units[0].level == "section" and later.units[0].num == "3"
+
+
+def test_a_stat_page_carries_no_slice_unless_it_is_asked_for(repo):
+    document = repo.stat_page(64, "564").documents[0]
+    assert document.xml is None and document.text is None and document.units == ()
+
+
+def test_each_law_on_a_page_has_its_own_slice(repo):
+    """Chapters 1 and 2 both start on 64 Stat. 3; neither slice holds the
+    other's text."""
+    documents = repo.stat_page(64, "3", with_slices=True).documents
+    assert [d.law.identifier for d in documents] == ["/us/pl/81/441", "/us/pl/81/442"]
+    assert "National Children’s Dental Health Day" in documents[0].text
+    assert "National Children’s Dental Health Day" not in documents[1].text
+    assert "Federal Firearms Act" in documents[1].text
+
+
+def test_a_marker_inside_quoted_content_names_a_page(repo):
+    """124 Stat. 3613 begins inside a quoted section (gotcha 5): the slice
+    starts at that marker and the unit is the section that holds the quote."""
+    document = repo.stat_page(124, "3613", with_slices=True).documents[0]
+    assert document.unit_identifier == "/us/pl/111/344/tI/stA/s101"
+    assert [u.identifier for u in document.units] == ["/us/pl/111/344/tI/stA/s101"]
+    assert document.to_identifier == "/us/stat/124/3614"
+
+
 def test_labels(repo):
     found = repo.labels(["/us/pl/81/740/s3", "/us/act/1950-08-30/ch823", "/us/pl/81/1", "/us/pl/118/34/s1"])
     assert set(found) == {"/us/pl/81/740/s3", "/us/act/1950-08-30/ch823", "/us/pl/118/34/s1"}

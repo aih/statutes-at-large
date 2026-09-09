@@ -183,6 +183,18 @@ class StatPageDocument:
     unit_identifier: str | None
     """The unit in which the page marker falls, when it falls inside one."""
 
+    units: tuple[UnitRef, ...] = ()
+    """The units the page touches: the one the marker falls in, then every unit
+    of the law that starts on the page, in reading order. Empty unless the
+    slice was asked for."""
+    xml: str | None = None
+    """The law's USLM between the page's marker and the next one (ADR-0020),
+    None unless the slice was asked for."""
+    text: str | None = None
+    """The reading text of the slice."""
+    to_identifier: str | None = None
+    """The page identifier the range ends at; None at the law's end."""
+
 
 @dataclass(frozen=True, slots=True)
 class StatPageResult:
@@ -604,7 +616,10 @@ class Repository(Protocol):
         """Rule 3 on its own: the section with this number, ignoring hierarchy."""
         ...
 
-    def stat_page(self, volume: int, page: str) -> StatPageResult | None:
+    def stat_page(self, volume: int, page: str, *, with_slices: bool = False) -> StatPageResult | None:
+        """The laws on a printed page. `with_slices` adds each law's slice of
+        the page, its text and the units the page touches, which parses the
+        law's XML (ADR-0020)."""
         ...
 
     def labels(self, identifiers: Sequence[str]) -> dict[str, LabelInfo]:

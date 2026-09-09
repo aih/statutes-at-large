@@ -3,8 +3,10 @@ section 4, the note sentences, both representations, the caching headers,
 stat pages, labels, and status."""
 
 import datetime
+from xml.etree import ElementTree
 
 from params import LIMITERS
+from uslmtext import USLM_NS
 
 SECTION = "/api/v1/us/pl/81/740/s3"
 SECTION_KEYS = {
@@ -253,7 +255,14 @@ def test_through_is_accepted_on_the_enacted_view(client):
 def test_a_stat_page(client):
     response = client.get("/api/v1/us/stat/64/564")
     assert response.status_code == 200
-    assert response.json() == {
+    body = response.json()
+    document = body["documents"][0]
+    assert document.pop("text").startswith("(3) to create and nurture a love of country life")
+    assert document.pop("units") == [
+        {"identifier": "/us/pl/81/740/s3", "level": "section", "num": "3", "heading": None, "is_section": True},
+        {"identifier": "/us/pl/81/740/s4", "level": "section", "num": "4", "heading": None, "is_section": True},
+    ]
+    assert body == {
         "page": "564",
         "identifier": "/us/stat/64/564",
         "volume": 64,
@@ -274,6 +283,45 @@ def test_a_stat_page(client):
     assert response.headers["cache-control"] == "public, max-age=31536000, immutable"
     etag = response.headers["etag"]
     assert client.get("/api/v1/us/stat/64/564", headers={"If-None-Match": etag}).status_code == 304
+
+
+def test_the_first_page_of_a_law_starts_at_its_preface(client):
+    document = client.get("/api/v1/us/stat/64/563").json()["documents"][0]
+    assert document["starts_here"] is True and document["unit_on_page"] is None
+    assert document["text"].startswith("[CHAPTER 823] AN ACT To incorporate the Future Farmers of America")
+    assert [u["identifier"] for u in document["units"]] == [
+        "/us/pl/81/740/s1",
+        "/us/pl/81/740/s2",
+        "/us/pl/81/740/s3",
+    ]
+
+
+def test_a_stat_page_as_xml(client):
+    """One `slice` per law on the page, each holding the law\'s USLM between the
+    page\'s marker and the next one."""
+    response = client.get("/api/v1/us/stat/64/3?format=xml")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/xml; charset=utf-8"
+    root = ElementTree.fromstring(response.text)
+    assert root.tag == "statPage"
+    assert root.attrib == {"identifier": "/us/stat/64/3", "volume": "64", "page": "3"}
+    slices = root.findall("slice")
+    assert [s.get("law") for s in slices] == ["/us/pl/81/441", "/us/pl/81/442"]
+    assert all(s.get("from") == "/us/stat/64/3" for s in slices)
+    assert slices[0].find(f"{{{USLM_NS}}}pLaw") is not None
+
+
+def test_the_xml_of_a_mid_law_page_names_the_page_it_runs_to(client):
+    root = ElementTree.fromstring(client.get("/api/v1/us/stat/64/564?format=xml").text)
+    cut = root.find("slice")
+    assert cut.get("from") == "/us/stat/64/564" and cut.get("to") == "/us/stat/64/565"
+    assert "Future Farmers of America, and for other purposes" not in ElementTree.tostring(cut, encoding="unicode")
+
+
+def test_a_stat_page_is_negotiated_on_accept(client):
+    response = client.get("/api/v1/us/stat/64/564", headers={"Accept": "application/xml"})
+    assert response.headers["content-type"] == "application/xml; charset=utf-8"
+    assert response.headers["vary"] == "Accept"
 
 
 def test_a_page_where_two_laws_start(client):

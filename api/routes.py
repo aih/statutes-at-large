@@ -219,18 +219,25 @@ def act_unit(
 @api.get(
     "/us/stat/{volume}/{page}",
     response_model=None,
-    responses={200: {"model": StatPageOut}, 404: {"model": ErrorOut}},
+    responses={
+        200: {"content": {"application/json": {"schema": StatPageOut.model_json_schema()}, "application/xml": {}}},
+        404: {"model": ErrorOut},
+    },
     summary="Every law on a Statutes at Large page",
 )
-def stat_page(volume: int, page: str, request: Request, repository: RepositoryDep) -> Response:
-    """The laws that start on or span the page, with the unit the page marker
-    falls in, and the GovInfo link to the printed page. Page labels are matched
-    lower case (`a12`, `B3` → `b3`)."""
+def stat_page(
+    volume: int, page: str, request: Request, repository: RepositoryDep, format: FormatParam = None
+) -> Response:
+    """The laws that start on or span the page, each with what it prints there:
+    the text of the page, the units the page touches, the unit the page marker
+    falls in, and the GovInfo link to the printed page. `format=xml` serves the
+    same slices as USLM. Page labels are matched lower case (`a12`, `B3` →
+    `b3`)."""
     label = normalize_page(page)
-    result = repository.stat_page(volume, label)
+    result = repository.stat_page(volume, label, with_slices=True)
     if result is None:
         raise HTTPException(status_code=404, detail=not_found(f"/us/stat/{volume}/{label}"))
-    return stat_page_response(request, result)
+    return stat_page_response(request, result, negotiated_format(request, format, allowed=MACHINE_FORMATS))
 
 
 # -------------------------------------------------------------------- labels
