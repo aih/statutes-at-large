@@ -1,0 +1,43 @@
+---
+/**
+ * One level of the rail's "In this law" list, recursive. A node with no
+ * children in the DOM (a closed hierarchy node under the bounded rule, or a
+ * section) is a plain link. A node carrying children is a link plus a
+ * separate `<details>` holding the nested list, so the link and the
+ * disclosure toggle are two controls rather than one nested inside the
+ * other.
+ */
+import type { RailNode } from "../lib/rail";
+import { unitLabel } from "../lib/toc";
+import { appHref } from "../lib/url";
+
+interface Props {
+  nodes: RailNode[];
+  current: string | null;
+}
+
+const { nodes, current } = Astro.props;
+---
+
+<ul class="rail__list">
+  {
+    nodes.map((node) => {
+      const here = node.entry.identifier === current;
+      const label = unitLabel(node.entry.level, node.entry.num);
+      const text = node.entry.heading ? `${label} ${node.entry.heading}`.trim() : label;
+      return (
+        <li>
+          <a class="rail__link" href={appHref(node.entry.identifier)} aria-current={here ? "page" : undefined}>
+            {text}
+          </a>
+          {node.children.length > 0 && (
+            <details class="rail__details" open={node.open}>
+              <summary class="rail__summary">Contents</summary>
+              <Astro.self nodes={node.children} current={current} />
+            </details>
+          )}
+        </li>
+      );
+    })
+  }
+</ul>
