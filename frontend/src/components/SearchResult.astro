@@ -1,0 +1,36 @@
+---
+/** One search result row: the law, linked, then the unit, linked, its
+ * heading, a `compiled` tag when the view is compiled, the highlighted
+ * snippets, and the citation with the enacted date. */
+import { highlightSnippet } from "../lib/search";
+import type { SearchResultItem } from "../lib/types";
+import { unitLabel } from "../lib/toc";
+import { appHref, longDate } from "../lib/url";
+
+interface Props {
+  result: SearchResultItem;
+}
+
+const { result } = Astro.props;
+const unitText = [unitLabel(result.level ?? "", result.num), result.heading].filter(Boolean).join(" ").trim();
+---
+
+<li class="searchresult">
+  <p class="toc__meta">
+    {result.law_identifier && result.law_label && <a href={appHref(result.law_identifier)}>{result.law_label}</a>}
+    {result.view === "compiled" && <span class="usa-tag">Compiled</span>}
+  </p>
+  <h3>
+    <a href={result.url}>{unitText || result.identifier}</a>
+  </h3>
+  {
+    result.snippets.map((snippet) => (
+      <blockquote class="doc-meta" set:html={highlightSnippet(snippet)} />
+    ))
+  }
+  <p class="toc__meta">
+    {result.citation}
+    {result.citation && result.enacted && " · "}
+    {result.enacted && longDate(result.enacted)}
+  </p>
+</li>

@@ -67,6 +67,43 @@ export function gotoHref(query?: string | null): string {
   return query ? `${APP}/goto?q=${encodeURIComponent(query)}` : `${APP}/goto`;
 }
 
+/**
+ * `/app/search?q=…`, keyword results (E4). `sort` and `view` are left off
+ * when they are the default, so the plain search URL stays plain and one
+ * search has one address. A facet edits `query` itself (`lib/search.ts`)
+ * rather than a parameter here, for the same reason.
+ */
+export function searchHref(
+  query: string,
+  opts: { sort?: string | null; view?: string | null; offset?: number | null } = {},
+): string {
+  const params = new URLSearchParams({ q: query });
+  if (opts.sort && opts.sort !== "relevance") params.set("sort", opts.sort);
+  if (opts.view && opts.view !== "enacted") params.set("view", opts.view);
+  if (opts.offset) params.set("offset", String(opts.offset));
+  return `${APP}/search?${params.toString()}`;
+}
+
+/** `/app/search/syntax`, the operators and scope words page. */
+export function syntaxHref(): string {
+  return `${APP}/search/syntax`;
+}
+
+/**
+ * Which row a page of search results starts at: `?offset=` when present,
+ * else `?page=` (1-based) times `limit`. `?offset=` is what every link this
+ * page writes carries; `?page=` exists so a mistyped or hand-built URL still
+ * lands on a page rather than page one silently. Unreadable or negative
+ * input is the first page.
+ */
+export function pageOffset(params: URLSearchParams, limit: number): number {
+  const offset = Number(params.get("offset") ?? "");
+  if (Number.isFinite(offset) && offset > 0) return Math.floor(offset);
+  const page = Number(params.get("page") ?? "");
+  if (Number.isFinite(page) && page > 1) return (Math.floor(page) - 1) * limit;
+  return 0;
+}
+
 /** `/api/v1/cited-by?identifier=…&limit=…`, the panel's link to the rest. */
 export function citedByApiHref(identifier: string, limit: number, offset = 0): string {
   return `${API}/cited-by${queryString({ identifier, limit, offset: offset || null })}`;

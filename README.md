@@ -219,11 +219,13 @@ its route. Pages:
 | Page | Shows |
 |---|---|
 | `/app/` | what is loaded, from `/status`; the citation box; the forms it accepts |
-| `/app/goto?q=` | the box's target: 307 to the unit on a hit, 307 to the US Code site for a US Code citation, 404 with the note for a citation naming nothing loaded, 422 with the detail for text that is not a citation |
+| `/app/goto?q=` | the box's target: 307 to the unit on a hit, 307 to the US Code site for a US Code citation, 404 with the note for a citation naming nothing loaded, 307 to `/app/search?q=` for text that is not a citation |
 | `/app/us/pl/{c}/{n}`, `/us/pvtl/…`, `/us/act/…` | the law: titles, dates, citation, aliases, sources, table of contents, the "cited by" panel |
 | `/app/us/pl/{c}/{n}/{path}` (and the other kinds) | a hierarchy node's contents, or a section's text rendered from `?format=xml` with a provision marked, the note, the currency line, alternatives, Stat. pages with govinfo links, breadcrumbs, previous and next, cross references resolved through `/labels`, the "cited by" panel, provenance |
 | `/app/us/sComp/{c}/{n}[/{path}]` | the compiled view with the version picker (`?through=`) and the enacted counterpart |
 | `/app/us/stat/{vol}/{page}` | the documents on the page |
+| `/app/search?q=` | keyword results over `/api/v1/search`: law and unit linked, highlighted snippets, facets that edit the query, a sort and view control, a pager, the note; zero results links the syntax page and the six citation forms (ADR-0023) |
+| `/app/search/syntax` | the search operators and scope words, static, no API call |
 
 Cross references: `/us/usc/…` links to the US Code site (`USCODE_ORIGIN`);
 `/us/pl/`, `/us/pvtl/`, `/us/act/` and `/us/stat/` links stay on this site

@@ -16,6 +16,7 @@ import type {
   CompUnit,
   Labels,
   LawSummary,
+  SearchResponse,
   StatPage,
   Status,
   Unit,
@@ -147,6 +148,28 @@ export async function fetchStatus(options: CallOptions = {}): Promise<Status | n
 /** `GET /api/v1/cite?q=`. A 422 arrives as `ApiError`. Limited per address by the API. */
 export async function fetchCite(query: string, options: CallOptions = {}): Promise<Cite> {
   return (await getJson<Cite>(`${API}/cite?q=${encodeURIComponent(query)}`, options)).body;
+}
+
+/** Per-call settings for `fetchSearch`, beside the forwarded address. */
+export interface SearchOptions extends CallOptions {
+  limit?: number;
+  offset?: number;
+  sort?: string;
+  /** `enacted`, `compiled` or `all`. Left off to take the API's default. */
+  view?: string | null;
+}
+
+/**
+ * `GET /api/v1/search?q=`. A 400 (nothing to search for, or a bad `sort`)
+ * and a 503 (the cluster is unavailable) both arrive as `ApiError`.
+ */
+export async function fetchSearch(query: string, options: SearchOptions = {}): Promise<Answer<SearchResponse>> {
+  const params = new URLSearchParams({ q: query });
+  if (options.limit) params.set("limit", String(options.limit));
+  if (options.offset) params.set("offset", String(options.offset));
+  if (options.sort) params.set("sort", options.sort);
+  if (options.view) params.set("view", options.view);
+  return getJson<SearchResponse>(`${API}/search?${params.toString()}`, options);
 }
 
 /** `GET /api/v1/cited-by?identifier=&limit=`; null on a 404 or any failure.

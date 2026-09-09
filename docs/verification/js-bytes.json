@@ -2,7 +2,7 @@
   "generated_by": "frontend/tests/jsbudget.test.ts, via `make test-web`",
   "counts": "Bytes inside <script is:inline> across each route's transitive .astro import graph. A component behind a false condition is still counted, so this is what a route can ship, not always what it did.",
   "client_bundles": "None. `astro build` emits no client JavaScript for this site; dist/client/_astro holds only CSS, because every island is is:inline and Astro never bundles those.",
-  "total_bytes": 3040,
+  "total_bytes": 3420,
   "routes": [
     {
       "route": "/app/",
@@ -28,6 +28,15 @@
       "bytes": 0,
       "scripts": 0,
       "components": []
+    },
+    {
+      "route": "/app/search",
+      "page": "pages/search.astro",
+      "bytes": 380,
+      "scripts": 1,
+      "components": [
+        "Base.astro"
+      ]
     },
     {
       "route": "/app/search/syntax",

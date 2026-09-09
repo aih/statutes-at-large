@@ -102,9 +102,43 @@ of this one on an 8 GB `t4g.large`.
 
 ## The reader
 
-Not in this ADR: `/app/search`, `/app/search/syntax`, and the `/app/goto`
-fallback for a query that is not a citation are package E4, added by a later
-session appending to this ADR.
+Package E4, `frontend/`.
+
+1. **A 422 from `cite` is a redirect, not a page.** `/app/goto?q=` used to
+   render a 422 with `params.CITE_FORMS` when the text did not parse as a
+   citation; it now redirects (307) to `/app/search?q=` with the same text,
+   the US Code site's `goto.astro` shape. A citation still wins: `exists:
+   true` and `kind: "usc"` are unchanged, and the redirect happens only in
+   the `422` branch of the `try`/`catch` around `fetchCite`. The 404 page
+   (a citation naming nothing loaded) is unchanged.
+
+2. **The facet-link query is edited in TypeScript, not built from the
+   API's `facets`.** `facets` is counts (`{value, count}`), not a query
+   fragment — there is nothing in the response to build a link from except
+   the query the reader already has. `frontend/src/lib/search.ts`'s
+   `hasScope`, `withScope`, `withoutScope` and `toggleScope` mirror
+   `with_filter`/`without_filter` in `storage/searchquery.py`, narrowed to
+   the three scope words a facet produces (`congress`, `kind`, `view`).
+   `congress` and `kind` are an OR of several values, matching a filter's
+   list; `view` is single-valued in the query, so setting it replaces
+   whatever `view:` was already written, matching `ParsedQuery.view`.
+
+3. **A snippet is escaped, then its `<em>` tags are put back.** `_result_of`
+   in `api/search.py` reads only `highlight.text` into `snippets`; a
+   result's `heading` and `num` are never highlighted and print as plain
+   text. `highlightSnippet` HTML-escapes the whole string (the underlying
+   text is GPO's OCR, not markup — a `<script>` or a stray `<` in it is
+   data) and then un-escapes exactly `&lt;em&gt;` and `&lt;/em&gt;`, which
+   is what the highlighter wrote.
+
+4. **The rail carries `#results` and `#facets`, `toc` is always `null`.**
+   `Base.astro`'s "In this law" list (C2) has no law to nest on a search: a
+   result can name any law loaded. The "On this page" list is `#results`
+   when there are any and `#facets` when a facet group has values.
+
+5. **`docs/js-budgets.json` gets both routes at 500** — neither page ships
+   a script — alongside the sticky-header jump script every route already
+   carries through `Base.astro` (C5).
 
 ## Consequences
 
