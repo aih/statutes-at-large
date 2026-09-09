@@ -68,6 +68,28 @@
   --ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --indent-step: 2rem;
   --margin-col: 12rem;
+  /* The height of the sticky stack. Measured per band and kept honest by the
+   * anchor-jump assertion in the e2e suite: this value must match what the
+   * header actually occupies at each breakpoint, rounded up to the next 0.25rem.
+   * It feeds `scroll-margin-top` so every anchor jump lands below the bar rather
+   * than behind it.
+   *
+   * Below 40em: one row (brand + search box), measured 2.75rem.
+   * 40em to 64em: two rows (brand + nav above, search box below), measured 3.75rem.
+   * 64em and up: one row (brand + nav + search), measured 2.75rem. */
+  --sticky-h: 2.75rem;
+}
+
+@media (min-width: 40em) {
+  :root {
+    --sticky-h: 3.75rem;
+  }
+}
+
+@media (min-width: 64em) {
+  :root {
+    --sticky-h: 2.75rem;
+  }
 }
 
 body {
@@ -86,6 +108,9 @@ code,
 /* ----------------------------------------------------------------- chrome */
 
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 500;
   background: var(--bar);
   color: #fff;
 }
@@ -119,6 +144,12 @@ code,
   list-style: none;
   margin: 0;
   padding: 0;
+}
+
+@media (max-width: 39.99em) {
+  .site-nav {
+    display: none;
+  }
 }
 
 .site-nav a {
@@ -162,6 +193,46 @@ code,
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1.5rem;
+}
+
+.end-links {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.end-links__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 0.25rem;
+  background: var(--bar);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  line-height: 1;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.end-links__link:hover,
+.end-links__link:focus {
+  background: #1a3a52;
+  text-decoration: none;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+@media print {
+  .end-links {
+    display: none;
+  }
 }
 
 /* ------------------------------------------------------------- the column */
@@ -500,13 +571,23 @@ a.uslm-page:focus {
   }
 }
 
+/* The reason --sticky-h exists. Without this, an anchor jump scrolls the
+ * target to the top of the document, which is underneath the sticky header.
+ * Applies to every addressable element in the text, not just the highlighted one,
+ * because any link may target a fragment. */
+.section-body [id],
+.panel[id],
+details[id],
+main[id] {
+  scroll-margin-top: calc(var(--sticky-h) + 0.5rem);
+}
+
 /* The provision the URL named, inside its section. */
 .target {
   background: var(--target);
   outline: 2px solid var(--target-edge);
   outline-offset: 2px;
   border-radius: 0.15rem;
-  scroll-margin-top: 1rem;
 }
 
 /* Tables scroll inside themselves. */
@@ -542,4 +623,11 @@ a.uslm-page:focus {
 
 .status {
   margin: 1rem 0;
+}
+
+/* Print: the sticky header does not stick on paper. */
+@media print {
+  .site-header {
+    position: static;
+  }
 }

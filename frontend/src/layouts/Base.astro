@@ -4,6 +4,7 @@
  * breadcrumbs, one `<main>`, footer. No client JavaScript.
  */
 import Breadcrumbs from "../components/Breadcrumbs.astro";
+import EndLinks from "../components/EndLinks.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import type { Link } from "../lib/types";
@@ -38,6 +39,7 @@ const { title, crumbs = [], current = null, query = null, text = false } = Astro
       <Breadcrumbs crumbs={crumbs} current={current} />
       <slot />
     </main>
+    <EndLinks />
     <SiteFooter />
   </body>
 </html>
