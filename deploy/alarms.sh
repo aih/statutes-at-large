@@ -9,6 +9,10 @@
 # status-check and network alarms on the box are the US Code site's
 # (its deploy/alarms.sh) and are not duplicated here.
 #
+# The watchdog also publishes Statutes/ApiUp, Statutes/AppUp and
+# Statutes/EdgeUp every minute. No alarm reads them: they are the graph that
+# says which half failed once statutes-site-down has mailed (ADR-0024).
+#
 # Idempotent: put-metric-alarm and create-topic upsert, and a repeat
 # subscribe of an address already subscribed is a no-op.
 set -euo pipefail
@@ -31,17 +35,21 @@ echo "    AWS sends nothing until the subscription is confirmed from that mailbo
 
 DIM="Name=InstanceId,Value=${INSTANCE_ID}"
 
-# Minimum over five one-minute periods: one failed probe during a deploy's
-# proxy recreate does not page; five consecutive minutes down does.
+# Minimum over one-minute periods, five of the last seven below 1. Five
+# consecutive minutes down pages, as does a box that has stopped publishing
+# (missing data breaches). Two isolated minutes in seven do not, and the site
+# leaves ALARM only on three good minutes of seven, so a site recovering in
+# bursts mails one pair rather than one pair per burst (ADR-0024).
 echo "==> alarm statutes-site-down"
 aws cloudwatch put-metric-alarm \
     --alarm-name statutes-site-down \
-    --alarm-description "statutes.linkedlegislation.org is not answering — /health or /app/healthz has failed for five consecutive minutes, or the box has stopped reporting" \
+    --alarm-description "statutes.linkedlegislation.org is not answering — /health or /app/healthz has failed for five of the last seven minutes, or the box has stopped reporting. Statutes/ApiUp, Statutes/AppUp and Statutes/EdgeUp say which half" \
     --namespace Statutes \
     --metric-name SiteUp \
     --statistic Minimum \
     --period 60 \
-    --evaluation-periods 5 \
+    --evaluation-periods 7 \
+    --datapoints-to-alarm 5 \
     --threshold 1 \
     --comparison-operator LessThanThreshold \
     --dimensions "$DIM" \
