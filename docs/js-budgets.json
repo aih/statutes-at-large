@@ -6,6 +6,7 @@
     "/app/": 1000,
     "/app/goto": 1000,
     "/app/healthz": 500,
+    "/app/search/syntax": 500,
     "/app/us/act": 1000,
     "/app/us/pl": 1000,
     "/app/us/pvtl": 1000,
