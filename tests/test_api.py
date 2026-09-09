@@ -418,12 +418,23 @@ def test_the_rate_limit_is_reset_between_tests(client):
 # ----------------------------------------------------------------- status
 
 
+def test_health(client):
+    response = client.get("/health")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ok"
+    assert body["version"] == "0.1.0"
+    assert body["commit"] == "unknown" or len(body["commit"]) >= 7
+
+
 def test_status(client):
     response = client.get("/api/v1/status")
     assert response.status_code == 200
     assert response.headers["cache-control"] == "public, max-age=300"
     body = response.json()
-    assert set(body) == {"collections", "checks", "stale", "citations", "classifications"}
+    assert set(body) == {"collections", "checks", "stale", "citations", "classifications", "site"}
+    assert body["site"] == {"version": "0.1.0", "commit": body["site"]["commit"]}
+    assert body["site"]["commit"] == "unknown" or len(body["site"]["commit"]) >= 7
     assert set(body["collections"]) == {"STATUTE", "COMPS", "PLAW"} == set(body["checks"])
     statute = body["collections"]["STATUTE"]
     assert statute["volumes"] == [26, 64, 68, 72, 116, 124, 137]

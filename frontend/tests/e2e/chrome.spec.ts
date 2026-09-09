@@ -66,6 +66,13 @@ test("site footer has the required id", async ({ page }) => {
   await expect(page.locator("#site-footer")).toBeVisible();
 });
 
+test("the footer carries the version and commit line", async ({ page }) => {
+  await page.goto("/app/us/pl/81/740/s3");
+  const text = await page.locator(".site-footer__version").innerText();
+  expect(text).toContain("version 0.1.0");
+  expect(text).toContain("commit");
+});
+
 test("the rail is visible at 1280px, beside the text", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/app/us/pl/81/740/s3");

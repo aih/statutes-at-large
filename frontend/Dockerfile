@@ -11,6 +11,14 @@ RUN NPM_CONFIG_FETCH_RETRIES=10 \
     npm ci
 
 COPY . .
+
+# The commit the footer names (SiteFooter.astro, astro.config.mjs). This
+# build context (`./frontend`) holds no `.git`, so the sha has to be passed
+# in or the footer says "commit unknown"; `.github/workflows/deploy.yml`
+# passes the sha it built.
+ARG GIT_COMMIT=unknown
+ENV GIT_COMMIT=$GIT_COMMIT
+
 RUN npm run build
 
 FROM node:22-alpine

@@ -290,12 +290,19 @@ export interface SourceCheck {
   stale: boolean;
 }
 
+/** `SiteOut`: this process's own version and commit, the same values `/health` answers. */
+export interface Site {
+  version: string;
+  commit: string;
+}
+
 export interface Status {
   collections: Record<string, CollectionStatus>;
   checks: Record<string, SourceCheck | null>;
   stale: boolean;
   citations: CitationsStatus;
   classifications: ClassificationsStatus;
+  site: Site;
 }
 
 // --------------------------------------------------------------- cited-by

@@ -13,6 +13,12 @@ RUN uv sync --frozen --no-install-project --no-dev
 
 COPY . .
 
+# The commit `/health` and `GET /api/v1/status`'s `site` block name
+# (`site_version.py`). `.github/workflows/deploy.yml` passes the sha it
+# built; unset here, the process reports "unknown".
+ARG GIT_COMMIT=unknown
+ENV GIT_COMMIT=$GIT_COMMIT
+
 EXPOSE 8001
 
 CMD ["uv", "run", "python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", \
