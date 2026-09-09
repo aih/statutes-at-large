@@ -5,9 +5,14 @@
 #   :443 ── edge (deploy/edge/, TLS for both hostnames)
 #            └── statutes-proxy:8000 ── proxy ─┬── /app/*  → frontend:4321
 #                                              └── /*      → api:8001
+#                                                            └── search-relay:9200
+#                                                                 └── opensearch:9200
 #
 # The proxy is reached only through the external `edge` network, under the
 # alias `statutes-proxy`; `deploy/edge/up.sh` creates that network.
+# `search-relay` is the one service of this project on the US Code project's
+# network, and no service of this project joins that network under a name
+# that project uses (ADR-0024).
 #
 # Required in .env beside this file (deploy/bootstrap-box.sh writes it):
 #   SITE_ADDRESS=http://statutes.linkedlegislation.org:8000   plain HTTP behind the edge
@@ -55,19 +60,20 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      search-relay:
+        condition: service_started
     environment:
       DATABASE_URL: postgresql+psycopg://statutes:${POSTGRES_PASSWORD}@db:5432/statutes
       GOVINFO_API_KEY: ${GOVINFO_API_KEY:-}
       SITE_ORIGIN: ${SITE_ORIGIN:-https://statutes.linkedlegislation.org}
       USCODE_ORIGIN: ${USCODE_ORIGIN:-https://uscode.linkedlegislation.org}
-      # The US Code site's cluster. `api` is not attached to that project's
-      # network: a service named `api` there shadows the US Code site's own
-      # `api` in Docker's DNS (measured 2026-09-09). Until a relay is in
-      # place the cluster is unreachable from here and search answers 503.
-      SEARCH_URL: https://opensearch:9200
+      # The US Code site's cluster, through `search-relay` (ADR-0024). This
+      # service is on this project's network only.
+      SEARCH_URL: https://search-relay:9200
       SEARCH_PASSWORD: ${SEARCH_PASSWORD:-}
       # False on both stacks: the cluster is reached over a private Docker
-      # network and presents the OpenSearch image's self-signed certificate.
+      # network and presents the OpenSearch image's self-signed certificate,
+      # which names neither `opensearch` nor `search-relay`.
       SEARCH_VERIFY_CERTS: "false"
     expose:
       - "8001"
@@ -99,6 +105,25 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
+
+  # The connection to the US Code site's OpenSearch cluster, and the only
+  # service of this project attached to that project's network (ADR-0024).
+  # socat accepts TCP on 9200 here and forwards it to `opensearch:9200`
+  # there; the TLS session is the API's with the cluster and passes through
+  # unread. Its names over there are `search-relay` and
+  # `statutes-at-large-search-relay-1`, neither of which is a service name of
+  # that project (`db`, `opensearch`, `redis`, `api`, `frontend`, `proxy`).
+  # The image's entrypoint is `socat`, so `command` is its two addresses;
+  # `fork` gives each connection its own child, which resolves `opensearch`
+  # as it connects and so follows that container across a restart.
+  search-relay:
+    image: alpine/socat:1.8.1.3
+    command: ["-d", "TCP-LISTEN:9200,fork,reuseaddr", "TCP:opensearch:9200"]
+    networks:
+      default: {}
+      uscode-redesign_default: {}
+    restart: unless-stopped
+    mem_limit: 32m
 
   frontend:
     image: ${ECR_REGISTRY:-local}/statutes-frontend:${IMAGE_TAG:-latest}
@@ -146,4 +171,9 @@ services:
 
 networks:
   edge:
+    external: true
+  # The US Code compose project's default network, which `search-relay` and
+  # nothing else joins. The name is read on the box with `docker network ls`;
+  # nothing in `../uscode-redesign` changes.
+  uscode-redesign_default:
     external: true
