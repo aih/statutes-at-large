@@ -48,8 +48,22 @@ mktemp_tracked() {
     echo "$f"
 }
 
+# 0 when the role exists, 1 when IAM says NoSuchEntity; any other failure
+# (AccessDenied, an invalid token) is printed and stops the script, so a
+# denied GetRole does not read as a missing role.
 iam_role_exists() {
-    aws iam get-role --role-name "$1" >/dev/null 2>&1
+    local err
+    if err="$(aws iam get-role --role-name "$1" 2>&1 >/dev/null)"; then
+        return 0
+    fi
+    case "$err" in
+        *NoSuchEntity*) return 1 ;;
+        *)
+            echo "aws iam get-role ${1} failed under $(aws sts get-caller-identity --query Arn --output text 2>/dev/null || echo '<unknown identity>'):" >&2
+            echo "$err" >&2
+            exit 1
+            ;;
+    esac
 }
 
 # ------------------------------------------- a. the instance role's grant ---
@@ -92,9 +106,13 @@ echo
 
 echo "--- (b) role ${GITHUB_ROLE} ---"
 
-if ! aws iam list-open-id-connect-providers \
+if ! providers="$(aws iam list-open-id-connect-providers \
         --query "OpenIDConnectProviderList[?contains(Arn, '${OIDC_PROVIDER_URL}')]" \
-        --output text | grep -q .; then
+        --output text)"; then
+    echo "aws iam list-open-id-connect-providers failed (the error is above)" >&2
+    exit 1
+fi
+if [ -z "$providers" ]; then
     echo "no OIDC provider for ${OIDC_PROVIDER_URL}; run the US Code site's deploy/admin-grant.sh first" >&2
     exit 1
 fi
