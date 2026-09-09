@@ -142,6 +142,25 @@ def cited_by_note(*, what: str, total: int, release_labels: Sequence[str]) -> st
     )
 
 
+def search_note(view: str) -> str:
+    """What a search read, one sentence (plan section E3): the laws as
+    enacted, a compilation's current text, or both without collapsing."""
+    if view == "compiled":
+        return "Results are the sections and headings of the Statute Compilations' current text."
+    if view == "all":
+        return (
+            "Results are the sections and headings of the laws as enacted and as compiled; "
+            "a section can appear twice."
+        )
+    return "Results are the sections and headings of the laws as enacted."
+
+
+SEARCH_UNAVAILABLE = "search is unavailable; try again shortly"
+"""The 503 detail when the cluster cannot be reached. The exception itself
+goes to the log, not to the caller: an opensearch-py error stringifies to the
+cluster's internal hostname and port."""
+
+
 def compiled_note(result: CompUnitResult, *, enacted_link: str | None, codified: list[str]) -> str:
     """The compiled note (design section 4)."""
     comp = result.comp

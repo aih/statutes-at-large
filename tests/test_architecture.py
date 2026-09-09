@@ -100,3 +100,11 @@ def test_the_index_builder_does_not_import_the_api():
     line."""
     names = _imports(REPO_ROOT / "ingest" / "search_sync.py")
     assert sorted(n for n in names if n.split(".")[0] == "api") == []
+
+
+def test_the_search_route_reads_storage_and_not_ingest():
+    """`api/search.py` builds a query with `storage/searchquery.py` and reads
+    the alias name from `storage/search.py`; the index is `ingest`'s to fill."""
+    names = _imports(REPO_ROOT / "api" / "search.py")
+    assert sorted(n for n in names if n.split(".")[0] == "ingest") == []
+    assert any(n.startswith("storage.search") for n in names)
