@@ -12,7 +12,7 @@ interface Props {
 const { sources, compilations } = Astro.props;
 ---
 
-<h2 class="group">Sources</h2>
+<h2 class="group" id="sources-h">Sources</h2>
 <dl class="facts">
   <dt>Served from</dt>
   <dd>{sources.served_from}, package <code>{sources.package}</code>, identifiers <code>{sources.identifiers}</code></dd>

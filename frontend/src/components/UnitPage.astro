@@ -5,6 +5,12 @@
  * sets the response; this renders it. `level` decides the layout: a law, a
  * hierarchy node, or a section with a provision marked inside it when the URL
  * went below one.
+ *
+ * Panels carry the ids the rail's "On this page" list and the sticky
+ * header's `scroll-margin-top` both depend on (C2, C3): `#text` on the
+ * rendered section, `#contents` and `#pages` on their disclosures, `#sources`
+ * on the law's sources panel, `about-h` and `cited-by-h` on the two panels
+ * that already had heading ids.
  */
 import Alternatives from "./Alternatives.astro";
 import CitedBy from "./CitedBy.astro";
@@ -18,20 +24,21 @@ import Provenance from "./Provenance.astro";
 import TocList from "./TocList.astro";
 import Base from "../layouts/Base.astro";
 import { nestToc, unitLabel } from "../lib/toc";
-import type { Link } from "../lib/types";
+import type { Link, Page, TocEntry } from "../lib/types";
 import type { UnitPageModel } from "../lib/unitpage";
-import { APP, apiHref, appHref, longDate } from "../lib/url";
+import { APP, apiHref, appHref, longDate, parseStatPage } from "../lib/url";
 
 interface Props {
   model: UnitPageModel;
 }
 
 const { model } = Astro.props;
-const { unit, failure, summary, citedBy, sectionHtml, neighbors } = model;
+const { unit, failure, summary, citedBy, sectionHtml, neighbors, parentChildren } = model;
 
 const isLaw = unit?.level === "law";
 const isSection = unit?.level === "section";
 const isNode = unit !== null && !isLaw && !isSection;
+const isPublicLaw = unit !== null && unit.law.kind === "pl" && unit.law.congress != null && unit.law.number != null;
 
 /** Home, the law, then the ancestors. */
 const crumbs: Link[] = [{ href: `${APP}/`, label: "Home" }];
@@ -50,12 +57,57 @@ const title = !unit
     ? `${lawTitle} — Statutes at Large`
     : `${unitLabel(unit.level, unit.num)} — ${unit.law.label} — Statutes at Large`;
 
-/** The law's table of contents: the summary's reading-order `toc` for a
- * public law, else the unit's `children`. */
-const tocNodes = unit ? nestToc(isLaw && summary ? summary.toc : unit.children) : [];
+/**
+ * The rail's "In this law" list and the Contents disclosure's count both
+ * read this: the law's reading-order `toc` for a public law's law page or
+ * section, else the unit's own `children` (a hierarchy node) or the nearest
+ * ancestor's `children` (a private law's or an act's section).
+ */
+const tocEntries: TocEntry[] = !unit
+  ? []
+  : isSection
+    ? isPublicLaw
+      ? (summary?.toc ?? [])
+      : parentChildren
+    : isLaw && summary
+      ? summary.toc
+      : unit.children;
+const tocNodes = nestToc(tocEntries);
+const unitsCount = tocEntries.length;
+const sectionsCount = isLaw && summary ? summary.section_count : tocEntries.filter((entry) => entry.is_section).length;
+const contentsSummary = `Contents — ${unitsCount.toLocaleString("en-US")} unit${unitsCount === 1 ? "" : "s"}, ${sectionsCount.toLocaleString("en-US")} section${sectionsCount === 1 ? "" : "s"}`;
+
+/** "Stat. pages for this law — 1,653 pages, 136 Stat. 4459 to 6111." */
+function pagesSummary(pages: Page[], level: string): string {
+  const count = pages.length.toLocaleString("en-US");
+  const noun = `${count} page${pages.length === 1 ? "" : "s"}`;
+  const first = parseStatPage(pages[0]?.page ?? "");
+  const last = parseStatPage(pages[pages.length - 1]?.page ?? "");
+  if (!first || !last) return `Stat. pages for this ${level} — ${noun}`;
+  const range = first.page === last.page ? first.page : `${first.page} to ${last.page}`;
+  return `Stat. pages for this ${level} — ${noun}, ${first.volume} Stat. ${range}`;
+}
+
+const sections: Link[] = [];
+if (unit) {
+  if (isSection) sections.push({ href: "#text", label: "Text" });
+  if (isLaw || isNode) sections.push({ href: "#contents", label: "Contents" });
+  if (unit.pages.length > 0) sections.push({ href: "#pages", label: "Pages" });
+  if (isLaw && summary) sections.push({ href: "#sources", label: "Sources" });
+  if (isSection) sections.push({ href: "#about-h", label: "About this text" });
+  if ((isLaw || isSection) && citedBy) sections.push({ href: "#cited-by-h", label: "Cited by the US Code" });
+}
 ---
 
-<Base title={title} crumbs={crumbs} current={current} text={isSection}>
+<Base
+  title={title}
+  crumbs={crumbs}
+  current={current}
+  text={isSection}
+  sections={sections}
+  toc={unit ? tocNodes : null}
+  currentIdentifier={unit?.served_identifier ?? null}
+>
   {failure && <ErrorPage status={failure.status} detail={failure.detail} retryAfter={failure.retryAfter} />}
 
   {
@@ -112,13 +164,25 @@ const tocNodes = unit ? nestToc(isLaw && summary ? summary.toc : unit.children) 
         <Note note={unit.note} />
         <Currency amended={unit.currency.amended} />
         <Provenance provenance={unit.provenance} />
-        <Pages pages={unit.pages} />
         <Alternatives alternatives={unit.alternatives} />
 
-        <h2 class="group">Contents</h2>
-        {tocNodes.length > 0 ? <TocList nodes={tocNodes} /> : <p class="doc-meta">No units are listed under this law.</p>}
+        <details id="contents" class="disclosure">
+          <summary>{contentsSummary}</summary>
+          {tocNodes.length > 0 ? <TocList nodes={tocNodes} /> : <p class="doc-meta">No units are listed under this law.</p>}
+        </details>
 
-        {summary && <LawSources sources={summary.sources} compilations={summary.compilations} />}
+        {unit.pages.length > 0 && (
+          <details id="pages" class="disclosure">
+            <summary>{pagesSummary(unit.pages, "law")}</summary>
+            <Pages pages={unit.pages} />
+          </details>
+        )}
+
+        {summary && (
+          <section class="panel" id="sources" aria-labelledby="sources-h">
+            <LawSources sources={summary.sources} compilations={summary.compilations} />
+          </section>
+        )}
 
         <p class="formats">
           <a href={unit.xml_url}>Source XML</a>
@@ -144,11 +208,19 @@ const tocNodes = unit ? nestToc(isLaw && summary ? summary.toc : unit.children) 
         <Note note={unit.note} />
         <Currency amended={unit.currency.amended} />
         <Provenance provenance={unit.provenance} />
-        <Pages pages={unit.pages} />
         <Alternatives alternatives={unit.alternatives} />
 
-        <h2 class="group">Contents</h2>
-        {tocNodes.length > 0 ? <TocList nodes={tocNodes} /> : <p class="doc-meta">No units are listed under this node.</p>}
+        <details id="contents" class="disclosure">
+          <summary>{contentsSummary}</summary>
+          {tocNodes.length > 0 ? <TocList nodes={tocNodes} /> : <p class="doc-meta">No units are listed under this node.</p>}
+        </details>
+
+        {unit.pages.length > 0 && (
+          <details id="pages" class="disclosure">
+            <summary>{pagesSummary(unit.pages, unit.level)}</summary>
+            <Pages pages={unit.pages} />
+          </details>
+        )}
 
         <p class="formats">
           <a href={unit.xml_url}>Source XML</a>
@@ -197,11 +269,11 @@ const tocNodes = unit ? nestToc(isLaw && summary ? summary.toc : unit.children) 
         )}
 
         {sectionHtml !== null ? (
-          <article class="section-body" set:html={sectionHtml} />
+          <article id="text" class="section-body" set:html={sectionHtml} />
         ) : (
           <>
             <p class="doc-meta">The source XML could not be fetched; this is the reading text.</p>
-            <article class="section-body">
+            <article id="text" class="section-body">
               <p>{unit.text}</p>
             </article>
           </>
@@ -209,10 +281,16 @@ const tocNodes = unit ? nestToc(isLaw && summary ? summary.toc : unit.children) 
 
         <Neighbors previous={neighbors.previous} next={neighbors.next} />
 
+        {unit.pages.length > 0 && (
+          <details id="pages" class="disclosure" open>
+            <summary>{pagesSummary(unit.pages, "section")}</summary>
+            <Pages pages={unit.pages} />
+          </details>
+        )}
+
         <section class="panel" aria-labelledby="about-h">
           <h2 class="group" id="about-h">About this text</h2>
           <Provenance provenance={unit.provenance} />
-          <Pages pages={unit.pages} />
           <Alternatives alternatives={unit.alternatives} />
           <p class="formats">
             <a href={unit.xml_url}>Source XML</a>

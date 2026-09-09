@@ -1,11 +1,19 @@
 ---
 /**
  * The shell every page shares: skip link, header with the citation box,
- * breadcrumbs, one `<main>`, footer. No client JavaScript.
+ * breadcrumbs, one `<main>` holding the rail beside the page (C2), footer.
+ *
+ * The inline script is the reader's first (C5, ADR-0021): a fragment naming
+ * a `<details>`, or an element inside one, opens every `<details>` ancestor
+ * and scrolls to it. Without it a jump to a closed `#contents` or `#pages`
+ * lands on a summary with the answer hidden inside it.
  */
 import Breadcrumbs from "../components/Breadcrumbs.astro";
+import EndLinks from "../components/EndLinks.astro";
+import Rail from "../components/Rail.astro";
 import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
+import type { TocNode } from "../lib/toc";
 import type { Link } from "../lib/types";
 import "../styles/site.scss";
 
@@ -19,9 +27,30 @@ interface Props {
   query?: string | null;
   /** Widens the column to leave room for sidenotes on a wide screen. */
   text?: boolean;
+  /** The rail's "On this page" list: this page's own rendered panels. */
+  sections?: Link[];
+  /** The rail's "In this law" list: the law's nested contents, or null. */
+  toc?: TocNode[] | null;
+  /** The identifier the rail marks `aria-current` and opens the branch of. */
+  currentIdentifier?: string | null;
 }
 
-const { title, crumbs = [], current = null, query = null, text = false } = Astro.props;
+const {
+  title,
+  crumbs = [],
+  current = null,
+  query = null,
+  text = false,
+  sections = [],
+  toc = null,
+  currentIdentifier = null,
+} = Astro.props;
+
+const hasRail = sections.length > 0 || (toc !== null && toc.length > 0);
+const mainClass = [text ? "reader-wrap reader-wrap--text" : "reader-wrap", hasRail ? "reader-wrap--rail" : ""]
+  .filter(Boolean)
+  .join(" ");
+const layoutClass = hasRail ? "reader-layout" : "reader-layout reader-layout--single";
 ---
 
 <html lang="en">
@@ -34,10 +63,21 @@ const { title, crumbs = [], current = null, query = null, text = false } = Astro
   <body>
     <a class="usa-skipnav" href="#main">Skip to main content</a>
     <SiteHeader query={query} />
-    <main id="main" class={text ? "reader-wrap reader-wrap--text" : "reader-wrap"}>
-      <Breadcrumbs crumbs={crumbs} current={current} />
-      <slot />
+    <main id="main" class={mainClass}>
+      <div class={layoutClass}>
+        <div class="reader-col">
+          <Breadcrumbs crumbs={crumbs} current={current} />
+          <slot />
+        </div>
+        {hasRail && <Rail sections={sections} toc={toc} current={currentIdentifier} />}
+      </div>
     </main>
+    <EndLinks />
     <SiteFooter />
+    <script is:inline>
+      function o(i){var t=document.getElementById(i);if(!t)return;var n=t.tagName==="DETAILS"?t:t.closest("details");while(n){n.open=true;n=n.parentElement?n.parentElement.closest("details"):null}t.scrollIntoView()}
+      function h(){if(location.hash.length>1)o(decodeURIComponent(location.hash.slice(1)))}
+      addEventListener("load",h);addEventListener("hashchange",h);
+    </script>
   </body>
 </html>

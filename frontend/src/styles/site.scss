@@ -68,6 +68,21 @@
   --ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --indent-step: 2rem;
   --margin-col: 12rem;
+  /* The height of the sticky header. This is what `scroll-margin-top` spends
+   * below, on `main`, every heading and panel the header can sit over, and the
+   * rail's `top`.
+   *
+   * Measured at 375, 700 and 1280 CSS px on a section page
+   * (`/app/us/pl/81/740/s3`) and a law page (`/app/us/pl/81/740`): 56px (3.5rem)
+   * at every width. The header is one row at every width the site renders it
+   * at — the nav is hidden below 40em and the brand truncates before anything
+   * wraps — so one value covers every band. */
+  --sticky-h: 3.5rem;
+  /* The rail's column width and its gap from the reading column (C2). Added to
+   * `.reader-wrap`'s max-width on a page that carries a rail, so the rail does
+   * not narrow the reading column below what it measures without one. */
+  --rail-w: 16rem;
+  --rail-gap: 2rem;
 }
 
 body {
@@ -86,21 +101,34 @@ code,
 /* ----------------------------------------------------------------- chrome */
 
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 500;
   background: var(--bar);
   color: #fff;
 }
 
+/* One row at every width the header renders at all: the brand and the
+ * search box always share a line; the nav joins them from 40em up. Nothing
+ * here is allowed to wrap onto a second line, because a second line is a
+ * second line of `--sticky-h` on every band that can reach it. The brand
+ * truncates before it wraps; the search box is the item that gives up width. */
 .site-header__inner {
   max-width: 64rem;
   margin: 0 auto;
   padding: 0.75rem 1rem;
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  gap: 0.75rem 1.5rem;
+  gap: 0.75rem 1rem;
 }
 
 .site-header__brand {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 1.25rem;
   font-weight: 700;
   color: #fff;
@@ -114,11 +142,23 @@ code,
 }
 
 .site-nav {
+  flex: 0 0 auto;
   display: flex;
   gap: 1rem;
   list-style: none;
   margin: 0;
   padding: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 39.99em) {
+  .site-nav {
+    display: none;
+  }
+
+  .site-header__brand {
+    font-size: 1.05rem;
+  }
 }
 
 .site-nav a {
@@ -133,7 +173,8 @@ code,
 }
 
 .site-header .usa-search {
-  flex: 1 1 18rem;
+  flex: 1 1 auto;
+  min-width: 0;
   max-width: 32rem;
   margin-left: auto;
 }
@@ -150,6 +191,15 @@ code,
   font-size: 0.9rem;
 }
 
+/* Below 40em the end links stack into a column at the bottom right, tall
+ * enough to sit over the footer's last lines at the foot of the scroll.
+ * This much padding clears them. */
+@media (max-width: 39.99em) {
+  .site-footer {
+    padding-bottom: 8rem;
+  }
+}
+
 .site-footer__inner {
   max-width: 64rem;
   margin: 0 auto;
@@ -164,12 +214,186 @@ code,
   gap: 0.5rem 1.5rem;
 }
 
+.end-links {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.end-links__link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 0.25rem;
+  background: var(--bar);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  line-height: 1;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.end-links__link:hover,
+.end-links__link:focus {
+  background: #1a3a52;
+  text-decoration: none;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+@media print {
+  .end-links {
+    display: none;
+  }
+}
+
 /* ------------------------------------------------------------- the column */
 
 .reader-wrap {
   max-width: 46rem;
   margin: 0 auto;
   padding: 1rem 1rem 2rem;
+}
+
+/* A page carrying a rail gets its width back: the rail sits beside the
+ * reading column rather than narrowing it. Added on top of the reading
+ * measure and, on a text page, the sidenote margin. */
+@media (min-width: 64em) {
+  .reader-wrap--rail {
+    max-width: calc(46rem + var(--rail-w) + var(--rail-gap));
+  }
+}
+
+/* One column below 64em; the rail first in the grid and pinned from 64em up
+ * (C2). Below 64em the rail is second in source order, so it renders after
+ * `main`'s own content as a plain block rather than between the reader and
+ * what they came for. */
+.reader-layout {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+}
+
+.reader-layout--single {
+  display: block;
+}
+
+.reader-col {
+  order: 1;
+  min-width: 0;
+}
+
+.rail {
+  order: 2;
+  border-top: 1px solid var(--rule);
+  padding-top: 1rem;
+  font-size: 0.9rem;
+}
+
+@media (min-width: 64em) {
+  .reader-layout:not(.reader-layout--single) {
+    grid-template-columns: var(--rail-w) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--rail-gap);
+  }
+
+  .rail {
+    order: 0;
+    border-top: 0;
+    padding-top: 0;
+    position: sticky;
+    top: calc(var(--sticky-h) + 0.5rem);
+    max-height: calc(100vh - var(--sticky-h) - 1.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+.rail__title {
+  margin: 1.25rem 0 0.4rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.rail__title:first-child {
+  margin-top: 0;
+}
+
+.rail__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rail__list .rail__list {
+  margin-left: 0.9rem;
+}
+
+.rail__link {
+  display: block;
+  padding: 0.3rem 0.4rem;
+  text-decoration: none;
+  color: var(--link);
+  border-left: 2px solid transparent;
+}
+
+.rail__link:hover,
+.rail__link:focus {
+  text-decoration: underline;
+}
+
+.rail__link[aria-current="page"] {
+  border-left-color: var(--target-edge);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.rail__details {
+  margin: 0;
+}
+
+.rail__details > summary.rail__summary {
+  cursor: pointer;
+  padding: 0.15rem 0.4rem 0.15rem 1.3rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.rail__details > summary.rail__summary:hover,
+.rail__details > summary.rail__summary:focus {
+  color: var(--ink);
+}
+
+/* A disclosure that looks and reads like the toggle it is (C3): Contents,
+ * and Pages on a law or hierarchy node page. */
+.disclosure {
+  border-top: 1px solid var(--rule);
+  margin-top: 2rem;
+  padding-top: 1rem;
+}
+
+.disclosure > summary {
+  cursor: pointer;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--muted);
+  list-style: revert;
+}
+
+.disclosure > summary:hover,
+.disclosure > summary:focus {
+  color: var(--ink);
 }
 
 .doc-title {
@@ -490,6 +714,13 @@ a.uslm-page:focus {
     padding-right: calc(1rem + var(--margin-col));
   }
 
+  /* A section page always carries a rail, so the sidenote margin and the
+   * rail's width both come out of the same widened wrap rather than the
+   * rail eating into the sidenote's space. */
+  .reader-wrap--text.reader-wrap--rail {
+    max-width: calc(46rem + var(--margin-col) + var(--rail-w) + var(--rail-gap));
+  }
+
   .uslm-sidenote {
     float: right;
     clear: right;
@@ -500,13 +731,27 @@ a.uslm-page:focus {
   }
 }
 
+/* The reason --sticky-h exists. Without this, an anchor jump scrolls the
+ * target to the top of the document, which is underneath the sticky header.
+ * Applies to every addressable element in the text, not just the highlighted one,
+ * because any link may target a fragment: the section body's own ids, a
+ * panel's own id (`#contents`, `#pages`, `#sources`) or a heading inside one
+ * (`#about-h`, `#cited-by-h`, `#versions-h`), and a disclosure's id. */
+.section-body[id],
+.section-body [id],
+.panel[id],
+.panel [id],
+details[id],
+main[id] {
+  scroll-margin-top: calc(var(--sticky-h) + 0.5rem);
+}
+
 /* The provision the URL named, inside its section. */
 .target {
   background: var(--target);
   outline: 2px solid var(--target-edge);
   outline-offset: 2px;
   border-radius: 0.15rem;
-  scroll-margin-top: 1rem;
 }
 
 /* Tables scroll inside themselves. */
@@ -542,4 +787,11 @@ a.uslm-page:focus {
 
 .status {
   margin: 1rem 0;
+}
+
+/* Print: the sticky header does not stick on paper. */
+@media print {
+  .site-header {
+    position: static;
+  }
 }

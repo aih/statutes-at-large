@@ -1,0 +1,2298 @@
+[
+  {
+    "identifier": "/us/pl/117/328/s1",
+    "level": "section",
+    "num": "1",
+    "heading": "SHORT TITLE.",
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/s2",
+    "level": "section",
+    "num": "2",
+    "heading": "TABLE OF CONTENTS.",
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/s3",
+    "level": "section",
+    "num": "3",
+    "heading": "REFERENCES.",
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA",
+    "level": "division",
+    "num": "A",
+    "heading": "AGRICULTURE, RURAL DEVELOPMENT, FOOD AND DRUG ADMINISTRATION, AND RELATED AGENCIES APPROPRIATIONS ACT, 2023",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tI",
+    "level": "title",
+    "num": "I",
+    "heading": "AGRICULTURAL PROGRAMS",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tII",
+    "level": "title",
+    "num": "II",
+    "heading": "FARM PRODUCTION AND CONSERVATION PROGRAMS",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tIII",
+    "level": "title",
+    "num": "III",
+    "heading": "RURAL DEVELOPMENT PROGRAMS",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tIV",
+    "level": "title",
+    "num": "IV",
+    "heading": "DOMESTIC FOOD PROGRAMS",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tV",
+    "level": "title",
+    "num": "V",
+    "heading": "FOREIGN ASSISTANCE AND RELATED PROGRAMS",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVI",
+    "level": "title",
+    "num": "VI",
+    "heading": "RELATED AGENCY AND FOOD AND DRUG ADMINISTRATION",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII",
+    "level": "title",
+    "num": "VII",
+    "heading": "GENERAL PROVISIONS",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s701",
+    "level": "section",
+    "num": "701",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s702",
+    "level": "section",
+    "num": "702",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s703",
+    "level": "section",
+    "num": "703",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s704",
+    "level": "section",
+    "num": "704",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s705",
+    "level": "section",
+    "num": "705",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s706",
+    "level": "section",
+    "num": "706",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s707",
+    "level": "section",
+    "num": "707",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s708",
+    "level": "section",
+    "num": "708",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s709",
+    "level": "section",
+    "num": "709",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s710",
+    "level": "section",
+    "num": "710",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s711",
+    "level": "section",
+    "num": "711",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s712",
+    "level": "section",
+    "num": "712",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s713",
+    "level": "section",
+    "num": "713",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s714",
+    "level": "section",
+    "num": "714",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s715",
+    "level": "section",
+    "num": "715",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s716",
+    "level": "section",
+    "num": "716",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s717",
+    "level": "section",
+    "num": "717",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s718",
+    "level": "section",
+    "num": "718",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s719",
+    "level": "section",
+    "num": "719",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s720",
+    "level": "section",
+    "num": "720",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s721",
+    "level": "section",
+    "num": "721",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s722",
+    "level": "section",
+    "num": "722",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s723",
+    "level": "section",
+    "num": "723",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s724",
+    "level": "section",
+    "num": "724",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s725",
+    "level": "section",
+    "num": "725",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s726",
+    "level": "section",
+    "num": "726",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s727",
+    "level": "section",
+    "num": "727",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s728",
+    "level": "section",
+    "num": "728",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s729",
+    "level": "section",
+    "num": "729",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s730",
+    "level": "section",
+    "num": "730",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s731",
+    "level": "section",
+    "num": "731",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s732",
+    "level": "section",
+    "num": "732",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s733",
+    "level": "section",
+    "num": "733",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s734",
+    "level": "section",
+    "num": "734",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s735",
+    "level": "section",
+    "num": "735",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s736",
+    "level": "section",
+    "num": "736",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s737",
+    "level": "section",
+    "num": "737",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s738",
+    "level": "section",
+    "num": "738",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s739",
+    "level": "section",
+    "num": "739",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s740",
+    "level": "section",
+    "num": "740",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s741",
+    "level": "section",
+    "num": "741",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s742",
+    "level": "section",
+    "num": "742",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s743",
+    "level": "section",
+    "num": "743",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s744",
+    "level": "section",
+    "num": "744",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s745",
+    "level": "section",
+    "num": "745",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s746",
+    "level": "section",
+    "num": "746",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s747",
+    "level": "section",
+    "num": "747",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s748",
+    "level": "section",
+    "num": "748",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s749",
+    "level": "section",
+    "num": "749",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s750",
+    "level": "section",
+    "num": "750",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s751",
+    "level": "section",
+    "num": "751",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s752",
+    "level": "section",
+    "num": "752",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s753",
+    "level": "section",
+    "num": "753",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s754",
+    "level": "section",
+    "num": "754",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s755",
+    "level": "section",
+    "num": "755",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s756",
+    "level": "section",
+    "num": "756",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s757",
+    "level": "section",
+    "num": "757",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s758",
+    "level": "section",
+    "num": "758",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s759",
+    "level": "section",
+    "num": "759",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s760",
+    "level": "section",
+    "num": "760",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s761",
+    "level": "section",
+    "num": "761",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s762",
+    "level": "section",
+    "num": "762",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s763",
+    "level": "section",
+    "num": "763",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s764",
+    "level": "section",
+    "num": "764",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s765",
+    "level": "section",
+    "num": "765",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s766",
+    "level": "section",
+    "num": "766",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s767",
+    "level": "section",
+    "num": "767",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s768",
+    "level": "section",
+    "num": "768",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s769",
+    "level": "section",
+    "num": "769",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s770",
+    "level": "section",
+    "num": "770",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s771",
+    "level": "section",
+    "num": "771",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s772",
+    "level": "section",
+    "num": "772",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s773",
+    "level": "section",
+    "num": "773",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s774",
+    "level": "section",
+    "num": "774",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s775",
+    "level": "section",
+    "num": "775",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s776",
+    "level": "section",
+    "num": "776",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s777",
+    "level": "section",
+    "num": "777",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s778",
+    "level": "section",
+    "num": "778",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s779",
+    "level": "section",
+    "num": "779",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s780",
+    "level": "section",
+    "num": "780",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dA/tVII/s781",
+    "level": "section",
+    "num": "781",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB",
+    "level": "division",
+    "num": "B",
+    "heading": "COMMERCE, JUSTICE, SCIENCE, AND RELATED AGENCIES APPROPRIATIONS ACT, 2023",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tI",
+    "level": "title",
+    "num": "I",
+    "heading": "DEPARTMENT OF COMMERCE",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tI/s101",
+    "level": "section",
+    "num": "101",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tI/s102",
+    "level": "section",
+    "num": "102",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tI/s103",
+    "level": "section",
+    "num": "103",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tI/s104",
+    "level": "section",
+    "num": "104",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tI/s105",
+    "level": "section",
+    "num": "105",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tI/s106",
+    "level": "section",
+    "num": "106",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tI/s107",
+    "level": "section",
+    "num": "107",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tI/s108",
+    "level": "section",
+    "num": "108",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tI/s109",
+    "level": "section",
+    "num": "109",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tI/s110",
+    "level": "section",
+    "num": "110",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tI/s111",
+    "level": "section",
+    "num": "111",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tI/s112",
+    "level": "section",
+    "num": "112",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII",
+    "level": "title",
+    "num": "II",
+    "heading": "DEPARTMENT OF JUSTICE",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s201",
+    "level": "section",
+    "num": "201",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s202",
+    "level": "section",
+    "num": "202",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s203",
+    "level": "section",
+    "num": "203",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s204",
+    "level": "section",
+    "num": "204",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s205",
+    "level": "section",
+    "num": "205",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s206",
+    "level": "section",
+    "num": "206",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s207",
+    "level": "section",
+    "num": "207",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s208",
+    "level": "section",
+    "num": "208",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s209",
+    "level": "section",
+    "num": "209",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s210",
+    "level": "section",
+    "num": "210",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s211",
+    "level": "section",
+    "num": "211",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s212",
+    "level": "section",
+    "num": "212",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s213",
+    "level": "section",
+    "num": "213",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s214",
+    "level": "section",
+    "num": "214",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s215",
+    "level": "section",
+    "num": "215",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s216",
+    "level": "section",
+    "num": "216",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s217",
+    "level": "section",
+    "num": "217",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s218",
+    "level": "section",
+    "num": "218",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s219",
+    "level": "section",
+    "num": "219",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s220",
+    "level": "section",
+    "num": "220",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tII/s221",
+    "level": "section",
+    "num": "221",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tIII",
+    "level": "title",
+    "num": "III",
+    "heading": "SCIENCE",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tIV",
+    "level": "title",
+    "num": "IV",
+    "heading": "RELATED AGENCIES",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV",
+    "level": "title",
+    "num": "V",
+    "heading": "GENERAL PROVISIONS",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s501",
+    "level": "section",
+    "num": "501",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s502",
+    "level": "section",
+    "num": "502",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s503",
+    "level": "section",
+    "num": "503",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s504",
+    "level": "section",
+    "num": "504",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s505",
+    "level": "section",
+    "num": "505",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s506",
+    "level": "section",
+    "num": "506",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s507",
+    "level": "section",
+    "num": "507",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s508",
+    "level": "section",
+    "num": "508",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s509",
+    "level": "section",
+    "num": "509",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s510",
+    "level": "section",
+    "num": "510",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s511",
+    "level": "section",
+    "num": "511",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s512",
+    "level": "section",
+    "num": "512",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s513",
+    "level": "section",
+    "num": "513",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s514",
+    "level": "section",
+    "num": "514",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s515",
+    "level": "section",
+    "num": "515",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s516",
+    "level": "section",
+    "num": "516",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s517",
+    "level": "section",
+    "num": "517",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s518",
+    "level": "section",
+    "num": "518",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s519",
+    "level": "section",
+    "num": "519",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s520",
+    "level": "section",
+    "num": "520",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s521",
+    "level": "section",
+    "num": "521",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s522",
+    "level": "section",
+    "num": "522",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s523",
+    "level": "section",
+    "num": "523",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s524",
+    "level": "section",
+    "num": "524",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s525",
+    "level": "section",
+    "num": "525",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s526",
+    "level": "section",
+    "num": "526",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s527",
+    "level": "section",
+    "num": "527",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s528",
+    "level": "section",
+    "num": "528",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s529",
+    "level": "section",
+    "num": "529",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s530",
+    "level": "section",
+    "num": "530",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s531",
+    "level": "section",
+    "num": "531",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s532",
+    "level": "section",
+    "num": "532",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s533",
+    "level": "section",
+    "num": "533",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s534",
+    "level": "section",
+    "num": "534",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s535",
+    "level": "section",
+    "num": "535",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s536",
+    "level": "section",
+    "num": "536",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s537",
+    "level": "section",
+    "num": "537",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s538",
+    "level": "section",
+    "num": "538",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s539",
+    "level": "section",
+    "num": "539",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s540",
+    "level": "section",
+    "num": "540",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s541",
+    "level": "section",
+    "num": "541",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s542",
+    "level": "section",
+    "num": "542",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dB/tV/s543",
+    "level": "section",
+    "num": "543",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC",
+    "level": "division",
+    "num": "C",
+    "heading": "DEPARTMENT OF DEFENSE APPROPRIATIONS ACT, 2023",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tI",
+    "level": "title",
+    "num": "I",
+    "heading": "MILITARY PERSONNEL",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tII",
+    "level": "title",
+    "num": "II",
+    "heading": "OPERATION AND MAINTENANCE",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tIII",
+    "level": "title",
+    "num": "III",
+    "heading": "PROCUREMENT",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tIV",
+    "level": "title",
+    "num": "IV",
+    "heading": "RESEARCH, DEVELOPMENT, TEST AND EVALUATION",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tV",
+    "level": "title",
+    "num": "V",
+    "heading": "REVOLVING AND MANAGEMENT FUNDS",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVI",
+    "level": "title",
+    "num": "VI",
+    "heading": "OTHER DEPARTMENT OF DEFENSE PROGRAMS",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVII",
+    "level": "title",
+    "num": "VII",
+    "heading": "RELATED AGENCIES",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII",
+    "level": "title",
+    "num": "VIII",
+    "heading": "GENERAL PROVISIONS",
+    "is_section": false
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8001",
+    "level": "section",
+    "num": "8001",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8002",
+    "level": "section",
+    "num": "8002",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8003",
+    "level": "section",
+    "num": "8003",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8004",
+    "level": "section",
+    "num": "8004",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8005",
+    "level": "section",
+    "num": "8005",
+    "heading": "(transfer of funds)",
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8006",
+    "level": "section",
+    "num": "8006",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8007",
+    "level": "section",
+    "num": "8007",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8008",
+    "level": "section",
+    "num": "8008",
+    "heading": "(transfer of funds)",
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8009",
+    "level": "section",
+    "num": "8009",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8010",
+    "level": "section",
+    "num": "8010",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8011",
+    "level": "section",
+    "num": "8011",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8012",
+    "level": "section",
+    "num": "8012",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8013",
+    "level": "section",
+    "num": "8013",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8014",
+    "level": "section",
+    "num": "8014",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8015",
+    "level": "section",
+    "num": "8015",
+    "heading": "(transfer of funds)",
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8016",
+    "level": "section",
+    "num": "8016",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8017",
+    "level": "section",
+    "num": "8017",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8018",
+    "level": "section",
+    "num": "8018",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8019",
+    "level": "section",
+    "num": "8019",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8020",
+    "level": "section",
+    "num": "8020",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8021",
+    "level": "section",
+    "num": "8021",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8022",
+    "level": "section",
+    "num": "8022",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8023",
+    "level": "section",
+    "num": "8023",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8024",
+    "level": "section",
+    "num": "8024",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8025",
+    "level": "section",
+    "num": "8025",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8026",
+    "level": "section",
+    "num": "8026",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8027",
+    "level": "section",
+    "num": "8027",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8028",
+    "level": "section",
+    "num": "8028",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8029",
+    "level": "section",
+    "num": "8029",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8030",
+    "level": "section",
+    "num": "8030",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8031",
+    "level": "section",
+    "num": "8031",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8032",
+    "level": "section",
+    "num": "8032",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8033",
+    "level": "section",
+    "num": "8033",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8034",
+    "level": "section",
+    "num": "8034",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8035",
+    "level": "section",
+    "num": "8035",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8036",
+    "level": "section",
+    "num": "8036",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8037",
+    "level": "section",
+    "num": "8037",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8038",
+    "level": "section",
+    "num": "8038",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8039",
+    "level": "section",
+    "num": "8039",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8040",
+    "level": "section",
+    "num": "8040",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8041",
+    "level": "section",
+    "num": "8041",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8042",
+    "level": "section",
+    "num": "8042",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8043",
+    "level": "section",
+    "num": "8043",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8044",
+    "level": "section",
+    "num": "8044",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8045",
+    "level": "section",
+    "num": "8045",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8046",
+    "level": "section",
+    "num": "8046",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8047",
+    "level": "section",
+    "num": "8047",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8048",
+    "level": "section",
+    "num": "8048",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8049",
+    "level": "section",
+    "num": "8049",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8050",
+    "level": "section",
+    "num": "8050",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8051",
+    "level": "section",
+    "num": "8051",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8052",
+    "level": "section",
+    "num": "8052",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8053",
+    "level": "section",
+    "num": "8053",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8054",
+    "level": "section",
+    "num": "8054",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8055",
+    "level": "section",
+    "num": "8055",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8056",
+    "level": "section",
+    "num": "8056",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8057",
+    "level": "section",
+    "num": "8057",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8058",
+    "level": "section",
+    "num": "8058",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8059",
+    "level": "section",
+    "num": "8059",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8060",
+    "level": "section",
+    "num": "8060",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8061",
+    "level": "section",
+    "num": "8061",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8062",
+    "level": "section",
+    "num": "8062",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8063",
+    "level": "section",
+    "num": "8063",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8064",
+    "level": "section",
+    "num": "8064",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8065",
+    "level": "section",
+    "num": "8065",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8066",
+    "level": "section",
+    "num": "8066",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8067",
+    "level": "section",
+    "num": "8067",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8068",
+    "level": "section",
+    "num": "8068",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8069",
+    "level": "section",
+    "num": "8069",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8070",
+    "level": "section",
+    "num": "8070",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8071",
+    "level": "section",
+    "num": "8071",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8072",
+    "level": "section",
+    "num": "8072",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8073",
+    "level": "section",
+    "num": "8073",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8074",
+    "level": "section",
+    "num": "8074",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8075",
+    "level": "section",
+    "num": "8075",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8076",
+    "level": "section",
+    "num": "8076",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8077",
+    "level": "section",
+    "num": "8077",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8078",
+    "level": "section",
+    "num": "8078",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8079",
+    "level": "section",
+    "num": "8079",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8080",
+    "level": "section",
+    "num": "8080",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8081",
+    "level": "section",
+    "num": "8081",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8082",
+    "level": "section",
+    "num": "8082",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8083",
+    "level": "section",
+    "num": "8083",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8084",
+    "level": "section",
+    "num": "8084",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8085",
+    "level": "section",
+    "num": "8085",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8086",
+    "level": "section",
+    "num": "8086",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8087",
+    "level": "section",
+    "num": "8087",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8088",
+    "level": "section",
+    "num": "8088",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8089",
+    "level": "section",
+    "num": "8089",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8090",
+    "level": "section",
+    "num": "8090",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8091",
+    "level": "section",
+    "num": "8091",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8092",
+    "level": "section",
+    "num": "8092",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8093",
+    "level": "section",
+    "num": "8093",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8094",
+    "level": "section",
+    "num": "8094",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8095",
+    "level": "section",
+    "num": "8095",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8096",
+    "level": "section",
+    "num": "8096",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8097",
+    "level": "section",
+    "num": "8097",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8098",
+    "level": "section",
+    "num": "8098",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8099",
+    "level": "section",
+    "num": "8099",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8100",
+    "level": "section",
+    "num": "8100",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8101",
+    "level": "section",
+    "num": "8101",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8102",
+    "level": "section",
+    "num": "8102",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8103",
+    "level": "section",
+    "num": "8103",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8104",
+    "level": "section",
+    "num": "8104",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8105",
+    "level": "section",
+    "num": "8105",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8106",
+    "level": "section",
+    "num": "8106",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8107",
+    "level": "section",
+    "num": "8107",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8108",
+    "level": "section",
+    "num": "8108",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8109",
+    "level": "section",
+    "num": "8109",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8110",
+    "level": "section",
+    "num": "8110",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8111",
+    "level": "section",
+    "num": "8111",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8112",
+    "level": "section",
+    "num": "8112",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8113",
+    "level": "section",
+    "num": "8113",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8114",
+    "level": "section",
+    "num": "8114",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8115",
+    "level": "section",
+    "num": "8115",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8116",
+    "level": "section",
+    "num": "8116",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8117",
+    "level": "section",
+    "num": "8117",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8118",
+    "level": "section",
+    "num": "8118",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8119",
+    "level": "section",
+    "num": "8119",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8120",
+    "level": "section",
+    "num": "8120",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8121",
+    "level": "section",
+    "num": "8121",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8122",
+    "level": "section",
+    "num": "8122",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8123",
+    "level": "section",
+    "num": "8123",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8124",
+    "level": "section",
+    "num": "8124",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8125",
+    "level": "section",
+    "num": "8125",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8126",
+    "level": "section",
+    "num": "8126",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8127",
+    "level": "section",
+    "num": "8127",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8128",
+    "level": "section",
+    "num": "8128",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8129",
+    "level": "section",
+    "num": "8129",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8130",
+    "level": "section",
+    "num": "8130",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8131",
+    "level": "section",
+    "num": "8131",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8132",
+    "level": "section",
+    "num": "8132",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8133",
+    "level": "section",
+    "num": "8133",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8134",
+    "level": "section",
+    "num": "8134",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8135",
+    "level": "section",
+    "num": "8135",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8136",
+    "level": "section",
+    "num": "8136",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8137",
+    "level": "section",
+    "num": "8137",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8138",
+    "level": "section",
+    "num": "8138",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8139",
+    "level": "section",
+    "num": "8139",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8140",
+    "level": "section",
+    "num": "8140",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8141",
+    "level": "section",
+    "num": "8141",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8142",
+    "level": "section",
+    "num": "8142",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8143",
+    "level": "section",
+    "num": "8143",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8144",
+    "level": "section",
+    "num": "8144",
+    "heading": null,
+    "is_section": true
+  },
+  {
+    "identifier": "/us/pl/117/328/dC/tVIII/s8145",
+    "level": "section",
+    "num": "8145",
+    "heading": null,
+    "is_section": true
+  }
+]
