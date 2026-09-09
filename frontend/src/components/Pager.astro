@@ -1,0 +1,51 @@
+---
+/** Previous and next links over a result set, 20 to a page, and the row
+ * range: "Results 21 to 40 of 312". No script; every control is a link. */
+interface Props {
+  total: number;
+  offset: number;
+  limit: number;
+  /** Rows this page actually returned, which bounds the range it claims. */
+  shown: number;
+  /** One page's address at the given offset. */
+  href: (offset: number) => string;
+}
+
+const { total, offset, limit, shown, href } = Astro.props;
+const from = shown > 0 ? offset + 1 : 0;
+const to = offset + shown;
+const hasPrevious = offset > 0;
+const hasNext = offset + shown < total;
+const previousOffset = Math.max(0, offset - limit);
+const nextOffset = offset + limit;
+---
+
+{
+  total > 0 && (
+    <nav class="status" aria-label="Search results pages">
+      <p class="doc-meta">
+        Results {from.toLocaleString()} to {to.toLocaleString()} of {total.toLocaleString()}
+      </p>
+      <p class="formats">
+        {hasPrevious ? (
+          <a class="usa-button usa-button--outline" href={href(previousOffset)} rel="prev">
+            ← Previous
+          </a>
+        ) : (
+          <span class="usa-button usa-button--outline" aria-disabled="true">
+            ← Previous
+          </span>
+        )}
+        {hasNext ? (
+          <a class="usa-button usa-button--outline" href={href(nextOffset)} rel="next">
+            Next →
+          </a>
+        ) : (
+          <span class="usa-button usa-button--outline" aria-disabled="true">
+            Next →
+          </span>
+        )}
+      </p>
+    </nav>
+  )
+}

@@ -1,0 +1,210 @@
+---
+/**
+ * `/app/search?q=…` — keyword results (ADR-0023, E4).
+ *
+ * Reached from the header's one box by way of `/app/goto`, which redirects
+ * here on a 422 (whatever `cite` cannot read as a citation), and directly by
+ * a facet, sort or view link, or a pasted URL.
+ */
+import ErrorPage from "../components/ErrorPage.astro";
+import Note from "../components/Note.astro";
+import Pager from "../components/Pager.astro";
+import SearchFacets from "../components/SearchFacets.astro";
+import SearchResult from "../components/SearchResult.astro";
+import Base from "../layouts/Base.astro";
+import { ApiError, fetchSearch } from "../lib/api";
+import { NO_STORE, REVALIDATE } from "../lib/cache";
+import { clientAddressOf } from "../lib/params";
+import type { Link, SearchResponse } from "../lib/types";
+import { APP, gotoHref, pageOffset, searchHref, syntaxHref } from "../lib/url";
+
+const query = (Astro.url.searchParams.get("q") ?? "").trim();
+const PAGE_SIZE = 20;
+const offset = pageOffset(Astro.url.searchParams, PAGE_SIZE);
+
+const SORTS = ["relevance", "date", "citation"] as const;
+const requestedSort = Astro.url.searchParams.get("sort");
+const sort = (SORTS as readonly string[]).includes(requestedSort ?? "") ? (requestedSort as string) : "relevance";
+
+/** `null` means "not asked for" — left off the API call, which then reads
+ * `enacted`. A value the API does not know is treated the same way, so a
+ * mistyped `?view=` searches rather than 400s. */
+const VIEWS = ["enacted", "compiled", "all"] as const;
+const requestedView = Astro.url.searchParams.get("view");
+const view = (VIEWS as readonly string[]).includes(requestedView ?? "") ? (requestedView as string) : null;
+const currentView = view ?? "enacted";
+
+let data: SearchResponse | null = null;
+let failure: { status: number; detail: string; retryAfter: string | null } | null = null;
+
+if (query) {
+  try {
+    const answer = await fetchSearch(query, {
+      offset,
+      limit: PAGE_SIZE,
+      sort,
+      view,
+      clientAddress: clientAddressOf(Astro),
+    });
+    data = answer.body;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      failure = { status: error.status, detail: error.detail, retryAfter: error.retryAfter };
+    } else {
+      failure = { status: 502, detail: `The API did not answer: ${(error as Error).message}`, retryAfter: null };
+    }
+  }
+}
+
+if (failure) {
+  Astro.response.status = failure.status;
+  Astro.response.headers.set("Cache-Control", NO_STORE);
+  if (failure.retryAfter) Astro.response.headers.set("Retry-After", failure.retryAfter);
+} else {
+  Astro.response.headers.set("Cache-Control", REVALIDATE);
+}
+
+const total = data?.total ?? 0;
+const results = data?.results ?? [];
+
+/** One page's address, the sort and view kept. */
+function pageHref(nextOffset: number): string {
+  return searchHref(query, { sort, view, offset: nextOffset });
+}
+
+/** The same search under a different order; the offset is not carried,
+ * since page three of one order is not page three of another. */
+function sortHref(next: string): string {
+  return searchHref(query, { sort: next, view });
+}
+
+function viewHref(next: string): string {
+  return searchHref(query, { sort, view: next });
+}
+
+const SORT_LABELS: Record<string, string> = { relevance: "Relevance", date: "Date", citation: "Citation order" };
+const VIEW_LABELS: Record<string, string> = { enacted: "Enacted", compiled: "Compiled", all: "All" };
+
+/** `params.CITE_FORMS`, the same six strings — offered on a zero-result
+ * search as the other reading of the box. */
+const CITE_FORMS = [
+  "Pub. L. 104-333, § 814",
+  "110 Stat. 4196",
+  "Act of Aug. 25, 1916, ch. 408",
+  "Aug. 30, 1954, ch. 1073, § 2",
+  "Private Law 81-375",
+  "43 U.S.C. 1701",
+];
+
+const crumbs: Link[] = [{ href: `${APP}/`, label: "Home" }];
+const title = query ? `Search: ${query} — Statutes at Large` : "Search — Statutes at Large";
+
+const hasFacets = data ? data.facets.congress.length > 0 || data.facets.kind.length > 0 || data.facets.view.length > 0 : false;
+const sections: Link[] = [];
+if (data && total > 0) {
+  sections.push({ href: "#results", label: "Results" });
+  if (hasFacets) sections.push({ href: "#facets", label: "Narrow these results" });
+}
+---
+
+<Base title={title} crumbs={crumbs} current="Search" query={query} sections={sections} toc={null}>
+  <h1 class="doc-title">Search</h1>
+
+  {failure && <ErrorPage status={failure.status} detail={failure.detail} retryAfter={failure.retryAfter} />}
+
+  {
+    !query && !failure && (
+      <p class="lede">
+        Search the text of the Statutes at Large and the Statute Compilations. A citation typed
+        into the box above goes straight to the unit instead. <a href={syntaxHref()}>The operators and scope words</a>.
+      </p>
+    )
+  }
+
+  {
+    query && !failure && (
+      <>
+        <h2 class="group">
+          {total === 0 ? "No results" : `${total.toLocaleString()} result${total === 1 ? "" : "s"}`} for “{query}”
+        </h2>
+
+        {
+          total > 0 && (
+            <nav class="status" aria-label="Sort results">
+              <span class="toc__meta">Sort: </span>
+              <ul class="forms">
+                {SORTS.map((option) => (
+                  <li>
+                    {option === sort ? (
+                      <span aria-current="true">{SORT_LABELS[option]}</span>
+                    ) : (
+                      <a href={sortHref(option)}>{SORT_LABELS[option]}</a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )
+        }
+
+        {
+          total > 0 && (
+            <nav class="status" aria-label="Filter by view">
+              <span class="toc__meta">View: </span>
+              <ul class="forms">
+                {VIEWS.map((option) => (
+                  <li>
+                    {option === currentView ? (
+                      <span aria-current="true">{VIEW_LABELS[option]}</span>
+                    ) : (
+                      <a href={viewHref(option)}>{VIEW_LABELS[option]}</a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )
+        }
+
+        {data?.note && <Note note={data.note} />}
+
+        {data && total > 0 && <SearchFacets facets={data.facets} query={query} sort={sort} view={view} />}
+
+        {
+          total === 0 && (
+            <div class="usa-alert usa-alert--info" role="status">
+              <div class="usa-alert__body">
+                <h2 class="usa-alert__heading">Nothing matched those words</h2>
+                <p class="usa-alert__text">
+                  Every word in the query has to appear. <a href={syntaxHref()}>The operators and scope words</a>{" "}
+                  loosen that.
+                </p>
+                <p class="usa-alert__text">Or this is a citation this site does not read as one. Forms it accepts:</p>
+                <ul class="forms">
+                  {CITE_FORMS.map((form) => (
+                    <li>
+                      <a href={gotoHref(form)}>{form}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )
+        }
+
+        {
+          total > 0 && (
+            <>
+              <ul class="toc searchresults" id="results">
+                {results.map((result) => (
+                  <SearchResult result={result} />
+                ))}
+              </ul>
+              <Pager total={total} offset={offset} limit={PAGE_SIZE} shown={results.length} href={pageHref} />
+            </>
+          )
+        }
+      </>
+    )
+  }
+</Base>

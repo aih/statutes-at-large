@@ -1,0 +1,62 @@
+---
+/**
+ * `congress`, `kind` and `view`, each a list of links that add or remove a
+ * scope word from the query (`lib/search.ts`'s `toggleScope`). Counts are
+ * over the whole result set, not the page. `sort` and `view` (the page's
+ * own view control) ride along on every link so narrowing a search does
+ * not also reset how it is ordered or which text it reads.
+ */
+import { type FacetScope, hasScope, toggleScope } from "../lib/search";
+import type { SearchFacets as SearchFacetsAnswer } from "../lib/types";
+import { searchHref } from "../lib/url";
+
+interface Props {
+  facets: SearchFacetsAnswer;
+  query: string;
+  sort: string;
+  view: string | null;
+}
+
+const { facets, query, sort, view } = Astro.props;
+
+function href(name: FacetScope, value: string): string {
+  return searchHref(toggleScope(query, name, value), { sort, view });
+}
+
+const KIND_LABELS: Record<string, string> = { pl: "Public law", pvtl: "Private law", act: "Act" };
+const VIEW_LABELS: Record<string, string> = { enacted: "Enacted", compiled: "Compiled" };
+
+const groups: { name: FacetScope; title: string; label: (value: string) => string }[] = [
+  { name: "congress", title: "Congress", label: (value) => value },
+  { name: "kind", title: "Kind", label: (value) => KIND_LABELS[value] ?? value },
+  { name: "view", title: "View", label: (value) => VIEW_LABELS[value] ?? value },
+];
+const shown = groups.filter((group) => facets[group.name].length > 0);
+---
+
+{
+  shown.length > 0 && (
+    <section class="panel" id="facets" aria-labelledby="facets-h">
+      <h2 class="group" id="facets-h">
+        Narrow these results
+      </h2>
+      {shown.map((group) => (
+        <div>
+          <p class="toc__meta">{group.title}</p>
+          <ul class="forms">
+            {facets[group.name].map((facet) => {
+              const on = hasScope(query, group.name, facet.value);
+              return (
+                <li>
+                  <a href={href(group.name, facet.value)} aria-current={on ? "true" : undefined}>
+                    {group.label(facet.value)} ({facet.count.toLocaleString()})
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </section>
+  )
+}
