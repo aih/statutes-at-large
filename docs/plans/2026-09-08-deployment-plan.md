@@ -1,12 +1,13 @@
 # Deploying statutes.linkedlegislation.org
 
-Date: 2026-09-08. Status: proposed. The shape is the US Code site's
-(its ADR-0020, ADR-0035, `docs/deploy.md`): one EC2 instance in the same AWS
-account and region running a standalone production compose file, Caddy
-terminating TLS, Postgres on a separate EBS volume, images built by GitHub
-Actions and pushed to ECR, deploys and updates dispatched over SSM. Design
-section 8 allows the same box as the US Code site; this plan uses its own
-box and says below what sharing would change.
+Date: 2026-09-08. Status: accepted 2026-09-09 (decisions: the US Code
+site's box, an edge proxy, bots disallowed, cross-site links allowed). The
+shape is the US Code site's (its ADR-0020, ADR-0035, `docs/deploy.md`): a
+standalone production compose file, Postgres on its own EBS volume, images
+built by GitHub Actions and pushed to ECR, deploys and updates dispatched
+over SSM. Design section 8's second option is taken: this site runs on the
+US Code site's `t4g.large`, as a second compose project behind one edge
+proxy that terminates TLS for both hostnames.
 
 ## 0. What is measured
 
@@ -27,43 +28,69 @@ an hour plus the COMPS walk.
 
 ## 1. Shape and cost
 
-| | monthly |
+```
+:443 ── edge (Caddy, TLS for both names, compose project `edge`)
+         ├── uscode.linkedlegislation.org   → uscode-proxy:8000   (the US Code site's own Caddy)
+         └── statutes.linkedlegislation.org → statutes-proxy:8000 (this site's own Caddy)
+```
+
+Three compose projects on the box, on one external Docker network named
+`edge`: the US Code site (`~/uscode-redesign`), this site
+(`~/statutes-at-large`), and the edge (`deploy/edge/` in this repository,
+checked out beside them). Each site keeps its own Caddyfile, robots,
+headers and `/app*` routing; its proxy no longer publishes a port and is
+reached by the edge through the network alias `uscode-proxy` or
+`statutes-proxy`. The edge changes only when a hostname is added.
+
+Client addresses: the edge overwrites `X-Forwarded-For` with the real peer
+(the US Code site's ADR-0029, decision 1); each inner Caddy sets
+`header_up X-Forwarded-For {client_ip}`, which is the forwarded address
+when the peer is a trusted proxy (`trusted_proxies static private_ranges`,
+which the edge is) and the peer itself otherwise, so the same Caddyfile
+serves the dev stack and the box. Each API's rate limiter keys on that.
+
+Protections per application:
+
+| | |
 |---|---|
-| `t4g.medium` (2 vCPU, 4 GB, arm64), on-demand | ~$25 |
-| 20 GB gp3 root + 40 GB gp3 data volume, `DeleteOnTermination=false` on the data volume | ~$5 |
-| ECR (two images, a few tags kept) | ~$1 |
-| S3 bucket `statutes-linkedlegislation` (database dumps, source files) | under $1 |
-| Elastic IP while attached, egress under 100 GB | $0 |
+| Data | a second EBS volume, 40 GB gp3, at `/var/lib/statutes`, `DeleteOnTermination=false`; the US Code site's volume and its usage alarm are untouched |
+| Database | this site's own Postgres container, `shared_buffers=256MB`, no published port |
+| Memory | compose `mem_limit`: `statutes-db` 768 MB, `statutes-api` 512 MB, `statutes-frontend` 384 MB, `statutes-proxy` 64 MB; about 1.3 GB beside the US Code site's ~5 GB on 8 GB |
+| CPU | the one-hour initial load under `nice -n 10`; the credit-balance alarm already exists on the box |
+| Deploys | separate repositories, locks (`${DATA_ROOT}/deploy.lock` per site), logs and image tags; a deploy of one site never recreates the other's containers or the edge |
+| Watchdog | each site's watchdog probes its own hostname through the edge and restarts only its own services; the edge is restarted by neither |
+| Backups | `pg_dump` to `s3://statutes-linkedlegislation/db/`, a bucket of its own |
+| Bots | `robots.txt` answers `Disallow: /` on both sites |
+| Cross-site links | plain navigations between the two hostnames, allowed by both sites' CSP (`form-action` and `connect-src` govern forms and scripts, not links) and `Referrer-Policy: strict-origin-when-cross-origin`; the US Code site's server-side `labels` call reaches this site through the public hostname and arrives with the box's own address, within the server-sized `labels` limit |
 
-About $32 a month. No load-pass instance size: the whole load is an hour,
-inside a `t4g.medium`'s CPU credit balance. 4 GB holds Postgres
-(`shared_buffers=512MB`), FastAPI, the Node SSR process and Caddy.
-
-Sharing the US Code site's `t4g.large` instead: add this repository's
-`docker-compose.prod.yml` as a second project on the same box with its own
-Postgres and data directory, and a second site block in that box's
-Caddyfile (`statutes.linkedlegislation.org` → this stack's proxy is not
-needed; Caddy on the box would reverse-proxy to `statutes-api:8001` and
-`statutes-frontend:4321` on a shared network). It saves the instance cost
-and couples the two sites' deploys, restarts and disk. Not chosen here.
+Cost above the existing box: the 40 GB volume (~$3), ECR for two images
+(~$1), the bucket (under $1). About $5 a month.
 
 ## 2. What the repository needs before the first deploy
 
 Files, all modelled on the US Code site's with `uscode` → `statutes`:
 
-1. `docker-compose.prod.yml`, standalone: no published `5432`; `api` and
-   `frontend` from `${ECR_REGISTRY}/statutes-api:${IMAGE_TAG}` and
-   `statutes-frontend`, `build:` as the fallback; `db` on
-   `${DATA_ROOT}/pgdata` with `shared_buffers=512MB`, `max_wal_size=2GB`,
-   `shm_size: 512mb`; `api` with `${DATA_ROOT}/data:/app/data` (the
+1. `docker-compose.prod.yml`, standalone: no published ports at all;
+   `api` and `frontend` from `${ECR_REGISTRY}/statutes-api:${IMAGE_TAG}`
+   and `statutes-frontend`, `build:` as the fallback; `db` on
+   `${DATA_ROOT}/pgdata` with `shared_buffers=256MB`, `max_wal_size=2GB`,
+   `shm_size: 256mb`; `api` with `${DATA_ROOT}/data:/app/data` (the
    downloaded volumes, zips, parquet shards and COMPS files persist across
    image changes), `--limit-concurrency 64`, a `/health` healthcheck;
    `frontend` with `API_BASE_URL=http://api:8001`, `USCODE_ORIGIN`, and a
-   healthcheck; `proxy` publishing 80 and 443 with `SITE_ADDRESS` and
-   `${DATA_ROOT}/caddy:/data`; `restart: unless-stopped` everywhere.
-   `.env` on the box: `SITE_ADDRESS`, `POSTGRES_PASSWORD`, `DATA_ROOT`,
-   `ECR_REGISTRY`, `IMAGE_TAG`, `GOVINFO_API_KEY`, `SITE_ORIGIN`,
-   `USCODE_ORIGIN`, `BACKUP_BUCKET`.
+   healthcheck; `proxy` with `SITE_ADDRESS=http://statutes.linkedlegislation.org:8000`
+   (plain HTTP behind the edge), on the external `edge` network with the
+   alias `statutes-proxy`; `mem_limit` per service; `restart:
+   unless-stopped` everywhere. `.env` on the box: `SITE_ADDRESS`,
+   `POSTGRES_PASSWORD`, `DATA_ROOT`, `ECR_REGISTRY`, `IMAGE_TAG`,
+   `GOVINFO_API_KEY`, `SITE_ORIGIN`, `USCODE_ORIGIN`, `BACKUP_BUCKET`.
+   `deploy/edge/` holds the edge: a compose file with one Caddy publishing
+   80 and 443, `${DATA_ROOT}/edge-caddy:/data` for certificates, and a
+   Caddyfile with two site blocks (`uscode.linkedlegislation.org` →
+   `uscode-proxy:8000`, `statutes.linkedlegislation.org` →
+   `statutes-proxy:8000`, each `header_up X-Forwarded-For {remote_host}`,
+   `header_up Host {host}`), plus `deploy/edge/up.sh` creating the network
+   and bringing the edge up.
 2. `frontend/src/pages/healthz.astro` answering 200 with no API call, for
    the compose healthcheck and the watchdog.
 3. The reader forwards the browser's address on its server-side API calls
@@ -74,11 +101,12 @@ Files, all modelled on the US Code site's with `uscode` → `statutes`:
    one bucket would be shared by every reader of `/app/goto` and every
    "cited by" panel. Caddy already overwrites `X-Forwarded-For` at the
    edge, so the value the frontend forwards is the one Caddy set.
-4. `deploy/provision.sh` (security group 80 and 443, instance tagged
-   `Name=statutes-site`, data volume, Elastic IP; idempotent),
-   `deploy/bootstrap-box.sh` (Docker, git, the data volume found by
-   elimination and formatted only when empty, the clone, `.env` kept when
-   present, `install-crons.sh`), `deploy/deploy-on-box.sh` (ECR login, pin
+4. `deploy/provision.sh` (the second data volume attached to the existing
+   instance tagged `Name=uscode-site`, the bucket, the ECR repositories;
+   idempotent), `deploy/bootstrap-box.sh` (the new volume found by
+   elimination and formatted only when empty, mounted at
+   `/var/lib/statutes`, the clone beside `~/uscode-redesign`, `.env` kept
+   when present, `install-crons.sh`; Docker and git are already there), `deploy/deploy-on-box.sh` (ECR login, pin
    `IMAGE_TAG`, pull, `alembic upgrade head` with the new image before it
    serves, `up -d --wait`, recreate the proxy so the bind-mounted Caddyfile
    is re-read, `robots.txt` check, prune; `flock`-guarded; logs to
@@ -92,7 +120,7 @@ Files, all modelled on the US Code site's with `uscode` → `statutes`:
    site), `deploy.yml` (on CI success on `main` and on dispatch: build both
    images on `ubuntu-24.04-arm`, push to ECR tagged `<sha>` and `latest`,
    SSM `git checkout --force <sha> && bash deploy/deploy-on-box.sh <sha>`
-   on the instance tagged `Name=statutes-site`, poll the command),
+   on the instance tagged `Name=uscode-site`, poll the command),
    `update-sources.yml` (section 6).
 6. Two small ingest additions for the weekly run: `python -m ingest
    fetch-statute --if-changed` compares each volume's Hub file
@@ -103,10 +131,18 @@ Files, all modelled on the US Code site's with `uscode` → `statutes`:
    --from-hub --if-changed` skips the reload when the dataset revision
    matches the one `/status` reports. Each writes a `source_checks` row
    either way, so `/status` stays honest about when the source was asked.
-7. `deploy/Caddyfile`: `robots.txt` says `Disallow: /` today, copied from
-   the US Code demo. Decide before the site is public; the plan keeps it
-   until the corpus is loaded, then switches to `Allow: /` with a sitemap
-   later.
+7. `deploy/Caddyfile`: `robots.txt` keeps `Disallow: /` (decided);
+   `header_up X-Forwarded-For {client_ip}` replaces `{remote_host}` so
+   the address the edge forwards survives the inner proxy.
+8. The US Code site, on a branch of `../uscode-redesign`: its prod
+   compose's `proxy` stops publishing 80 and 443, joins the external `edge`
+   network with the alias `uscode-proxy`, and takes
+   `SITE_ADDRESS=http://uscode.linkedlegislation.org:8000`; its Caddyfile
+   uses `{client_ip}` the same way; its `deploy-on-box.sh` robots check and
+   its watchdog probe go through the edge with the hostname; its
+   `frontend` gains `STATUTES_ORIGIN=https://statutes.linkedlegislation.org`
+   once `statutes-links` is merged; `docs/deploy.md` gains a section on the
+   shared box. Its ADR-0020 is amended, not replaced.
 
 ## 3. AWS, once
 
@@ -114,26 +150,27 @@ Everything in `us-east-1`, the account that holds the US Code site
 (ECR registry `739065237548.dkr.ecr.us-east-1.amazonaws.com`).
 
 1. **IAM, by an identity that may create IAM resources** (the US Code
-   site's `admin-grant.sh` pattern, run once and then detached): the
-   instance role `statutes-site` with `AmazonSSMManagedInstanceCore`,
-   `AmazonEC2ContainerRegistryReadOnly`, `cloudwatch:PutMetricData`, and
+   site's `admin-grant.sh` pattern, run once and then detached): a
+   statement on the existing instance role `uscode-site` for
    `s3:GetObject`/`PutObject`/`ListBucket` on
-   `arn:aws:s3:::statutes-linkedlegislation/*`; the instance profile of the
-   same name; two ECR repositories `statutes-api` and `statutes-frontend`
-   with a lifecycle rule keeping the last ten tags; the GitHub OIDC role
+   `arn:aws:s3:::statutes-linkedlegislation` and `/*`; two ECR
+   repositories `statutes-api` and `statutes-frontend` with a lifecycle
+   rule keeping the last ten tags; the GitHub OIDC role
    `statutes-github-deploy` trusted by `repo:aih/statutes-at-large:*`, with
    ECR push on the two repositories, `ssm:SendCommand` and
-   `ssm:GetCommandInvocation` on instances tagged `Name=statutes-site`, and
-   `ec2:DescribeInstances`. The existing GitHub OIDC provider is reused.
+   `ssm:GetCommandInvocation` on the instance tagged `Name=uscode-site`,
+   and `ec2:DescribeInstances`. The existing GitHub OIDC provider and
+   instance are reused.
 2. **The bucket** `statutes-linkedlegislation` (private, versioning off, a
    lifecycle rule expiring `db/` objects after 60 days).
-3. **The instance**: `bash deploy/provision.sh` (AL2023 arm64,
-   `t4g.medium`, `HttpTokens=required`, `HttpPutResponseHopLimit=2`, 20 GB
-   root, 40 GB data volume with `DeleteOnTermination=false`, the security
-   group with 80 and 443 only, no SSH, an Elastic IP). It prints the IP.
-4. **DNS**: an A record `statutes.linkedlegislation.org` → the Elastic IP,
-   in the zone that already holds `uscode.linkedlegislation.org`. Caddy
-   needs it resolving before it can get a certificate.
+3. **The volume**: `bash deploy/provision.sh` creates a 40 GB gp3 volume
+   with `DeleteOnTermination=false` in the instance's availability zone and
+   attaches it to the instance tagged `Name=uscode-site`. The security
+   group (80 and 443, no SSH) and the Elastic IP already exist.
+4. **DNS**: an A record `statutes.linkedlegislation.org` → the box's
+   Elastic IP, in the zone that already holds
+   `uscode.linkedlegislation.org`. The edge needs it resolving before it
+   can get a certificate.
 5. **GitHub**: repository variable `AWS_DEPLOY_ROLE_ARN` = the OIDC role's
    ARN. No long-lived AWS keys in the repository. `GOVINFO_API_KEY` is not a
    GitHub secret; it lives only in the box's `.env`.
@@ -150,19 +187,27 @@ GOVINFO_API_KEY=… \
   sudo -E bash bootstrap-box.sh
 ```
 
-That installs Docker and git, mounts the data volume at
-`/var/lib/statutes` with `pgdata`, `data`, `caddy` and `logs` under it,
-clones `https://github.com/aih/statutes-at-large` into
+That mounts the new volume at `/var/lib/statutes` with `pgdata`, `data`,
+`caddy`, `edge-caddy` and `logs` under it, clones
+`https://github.com/aih/statutes-at-large` into
 `/home/ec2-user/statutes-at-large`, writes `.env` (mode 600) with a
-generated `POSTGRES_PASSWORD`, and installs the cron file. Then the first
-deploy is the same command continuous deploy uses:
+generated `POSTGRES_PASSWORD`, and installs the cron file.
+
+The cut-over to the edge is the one step that touches the US Code site,
+and it is one short interruption: deploy the US Code site's branch (its
+proxy stops publishing 80 and 443 and joins the `edge` network), then
+`bash deploy/edge/up.sh` (the network, the edge Caddy on 80 and 443, the
+certificate for `uscode.linkedlegislation.org` re-issued to the edge's own
+store). Check the US Code site through the edge before going on. Then the
+first deploy of this site is the same command continuous deploy uses:
 
 ```
 bash deploy/deploy-on-box.sh <sha>
 ```
 
-Caddy gets its certificate within seconds of the DNS record resolving. The
-site is up and empty; `/api/v1/status` shows nothing loaded.
+The edge gets the second certificate within seconds of the DNS record
+resolving. The site is up and empty; `/api/v1/status` shows nothing
+loaded.
 
 ## 5. Loading everything
 
@@ -260,8 +305,10 @@ older commit.
 balance, status check, bytes out, data-volume usage, and the watchdog's
 `Statutes/SiteUp` metric. Confirm the SNS subscription from the mailbox.
 
-Losing the instance: `provision.sh` again (it reuses the data volume by
-tag), `bootstrap-box.sh`, `deploy-on-box.sh`; the corpus is on the volume.
+Losing the instance is the US Code site's runbook first (its
+`provision.sh` reuses both data volumes by tag), then `bootstrap-box.sh`,
+`deploy/edge/up.sh` and `deploy-on-box.sh` here; the corpus is on the
+volume.
 Losing the volume: the same, then `pg_restore` from the newest dump in
 `s3://statutes-linkedlegislation/db/` (minutes), or section 5 from the
 sources (about an hour plus the COMPS walk).
