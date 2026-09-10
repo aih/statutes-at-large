@@ -611,7 +611,17 @@ Verified: `make test` 560 passed, 5 deselected; `make test-web` 107; `make
 test-e2e` 74 over the dev servers. On the dev database: `/us/sComp/74/271`
 2,340 bytes in 19 ms, `/us/sComp/83/703/tI` 4,625 bytes in 19 ms;
 `/app/us/sComp/74/271` prints "Social Security Act" and the title II node;
-`/app/us/sComp/83/703/tI/ch1./s1` renders as before. Two things met on the
+`/app/us/sComp/83/703/tI/ch1./s1` renders as before. Live after the
+deploy of `89027bd`, over TLS from a workstation: `/us/sComp/74/271` 5,054
+bytes in 0.44 s (from 8,385,144 and 4.46 s); `/us/sComp/83/703/tI` 4,625
+bytes in 0.30 s (from 540,777); `/us/sComp/78/373` 21,334 bytes in 0.51 s,
+"Public Health Service Act", 32 files, 32 title nodes as children, no
+versions; `/us/sComp/78/410` 2,346 bytes, the same name over its one
+title; `/us/sComp/78/373?format=xml` the 404 sentence;
+`/us/sComp/74/271?format=xml` still the 20 MB whole-act document;
+`/app/us/sComp/74/271`, `/app/us/sComp/78/373` and
+`/app/us/sComp/83/703/tI/ch1./s1` render, the last with its section
+body; `/comps/8771`'s `toc` still its title node. Two things met on the
 way: `make dev` from a worktree names its compose project after the
 directory and tries a second `db` on 5434, which the shared database
 already holds (the never-started `statutes-wt-compiled-db-1` container and
