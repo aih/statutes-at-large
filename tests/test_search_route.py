@@ -155,12 +155,13 @@ def test_the_query_wins_over_the_view_parameter(api_client):
 
 def test_an_unconfigured_cluster_answers_503_with_the_same_sentence(api_client, monkeypatch):
     """A deployment without `SEARCH_PASSWORD` (the box until the password is
-    typed into `.env`) answers 503, not 500."""
+    typed into `.env`) answers 503, not 500. An empty value in the environment
+    wins over a password in the shell or in `.env`."""
     from main import app
     from storage.search import reset_search_client
 
     app.dependency_overrides.pop(search_client_dependency, None)
-    monkeypatch.delenv("SEARCH_PASSWORD", raising=False)
+    monkeypatch.setenv("SEARCH_PASSWORD", "")
     reset_search_client()
 
     response = api_client.get(ROUTE, params={"q": "wild horses"})

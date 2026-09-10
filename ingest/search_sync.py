@@ -10,7 +10,8 @@ Hierarchy nodes are indexed with their heading and no text. Quoted sections are
 not units (gotcha 5) and so are not documents.
 
 Loads do not index. `python -m ingest reindex-search` is the only thing in
-`ingest/` that reaches a cluster, and `DISABLE_SEARCH_SYNC=1` makes even that a
+`ingest/` that reaches a cluster, and `DISABLE_SEARCH_SYNC=1` (in the
+environment or `.env`, `storage.search.SearchSettings`) makes even that a
 no-op, so `make test` and every load run cluster-free.
 
 The rebuild path is `rebuild(session, client)`: create the index for the
@@ -26,7 +27,6 @@ import datetime
 import hashlib
 import json
 import logging
-import os
 import re
 from collections.abc import Iterator
 from typing import Any, Iterable
@@ -37,7 +37,7 @@ from sqlalchemy.orm import Bundle, Session
 
 from db.models import Comp, CompUnit, CompVersion, Law, Unit
 from storage.identifiers import law_label
-from storage.search import UNITS_ALIAS
+from storage.search import UNITS_ALIAS, search_settings
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ BATCH_SIZE = 500
 
 def _disabled() -> bool:
     """`DISABLE_SEARCH_SYNC=1`: index nothing and reach no cluster."""
-    return os.environ.get("DISABLE_SEARCH_SYNC") == "1"
+    return search_settings().disable_search_sync
 
 
 # ----------------------------------------------------------------- the mapping

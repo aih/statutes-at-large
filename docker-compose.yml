@@ -7,6 +7,12 @@
 #
 # Host ports 5434 and 8010 rather than 5432 and 8000: the US Code site's stack
 # runs on this machine with those.
+#
+# The project name is fixed rather than taken from the directory, so every
+# checkout and worktree of the repository addresses the same containers and
+# volumes: `make dev-up` from a worktree finds the running `db` (ADR-0025).
+name: statutes-linkedlegislation
+
 services:
   # The dev search cluster, on host port 9201 (9200 is the US Code site's dev
   # cluster on this machine). On the box this site joins that project's

@@ -22,12 +22,11 @@ from __future__ import annotations
 
 import argparse
 import datetime
-import os
 import sys
 
 from db.base import SessionLocal
 from ingest import search_sync
-from storage.search import SearchNotConfigured, get_search_client
+from storage.search import SearchNotConfigured, get_search_client, search_settings
 
 
 def add_reindex_search_command(sub: argparse._SubParsersAction) -> None:
@@ -59,7 +58,7 @@ def _summary(report: dict) -> str:
 
 
 def cmd_reindex_search(args: argparse.Namespace) -> int:
-    if os.environ.get("DISABLE_SEARCH_SYNC") == "1":
+    if search_settings().disable_search_sync:
         print("DISABLE_SEARCH_SYNC=1: reindex-search is a no-op")
         return 0
 

@@ -30,6 +30,13 @@
 #   SEARCH_PASSWORD=…                    the US Code site's OpenSearch admin password,
 #                                         typed into .env by hand (deploy/bootstrap-box.sh);
 #                                         unset leaves search unconfigured (ADR-0023)
+#
+# The project name is the one the box has carried since the cut-over (its
+# checkout is ~/statutes-at-large), fixed here so a checkout in another
+# directory addresses the same containers. It prefixes the relay's container
+# name on `uscode-redesign_default` (ADR-0024, ADR-0025).
+name: statutes-at-large
+
 services:
   db:
     image: postgres:16

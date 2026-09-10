@@ -630,3 +630,33 @@ with `make -j2 dev-api dev-web`); and `storage/search.py` reads
 `SEARCH_PASSWORD` from the process environment only, not `.env`, so the
 seven search browser tests answer 503 until the shell exports it.
 
+## 2026-09-10 — search settings from `.env`, and fixed compose project names
+
+Asked: `docs/plans/2026-09-10-dev-environment-prompt.md`. `make dev` and
+`make test-e2e` from any checkout, including a worktree, with nothing
+exported.
+
+Done:
+
+- `storage/search.py`: `SearchSettings` (pydantic-settings, `env_file=".env"`)
+  replaces the module constants and `os.environ.get` calls, and holds
+  `DISABLE_SEARCH_SYNC`; `ingest/search_sync.py: _disabled` and
+  `ingest/reindex_search.py` read it. `tests/conftest.py` sets
+  `storage.search.ENV_FILE = None`; the two "no password" tests set
+  `SEARCH_PASSWORD=""`. `tests/test_search_settings.py` is new.
+- `docker-compose.yml` is project `statutes-linkedlegislation`,
+  `docker-compose.prod.yml` project `statutes-at-large` (the box's existing
+  name), `docker-compose.edge.yml` none; `tests/test_compose_networks.py`
+  asserts all three.
+- ADR-0025; ADR-0023 decision 9 amended; README "Running it", CLAUDE.md
+  gotcha 10 and the ADR list, `.env.example`.
+
+Verified: `make test` 569 passed, 5 deselected, with `.env` present and with
+it moved aside; `make test-web` 107. From this worktree with `SEARCH_*`,
+`DATABASE_URL` and `DISABLE_SEARCH_SYNC` unset in the shell: `docker compose
+--dry-run up -d db` and then `make dev` printed `Container
+statutes-linkedlegislation-db-1 Running` and created nothing, the migration
+ran, `GET /api/v1/search?q=rubber` on :8001 answered 200 with 101 results,
+and `make test-e2e` passed 74. `docker ps` shows one `db` and one
+`opensearch` for the project and no `statutes-wt-*` container.
+

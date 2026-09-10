@@ -90,7 +90,10 @@ of this one on an 8 GB `t4g.large`.
 9. **`DISABLE_SEARCH_SYNC=1` keeps `make test` and every load cluster-free.**
    `ingest/reindex_search.py` is the only thing in `ingest/` that reaches a
    cluster; `sync()` and `rebuild()` no-op under the flag rather than raising,
-   so a load or a test run that sets it needs no cluster at all.
+   so a load or a test run that sets it needs no cluster at all. Amended
+   2026-09-10 (ADR-0025): the flag and the `SEARCH_*` settings are read by
+   `storage.search.SearchSettings`, from the environment and then `.env`;
+   a test run reads the environment only.
 
 10. **The route is rate-limited at 120, 10 a second** (`params.rate_limit`),
     sized as a server's budget the way `labels` is, not a person's: a page

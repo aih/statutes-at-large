@@ -16,8 +16,13 @@ os.environ.setdefault("GOVINFO_API_KEY", "")
 import pytest
 from sqlalchemy.orm import Session, sessionmaker
 
+import storage.search
 from db import models  # noqa: F401  (the tables must be registered before create_all)
 from db.base import Base, make_engine
+
+# The search settings come from the process environment alone under pytest, so
+# a `.env` that sets SEARCH_PASSWORD or DISABLE_SEARCH_SYNC changes no test.
+storage.search.ENV_FILE = None
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 FIXTURES = REPO_ROOT / "tests" / "fixtures"

@@ -317,6 +317,14 @@ citation parser's accepted-forms table runs with no fixtures at all.
 `make test-slow` parses the downloaded volumes under `data/statute/xmls`.
 `make test-web` and `make test-e2e` are the reader's suites.
 
+`docker-compose.yml` names its project `statutes-linkedlegislation`, so every
+checkout and git worktree of the repository shares the one dev database on
+:5434 and the dev cluster on :9201; `make dev-up` from a worktree reports the
+running `db` and creates nothing. The API and `python -m ingest` read
+`DATABASE_URL`, the origins and the `SEARCH_*` lines from `.env` in the
+working directory, so a worktree needs its `.env` copied in and nothing
+exported (ADR-0025). A variable set in the environment wins over the file.
+
 ## Deployment
 
 `statutes.linkedlegislation.org` runs on the US Code site's box as a

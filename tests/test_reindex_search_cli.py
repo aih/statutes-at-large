@@ -130,6 +130,6 @@ def test_disabled_skips_with_no_client(monkeypatch, capsys):
 def test_a_missing_search_password_is_a_one_line_error(monkeypatch, capsys):
     from ingest.__main__ import main
 
-    monkeypatch.delenv("SEARCH_PASSWORD", raising=False)
+    monkeypatch.setenv("SEARCH_PASSWORD", "")
     assert main(["reindex-search"]) == 1
     assert "SEARCH_PASSWORD" in capsys.readouterr().err
