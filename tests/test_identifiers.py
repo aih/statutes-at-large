@@ -126,3 +126,15 @@ def test_roman_chapter_numbers_of_the_first_volumes():
     identity = identify_law(congress=1, doc_type="Chapter", doc_number="I", public_private="public",
                             enacted=datetime.date(1789, 6, 1))
     assert identity.primary == "/us/act/1789-06-01/ch1"
+
+
+def test_act_title_and_title_order():
+    from storage.identifiers import act_title, title_order
+
+    assert act_title("Social Security Act-TITLE II (Federal Old-Age, Survivors, and Disability Insurance Benefits)", "II") == "Social Security Act"
+    assert act_title("Public Health Service Act-TITLE XXXII (Repealed.)", "XXXII") == "Public Health Service Act"
+    assert act_title("Social Security Act-ENTIRE (Current through P.L. 119-77)", None) == "Social Security Act-ENTIRE (Current through P.L. 119-77)"
+    assert act_title("Some Act", "III") == "Some Act"
+    assert act_title(None, "II") is None
+    assert sorted(["XXXII", "I", "IX", "X", "II", "VI", "12", "A"], key=title_order) == ["I", "II", "VI", "IX", "X", "12", "XXXII", "A"]
+

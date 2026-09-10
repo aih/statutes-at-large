@@ -83,7 +83,7 @@ Stage 2 (compiled view):
 
 | Identifier | Answer |
 |---|---|
-| `/us/sComp/{congress}/{num}[/{path}]` | a Statute Compilation unit in GPO's identifier form (`/tI/ch1./s1`); `?through=118-67` selects a stored version |
+| `/us/sComp/{congress}/{num}[/{path}]` | a Statute Compilation unit in GPO's identifier form (`/tI/ch1./s1`); `?through=118-67` selects a stored version. `text` is empty on the compilation and on a hierarchy level; `format=xml` serves their XML. A prefix whose act has one file per title and no whole-act file answers with the files gathered in title order: the act's name, every file's top-level units as `children`, the packages as `files`, and no `format=xml` (ADR-0007, decision 8) |
 | `/us/pl/…?view=compiled` (also `/us/pvtl`, `/us/act`) | the compiled counterpart of the enacted unit, matched by section number; 404 with `alternatives` when there is none |
 | `GET /api/v1/comps?law=/us/pl/83/703&q=atomic` | compilations for a law, or by title search |
 | `GET /api/v1/comps/{fileId}` | a compilation's summary, version list, and table of contents |
@@ -113,7 +113,9 @@ The 10 it could not load fail the same way on every poll and are listed in
 - COMPS-77777777 is the whole Public Health Service Act in one 13 MB file
   whose identifiers have an empty law slot (`/us/sComp//tI/s1`) and whose
   summary names no law. The act is served title by title from its per-title
-  packages under `/us/sComp/78/410`.
+  packages: 32 titles under `/us/sComp/78/373` (the chapter number, as GPO
+  wrote their identifiers) and the repealed title XXXII under
+  `/us/sComp/78/410`. Either bare prefix answers with its files gathered.
 
 A poll counts a failed package as fetched, so `deploy/comps-walk.sh` ends the
 walk on a run that reports `0 new, 0 new versions`, not on one that reports

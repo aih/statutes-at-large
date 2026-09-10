@@ -12,7 +12,8 @@ Date: 2026-09-07. Status: accepted. Implements design sections 4 to 6 for
    designator. A `/us/sComp/…` request is resolved across every current version
    under the prefix, and the section identifiers tell the files apart. The
    compilation root (`/us/sComp/74/271` with no path) answers from the whole-act
-   file when one exists, else the first file by id.
+   file when one exists, else the first file by id. Amended 2026-09-09: with
+   no whole-act file the root is the per-title files gathered (decision 8).
 
 2. **A version is a content hash.** `load_comp` inserts a `comp_versions` row
    when the document's sha256 is new and marks the earlier rows not current;
@@ -56,6 +57,37 @@ Date: 2026-09-07. Status: accepted. Implements design sections 4 to 6 for
    the report and summarised in `error`. A walk that raised is recorded and
    re-raised.
 
+8. **A bare prefix with no whole-act file is the per-title files gathered in
+   title order.** Added 2026-09-09. The Public Health Service Act has one file
+   per title and no whole-act file (COMPS-77777777 is not loaded, consequence
+   below); its 32 titles sit under `/us/sComp/78/373`, the chapter number GPO
+   wrote, and the repealed title XXXII (COMPS-10057) under `/us/sComp/78/410`.
+   Both prefixes used to answer with `versions[0]`: title VI for one, the
+   repealed title for the other. Now `_gathered_root_result` answers the root
+   with `level: "compilation"`; `heading` and `compilation.display_title` the
+   first file's display title with its title suffix removed
+   (`storage.identifiers.act_title`: `Social Security Act-TITLE II (…)` →
+   `Social Security Act`), `compilation.short_titles` trimmed the same way,
+   `compilation.partial_of` null and the rest of `compilation` the first
+   file's; `files` every file in title order (`title_order`: the designator's
+   value, Roman or Arabic, the rest after them); `children` every file's
+   top-level units in that order; `versions` empty, since the files have
+   their own histories; `version` and `currency` the first file's;
+   `provenance.sha256` and the ETag a sha256 over the files' content hashes.
+   `note` says the act is served title by title in N files and that each
+   title says which public law it is current through
+   (`params.compiled_note`). The rule applies with one file as well as with
+   thirty: the fixture database's `/us/sComp/74/271` (COMPS-8755 alone) is
+   the test case, and `/us/sComp/78/410` on the box answers the act's name
+   over its one title. Building the answer reads no version's `xml`: one
+   query for the top-level units of every file. `format=xml` on a gathered
+   root is a 404 whose detail says there is no whole document
+   (`params.no_whole_document`); each title under it answers `format=xml`.
+   Candidate (b), a redirect to the first title's file, was not taken: the
+   act's contents are what a reader asks the bare prefix for. This rule does
+   not make COMPS-77777777 loadable; its identifiers still have an empty law
+   slot.
+
 ## Consequences
 
 - `Cache-Control` is `immutable` for a compiled unit only when `through=` was
@@ -72,7 +104,9 @@ Date: 2026-09-07. Status: accepted. Implements design sections 4 to 6 for
   USLM files with a `meta` block and no `main`, and the whole-act Public
   Health Service Act file (COMPS-77777777) whose identifiers have an empty
   law slot (`/us/sComp//tI/s1`). Decision 7 counts them in the report and
-  names them in `error`; the check stays `ok`. The README lists them.
+  names them in `error`; the check stays `ok`. The README lists them. The
+  act is served from its per-title files, 32 under `/us/sComp/78/373` and
+  one under `/us/sComp/78/410` (decision 8).
 - A failed package counts as fetched, so a walk with `--limit` is complete
   when a run reports no new packages and no new versions, not when it
   reports 0 fetched. `deploy/comps-walk.sh` stops on that line

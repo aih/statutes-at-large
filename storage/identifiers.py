@@ -208,3 +208,47 @@ def law_label_of_identifier(identifier: str) -> str:
     if parsed is None:
         return identifier
     return law_label(parsed.kind, parsed.congress, parsed.number, parsed.chapter, parsed.enacted)
+
+
+_ROMAN = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
+
+
+def roman_to_int(text: str) -> int | None:
+    """`CXLVII` → 147. None for anything that is not a Roman numeral."""
+    letters = text.strip().upper().rstrip(".")
+    if not letters or any(ch not in _ROMAN for ch in letters):
+        return None
+    total = 0
+    for index, ch in enumerate(letters):
+        value = _ROMAN[ch]
+        if index + 1 < len(letters) and _ROMAN[letters[index + 1]] > value:
+            total -= value
+        else:
+            total += value
+    return total
+
+
+_TITLE_SUFFIX = re.compile(r"\s*[-\u2013\u2014:,]?\s*TITLE\s+(?P<num>[IVXLCDM]+|\d+)\b.*$", re.IGNORECASE | re.DOTALL)
+
+
+def act_title(display_title: str | None, partial_of: str | None) -> str | None:
+    """The act's title without a per-title file's suffix: `Social Security
+    Act-TITLE II (Federal Old-Age, …)` → `Social Security Act`. Unchanged
+    when the file is not one title of an act or the suffix is not there."""
+    if not display_title or not partial_of:
+        return display_title
+    trimmed = _TITLE_SUFFIX.sub("", display_title).rstrip(" -\u2013\u2014:,")
+    return trimmed or display_title
+
+
+def title_order(partial_of: str | None) -> tuple[int, str]:
+    """A sort key that puts one act's per-title files in title order: the
+    designator's value (`IX` → 9, `12` → 12), then the designator itself for
+    anything that is neither, after every numbered one."""
+    text = (partial_of or "").strip()
+    if text.isdigit():
+        return (int(text), text)
+    value = roman_to_int(text)
+    if value is not None:
+        return (value, text)
+    return (10**6, text)

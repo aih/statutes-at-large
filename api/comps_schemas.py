@@ -105,7 +105,10 @@ class CompUnitOut(BaseModel):
     note: str
     provenance: ProvenanceOut
     usc_refs: list[str]
-    text: str
+    text: str = Field(
+        description="The served unit's reading text. Empty for `level: \"compilation\"` and for a hierarchy "
+        "level; a section (and a `provision`) carries its own text."
+    )
     xml_url: str
     level: str
     num: str | None = None
@@ -114,3 +117,9 @@ class CompUnitOut(BaseModel):
     ancestors: list[UnitRefOut]
     children: list[UnitRefOut]
     provision: ProvisionOut | None = None
+    files: list[CompilationOut] = Field(
+        default=[],
+        description="On a compilation root with no whole-act file, the per-title files the answer gathers, in "
+        "title order; `compilation` then names the first of them with the act's title and no `partial_of`, "
+        "and `children` are every file's top-level units. Empty when the answer comes from one file.",
+    )

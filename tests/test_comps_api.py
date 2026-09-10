@@ -170,6 +170,39 @@ def test_a_hierarchy_node_and_the_compilation_itself(client):
     assert whole.text.lstrip().startswith("<?xml") and "<statuteCompilation" in whole.text
 
 
+def test_no_text_above_a_section(client, repo, engine):
+    """The compilation and a hierarchy node answer without their text, and a
+    JSON answer never reads the version's `xml` (ADR-0019, compiled)."""
+    from sqlalchemy import event
+
+    statements: list[str] = []
+
+    def record(conn, cursor, statement, parameters, context, executemany):
+        statements.append(statement)
+
+    event.listen(engine, "before_cursor_execute", record)
+    try:
+        root = client.get("/api/v1/us/sComp/83/703").json()
+        title = client.get("/api/v1/us/sComp/83/703/tI").json()
+        section = client.get(SECTION).json()
+    finally:
+        event.remove(engine, "before_cursor_execute", record)
+    assert root["level"] == "compilation" and root["text"] == ""
+    assert title["level"] == "title" and title["text"] == ""
+    assert section["text"].startswith("Section 1.")
+    assert [c["identifier"] for c in title["children"]][:2] == ["/us/sComp/83/703/tI/ch1.", "/us/sComp/83/703/tI/ch2."]
+    assert not any("comp_versions.xml" in statement for statement in statements), statements
+
+    for identifier, level in (("/us/sComp/83/703", "compilation"), ("/us/sComp/83/703/tI", "title")):
+        as_json = repo.get_comp_unit(identifier)
+        as_xml = repo.get_comp_unit(identifier, wanted="xml")
+        assert as_json.level == level and as_json.xml == "" and as_json.text == ""
+        assert as_xml.text == "" and as_xml.content_hash == as_json.content_hash
+        assert f'identifier="{identifier}"' in as_xml.xml or "<statuteCompilation" in as_xml.xml
+    assert repo.get_comp_unit("/us/sComp/83/703/tI", wanted="xml").xml.startswith("<title")
+    assert repo.get_comp_unit(SECTION.removeprefix("/api/v1")).xml.startswith("<section")
+
+
 def test_the_per_title_file(client):
     response = client.get("/api/v1/us/sComp/74/271/tII/s201")
     assert response.status_code == 200
@@ -180,6 +213,66 @@ def test_the_per_title_file(client):
     assert body["alternatives"][0]["identifiers"] == ["/us/usc/t42/s401"]
     assert [a["identifier"] for a in body["ancestors"]] == ["/us/sComp/74/271/tII"]
     assert body["note"].startswith("This is section 201 of Social Security Act-TITLE II")
+
+
+def test_the_root_of_an_act_served_title_by_title(client, repo):
+    """The Social Security Act fixture is one per-title file (COMPS-8755) with
+    no whole-act sibling: the bare prefix is the files gathered in title
+    order (ADR-0007, decision 8)."""
+    response = client.get("/api/v1/us/sComp/74/271")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["level"] == "compilation" and body["resolution"] == "exact"
+    assert body["served_identifier"] == "/us/sComp/74/271"
+    assert body["heading"] == "Social Security Act"
+    assert body["compilation"]["display_title"] == "Social Security Act"
+    assert body["compilation"]["partial_of"] is None
+    assert body["compilation"]["file_id"] == "8755" and body["compilation"]["package_id"] == "COMPS-8755"
+    # The file's short titles with the title suffix removed; the trimmed first
+    # one and the act's own name become one entry.
+    assert body["compilation"]["short_titles"] == [
+        "Social Security Act",
+        "Federal Employees Unemployment Compensation Act",
+        "Health Insurance for the Aged Act",
+        "Medicaid Act",
+        "Medicare Act",
+        "TITLE II OF THE SOCIAL SECURITY ACT",
+    ]
+    assert [f["file_id"] for f in body["files"]] == ["8755"]
+    assert body["files"][0]["display_title"].startswith("Social Security Act-TITLE II") and body["files"][0]["partial_of"] == "II"
+    assert [c["identifier"] for c in body["children"]] == ["/us/sComp/74/271/tII"]
+    assert body["children"][0]["level"] == "title" and body["children"][0]["num"] == "II"
+    assert body["text"] == "" and body["versions"] == []
+    assert body["law"] == {"congress": 74, "number": 271, "identifier": "/us/pl/74/271", "loaded": False}
+    assert body["note"] == (
+        "This is Social Security Act as compiled by the House Office of the Legislative Counsel, "
+        "served title by title in 1 file; each title says which public law it is current through. "
+        "Compilations are not an official version; the official text is in the Statutes at Large "
+        "and the United States Code (1 U.S.C. 112, 204). Laws enacted after a title's date are not "
+        "reflected; check the classification tables for Social Security Act."
+    )
+    assert len(body["provenance"]["sha256"]) == 64
+    assert response.headers["ETag"].strip('"') == body["provenance"]["sha256"]
+    assert client.get("/api/v1/us/sComp/74/271", headers={"If-None-Match": response.headers["ETag"]}).status_code == 304
+    # A file's own units are unchanged: the title node names its file.
+    title = client.get("/api/v1/us/sComp/74/271/tII").json()
+    assert title["compilation"]["display_title"].startswith("Social Security Act-TITLE II") and title["files"] == []
+    # There is no whole document to serve as XML.
+    xml = client.get("/api/v1/us/sComp/74/271?format=xml")
+    assert xml.status_code == 404
+    assert xml.json()["detail"] == (
+        "/us/sComp/74/271 is served title by title in 1 file and has no whole document; "
+        "each title under it answers format=xml"
+    )
+    assert client.get("/api/v1/us/sComp/74/271/tII?format=xml").text.startswith("<title")
+    # A path under the prefix that nothing answers is served the gathered root as its prefix.
+    missing = client.get("/api/v1/us/sComp/74/271/tIX").json()
+    assert missing["resolution"] == "prefix" and missing["heading"] == "Social Security Act"
+    assert missing["note"].startswith("Nothing is stored at /us/sComp/74/271/tIX; /us/sComp/74/271 is the longest stored prefix")
+    gathered = repo.get_comp_unit("/us/sComp/74/271", wanted="xml")
+    assert gathered.is_gathered and gathered.xml == ""
+    # The whole-act file, when there is one, is the root as before.
+    assert repo.get_comp_unit("/us/sComp/83/703").is_gathered is False
 
 
 def test_an_act_before_public_law_numbering(client):

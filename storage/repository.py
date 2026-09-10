@@ -317,10 +317,19 @@ class CompUnitResult:
     section."""
     provision: Provision | None = None
     section_num: str | None = None
+    files: tuple[CompRef, ...] = ()
+    """The per-title files a compilation root gathers when the act has no
+    whole-act file, in title order (ADR-0007, decision 8). Empty when the
+    answer comes from one file."""
 
     @property
     def is_exact(self) -> bool:
         return self.resolution == "exact"
+
+    @property
+    def is_gathered(self) -> bool:
+        """A root answered from several per-title files rather than one document."""
+        return bool(self.files)
 
     @property
     def unit_label(self) -> str:
@@ -650,12 +659,18 @@ class Repository(Protocol):
                    limit: int = 50) -> list[CompRef]:
         ...
 
-    def get_comp_unit(self, identifier: str, *, through: str | None = None) -> CompUnitResult | None:
+    def get_comp_unit(self, identifier: str, *, through: str | None = None, wanted: str = "json") -> CompUnitResult | None:
         """Resolve a `/us/sComp/…` identifier in the current version, or in the
         stored version whose `current_through_pl` is `through`.
 
         None when no compilation has the prefix, or when `through` names no
         stored version.
+
+        `wanted` is `"json"` or `"xml"`. The compilation's and a hierarchy
+        node's `xml` is loaded only for `"xml"`; their `text` is always empty
+        (ADR-0019). A section carries both regardless of `wanted`. A bare
+        prefix with no whole-act file is answered from every per-title file
+        under it (`files`), and carries no `xml` in either format.
         """
         ...
 

@@ -237,7 +237,10 @@ class CompVersion(Base):
         DateTime(timezone=True), nullable=False
     )
     content_hash: Mapped[str] = mapped_column(Text, nullable=False)
-    xml: Mapped[str] = mapped_column(Text, nullable=False)
+    xml: Mapped[str] = mapped_column(Text, nullable=False, deferred=True)
+    """The whole `statuteCompilation` document. Deferred: a query for a version
+    row does not fetch it, and a `/us/sComp/…` JSON answer never reads it
+    (ADR-0019, the compiled section)."""
     is_current: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
     comp: Mapped[Comp] = relationship(back_populates="versions")

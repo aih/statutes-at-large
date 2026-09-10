@@ -566,3 +566,57 @@ in 0.7 s; `/app/goto?q=wild horses` is a 307 to `/app/search?q=wild+horses`;
 the citation form still lands on the section. Not done at the time of
 writing: `SEARCH_PASSWORD` on the box and the first reindex (the user's, in
 an SSM session); the same alarm damping recommended for the US Code site.
+
+## 2026-09-09 — the compiled side of ADR-0019, and the bare prefix of an act served title by title
+
+Asked: `docs/plans/2026-09-09-compilations-prompt.md`. The compiled answer
+stops carrying the whole compilation's text; a bare prefix whose act has
+one COMPS file per title and no whole-act file gets a rule.
+
+Found: the Public Health Service Act's per-title files are not where the
+walk entry above says. GPO wrote their identifiers with the chapter number,
+so 32 titles are under `/us/sComp/78/373` and only the repealed title XXXII
+(COMPS-10057) under `/us/sComp/78/410`; `/us/sComp/78/373` answered title
+VI, the first file by id as text (`10584` < `8771`), and `/us/sComp/78/410`
+its one file. Live: `/us/sComp/74/271` 8,385,144 bytes in 4.46 s,
+`/us/sComp/78/373` 77,977 bytes, `/us/sComp/83/703/tI` 540,777 bytes.
+
+Written: `CompVersion.xml` is deferred; `get_comp_unit` takes `wanted`;
+`compiled_response` negotiates the format first; the root's and a node's
+`text` is empty and their `xml` read only for `format=xml`
+(`test_no_text_above_a_section` listens on `before_cursor_execute` and
+asserts no statement of a JSON answer selects `comp_versions.xml`).
+`_gathered_root_result` answers a prefix with no whole-act file: the files
+in title order (`storage.identifiers.title_order`, Roman then Arabic then
+the rest; `roman_to_int` moved there from `ingest/identifiers.py`), the
+act's name from the first file's display title with its suffix removed
+(`act_title`), every file's top-level units as `children` in one query,
+`files` on the answer, `versions` empty, the hash a sha256 over the files'
+hashes, the note's first and third sentences replaced
+(`params.compiled_note`), and `format=xml` a 404 with
+`params.no_whole_document`. `_toc` skips a gathered root so a per-title
+file's `/comps/{id}` still lists its title node. The fixture database's
+`/us/sComp/74/271` (COMPS-8755 alone) is the test case
+(`test_the_root_of_an_act_served_title_by_title`); the axe list gained
+`/app/us/sComp/74/271`. The reader is unchanged: its root title reads
+`compilation.display_title`, which the gathered root sets to the act's
+name.
+
+Decisions: ADR-0019 gains a "Compiled" section; ADR-0007 decision 8 and its
+decision 1 and walk consequence amended. Candidate (b), a redirect to the
+first title's file, was not taken. COMPS-77777777 stays unloadable: the
+rule gathers files, it does not repair an empty law slot.
+
+Verified: `make test` 560 passed, 5 deselected; `make test-web` 107; `make
+test-e2e` 74 over the dev servers. On the dev database: `/us/sComp/74/271`
+2,340 bytes in 19 ms, `/us/sComp/83/703/tI` 4,625 bytes in 19 ms;
+`/app/us/sComp/74/271` prints "Social Security Act" and the title II node;
+`/app/us/sComp/83/703/tI/ch1./s1` renders as before. Two things met on the
+way: `make dev` from a worktree names its compose project after the
+directory and tries a second `db` on 5434, which the shared database
+already holds (the never-started `statutes-wt-compiled-db-1` container and
+its empty volume are left for the user to remove; the servers were run
+with `make -j2 dev-api dev-web`); and `storage/search.py` reads
+`SEARCH_PASSWORD` from the process environment only, not `.env`, so the
+seven search browser tests answer 503 until the shell exports it.
+

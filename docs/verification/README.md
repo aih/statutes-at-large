@@ -100,7 +100,7 @@ packages and loaded 2,675, 83,423 units. The 10 not loaded, in
 |---|---|---|
 | COMPS-1826, 17514, 15409, 10414 | `GovInfoError: HTTP 400 for …/uslm` | GovInfo holds a PDF and no USLM for the package |
 | COMPS-305, 332, 3061, 3126, 5336 | `no /us/sComp/ identifier in the document and no law in the summary` | a USLM file of 2 to 7 KB with `meta` and no `main` |
-| COMPS-77777777 | the same | the whole Public Health Service Act, 13 MB, identifiers with an empty law slot (`/us/sComp//tI/s1`); the act is served from its per-title packages |
+| COMPS-77777777 | the same | the whole Public Health Service Act, 13 MB, identifiers with an empty law slot (`/us/sComp//tI/s1`); the act is served from its per-title packages, gathered under `/us/sComp/78/373` and `/us/sComp/78/410` (ADR-0007, decision 8) |
 
 ## Citation index (stage 3)
 

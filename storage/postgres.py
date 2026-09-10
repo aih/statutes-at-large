@@ -15,8 +15,10 @@ test suite runs it over SQLite.
 from __future__ import annotations
 
 import contextvars
+import dataclasses
 import datetime
 import functools
+import hashlib
 from collections.abc import Sequence
 
 from sqlalchemy import Text, and_, cast, func, or_, select
@@ -36,7 +38,7 @@ from db.models import (
     StatPage,
     Unit,
 )
-from storage.identifiers import ParsedIdentifier, parse_identifier, parse_stat_page
+from storage.identifiers import ParsedIdentifier, act_title, parse_identifier, parse_stat_page, title_order
 from storage.repository import (
     CitationIndexStatus,
     CitationRef,
@@ -468,7 +470,7 @@ class PostgresRepository:
         stmt = stmt.order_by(Comp.display_title, Comp.file_id).limit(limit)
         return [self._comp_ref(c) for c in self._session.scalars(stmt).all()]
 
-    def get_comp_unit(self, identifier: str, *, through: str | None = None) -> CompUnitResult | None:
+    def get_comp_unit(self, identifier: str, *, through: str | None = None, wanted: str = "json") -> CompUnitResult | None:
         parsed = parse_identifier(identifier)
         if parsed is None or parsed.kind != "sComp":
             return None
@@ -489,9 +491,7 @@ class PostgresRepository:
         pinned = through is not None
         requested = parsed.law_identifier + parsed.path
         if not parsed.path:
-            # The compilation itself. Prefer the whole-act file over a per-title one.
-            version = next((v for v in versions if v.comp.partial_of is None), versions[0])
-            return self._comp_root_result(version, requested, "exact", pinned)
+            return self._comp_root(versions, requested, "exact", pinned, wanted=wanted)
         version_ids = [v.id for v in versions]
         segments = list(parsed.segments)
         for cut in range(len(segments), 0, -1):
@@ -504,10 +504,10 @@ class PostgresRepository:
                 continue
             rest = segments[cut:]
             if not rest:
-                return self._comp_unit_result(unit, requested, "exact", pinned, provision_path=None)
+                return self._comp_unit_result(unit, requested, "exact", pinned, provision_path=None, wanted=wanted)
             if unit.level == "section":
-                return self._comp_unit_result(unit, requested, "exact", pinned, provision_path=requested)
-            return self._comp_unit_result(unit, requested, "prefix", pinned, provision_path=None)
+                return self._comp_unit_result(unit, requested, "exact", pinned, provision_path=requested, wanted=wanted)
+            return self._comp_unit_result(unit, requested, "prefix", pinned, provision_path=None, wanted=wanted)
         if parsed.section_num is not None:
             unit = self._session.scalars(
                 select(CompUnit)
@@ -517,9 +517,8 @@ class PostgresRepository:
             if unit is not None:
                 below = "/".join(parsed.below_section)
                 path = f"{unit.identifier}/{below}" if below else None
-                return self._comp_unit_result(unit, requested, "section_number", pinned, provision_path=path)
-        version = next((v for v in versions if v.comp.partial_of is None), versions[0])
-        return self._comp_root_result(version, requested, "prefix", pinned)
+                return self._comp_unit_result(unit, requested, "section_number", pinned, provision_path=path, wanted=wanted)
+        return self._comp_root(versions, requested, "prefix", pinned, wanted=wanted)
 
     def compiled_counterparts(self, law_identifier: str, section_num: str | None) -> list[CompCounterpart]:
         parsed = parse_identifier(law_identifier)
@@ -578,7 +577,18 @@ class PostgresRepository:
         ).all()
         return tuple(UnitRef(u.identifier, u.level, u.num, u.heading, u.level == "section") for u in rows)
 
-    def _comp_root_result(self, version: CompVersion, requested: str, resolution: str, pinned: bool) -> CompUnitResult:
+    def _comp_root(self, versions: list[CompVersion], requested: str, resolution: str, pinned: bool, *, wanted: str) -> CompUnitResult:
+        """The compilation itself: the whole-act file when one exists, else
+        every per-title file gathered in title order (ADR-0007, decision 8)."""
+        whole = next((v for v in versions if v.comp.partial_of is None), None)
+        if whole is not None:
+            return self._comp_root_result(whole, requested, resolution, pinned, wanted=wanted)
+        return self._gathered_root_result(versions, requested, resolution, pinned)
+
+    def _comp_root_result(self, version: CompVersion, requested: str, resolution: str, pinned: bool, *, wanted: str) -> CompUnitResult:
+        """`text` is always empty for the compilation: computing it means
+        parsing the whole document (ADR-0019). `xml` (a deferred column) is
+        fetched only for `wanted == "xml"`."""
         comp = version.comp
         return CompUnitResult(
             requested_identifier=requested,
@@ -590,8 +600,8 @@ class PostgresRepository:
             level="compilation",
             num=None,
             heading=comp.display_title,
-            xml=version.xml,
-            text=plain_text(_root(version.xml)),
+            xml=version.xml if wanted == "xml" else "",
+            text="",
             content_hash=version.content_hash,
             ancestors=(),
             children=self._comp_children(version.id, None),
@@ -599,7 +609,57 @@ class PostgresRepository:
             provision=None,
         )
 
-    def _comp_unit_result(self, unit: CompUnit, requested: str, resolution: str, pinned: bool, *, provision_path: str | None) -> CompUnitResult:
+    def _gathered_root_result(self, versions: list[CompVersion], requested: str, resolution: str, pinned: bool) -> CompUnitResult:
+        """An act served title by title and having no whole-act file: the root
+        is the files gathered in title order. `comp` is the first file with
+        the act's title in place of its own and no `partial_of`; `version` is
+        that file's; `children` are every file's top-level units; the hash
+        is over the files' hashes. Nothing here reads a version's `xml`."""
+        ordered = sorted(versions, key=lambda v: (title_order(v.comp.partial_of), v.comp.file_id))
+        first = ordered[0].comp
+        files = tuple(self._comp_ref(v.comp) for v in ordered)
+        position = {v.id: index for index, v in enumerate(ordered)}
+        rows = list(
+            self._session.scalars(
+                select(CompUnit).where(CompUnit.comp_version_id.in_(list(position)), CompUnit.parent_identifier.is_(None))
+            ).all()
+        )
+        rows.sort(key=lambda u: (position[u.comp_version_id], u.seq))
+        short_titles: list[str] = []
+        for text in first.short_titles or ():
+            trimmed = act_title(text, first.partial_of) or text
+            if trimmed not in short_titles:
+                short_titles.append(trimmed)
+        comp = dataclasses.replace(
+            files[0],
+            display_title=act_title(first.display_title, first.partial_of),
+            short_titles=tuple(short_titles),
+            partial_of=None,
+        )
+        digest = hashlib.sha256(":".join(v.content_hash for v in ordered).encode("utf-8")).hexdigest()
+        return CompUnitResult(
+            requested_identifier=requested,
+            served_identifier=first.identifier_prefix,
+            resolution=resolution,
+            comp=comp,
+            version=self._version_ref(ordered[0]),
+            pinned=pinned,
+            level="compilation",
+            num=None,
+            heading=comp.display_title,
+            xml="",
+            text="",
+            content_hash=digest,
+            ancestors=(),
+            children=tuple(UnitRef(u.identifier, u.level, u.num, u.heading, u.level == "section") for u in rows),
+            usc_refs=(),
+            provision=None,
+            files=files,
+        )
+
+    def _comp_unit_result(
+        self, unit: CompUnit, requested: str, resolution: str, pinned: bool, *, provision_path: str | None, wanted: str = "json"
+    ) -> CompUnitResult:
         version = unit.version
         comp = version.comp
         provision = None
@@ -616,9 +676,15 @@ class PostgresRepository:
                         resolution = "prefix"
             children: tuple[UnitRef, ...] = ()
         else:
-            fragment = fragment_by_identifier(version.xml, unit.identifier)
-            xml = serialize(fragment) if fragment is not None else ""
-            text = plain_text(fragment) if fragment is not None else ""
+            # A hierarchy node: its XML is the node cut from the document,
+            # fetched only for `wanted == "xml"`; `text` is always empty
+            # (ADR-0019).
+            if wanted == "xml":
+                fragment = fragment_by_identifier(version.xml, unit.identifier)
+                xml = serialize(fragment) if fragment is not None else ""
+            else:
+                xml = ""
+            text = ""
             children = self._comp_children(version.id, unit.identifier)
         return CompUnitResult(
             requested_identifier=requested,
@@ -1092,9 +1158,3 @@ class PostgresRepository:
             new_packages=tuple(row.new_packages or ()),
             error=row.error,
         )
-
-
-def _root(xml: str):
-    from lxml import etree
-
-    return etree.fromstring(xml.encode("utf-8"))

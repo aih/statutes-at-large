@@ -19,6 +19,8 @@ import datetime
 import re
 from dataclasses import dataclass, field
 
+from storage.identifiers import roman_to_int
+
 FIRST_NUMBERED_CONGRESS = 57
 """Public-law numbering begins with the 57th Congress (1901)."""
 
@@ -156,24 +158,6 @@ def identify_law(
         primary=identifiers[0],
         aliases=tuple(identifiers),
     )
-
-
-_ROMAN = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
-
-
-def roman_to_int(text: str) -> int | None:
-    """`CXLVII` → 147. None for anything that is not a Roman numeral."""
-    letters = text.strip().upper().rstrip(".")
-    if not letters or any(ch not in _ROMAN for ch in letters):
-        return None
-    total = 0
-    for index, ch in enumerate(letters):
-        value = _ROMAN[ch]
-        if index + 1 < len(letters) and _ROMAN[letters[index + 1]] > value:
-            total -= value
-        else:
-            total += value
-    return total
 
 
 def parse_doc_number(value: str | None) -> int | None:

@@ -56,6 +56,9 @@ copied from `../uscode-redesign` (its CLAUDE.md is the fuller reference).
 8. **`/us/sComp/{c}/{n}`'s second number is a chapter before 1901** (`/us/sComp/51/647`
    is the Sherman Act, ch. 647). Several COMPS files share one prefix (the Social
    Security Act has one file per title); the section identifiers disambiguate.
+   A prefix with no whole-act file answers its bare form with the per-title
+   files gathered in title order (ADR-0007, decision 8); the Public Health
+   Service Act's titles are under `/us/sComp/78/373`, its chapter number.
 9. **The Hub's `STATUTE-137.xml` holds 34 public laws** (12 MB). The loader loads
    what the file holds.
 11. **One `component` can hold many `pLaw` elements** (vol 116 packs 47 consecutive

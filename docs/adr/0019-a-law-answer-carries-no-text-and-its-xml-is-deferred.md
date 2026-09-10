@@ -34,6 +34,42 @@ Postgres.
 
 4. **The compiled side is out of scope here.** `CompUnitOut.text` and whether
    `CompVersion.xml` becomes deferred are left for the compilations session.
+   Amended 2026-09-09: the "Compiled" section below settles it.
+
+## Compiled
+
+Amended 2026-09-09. `GET /api/v1/us/sComp/74/271` (the Social Security
+Act's whole-act file) measured at 8,385,144 bytes and 4.58 s, `text` being
+`plain_text()` over the whole compilation on every request;
+`/us/sComp/83/703/tI` at 540,777 bytes, the title cut from the document.
+`CompVersion.xml` was an eager column, so every `CompVersion` row read
+loaded the document.
+
+1. **`CompUnitOut.text` is empty for `level: "compilation"` and for a
+   hierarchy level.** `_comp_root_result` and the hierarchy branch of
+   `_comp_unit_result` set `text=""` without parsing the document. A section
+   and a `provision` are unaffected: `CompUnit.xml` and `CompUnit.text` are
+   stored per section and stay eager.
+
+2. **`CompVersion.xml` is `mapped_column(Text, nullable=False,
+   deferred=True)`.** `Repository.get_comp_unit` takes `wanted: str =
+   "json"`; the compilation's and a node's `xml` is read only for `wanted ==
+   "xml"`. `api/comps.py: compiled_response` negotiates the format before
+   the repository call and passes it down. No migration. No other reader of
+   the column exists in `storage/` or `api/`: `_version_of`,
+   `compilations_for_law`, `compiled_counterparts`, `api/currency.py` and
+   `api/cite.py` read the version's metadata only, and
+   `ingest/search_sync.py: comp_documents` selects the unit's columns by
+   name.
+
+3. **The ETag is unchanged.** `_etag` hashes `content_hash`, a stored
+   column; a root gathered from per-title files (ADR-0007, decision 8)
+   hashes the files' hashes.
+
+`tests/test_comps_api.py: test_no_text_above_a_section` asserts the empty
+`text` on the root and on a title, the populated `xml` for
+`wanted="xml"`, and, through a `before_cursor_execute` listener, that no
+statement of a JSON answer selects `comp_versions.xml`.
 
 ## Consequences
 
@@ -44,4 +80,7 @@ Postgres.
   `level == "section"`, so an empty `text` on a law or a node changes nothing
   it decides.
 - `Repository` still has one method, `get_unit`, for resolution; `wanted` is a
-  parameter of it, not a second surface.
+  parameter of it, not a second surface. The same holds for `get_comp_unit`.
+- Measured on the dev database after the compiled amendment:
+  `/us/sComp/74/271` 2,340 bytes in 19 ms; `/us/sComp/83/703/tI` 4,625
+  bytes in 19 ms.

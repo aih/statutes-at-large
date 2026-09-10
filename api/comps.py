@@ -39,6 +39,7 @@ from params import (
     compiled_note,
     if_none_match,
     negotiated_format,
+    no_whole_document,
     not_found,
     public_cache,
     served_note,
@@ -173,10 +174,24 @@ def _xml_url(identifier: str, through: str | None) -> str:
     return f"{url}&through={through}" if through else url
 
 
+def _compilation_out(comp: CompRef) -> CompilationOut:
+    return CompilationOut(
+        file_id=comp.file_id,
+        package_id=comp.package_id,
+        display_title=comp.display_title,
+        short_titles=list(comp.short_titles),
+        identifier_prefix=comp.identifier_prefix,
+        law_identifier=comp.law_identifier,
+        partial_of=comp.partial_of,
+        govinfo_details=comp.govinfo_details,
+    )
+
+
 def compiled_unit_out(repository: Repository, result: CompUnitResult, *, through: str | None) -> CompUnitOut:
     comp = result.comp
     version = result.version
-    detail = repository.get_comp(comp.file_id)
+    # A root gathered from per-title files has no one version history.
+    detail = None if result.is_gathered else repository.get_comp(comp.file_id)
     versions = detail.versions if detail is not None else ()
     alternatives = compiled_alternatives(repository, result)
     provision = None
@@ -191,16 +206,7 @@ def compiled_unit_out(repository: Repository, result: CompUnitResult, *, through
         identifier=result.requested_identifier,
         served_identifier=result.served_identifier,
         resolution=result.resolution,
-        compilation=CompilationOut(
-            file_id=comp.file_id,
-            package_id=comp.package_id,
-            display_title=comp.display_title,
-            short_titles=list(comp.short_titles),
-            identifier_prefix=comp.identifier_prefix,
-            law_identifier=comp.law_identifier,
-            partial_of=comp.partial_of,
-            govinfo_details=comp.govinfo_details,
-        ),
+        compilation=_compilation_out(comp),
         law=_law_out(comp),
         currency=CurrencyOut(
             current_through=_current_through(version),
@@ -221,6 +227,7 @@ def compiled_unit_out(repository: Repository, result: CompUnitResult, *, through
         ancestors=[_unit_ref_out(a) for a in result.ancestors],
         children=[_unit_ref_out(c) for c in result.children],
         provision=provision,
+        files=[_compilation_out(f) for f in result.files],
     )
 
 
@@ -245,7 +252,8 @@ def compiled_response(
 ) -> Response:
     """A compiled unit in the negotiated format with its caching headers; also
     what `view=compiled` on an enacted identifier serves (`api/routes.py`)."""
-    result = repository.get_comp_unit(identifier, through=through)
+    fmt = negotiated_format(request, format, allowed=MACHINE_FORMATS)  # type: ignore[arg-type]
+    result = repository.get_comp_unit(identifier, through=through, wanted=fmt)
     if result is None:
         if through is not None and repository.get_comp_unit(identifier) is not None:
             prefix = "/".join(identifier.split("/")[:5])
@@ -258,7 +266,8 @@ def compiled_response(
                 ),
             )
         raise HTTPException(status_code=404, detail=not_found(identifier, view="compiled"))
-    fmt = negotiated_format(request, format, allowed=MACHINE_FORMATS)  # type: ignore[arg-type]
+    if fmt == "xml" and result.is_gathered:
+        raise HTTPException(status_code=404, detail=no_whole_document(result))
     etag = _etag(result, fmt)
     headers = {"ETag": etag, "Cache-Control": cache_control(result), "Vary": "Accept"}
     if if_none_match(request, etag):
@@ -285,7 +294,9 @@ def compiled_root(
     format: FormatParam = None,
 ) -> Response:
     """The compilation itself: its table of contents and the whole document as
-    `format=xml`. `through=118-67` selects a stored version."""
+    `format=xml`. `through=118-67` selects a stored version. An act with one
+    file per title and no whole-act file answers with its files gathered
+    (`files`) and has no whole document to serve as XML."""
     return compiled_response(request, repository, f"/us/sComp/{congress}/{number}", through, format)
 
 
@@ -336,7 +347,7 @@ def _toc(repository: Repository, comp: CompRef) -> list[UnitRefOut] | None:
     if comp.current is None:
         return None
     root = repository.get_comp_unit(comp.identifier_prefix)
-    if root is not None and root.comp.file_id == comp.file_id:
+    if root is not None and not root.is_gathered and root.comp.file_id == comp.file_id:
         return [_unit_ref_out(c) for c in root.children]
     if comp.partial_of:
         title = repository.get_comp_unit(f"{comp.identifier_prefix}/t{comp.partial_of}")

@@ -201,7 +201,13 @@ A hierarchy node, a section, or a provision. Calls `GET /api/v1{identifier}`
 ### `/app/us/sComp/{c}/{n}[/{path}][?through=]`
 
 The compiled view. Calls `GET /api/v1/us/sComp/…[?through=]` (JSON) and, for
-a section, `…{served_identifier}?format=xml[&through=]` for the text. Shows
+a section, `…{served_identifier}?format=xml[&through=]` for the text. `text`
+is empty above a section: the compilation root and a hierarchy level carry
+their table of contents and no text (ADR-0019, compiled). A root gathered
+from per-title files (ADR-0007, decision 8) arrives in the same shape:
+`compilation.display_title` is the act's name, `children` span the files,
+`versions` is empty so the version picker is not shown, and `files` lists
+the packages; the reader reads none of `files`. Shows
 `compilation.display_title` and `short_titles`, `law.identifier` as
 `/app{law.identifier}` when `law.loaded`, `currency` as the compiled
 currency line, `note` verbatim, `provenance`, `usc_refs` as US Code links,

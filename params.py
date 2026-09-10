@@ -169,19 +169,47 @@ def compiled_note(result: CompUnitResult, *, enacted_link: str | None, codified:
     through = version.current_through_pl or "an unrecorded law"
     date = long_date(version.current_through_date) if version.current_through_date else "an unrecorded date"
     what = title if result.level == "compilation" else f"{result.unit_label} of {title}"
-    sentences = [
-        f"This is {what} as compiled by the House Office of the "
-        f"Legislative Counsel, incorporating amendments through Public Law {through} ({date}).",
+    official = (
         "Compilations are not an official version; the official text is in the Statutes at "
-        "Large and the United States Code (1 U.S.C. 112, 204).",
-    ]
-    check = f"Laws enacted after {date} are not reflected; check the classification tables for {title}"
-    if codified:
-        check += " and the US Code section(s) " + ", ".join(codified)
-    sentences.append(check + ".")
+        "Large and the United States Code (1 U.S.C. 112, 204)."
+    )
+    if result.is_gathered:
+        # An act served title by title with no whole-act file (ADR-0007,
+        # decision 8): the files have their own currency, so no one law is
+        # named here.
+        sentences = [
+            f"This is {what} as compiled by the House Office of the Legislative Counsel, "
+            f"served title by title in {_files(result)}; each title says which public law it is current through.",
+            official,
+            f"Laws enacted after a title's date are not reflected; check the classification tables for {title}.",
+        ]
+    else:
+        sentences = [
+            f"This is {what} as compiled by the House Office of the "
+            f"Legislative Counsel, incorporating amendments through Public Law {through} ({date}).",
+            official,
+        ]
+        check = f"Laws enacted after {date} are not reflected; check the classification tables for {title}"
+        if codified:
+            check += " and the US Code section(s) " + ", ".join(codified)
+        sentences.append(check + ".")
     if enacted_link:
         sentences.append(f"The enacted text is at {enacted_link}.")
     return " ".join(sentences)
+
+
+def _files(result: CompUnitResult) -> str:
+    count = len(result.files)
+    return f"{count} file" if count == 1 else f"{count} files"
+
+
+def no_whole_document(result: CompUnitResult) -> str:
+    """The 404 for `format=xml` on a root gathered from per-title files: there
+    is no whole document to serve."""
+    return (
+        f"{result.served_identifier} is served title by title in {_files(result)} and has no whole "
+        f"document; each title under it answers format=xml"
+    )
 
 
 # -------------------------------------------------------------------- caching
