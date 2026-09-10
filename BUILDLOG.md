@@ -658,5 +658,14 @@ it moved aside; `make test-web` 107. From this worktree with `SEARCH_*`,
 statutes-linkedlegislation-db-1 Running` and created nothing, the migration
 ran, `GET /api/v1/search?q=rubber` on :8001 answered 200 with 101 results,
 and `make test-e2e` passed 74. `docker ps` shows one `db` and one
-`opensearch` for the project and no `statutes-wt-*` container.
+`opensearch` for the project and no `statutes-wt-*` container. The same from
+a fresh worktree at `a20f96e` with only `.env` copied in: `make dev` printed
+the running `db`, the API answered search 200, `make test-e2e` passed 74;
+the worktree was removed afterwards.
+
+Live after the deploy of `a20f96e` (pushed 23:22 UTC, `/health` reporting
+it within two minutes): `GET /api/v1/search?q=rubber` 200, 445 results,
+13,308 bytes in 0.45 s over TLS from a workstation; `/app/search?q=rubber`
+200. Not checked: `docker ps` on the box, which would show the containers
+still named `statutes-at-large-*` after the project name was pinned.
 
