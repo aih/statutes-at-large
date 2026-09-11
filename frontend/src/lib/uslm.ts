@@ -53,6 +53,18 @@ export function sliceElements(root: UslmElement): UslmElement[] {
   return found;
 }
 
+/** `smallCaps` when the root's own `heading` carries that class, else null.
+ * The page's h1 prints the heading from the API, which has no classes. */
+export function titleClass(root: UslmElement): string | null {
+  for (let i = 0; i < root.childNodes.length; i++) {
+    const node = root.childNodes[i];
+    if (node.nodeType !== ELEMENT_NODE || tagOf(node as UslmElement) !== "heading") continue;
+    const classes = ((node as UslmElement).getAttribute("class") ?? "").split(/\s+/u);
+    return classes.includes("smallCaps") ? "smallCaps" : null;
+  }
+  return null;
+}
+
 /** Every `ref/@href` in the fragment, in document order. */
 export function hrefs(fragment: UslmElement): string[] {
   const found: string[] = [];

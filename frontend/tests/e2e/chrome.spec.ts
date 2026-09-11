@@ -101,11 +101,14 @@ test("the rail marks the section being read", async ({ page }) => {
   await expect(page.locator('.rail__link[aria-current="page"]')).toHaveText(/Sec\. 3/);
 });
 
-test("the Contents disclosure is closed by default on a law page", async ({ page }) => {
+test("the Contents disclosure is open by default on a law page and a hierarchy node", async ({ page }) => {
   await page.goto("/app/us/pl/111/240");
   const contents = page.locator("details#contents");
   await expect(contents).toHaveCount(1);
-  await expect(contents).not.toHaveJSProperty("open", true);
+  await expect(contents).toHaveJSProperty("open", true);
+  await expect(contents.locator("summary")).toContainText("Contents —");
+  await page.goto("/app/us/pl/111/344/tI");
+  await expect(contents).toHaveJSProperty("open", true);
   await expect(contents.locator("summary")).toContainText("Contents —");
 });
 

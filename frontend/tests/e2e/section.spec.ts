@@ -55,12 +55,21 @@ test("a provision is marked inside its section", async ({ page }) => {
 test("a law with divisions lists its contents nested", async ({ page }) => {
   await page.goto("/app/us/pl/118/22");
   await expect(page.locator("h1")).toHaveText("Further Continuing Appropriations and Other Extensions Act, 2024");
-  const contents = page.locator("details#contents");
-  await expect(contents).not.toHaveJSProperty("open", true);
-  await contents.locator("summary").click();
+  await expect(page.locator("details#contents")).toHaveJSProperty("open", true);
   await expect(page.locator(".toc .toc a").first()).toBeVisible();
   await expect(page.locator(".toc a", { hasText: "Division A" })).toHaveAttribute("href", "/app/us/pl/118/22/dA");
   await expect(page.getByRole("heading", { name: "Cited by the US Code" })).toBeVisible();
+  await expect(page.locator("#text")).toHaveCount(0);
+});
+
+test("a law of one section shows that section under its contents", async ({ page }) => {
+  await page.goto("/app/us/pl/118/3");
+  await expect(page.locator("h1")).toHaveCount(1);
+  await expect(page.locator("details#contents .toc a")).toHaveCount(1);
+  const text = page.locator("#text.section-body--whole");
+  await expect(text.locator(".uslm-section")).toHaveAttribute("id", "/us/pl/118/3/s1");
+  await expect(text).not.toBeEmpty();
+  await expect(page.locator(".note")).toContainText("The text is from GovInfo package STATUTE-137");
 });
 
 test("the compiled page has a version picker and the enacted counterpart", async ({ page }) => {

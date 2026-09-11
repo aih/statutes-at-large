@@ -8,9 +8,9 @@
 import { ApiError, type CallOptions, fetchCitedBy, fetchLabels, fetchLawSummary, fetchUnit, fetchUnitXml } from "./api";
 import { NO_STORE, copiedCacheControl } from "./cache";
 import { citedIdentifiers } from "./refs";
-import { sectionNeighbors } from "./toc";
+import { onlySection, sectionNeighbors } from "./toc";
 import type { CitedBy, LawSummary, Link, TocEntry, Unit } from "./types";
-import { hrefs, parseFragment, render } from "./uslm";
+import { hrefs, parseFragment, render, titleClass } from "./uslm";
 
 export interface Failure {
   status: number;
@@ -29,6 +29,11 @@ export interface UnitPageModel {
   citedBy: CitedBy | null;
   /** The rendered section; null on a hierarchy node, a law, or a failed XML call. */
   sectionHtml: string | null;
+  /** `smallCaps` when the section's heading carries it, for the h1. */
+  headingClass: string | null;
+  /** On a law or a hierarchy node whose contents are one section: that
+   * section, rendered. Null otherwise or when its XML call failed. */
+  onlySection: { entry: TocEntry; html: string } | null;
   neighbors: { previous: Link | null; next: Link | null };
   /** A private law's or an act's nearest ancestor's `children` — the rail's
    * "In this law" list on a section that has no `/laws/{c}/{n}` toc. Empty
@@ -58,6 +63,16 @@ export function applyResponse(
   }
 }
 
+/** The section's HTML, with the labels of the laws its refs cite. */
+async function renderSection(
+  fragment: ReturnType<typeof parseFragment>,
+  target: string | null,
+  options: CallOptions,
+): Promise<string> {
+  const labels = await fetchLabels(citedIdentifiers(hrefs(fragment)), options);
+  return render(fragment, { target, labels });
+}
+
 /** `options.clientAddress` is the browser's address, forwarded on every call. */
 export async function loadUnitPage(identifier: string, options: CallOptions = {}): Promise<UnitPageModel> {
   const model: UnitPageModel = {
@@ -68,6 +83,8 @@ export async function loadUnitPage(identifier: string, options: CallOptions = {}
     summary: null,
     citedBy: null,
     sectionHtml: null,
+    headingClass: null,
+    onlySection: null,
     neighbors: { previous: null, next: null },
     parentChildren: [],
   };
@@ -111,9 +128,17 @@ export async function loadUnitPage(identifier: string, options: CallOptions = {}
 
   if (isSection && xml) {
     const fragment = parseFragment(xml);
-    const labels = await fetchLabels(citedIdentifiers(hrefs(fragment)), options);
     const target = unit.provision?.found ? unit.provision.identifier : null;
-    model.sectionHtml = render(fragment, { target, labels });
+    model.sectionHtml = await renderSection(fragment, target, options);
+    model.headingClass = titleClass(fragment);
+  }
+
+  const only = isSection ? null : onlySection(unit.children, summary);
+  if (only) {
+    const onlyXml = await fetchUnitXml(only.identifier, options).catch(() => null);
+    if (onlyXml) {
+      model.onlySection = { entry: only, html: await renderSection(parseFragment(onlyXml), null, options) };
+    }
   }
 
   if (isSection) {

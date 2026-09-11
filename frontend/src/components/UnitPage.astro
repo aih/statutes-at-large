@@ -6,6 +6,9 @@
  * hierarchy node, or a section with a provision marked inside it when the URL
  * went below one.
  *
+ * The Contents disclosure starts open. A law or a hierarchy node whose
+ * contents are one section renders that section under it.
+ *
  * Panels carry the ids the rail's "On this page" list and the sticky
  * header's `scroll-margin-top` both depend on (C2, C3): `#text` on the
  * rendered section, `#contents` and `#pages` on their disclosures, `#sources`
@@ -37,7 +40,7 @@ interface Props {
 }
 
 const { model } = Astro.props;
-const { unit, failure, summary, citedBy, sectionHtml, neighbors, parentChildren } = model;
+const { unit, failure, summary, citedBy, sectionHtml, headingClass, onlySection, neighbors, parentChildren } = model;
 
 const isLaw = unit?.level === "law";
 const isSection = unit?.level === "section";
@@ -96,6 +99,7 @@ const sections: Link[] = [];
 if (unit) {
   if (isSection) sections.push({ href: "#text", label: "Text" });
   if (isLaw || isNode) sections.push({ href: "#contents", label: "Contents" });
+  if (onlySection) sections.push({ href: "#text", label: "Text" });
   if (unit.pages.length > 0) sections.push({ href: "#pages", label: "Pages" });
   if (isLaw && summary) sections.push({ href: "#sources", label: "Sources" });
   if (isSection) sections.push({ href: "#about-h", label: "About this text" });
@@ -183,10 +187,12 @@ const up = upLink();
         <Provenance provenance={unit.provenance} />
         <Alternatives alternatives={unit.alternatives} />
 
-        <details id="contents" class="disclosure">
+        <details id="contents" class="disclosure" open>
           <summary>{contentsSummary}</summary>
           {tocNodes.length > 0 ? <TocList nodes={tocNodes} /> : <p class="doc-meta">No units are listed under this law.</p>}
         </details>
+
+        {onlySection && <article id="text" class="section-body section-body--whole" set:html={onlySection.html} />}
 
         {unit.pages.length > 0 && (
           <details id="pages" class="disclosure">
@@ -227,10 +233,12 @@ const up = upLink();
         <Provenance provenance={unit.provenance} />
         <Alternatives alternatives={unit.alternatives} />
 
-        <details id="contents" class="disclosure">
+        <details id="contents" class="disclosure" open>
           <summary>{contentsSummary}</summary>
           {tocNodes.length > 0 ? <TocList nodes={tocNodes} /> : <p class="doc-meta">No units are listed under this node.</p>}
         </details>
+
+        {onlySection && <article id="text" class="section-body section-body--whole" set:html={onlySection.html} />}
 
         {unit.pages.length > 0 && (
           <details id="pages" class="disclosure">
@@ -255,7 +263,7 @@ const up = upLink();
       <>
         <h1 class="doc-title">
           <span class="doc-title__num">{unitLabel(unit.level, unit.num)}</span>
-          {unit.heading}
+          {headingClass ? <span class={headingClass}>{unit.heading}</span> : unit.heading}
         </h1>
         <p class="doc-meta">
           {unit.law.label}

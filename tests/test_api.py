@@ -14,13 +14,17 @@ SECTION_KEYS = {
     "provenance", "pages", "text", "xml_url",
     "level", "num", "heading", "resolution", "ancestors", "children", "provision", "occurrences",
 }
+VOLUME_64_SOURCE = (
+    "The text is from GovInfo package STATUTE-64, converted to USLM from the scanned volume by "
+    "GPO's digitization vendor; the identifiers below the law are assigned here by rule (rules-1.0)."
+)
 ENACTED_NOTE_740 = (
     "This is section 3 of Public Law 81-740 as enacted on August 30, 1950 (64 Stat. 563). "
     "It is not updated. No later amendment of this section is recorded in the indexes here "
     "(the US Code's source credits, the classification tables, and the Statute Compilations); "
     "amendment may still have occurred. "
     "To check for later amendments: the classification tables at uscode.house.gov for laws "
-    "after August 30, 1950."
+    "after August 30, 1950. " + VOLUME_64_SOURCE
 )
 """Public Law 81-740 is cited by the US Code in notes only: `no_record`."""
 
@@ -87,7 +91,7 @@ def test_the_note_for_a_section_found_by_number(client):
         "/us/pl/81/910/tI/s101 and is served here. This is section 101 of Public Law 81-910 as "
         "enacted on January 6, 1951 (64 Stat. 1221). It is not updated. Whether this section has "
         "been amended since is not recorded here. To check for later amendments: the "
-        "classification tables at uscode.house.gov for laws after January 6, 1951."
+        "classification tables at uscode.house.gov for laws after January 6, 1951. " + VOLUME_64_SOURCE
     )
 
 
