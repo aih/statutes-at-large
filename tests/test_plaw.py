@@ -328,10 +328,10 @@ def test_resolution_rules_over_plaw_units(repo):
     assert by_number.resolution == "section_number" and by_number.served_identifier == "/us/pl/118/22/dB/tI/s102"
     node = repo.get_unit("/us/pl/118/22/dB/tII/stA")
     assert node.level == "subtitle" and node.text == "" and len(node.children) == 3
-    assert repo.get_unit("/us/pl/118/22/dB/tII/stA", wanted="xml").xml.startswith("<subtitle")
+    assert repo.get_unit("/us/pl/118/22/dB/tII/stA", wanted="xml").xml == ""
     law = repo.get_unit("/us/pl/118/22")
     assert law.level == "law" and law.text == "" and len(law.children) == 5
-    assert repo.get_unit("/us/pl/118/22", wanted="xml").xml.startswith("<pLaw")
+    assert repo.get_unit("/us/pl/118/22", wanted="xml").xml == ""
     filled = repo.get_unit("/us/pl/118/1/s1")
     assert filled.resolution == "exact" and filled.law.provenance_identifiers == "gpo-uslm+rules-1.0"
     assert repo.get_law("/us/pl/119/1").section_count == 3
@@ -375,7 +375,9 @@ def test_the_api_serves_plaw_units(client):
     assert body["law"]["source"] == {"collection": "PLAW", "package": "PLAW-118publ22", "granule": None}
     assert body["pages"][0] == {"page": "/us/stat/137/114", "pdf": "https://www.govinfo.gov/link/statute/137/114"}
     assert response.headers["cache-control"] == "public, max-age=31536000, immutable"
-    assert client.get("/api/v1/us/pl/118/22?format=xml").text.startswith("<pLaw")
+    law_xml = client.get("/api/v1/us/pl/118/22?format=xml")
+    assert law_xml.headers["content-type"] == "application/json" and law_xml.json()["level"] == "law"
+    assert client.get("/api/v1/us/pl/118/22/dB/tI/s102?format=xml").text.startswith("<section")
     assert client.get("/api/v1/us/pl/118/1/s1").json()["provenance"]["identifiers"] == "gpo-uslm+rules-1.0"
     page = client.get("/api/v1/us/stat/137/112").json()
     assert page["documents"][0]["identifier"] == "/us/pl/118/22" and page["documents"][0]["starts_here"] is True

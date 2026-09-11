@@ -10,7 +10,8 @@ Two families:
 
 No SQL and no resolution logic here (CLAUDE.md architecture rule 1): handlers
 ask the `Repository` and shape the answer. Machine formats only: JSON by
-default, verbatim USLM for `?format=xml` or an XML `Accept:`.
+default, verbatim USLM for `?format=xml` or an XML `Accept:` on a section or a
+provision. A law and a hierarchy node answer JSON for every format.
 
 Stage 2 adds `/us/sComp/…` and the compiled view; `compiled_view` below is
 where it plugs in.
@@ -133,8 +134,8 @@ def compiled_view(request: Request, repository: Repository, path: str, query: Un
 def public_law(
     congress: int, number: int, request: Request, repository: RepositoryDep, query: UnitQueryDep
 ) -> Response:
-    """The law: its summary, its table of contents as `children`, and the whole
-    `pLaw` element for `format=xml`."""
+    """The law: its summary and its table of contents as `children`, in JSON
+    for every format."""
     return enacted_unit(request, repository, f"/us/pl/{congress}/{number}", query)
 
 
@@ -152,7 +153,8 @@ def public_law_unit(
     returns the provision alone). A section number under the wrong hierarchy
     is found by number (design section 3, rule 3); a path nothing is stored at
     is answered by its longest stored prefix (rule 2). `note` and
-    `served_identifier` say which rule answered."""
+    `served_identifier` say which rule answered. A hierarchy node answers its
+    JSON table of contents for every format."""
     return enacted_unit(request, repository, f"/us/pl/{congress}/{number}/{path}", query)
 
 

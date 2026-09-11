@@ -39,10 +39,10 @@ from params import (
     compiled_note,
     if_none_match,
     negotiated_format,
-    no_whole_document,
     not_found,
     public_cache,
     served_note,
+    serves_xml,
 )
 from storage import CompRef, CompUnitResult, CompVersionRef, Repository, UnitRef
 
@@ -219,7 +219,7 @@ def compiled_unit_out(repository: Repository, result: CompUnitResult, *, through
         provenance=ProvenanceOut(text=TEXT_PROVENANCE, identifiers=IDENTIFIER_PROVENANCE, sha256=result.content_hash),
         usc_refs=list(result.usc_refs),
         text=result.text,
-        xml_url=_xml_url(result.requested_identifier, through if result.pinned else None),
+        xml_url=_xml_url(result.requested_identifier, through if result.pinned else None) if serves_xml(result) else None,
         level=result.level,
         num=result.num,
         heading=result.heading,
@@ -251,7 +251,9 @@ def compiled_response(
     format: str | None,
 ) -> Response:
     """A compiled unit in the negotiated format with its caching headers; also
-    what `view=compiled` on an enacted identifier serves (`api/routes.py`)."""
+    what `view=compiled` on an enacted identifier serves (`api/routes.py`).
+    Above a section the format is JSON whatever was asked, and the ETag is
+    the JSON answer's."""
     fmt = negotiated_format(request, format, allowed=MACHINE_FORMATS)  # type: ignore[arg-type]
     result = repository.get_comp_unit(identifier, through=through, wanted=fmt)
     if result is None:
@@ -266,8 +268,8 @@ def compiled_response(
                 ),
             )
         raise HTTPException(status_code=404, detail=not_found(identifier, view="compiled"))
-    if fmt == "xml" and result.is_gathered:
-        raise HTTPException(status_code=404, detail=no_whole_document(result))
+    if not serves_xml(result):
+        fmt = "json"
     etag = _etag(result, fmt)
     headers = {"ETag": etag, "Cache-Control": cache_control(result), "Vary": "Accept"}
     if if_none_match(request, etag):
@@ -293,10 +295,10 @@ def compiled_root(
     through: ThroughParam = None,
     format: FormatParam = None,
 ) -> Response:
-    """The compilation itself: its table of contents and the whole document as
-    `format=xml`. `through=118-67` selects a stored version. An act with one
-    file per title and no whole-act file answers with its files gathered
-    (`files`) and has no whole document to serve as XML."""
+    """The compilation itself: its table of contents, in JSON for every
+    format. `through=118-67` selects a stored version. An act with one file
+    per title and no whole-act file answers with its files gathered
+    (`files`)."""
     return compiled_response(request, repository, f"/us/sComp/{congress}/{number}", through, format)
 
 
@@ -318,7 +320,9 @@ def compiled_unit(
     """A section or a level of a compilation in GPO's identifier form
     (`/tI/ch1./s1`, `/tI/ch1./s1/a`). Resolution: exact; the longest stored
     prefix with the rest cut from the section's XML; the section number under
-    the compilation ignoring hierarchy. `note` says which rule answered."""
+    the compilation ignoring hierarchy. `note` says which rule answered.
+    `format=xml` serves a section or a provision as USLM; a hierarchy level
+    answers its JSON table of contents."""
     identifier = f"/us/sComp/{congress}/{number}/{path.strip('/')}" if path.strip("/") else f"/us/sComp/{congress}/{number}"
     return compiled_response(request, repository, identifier, through, format)
 

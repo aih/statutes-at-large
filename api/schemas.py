@@ -237,7 +237,10 @@ class UnitOut(BaseModel):
         description="The served unit's reading text. Empty for `level: \"law\"` and for a hierarchy "
         "level; a section (and a `provision`) carries its own text."
     )
-    xml_url: str = Field(description="This request's URL with `format=xml`.")
+    xml_url: str | None = Field(
+        description="This request's URL with `format=xml`, for a section or a provision. Null for a law and a "
+        "hierarchy level, which answer this JSON for every format."
+    )
     ancestors: list[AncestorOut] = Field(default_factory=list)
     children: list[TocEntryOut] = Field(
         default_factory=list,
@@ -256,7 +259,7 @@ class UnitOut(BaseModel):
         *,
         note: str,
         alternatives: list[AlternativeOut],
-        xml_url: str,
+        xml_url: str | None,
         amended: AmendedOut,
     ) -> UnitOut:
         law = result.law

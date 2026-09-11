@@ -166,13 +166,26 @@ def test_a_hierarchy_node_and_the_compilation_itself(client):
     assert root["level"] == "compilation" and root["served_identifier"] == "/us/sComp/83/703"
     assert [c["identifier"] for c in root["children"]] == ["/us/sComp/83/703/tI"]
     assert root["note"].startswith("This is Atomic Energy Act of 1954 as compiled")
-    whole = client.get("/api/v1/us/sComp/83/703?format=xml")
-    assert whole.text.lstrip().startswith("<?xml") and "<statuteCompilation" in whole.text
+    # Above a section every format answers the JSON table of contents
+    # (ADR-0019, "XML above a section"); the ETag carries no `;xml`.
+    for path in ("/api/v1/us/sComp/83/703", "/api/v1/us/sComp/83/703/tI/ch1."):
+        as_json = client.get(path)
+        assert as_json.json()["xml_url"] is None
+        for as_xml in (client.get(f"{path}?format=xml"), client.get(path, headers={"Accept": "application/xml"})):
+            assert as_xml.status_code == 200
+            assert as_xml.headers["content-type"] == "application/json"
+            assert as_xml.content == as_json.content
+            for header in ("etag", "cache-control", "vary"):
+                assert as_xml.headers[header] == as_json.headers[header]
+    pinned = client.get("/api/v1/us/sComp/83/703?format=xml&through=118-67")
+    assert pinned.headers["cache-control"] == "public, max-age=31536000, immutable"
+    assert pinned.json()["xml_url"] is None and not pinned.headers["etag"].endswith(';xml"')
 
 
 def test_no_text_above_a_section(client, repo, engine):
-    """The compilation and a hierarchy node answer without their text, and a
-    JSON answer never reads the version's `xml` (ADR-0019, compiled)."""
+    """The compilation and a hierarchy node answer without their text, and
+    neither a JSON nor an XML answer reads the version's `xml` (ADR-0019,
+    compiled and "XML above a section")."""
     from sqlalchemy import event
 
     statements: list[str] = []
@@ -185,21 +198,23 @@ def test_no_text_above_a_section(client, repo, engine):
         root = client.get("/api/v1/us/sComp/83/703").json()
         title = client.get("/api/v1/us/sComp/83/703/tI").json()
         section = client.get(SECTION).json()
+        for path in ("/api/v1/us/sComp/83/703", "/api/v1/us/sComp/83/703/tI", "/api/v1/us/sComp/74/271"):
+            assert client.get(f"{path}?format=xml").status_code == 200
+        section_xml = client.get(f"{SECTION}?format=xml")
     finally:
         event.remove(engine, "before_cursor_execute", record)
     assert root["level"] == "compilation" and root["text"] == ""
     assert title["level"] == "title" and title["text"] == ""
     assert section["text"].startswith("Section 1.")
     assert [c["identifier"] for c in title["children"]][:2] == ["/us/sComp/83/703/tI/ch1.", "/us/sComp/83/703/tI/ch2."]
+    assert section_xml.text.startswith("<section")
     assert not any("comp_versions.xml" in statement for statement in statements), statements
 
     for identifier, level in (("/us/sComp/83/703", "compilation"), ("/us/sComp/83/703/tI", "title")):
         as_json = repo.get_comp_unit(identifier)
         as_xml = repo.get_comp_unit(identifier, wanted="xml")
         assert as_json.level == level and as_json.xml == "" and as_json.text == ""
-        assert as_xml.text == "" and as_xml.content_hash == as_json.content_hash
-        assert f'identifier="{identifier}"' in as_xml.xml or "<statuteCompilation" in as_xml.xml
-    assert repo.get_comp_unit("/us/sComp/83/703/tI", wanted="xml").xml.startswith("<title")
+        assert as_xml.xml == "" and as_xml.text == "" and as_xml.content_hash == as_json.content_hash
     assert repo.get_comp_unit(SECTION.removeprefix("/api/v1")).xml.startswith("<section")
 
 
@@ -257,14 +272,12 @@ def test_the_root_of_an_act_served_title_by_title(client, repo):
     # A file's own units are unchanged: the title node names its file.
     title = client.get("/api/v1/us/sComp/74/271/tII").json()
     assert title["compilation"]["display_title"].startswith("Social Security Act-TITLE II") and title["files"] == []
-    # There is no whole document to serve as XML.
+    # `format=xml` answers like every other root: the JSON table of contents.
     xml = client.get("/api/v1/us/sComp/74/271?format=xml")
-    assert xml.status_code == 404
-    assert xml.json()["detail"] == (
-        "/us/sComp/74/271 is served title by title in 1 file and has no whole document; "
-        "each title under it answers format=xml"
-    )
-    assert client.get("/api/v1/us/sComp/74/271/tII?format=xml").text.startswith("<title")
+    assert xml.status_code == 200 and xml.content == response.content
+    assert xml.headers["ETag"] == response.headers["ETag"] and body["xml_url"] is None
+    assert client.get("/api/v1/us/sComp/74/271/tII?format=xml").json()["level"] == "title"
+    assert client.get("/api/v1/us/sComp/74/271/tII/s201?format=xml").text.startswith("<section")
     # A path under the prefix that nothing answers is served the gathered root as its prefix.
     missing = client.get("/api/v1/us/sComp/74/271/tIX").json()
     assert missing["resolution"] == "prefix" and missing["heading"] == "Social Security Act"

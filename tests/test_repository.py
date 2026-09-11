@@ -64,13 +64,12 @@ def test_the_law_itself(repo):
     assert summary.section_count == 11 and summary.toc[0].level == "title"
 
 
-def test_a_laws_text_is_empty_and_its_xml_is_loaded_only_when_asked_for(repo):
-    """ADR-0019: a law's `text` is never computed; `xml` (a deferred column)
-    is fetched only for `wanted="xml"`."""
-    result = repo.get_unit("/us/pl/81/910")
-    assert result.text == "" and result.xml == ""
-    with_xml = repo.get_unit("/us/pl/81/910", wanted="xml")
-    assert with_xml.xml.startswith("<pLaw")
+def test_a_laws_text_and_xml_are_empty_for_every_format(repo):
+    """ADR-0019: a law's `text` is never computed and `Law.xml` is not read,
+    for `wanted="xml"` as for JSON."""
+    for wanted in ("json", "xml"):
+        result = repo.get_unit("/us/pl/81/910", wanted=wanted)
+        assert result.text == "" and result.xml == ""
 
 
 def test_a_hierarchy_node(repo):
@@ -79,11 +78,10 @@ def test_a_hierarchy_node(repo):
     assert result.children and all(c.identifier.startswith("/us/pl/111/344/tI/") for c in result.children)
 
 
-def test_a_hierarchy_nodes_text_is_empty_and_its_xml_is_loaded_only_when_asked_for(repo):
-    result = repo.get_unit("/us/pl/111/344/tI")
-    assert result.text == "" and result.xml == ""
-    with_xml = repo.get_unit("/us/pl/111/344/tI", wanted="xml")
-    assert with_xml.xml.startswith("<title")
+def test_a_hierarchy_nodes_text_and_xml_are_empty_for_every_format(repo):
+    for wanted in ("json", "xml"):
+        result = repo.get_unit("/us/pl/111/344/tI", wanted=wanted)
+        assert result.text == "" and result.xml == ""
 
 
 def test_nothing_loaded(repo):

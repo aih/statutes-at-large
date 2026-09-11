@@ -145,9 +145,43 @@ def test_accept_xml_also_gives_xml(client):
     assert client.get(SECTION, headers={"Accept": "text/html"}).headers["content-type"] == "application/json"
 
 
-def test_the_law_xml_is_the_whole_plaw_element(client):
-    response = client.get("/api/v1/us/pl/81/740?format=xml")
-    assert response.text.startswith("<pLaw")
+def test_above_a_section_every_format_answers_the_table_of_contents(client):
+    """XML is a section's representation (ADR-0019, "XML above a section"):
+    a law and a hierarchy node answer `format=xml` and an XML `Accept:` with
+    the JSON answer and its headers."""
+    for path in ("/api/v1/us/pl/81/740", "/api/v1/us/pl/111/344/tI", "/api/v1/us/act/1950-08-30/ch823"):
+        as_json = client.get(path)
+        assert as_json.json()["xml_url"] is None
+        for as_xml in (client.get(f"{path}?format=xml"), client.get(path, headers={"Accept": "application/xml"})):
+            assert as_xml.status_code == 200
+            assert as_xml.headers["content-type"] == "application/json"
+            assert as_xml.content == as_json.content
+            for header in ("etag", "cache-control", "vary", "x-served-identifier"):
+                assert as_xml.headers[header] == as_json.headers[header]
+        etag = as_json.headers["etag"]
+        assert client.get(f"{path}?format=xml", headers={"If-None-Match": etag}).status_code == 304
+
+
+def test_no_law_xml_is_read_above_a_section(client, repo, engine):
+    """The enacted twin of `test_no_text_above_a_section`: no statement of a
+    JSON or an XML answer for a law or a node selects `laws.xml`."""
+    from sqlalchemy import event
+
+    statements: list[str] = []
+
+    def record(conn, cursor, statement, parameters, context, executemany):
+        statements.append(statement)
+
+    event.listen(engine, "before_cursor_execute", record)
+    try:
+        for path in ("/api/v1/us/pl/81/910", "/api/v1/us/pl/111/344/tI", "/api/v1/us/pl/118/22/dB/tII/stA"):
+            assert client.get(path).status_code == 200
+            assert client.get(f"{path}?format=xml").status_code == 200
+        section = client.get(f"{SECTION}?format=xml")
+    finally:
+        event.remove(engine, "before_cursor_execute", record)
+    assert section.text.startswith("<section")
+    assert statements and not any("laws.xml" in statement for statement in statements), statements
 
 
 # ---------------------------------------------------------------- caching
@@ -211,8 +245,8 @@ def test_a_hierarchy_node(client):
     assert body["children"] and all(c["identifier"].startswith("/us/pl/111/344/tI/") for c in body["children"])
     assert body["children"][0]["level"] == "subtitle" and body["children"][0]["is_section"] is False
     assert body["note"].startswith("This is title I of Public Law 111-344 as enacted on December 29, 2010")
-    assert body["text"] == ""
-    assert client.get("/api/v1/us/pl/111/344/tI?format=xml").text.startswith("<title")
+    assert body["text"] == "" and body["xml_url"] is None
+    assert client.get("/api/v1/us/pl/111/344/tI?format=xml").json()["level"] == "title"
 
 
 def test_a_division(client):

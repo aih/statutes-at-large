@@ -617,8 +617,9 @@ class Repository(Protocol):
         None when no law answers to the identifier.
 
         `wanted` is `"json"` or `"xml"`. A law's and a hierarchy node's `xml`
-        is loaded only for `"xml"`; their `text` is always empty (ADR-0019).
-        A section carries both regardless of `wanted`.
+        and `text` are empty for both, and `Law.xml` is not read (ADR-0019,
+        "XML above a section"). A section carries both regardless of
+        `wanted`, and a path below it has its provision cut for both.
         """
         ...
 
@@ -667,10 +668,11 @@ class Repository(Protocol):
         stored version.
 
         `wanted` is `"json"` or `"xml"`. The compilation's and a hierarchy
-        node's `xml` is loaded only for `"xml"`; their `text` is always empty
-        (ADR-0019). A section carries both regardless of `wanted`. A bare
-        prefix with no whole-act file is answered from every per-title file
-        under it (`files`), and carries no `xml` in either format.
+        node's `xml` and `text` are empty for both, and `CompVersion.xml` is
+        not read (ADR-0019, "XML above a section"). A section carries both
+        regardless of `wanted`, and a path below it has its provision cut for
+        both. A bare prefix with no whole-act file is answered from every
+        per-title file under it (`files`).
         """
         ...
 

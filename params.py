@@ -203,15 +203,6 @@ def _files(result: CompUnitResult) -> str:
     return f"{count} file" if count == 1 else f"{count} files"
 
 
-def no_whole_document(result: CompUnitResult) -> str:
-    """The 404 for `format=xml` on a root gathered from per-title files: there
-    is no whole document to serve."""
-    return (
-        f"{result.served_identifier} is served title by title in {_files(result)} and has no whole "
-        f"document; each title under it answers format=xml"
-    )
-
-
 # -------------------------------------------------------------------- caching
 #
 # An enacted unit never changes, so it is cached for a year; a compiled unit is
@@ -362,6 +353,13 @@ def negotiated_format(request: Request, requested: Format | None, *, allowed: fr
         if quality > 0 and (best is None or quality > best[0]):
             best = (quality, candidate)
     return best[1] if best else "json"
+
+
+def serves_xml(result: UnitResult | CompUnitResult) -> bool:
+    """XML is a section's representation, and a provision's cut from it. A
+    law, a compilation and a hierarchy node answer their JSON table of
+    contents for every format (ADR-0019, "XML above a section")."""
+    return result.level == "section"
 
 
 FormatParam = Annotated[

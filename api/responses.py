@@ -25,6 +25,7 @@ from params import (
     if_none_match,
     not_found,
     served_note,
+    serves_xml,
 )
 from storage import Repository, StatPageResult, UnitResult
 from uslmtext import content_hash
@@ -68,8 +69,10 @@ def xml_url_for(request: Request) -> str:
 
 
 def unit_response(request: Request, repository: Repository, result: UnitResult, wanted: str) -> Response:
-    """JSON or XML for an enacted unit, with the caching headers; 304 when the
+    """JSON or XML for an enacted section or provision, JSON for a law or a
+    hierarchy node whatever was asked, with the caching headers; 304 when the
     caller already holds it."""
+    has_xml = serves_xml(result)
     etag = unit_etag(result)
     headers = {
         "ETag": etag,
@@ -80,7 +83,7 @@ def unit_response(request: Request, repository: Repository, result: UnitResult, 
     if if_none_match(request, etag):
         return Response(status_code=304, headers=headers)
 
-    if wanted == "xml":
+    if wanted == "xml" and has_xml:
         fragment = (
             result.provision.xml
             if result.provision is not None and result.provision.found and result.provision.xml
@@ -94,7 +97,7 @@ def unit_response(request: Request, repository: Repository, result: UnitResult, 
         result,
         note=unit_note(result, alternatives, amended),
         alternatives=alternatives,
-        xml_url=xml_url_for(request),
+        xml_url=xml_url_for(request) if has_xml else None,
         amended=AmendedOut.of(amended),
     )
     return Response(content=out.model_dump_json(), media_type="application/json", headers=headers)

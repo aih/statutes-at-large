@@ -109,7 +109,10 @@ class CompUnitOut(BaseModel):
         description="The served unit's reading text. Empty for `level: \"compilation\"` and for a hierarchy "
         "level; a section (and a `provision`) carries its own text."
     )
-    xml_url: str
+    xml_url: str | None = Field(
+        description="This unit's URL with `format=xml` (and `through` when pinned), for a section or a "
+        "provision. Null for the compilation and a hierarchy level, which answer this JSON for every format."
+    )
     level: str
     num: str | None = None
     heading: str | None = None
