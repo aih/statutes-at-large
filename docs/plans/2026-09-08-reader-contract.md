@@ -152,8 +152,10 @@ a law; the page never renders it. Shows:
   `heading`, `release_label`, linked to `url`, with a link to the API for the
   rest when `total` exceeds the page. A 404 from `cited-by` (a law in no
   index) shows nothing; a failed call shows nothing.
-- Links: `xml_url` (source XML), the JSON at `/api/v1{identifier}`, the
-  citation URL `{identifier}` as text.
+- Links: the JSON at `/api/v1{identifier}` and the citation URL
+  `{identifier}` as text. XML is a section's representation: `xml_url` is
+  null on a law, and `format=xml` on a law answers the same JSON (ADR-0019,
+  "XML above a section"), so the law page prints no source XML link.
 
 ### `/app/us/pl/{c}/{n}/{path}` (also `/us/pvtl/…`, `/us/act/…`)
 
@@ -163,7 +165,7 @@ A hierarchy node, a section, or a provision. Calls `GET /api/v1{identifier}`
 - A hierarchy node (`division`, `title`, `subtitle`, `chapter`, `subchapter`,
   `part`, `subpart`): heading, `ancestors` as breadcrumbs, `children` as the
   table of contents, `note`, `provenance`, `pages`. `UnitOut.text` is empty
-  here; the text is not rendered, and `xml_url` is linked instead.
+  and `xml_url` null here; no text is rendered and no source XML is linked.
 - A section: the text rendered from `GET /api/v1{served_identifier}?format=xml`
   (the whole section, always; `xml_url` on a provision request returns the
   provision alone) by the typed USLM renderer (`frontend/src/lib/uslm.ts`,
@@ -175,7 +177,9 @@ A hierarchy node, a section, or a provision. Calls `GET /api/v1{identifier}`
   repeats `provision.identifier`. `heading`, `num`, `ancestors` as
   breadcrumbs (each `/app{identifier}`), `note` verbatim, the currency line,
   `alternatives` as links, `pages` with `pdf` links, `provenance`,
-  `occurrences` when above 1, and the "cited by" panel as on the law.
+  `occurrences` when above 1, the "cited by" panel as on the law, and
+  `xml_url` as the source XML link. XML is a section's representation; the
+  reader fetches `format=xml` for a section only.
 - Previous and next section: for a public law, the neighbouring `is_section`
   entries of `toc` from `GET /api/v1/laws/{c}/{n}`; for a private law or an
   act, the neighbouring sections among the nearest ancestor's `children`
@@ -203,7 +207,10 @@ A hierarchy node, a section, or a provision. Calls `GET /api/v1{identifier}`
 The compiled view. Calls `GET /api/v1/us/sComp/…[?through=]` (JSON) and, for
 a section, `…{served_identifier}?format=xml[&through=]` for the text. `text`
 is empty above a section: the compilation root and a hierarchy level carry
-their table of contents and no text (ADR-0019, compiled). A root gathered
+their table of contents and no text (ADR-0019, compiled). XML is a
+section's representation: above a section `xml_url` is null, `format=xml`
+answers the same JSON (ADR-0019, "XML above a section"), and no source XML
+link is printed; a section prints `xml_url` as its source XML link. A root gathered
 from per-title files (ADR-0007, decision 8) arrives in the same shape:
 `compilation.display_title` is the act's name, `children` span the files,
 `versions` is empty so the version picker is not shown, and `files` lists

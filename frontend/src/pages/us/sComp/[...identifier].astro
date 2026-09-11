@@ -224,7 +224,7 @@ const up = upLink();
           )}
           <Alternatives alternatives={unit.alternatives} />
           <p class="formats">
-            <a href={unit.xml_url}>Source XML</a>
+            {unit.xml_url && <a href={unit.xml_url}>Source XML</a>}
             <a href={apiHref(unit.identifier, { through })}>JSON</a>
             <a class="usa-link usa-link--external" href={unit.compilation.govinfo_details}>GovInfo</a>
           </p>

@@ -76,6 +76,21 @@ test("the compiled page has a version picker and the enacted counterpart", async
   await expect(page.locator(".section-body #\\/us\\/sComp\\/83\\/703\\/tI\\/ch1\\.\\/s1\\/a")).toBeVisible();
 });
 
+test("source XML is linked on a section only", async ({ page }) => {
+  for (const [path, xml] of [
+    ["/app/us/pl/81/740/s3", "/api/v1/us/pl/81/740/s3?format=xml"],
+    ["/app/us/sComp/83/703/tI/ch1./s1", "/api/v1/us/sComp/83/703/tI/ch1./s1?format=xml"],
+  ]) {
+    await page.goto(path);
+    await expect(page.getByRole("link", { name: "Source XML" })).toHaveAttribute("href", xml);
+  }
+  for (const path of ["/app/us/pl/81/740", "/app/us/pl/111/344/tI", "/app/us/sComp/83/703", "/app/us/sComp/74/271"]) {
+    await page.goto(path);
+    await expect(page.locator("h1")).toHaveCount(1);
+    await expect(page.getByRole("link", { name: "Source XML" })).toHaveCount(0);
+  }
+});
+
 test("a 404 prints the API's detail with status 404", async ({ page }) => {
   const response = await page.goto("/app/us/pl/99/99999");
   expect(response?.status()).toBe(404);

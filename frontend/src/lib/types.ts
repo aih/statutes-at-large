@@ -120,7 +120,7 @@ export interface Unit {
   provenance: Provenance;
   pages: Page[];
   text: string;
-  xml_url: string;
+  xml_url: string | null;
   ancestors: Ancestor[];
   children: TocEntry[];
   provision: Provision | null;
@@ -413,7 +413,7 @@ export interface CompUnit {
   provenance: Provenance;
   usc_refs: string[];
   text: string;
-  xml_url: string;
+  xml_url: string | null;
   level: string;
   num: string | null;
   heading: string | null;

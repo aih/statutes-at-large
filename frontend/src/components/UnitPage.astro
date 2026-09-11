@@ -202,7 +202,7 @@ const up = upLink();
         )}
 
         <p class="formats">
-          <a href={unit.xml_url}>Source XML</a>
+          {unit.xml_url && <a href={unit.xml_url}>Source XML</a>}
           <a href={apiHref(unit.identifier)}>JSON</a>
         </p>
         <p class="formats">
@@ -240,7 +240,7 @@ const up = upLink();
         )}
 
         <p class="formats">
-          <a href={unit.xml_url}>Source XML</a>
+          {unit.xml_url && <a href={unit.xml_url}>Source XML</a>}
           <a href={apiHref(unit.identifier)}>JSON</a>
         </p>
         <p class="formats">
@@ -310,7 +310,7 @@ const up = upLink();
           <Provenance provenance={unit.provenance} />
           <Alternatives alternatives={unit.alternatives} />
           <p class="formats">
-            <a href={unit.xml_url}>Source XML</a>
+            {unit.xml_url && <a href={unit.xml_url}>Source XML</a>}
             <a href={apiHref(unit.identifier)}>JSON</a>
           </p>
           <p class="formats">
