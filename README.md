@@ -339,7 +339,10 @@ continuous deploy and the alarms. `deploy/` holds the scripts it names;
 
 Every page's footer names the version (`frontend/package.json`'s `version`)
 and the commit it was built from, which `.github/workflows/deploy.yml`
-passes into both image builds as the sha it deployed.
+passes into both image builds as the sha it deployed. A merge that changes
+only `docs/` or `*.md` files outside `frontend/` is not deployed
+(`deploy/deploy-gate.sh`, ADR-0026), so the footer and `/health` keep
+naming the last commit that was.
 
 Search runs on the US Code site's OpenSearch cluster, reached through
 `search-relay` — the only service of this project attached to that project's

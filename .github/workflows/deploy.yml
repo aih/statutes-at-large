@@ -3,6 +3,10 @@
 # arm64, pushes them to ECR tagged with the sha and `latest`, then runs
 # deploy/deploy-on-box.sh <sha> on the box over SSM. The box checks out the
 # exact commit this workflow built.
+#
+# The gate job skips the build and the deploy when every path changed since
+# the commit the site reports on /health is documentation
+# (deploy/deploy-gate.sh, ADR-0026). A dispatch always deploys.
 name: Deploy
 
 on:
@@ -24,18 +28,47 @@ env:
   ECR_REGISTRY: 739065237548.dkr.ecr.us-east-1.amazonaws.com
 
 jobs:
-  deploy:
+  gate:
     # AWS_DEPLOY_ROLE_ARN is set once deploy/admin-grant.sh has run; until
     # then this job skips rather than failing every merge.
     if: >-
       vars.AWS_DEPLOY_ROLE_ARN != '' &&
       (github.event_name == 'workflow_dispatch' ||
       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main'))
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.sha.outputs.sha }}
+      deploy: ${{ steps.gate.outputs.deploy }}
     steps:
       - name: Resolve sha
         id: sha
         run: echo "sha=${{ github.event.workflow_run.head_sha || github.sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.sha.outputs.sha }}
+          fetch-depth: 0
+
+      - name: Gate on a documentation-only change
+        id: gate
+        env:
+          SHA: ${{ steps.sha.outputs.sha }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            bash deploy/deploy-gate.sh "$SHA" >> "$GITHUB_OUTPUT"
+          fi
+
+  deploy:
+    needs: gate
+    if: needs.gate.outputs.deploy == 'true'
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Resolve sha
+        id: sha
+        run: echo "sha=${{ needs.gate.outputs.sha }}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
         uses: actions/checkout@v5
@@ -61,7 +94,7 @@ jobs:
           platforms: linux/arm64
           push: true
           build-args: |
-            GIT_COMMIT=${{ github.sha }}
+            GIT_COMMIT=${{ steps.sha.outputs.sha }}
           tags: |
             ${{ env.ECR_REGISTRY }}/statutes-api:${{ steps.sha.outputs.sha }}
             ${{ env.ECR_REGISTRY }}/statutes-api:latest
@@ -77,7 +110,7 @@ jobs:
           # The footer names the commit it was built from. This context holds
           # no .git, so the sha has to be passed in or the image says "unknown".
           build-args: |
-            GIT_COMMIT=${{ github.sha }}
+            GIT_COMMIT=${{ steps.sha.outputs.sha }}
           tags: |
             ${{ env.ECR_REGISTRY }}/statutes-frontend:${{ steps.sha.outputs.sha }}
             ${{ env.ECR_REGISTRY }}/statutes-frontend:latest

@@ -732,3 +732,30 @@ section body with the Source XML link; `/app/us/sComp/74/271`,
 axe spec over `BASE_URL=https://statutes.linkedlegislation.org` passed 16,
 `/app/us/pl/81/740` and `/app/us/sComp/74/271` among them.
 
+## 2026-09-10 — a deploy skips a documentation-only change
+
+Asked: why a documentation-only change redeploys; then a gate for it; then
+that work lands on a branch as a pull request the user merges. CLAUDE.md
+gains "Branches and pull requests". This change is the first on that path,
+branch `deploy-docs-gate`.
+
+Found: `deploy.yml` ran on every successful CI run on `main` without
+looking at the diff, and both images change on every commit (`COPY . .`
+takes `docs/`; `GIT_COMMIT` is a build argument). `/health` reported
+`d5d9228`, a `BUILDLOG.md`-only commit, as deployed.
+
+Done: `deploy/deploy-gate.sh <sha> [health-url]` and a `gate` job in
+`deploy.yml` ahead of the `deploy` job. Both builds pass the resolved sha as
+`GIT_COMMIT` in place of `github.sha`. ADR-0026; the deployment plan (item 5,
+section 7), README and CLAUDE.md name the gate.
+
+Decision: ADR-0026.
+
+Verified: `shellcheck deploy/*.sh deploy/edge/*.sh` and `actionlint` clean.
+The gate against a `file://` health answer: `00f6036..d5d9228` (1 path) and
+`cc57c5e..d5d9228` (5 paths, `docs/adr/` and Markdown at the root) `false`;
+`f1d1016..d5d9228` `true` on `frontend/src/components/UnitPage.astro`; the
+same sha `false`; a deployed commit newer than the new one, `commit:
+unknown`, a sha not in the checkout and a refused connection `true`.
+Against the live `/health` (`d5d9228`) for `d5d9228`: `false`. Not yet run
+in Actions.

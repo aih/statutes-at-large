@@ -121,7 +121,8 @@ Files, all modelled on the US Code site's with `uscode` → `statutes`:
    site), `deploy.yml` (on CI success on `main` and on dispatch: build both
    images on `ubuntu-24.04-arm`, push to ECR tagged `<sha>` and `latest`,
    SSM `git checkout --force <sha> && bash deploy/deploy-on-box.sh <sha>`
-   on the instance tagged `Name=uscode-site`, poll the command),
+   on the instance tagged `Name=uscode-site`, poll the command; a `gate`
+   job skips all of it for a documentation-only change, ADR-0026),
    `update-sources.yml` (section 6).
 6. Two small ingest additions for the weekly run: `python -m ingest
    fetch-statute --if-changed` compares each volume's Hub file
@@ -317,6 +318,11 @@ migration with the new image, then `up -d --wait`, then the proxy recreated
 so a Caddyfile change takes effect. Rollback is `deploy-on-box.sh <older
 sha>` from a workstation with the deploy role, or `workflow_dispatch` on an
 older commit.
+
+`deploy/deploy-gate.sh <sha>` runs first and skips the build and the deploy
+when every path changed since the commit `/health` reports is under `docs/`
+or is a `*.md` file outside `frontend/` (ADR-0026). A dispatch always
+deploys.
 
 ## 8. Alarms and recovery
 
