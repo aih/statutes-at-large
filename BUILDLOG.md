@@ -716,3 +716,19 @@ the JSON; `/us/sComp/83/703/tI?format=xml` 4,590 bytes;
 start with `<section`. `origin/main` was PR #2's merge commit, with no
 file changes; it was merged into the branch so the push fast-forwards.
 
+Live after the deploy of `00f6036` (`/health` reported it 123 s after the
+push), over TLS from a workstation: `/us/sComp/74/271?format=xml` 5,022
+bytes in 0.30 s (from 20,419,115 and 4.66 s), `application/json`,
+byte-equal to the JSON answer with the same `ETag`, `Cache-Control` and
+`Vary`; `/us/sComp/83/703/tI?format=xml` 4,590 bytes (from 1,152,624);
+`/us/pl/117/328?format=xml` 146,580 bytes in 0.89 s, byte-equal to the
+JSON (0.86 s), 2.9 s on the first request after the deploy;
+`/us/sComp/78/373?format=xml` 21,302 bytes, the gathered root's JSON;
+`/us/sComp/83/703/tI/ch1./s1?format=xml` 1,866 bytes and
+`/us/pl/81/740/s3?format=xml` 4,066 bytes, both starting with `<section`.
+`/app/us/sComp/83/703/tI/ch1./s1` and `/app/us/pl/81/740/s3` render their
+section body with the Source XML link; `/app/us/sComp/74/271`,
+`/app/us/pl/117/328` and `/app/us/sComp/78/373` render without one. The
+axe spec over `BASE_URL=https://statutes.linkedlegislation.org` passed 16,
+`/app/us/pl/81/740` and `/app/us/sComp/74/271` among them.
+
