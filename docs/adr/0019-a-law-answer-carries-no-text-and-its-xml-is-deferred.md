@@ -27,7 +27,8 @@ Postgres.
    `law.xml` only when `wanted == "xml"`. `api/routes.py` computes the
    negotiated format before calling `get_unit`, so it can pass `wanted`
    through. No Alembic migration: `deferred` changes how SQLAlchemy reads the
-   column, not the column itself.
+   column, not the column itself. Amended 2026-09-10: nothing above a section
+   reads `law.xml` for either format ("XML above a section" below).
 
 3. **`pages` is unchanged.** A law still lists every Statutes at Large page it
    spans.
@@ -60,7 +61,8 @@ loaded the document.
    `compilations_for_law`, `compiled_counterparts`, `api/currency.py` and
    `api/cite.py` read the version's metadata only, and
    `ingest/search_sync.py: comp_documents` selects the unit's columns by
-   name.
+   name. Amended 2026-09-10: nothing above a section reads the column for
+   either format ("XML above a section" below).
 
 3. **The ETag is unchanged.** `_etag` hashes `content_hash`, a stored
    column; a root gathered from per-title files (ADR-0007, decision 8)
@@ -70,6 +72,54 @@ loaded the document.
 `text` on the root and on a title, the populated `xml` for
 `wanted="xml"`, and, through a `before_cursor_execute` listener, that no
 statement of a JSON answer selects `comp_versions.xml`.
+
+## XML above a section
+
+Amended 2026-09-10. Measured on the live site at `9bafd8f`: `GET
+/api/v1/us/sComp/74/271?format=xml` 20,419,115 bytes in 4.66 s,
+`/us/sComp/83/703/tI?format=xml` 1,152,624 bytes, `/us/pl/117/328?format=xml`
+the whole `pLaw`, about 20 MB. Every level's `xml_url` pointed at one of
+these. The US Code site serves no XML for a title or a structural node (its
+ADR-0006 and ADR-0009): an identifier that names no section answers its
+table of contents whatever `Accept` or `format=` said.
+
+1. **XML is a section's representation.** `format=xml` and an XML
+   `Accept:` on a section serve its stamped USLM, and on a path below a
+   section the provision cut from it. On a law, a compilation root
+   (gathered or not) and a hierarchy node they answer the JSON the level
+   gives for JSON: the same body, `ETag`, `Cache-Control`, `Vary` and
+   `X-Served-Identifier`, with `Content-Type: application/json`.
+   `params.serves_xml` holds the rule; `api/responses.py: unit_response`
+   and `api/comps.py: compiled_response` apply it.
+
+2. **The answer is a 200, not a 406.** `negotiated_format` answers JSON
+   when the client asks for nothing the surface serves, and the US Code
+   site answers a structural node the same way.
+
+3. **`xml_url` is `str | None`** on `UnitOut` and `CompUnitOut`, null above
+   a section. The reader prints its "Source XML" link only when it is set,
+   and fetches `format=xml` for a section only.
+
+4. **Nothing above a section reads `Law.xml` or `CompVersion.xml` at
+   request time.** `get_unit` and `get_comp_unit` keep `wanted`; a
+   section's provision is cut for both formats, and a law's, a
+   compilation's and a node's `xml` is empty for both.
+   `params.no_whole_document` is gone. `_etag`'s `;xml` suffix applies only
+   where XML is served, so the XML request of a root carries the JSON
+   answer's ETag.
+
+5. **The columns stay.** `Law.xml` and `CompVersion.xml` are still stored
+   and deferred. The stat page slice reads `Law.xml` (ADR-0020); the
+   volume, PLAW and COMPS loaders write both; a later change may cut
+   fragments from them. No migration.
+
+`tests/test_api.py: test_no_law_xml_is_read_above_a_section` and
+`tests/test_comps_api.py: test_no_text_above_a_section` listen on
+`before_cursor_execute` over the JSON and the XML requests and assert that
+no statement selects `laws.xml` or `comp_versions.xml`. On the dev
+database: `/us/sComp/74/271?format=xml` 2,308 bytes in 18 ms, byte-equal
+to the JSON; `/us/sComp/83/703/tI?format=xml` 4,590 bytes;
+`/us/pl/117/328?format=xml` 146,580 bytes in 0.20 s.
 
 ## Consequences
 

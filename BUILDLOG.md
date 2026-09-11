@@ -669,3 +669,50 @@ it within two minutes): `GET /api/v1/search?q=rubber` 200, 445 results,
 200. Not checked: `docker ps` on the box, which would show the containers
 still named `statutes-at-large-*` after the project name was pinned.
 
+## 2026-09-10 — XML is a section's representation
+
+Asked: `docs/plans/2026-09-10-root-toc-prompt.md`. The compilation root,
+the enacted law and every hierarchy node answer their table of contents for
+every format; XML is served for a section and a provision only.
+
+Done:
+
+- `params.serves_xml` (the level is `section`). `unit_response` and
+  `compiled_response` answer `format=xml` and an XML `Accept:` above a
+  section with the JSON body and headers; `_etag` adds `;xml` only where
+  XML is served. `xml_url` is `str | None` on `UnitOut` and `CompUnitOut`,
+  null above a section. `params.no_whole_document` is gone; a gathered root
+  answers like every other root.
+- `storage/postgres.py`: `get_unit` and `get_comp_unit` keep `wanted`; the
+  private helpers lost it, and `_law_result`, `_comp_root_result` and both
+  hierarchy branches set `xml=""` without reading `Law.xml` or
+  `CompVersion.xml`. The columns stay deferred; the stat page slice still
+  reads `Law.xml`.
+- Tests: `test_no_law_xml_is_read_above_a_section` (new) and
+  `test_no_text_above_a_section` (extended to the XML requests) listen on
+  `before_cursor_execute`. The `format=xml` assertions on `/us/pl/81/740`,
+  `/us/pl/111/344/tI`, `/us/pl/118/22`, `/us/sComp/83/703` and
+  `/us/sComp/74/271` expect the JSON answer, byte-equal, with the same
+  ETag.
+- The reader prints "Source XML" only when `xml_url` is set; `types.ts`
+  follows. `fetchUnitXml` (`lib/unitpage.ts`) and `fetchCompUnitXml` (the
+  compiled page) were already called for sections only. `section.spec.ts`
+  gained "source XML is linked on a section only".
+- ADR-0019 gains "XML above a section" and dated notes on its decision 2
+  and compiled decision 2; ADR-0001's decision and consequence and ADR-0007
+  decision 8's sentence struck through with dated notes; the reader
+  contract; README's route tables.
+
+Decision: `format=xml` above a section is a 200 with the JSON body, not a
+406 (ADR-0019, "XML above a section", decision 2).
+
+Verified: `make test` 570 passed, 5 deselected; `make test-web` 107; `make
+test-e2e` 75 over `make dev`, the axe scan including `/app/us/pl/81/740`
+and `/app/us/sComp/74/271`; `npx astro check` 0 errors. On the dev
+database: `/us/sComp/74/271?format=xml` 2,308 bytes in 18 ms, byte-equal to
+the JSON; `/us/sComp/83/703/tI?format=xml` 4,590 bytes;
+`/us/pl/117/328?format=xml` 146,580 bytes in 0.20 s;
+`/us/sComp/83/703/tI/ch1./s1?format=xml` and `/us/pl/81/740/s3?format=xml`
+start with `<section`. `origin/main` was PR #2's merge commit, with no
+file changes; it was merged into the branch so the push fast-forwards.
+

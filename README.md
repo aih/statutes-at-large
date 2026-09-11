@@ -42,7 +42,7 @@ All under `/api/v1`. The bare identifier URL (`/us/pl/81/740/s3`) is a 307 to
 
 | Route | Answer |
 |---|---|
-| `GET /us/pl/{c}/{n}[/{path}]`, `/us/pvtl/…`, `/us/act/{date}/ch{n}[/{path}]` | the unit: `identifier`, `served_identifier`, `view`, `resolution`, `law`, `currency`, `alternatives`, `note`, `provenance`, `pages`, `text`, `xml_url`, `level`, `num`, `heading`, `ancestors`, `children`, `provision`, `occurrences` |
+| `GET /us/pl/{c}/{n}[/{path}]`, `/us/pvtl/…`, `/us/act/{date}/ch{n}[/{path}]` | the unit: `identifier`, `served_identifier`, `view`, `resolution`, `law`, `currency`, `alternatives`, `note`, `provenance`, `pages`, `text`, `xml_url`, `level`, `num`, `heading`, `ancestors`, `children`, `provision`, `occurrences`; `?format=xml` serves a section or a provision as stamped USLM, and a law or a hierarchy node answers the same JSON with `xml_url` null (ADR-0019) |
 | `GET /us/stat/{volume}/{page}[?format=xml]` | `{page, identifier, volume, documents: [{identifier, kind, title, label, citation, enacted, starts_here, unit_on_page, units, text}], pdf}`; `text` and `units` are what the law prints on the page, the slice between its page markers (ADR-0020), and `format=xml` serves the slices as USLM |
 | `POST /labels` `{"identifiers": […]}`, `GET /labels?identifier=…` | per identifier: `{exists: true, served_identifier, resolution, num, heading, level, kind, law_identifier, law_label, currency}`, for a `/us/stat/{vol}/{page}` identifier `{exists: true, level: "page", kind: "stat", volume, page, documents: [{identifier, label, kind, starts_here}], pdf}`, or `{exists: false}`; 1 to 100 per request; 300 requests then 30 per second per address |
 | `GET /cite?q=Pub. L. 104-333, § 814` | a written citation parsed (`citeparse.py`) and checked: `{query, kind, identifier, section_identifier, law_identifier, label, exists, served_identifier, resolution, level, num, heading, law_label, url, stat_page, hierarchy, note, message}`; 422 when the text is not a citation, `exists: false` when nothing is loaded at the identifier, `exists: true` with the citation URL; `kind: "usc"` with the US Code site's URL and `exists: null` for a US Code citation; `max-age=300`, ETag; 60 requests then 2 per second per address |
@@ -53,7 +53,8 @@ All under `/api/v1`. The bare identifier URL (`/us/pl/81/740/s3`) is a 307 to
 Query parameters on the identifier routes: `view=enacted` (default) or
 `view=compiled` (a 404 with `alternatives` when the unit has no compiled counterpart),
 `format=json` or `format=xml` (otherwise `Accept:`; XML is the stamped USLM
-element, the provision alone when the path went below a section), `through`
+section, the provision alone when the path went below a section; a law and a
+hierarchy node answer JSON for every format), `through`
 (a compilation version; ignored on the enacted view).
 
 Headers on a unit: `ETag` (the content hash; a found provision appends a hash
@@ -83,7 +84,7 @@ Stage 2 (compiled view):
 
 | Identifier | Answer |
 |---|---|
-| `/us/sComp/{congress}/{num}[/{path}]` | a Statute Compilation unit in GPO's identifier form (`/tI/ch1./s1`); `?through=118-67` selects a stored version. `text` is empty on the compilation and on a hierarchy level; `format=xml` serves their XML. A prefix whose act has one file per title and no whole-act file answers with the files gathered in title order: the act's name, every file's top-level units as `children`, the packages as `files`, and no `format=xml` (ADR-0007, decision 8) |
+| `/us/sComp/{congress}/{num}[/{path}]` | a Statute Compilation unit in GPO's identifier form (`/tI/ch1./s1`); `?through=118-67` selects a stored version. `text` is empty on the compilation and on a hierarchy level. `?format=xml` serves a section or a provision as USLM; the compilation and a hierarchy level answer the same JSON with `xml_url` null (ADR-0019). A prefix whose act has one file per title and no whole-act file answers with the files gathered in title order: the act's name, every file's top-level units as `children`, the packages as `files` (ADR-0007, decision 8) |
 | `/us/pl/…?view=compiled` (also `/us/pvtl`, `/us/act`) | the compiled counterpart of the enacted unit, matched by section number; 404 with `alternatives` when there is none |
 | `GET /api/v1/comps?law=/us/pl/83/703&q=atomic` | compilations for a law, or by title search |
 | `GET /api/v1/comps/{fileId}` | a compilation's summary, version list, and table of contents |

@@ -17,8 +17,10 @@ section's XML at request time by `@identifier` (its ADR-0001).
 
 `units` holds one row per hierarchy node (division, title, subtitle, chapter,
 subchapter, part, subpart) and per section. Sections carry XML, text, hash and
-pages; hierarchy nodes carry heading, order and ancestors, and their XML is cut
-from the law's when asked for. Every level below a section is stamped with its
+pages; hierarchy nodes carry heading, order and ancestors~~, and their XML is cut
+from the law's when asked for~~. Amended 2026-09-10: a hierarchy node has no XML
+representation; `format=xml` on one answers its JSON table of contents (ADR-0019,
+"XML above a section"). Every level below a section is stamped with its
 identifier during the load and stays inside the section's XML.
 
 `Repository.get_unit` resolves a path below a section to the section and
@@ -32,5 +34,8 @@ not is `prefix` with `provision.found = false`, and the note says so.
 - The section-number index (rule 3) is a column on the section row.
 - `?format=xml` on a sub-section path returns the stamped fragment cut from the
   section, not a stored row.
-- The whole law's XML is stored on `laws.xml`, so `/us/pl/{c}/{n}?format=xml`
-  serves the `pLaw` element as GPO published it, with identifiers added.
+- ~~The whole law's XML is stored on `laws.xml`, so `/us/pl/{c}/{n}?format=xml`
+  serves the `pLaw` element as GPO published it, with identifiers added.~~
+  Amended 2026-09-10: `laws.xml` is still stored, and `/us/pl/{c}/{n}?format=xml`
+  answers the law's JSON table of contents. XML is served for a section and a
+  provision only (ADR-0019, "XML above a section").

@@ -80,10 +80,12 @@ Date: 2026-09-07. Status: accepted. Implements design sections 4 to 6 for
    thirty: the fixture database's `/us/sComp/74/271` (COMPS-8755 alone) is
    the test case, and `/us/sComp/78/410` on the box answers the act's name
    over its one title. Building the answer reads no version's `xml`: one
-   query for the top-level units of every file. `format=xml` on a gathered
+   query for the top-level units of every file. ~~`format=xml` on a gathered
    root is a 404 whose detail says there is no whole document
-   (`params.no_whole_document`); each title under it answers `format=xml`.
-   Candidate (b), a redirect to the first title's file, was not taken: the
+   (`params.no_whole_document`); each title under it answers `format=xml`.~~
+   Amended 2026-09-10: `format=xml` on a gathered root answers the same JSON
+   as on every other root, and `params.no_whole_document` is gone (ADR-0019,
+   "XML above a section"). Candidate (b), a redirect to the first title's file, was not taken: the
    act's contents are what a reader asks the bare prefix for. This rule does
    not make COMPS-77777777 loadable; its identifiers still have an empty law
    slot.
