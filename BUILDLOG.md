@@ -759,3 +759,35 @@ same sha `false`; a deployed commit newer than the new one, `commit:
 unknown`, a sha not in the checkout and a refused connection `true`.
 Against the live `/health` (`d5d9228`) for `d5d9228`: `false`. Not yet run
 in Actions.
+
+## 2026-09-11 — Contents open, a lone section shown, small caps, the note's source
+
+Asked: remove worktrees that are not in use; start the Contents disclosure
+open; show a law's section when the contents are one section (Public Law
+104-33); render `smallCaps` headings in small caps and a centered heading on
+its own line (Public Law 98-181 § 804); say in the note where the XML came
+from.
+
+Found: `statutes-wt-compiled` was clean and detached at `origin/main`, with no
+unmerged branch. Its `.env` was the only copy (the main checkout had none) and
+was copied to the main checkout before the worktree was removed. The Hub's
+`STATUTE-51.xml` has the sha256 of the file GovInfo serves at
+`/packages/STATUTE-51/uslm`. `processedBy` is `Digitization Vendor` through
+volume 116 and `GPO Locator to USLM Converter` from volume 117 and in the PLAW
+files. The § 804 h1 was lower case because the API's `heading` carries no
+class; the quoted section's heading was `display: inline`.
+
+Done: `details#contents` opens by default; `onlySection` and the
+`#text.section-body--whole` article; `titleClass` for the h1; a block
+`.uslm-heading.centered`; `source_sentence` at the end of `enacted_note`.
+
+Decision: ADR-0027.
+
+Verified: `uv run pytest` 573 passed; `vitest` 112 passed (with the new
+`toc.test.ts` and `titleClass` cases); `astro check` 0 errors. The reader run
+locally against the production API: `/app/us/pl/104/33` opens Contents and
+renders section 1; `/app/us/pl/98/181/tI/chI/tVIII/s804` has the h1 heading
+in `small-caps` and the quoted heading as a block; `/app/us/pl/118/22` opens
+Contents with no `#text`. `section.spec.ts` and `chrome.spec.ts` over that
+local reader: 23 passed; the 118-3 test's note assertion needs this API
+change deployed, or the dev stack.

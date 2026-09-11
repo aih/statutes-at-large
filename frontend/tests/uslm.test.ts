@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import type { Labels } from "../src/lib/types";
-import { hrefs, parseFragment, render, sliceElements } from "../src/lib/uslm";
+import { hrefs, parseFragment, render, sliceElements, titleClass } from "../src/lib/uslm";
 
 const NS = 'xmlns="http://schemas.gpo.gov/xml/uslm"';
 
@@ -248,5 +248,18 @@ describe("the fixtures", () => {
     expect(out).toContain('<a class="uslm-page" id="/us/stat/64/564" href="https://www.govinfo.gov/link/statute/64/564">64 Stat. 564</a>');
     expect(out).toContain('href="https://www.govinfo.gov/link/statute/64/565">64 Stat. 565</a>');
     expect(out).toContain('<aside class="uslm-sidenote" role="note">');
+  });
+});
+
+describe("titleClass", () => {
+  it("is smallCaps when the root's own heading carries it", () => {
+    const xml = `<section ${NS}><heading class="smallCaps centered">instructions</heading><num value="804">Sec. 804.</num></section>`;
+    expect(titleClass(parseFragment(xml))).toBe("smallCaps");
+  });
+
+  it("is null for a plain heading, and ignores headings below the root", () => {
+    expect(titleClass(parseFragment(`<section ${NS}><heading>Short title</heading></section>`))).toBeNull();
+    const nested = `<section ${NS}><content><quotedContent><section><heading class="smallCaps">x</heading></section></quotedContent></content></section>`;
+    expect(titleClass(parseFragment(nested))).toBeNull();
   });
 });

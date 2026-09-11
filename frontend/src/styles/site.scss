@@ -590,9 +590,16 @@ h2.group {
   margin: 0;
 }
 
-/* The section's own number and heading are the page's h1. */
-.section-body > .uslm-section > .uslm-num,
-.section-body > .uslm-section > .uslm-heading {
+/* A centered heading is a line of its own, above the number that follows. */
+.section-body .uslm-heading.centered {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* The section's own number and heading are the page's h1, except on a law or
+   a hierarchy node that shows its one section whole. */
+.section-body:not(.section-body--whole) > .uslm-section > .uslm-num,
+.section-body:not(.section-body--whole) > .uslm-section > .uslm-heading {
   display: none;
 }
 

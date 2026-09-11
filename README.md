@@ -67,8 +67,12 @@ summary are `public, max-age=300`. `HEAD` is not registered and answers 405.
 carries the same block, without the compiled-text comparison.
 
 Source: GovInfo `STATUTE` volume USLM from the Hub dataset
-`dreamproit/us-statutes-at-large` (`xmls/STATUTE-{n}.xml`). The volume files
-carry no identifiers; the loader assigns them by the rules in the OCR plan,
+`dreamproit/us-statutes-at-large` (`xmls/STATUTE-{n}.xml`), which holds
+GovInfo's files as GovInfo serves them. Volumes 1 to 116 were converted from the
+scanned volumes by GPO's digitization vendor (`processedBy` `Digitization
+Vendor`); volume 117 on, and every PLAW file, by GPO's locator-to-USLM
+converter. The last sentence of an enacted unit's `note` names the package and
+the converter (ADR-0027). The volume files carry no identifiers; the loader assigns them by the rules in the OCR plan,
 section 7 (`ingest/identifiers.py`, version `rules-1.0`), and stamps them into
 the stored XML. `provenance` on every response records `gpo-uslm` text and
 where the identifiers came from: `rules-1.0` (assigned by the volume loader),

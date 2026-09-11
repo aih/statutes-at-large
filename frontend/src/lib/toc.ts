@@ -3,7 +3,7 @@
  * finding a section's neighbours, and labelling a unit.
  */
 
-import type { Link } from "./types";
+import type { Link, TocEntry } from "./types";
 import { appHref } from "./url";
 
 export interface TocLike {
@@ -56,6 +56,14 @@ export function unitLabel(level: string, num: string | null): string {
   const word = LEVEL_WORDS[level] ?? level.charAt(0).toUpperCase() + level.slice(1);
   const parts = [word, num ?? ""].filter((part) => part !== "");
   return parts.join(" ");
+}
+
+/** The one section a law or a hierarchy node holds: its only child when that
+ * is a section, or the only section in a public law's toc. Null otherwise. */
+export function onlySection(children: TocEntry[], summary: { section_count: number; toc: TocEntry[] } | null): TocEntry | null {
+  if (children.length === 1 && children[0].is_section) return children[0];
+  if (summary?.section_count === 1) return summary.toc.find((entry) => entry.is_section) ?? null;
+  return null;
 }
 
 /** A unit's link text: its label and its heading when it has one. */

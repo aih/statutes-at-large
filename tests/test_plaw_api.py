@@ -36,7 +36,11 @@ def test_a_plaw_unit_says_where_it_came_from(client):
     assert body["provenance"]["text"] == "gpo-uslm" and body["provenance"]["identifiers"] == "gpo-uslm"
     assert body["note"].startswith(ENACTED_NOTE)
     assert "This section has been amended since; the most recent law recorded is Public Law 119-37" in body["note"]
-    assert body["note"].endswith("; the classification tables at uscode.house.gov for laws after November 17, 2023.")
+    assert "; the classification tables at uscode.house.gov for laws after November 17, 2023. " in body["note"]
+    assert body["note"].endswith(
+        "The text is from GovInfo package PLAW-118publ22, converted to USLM by GPO from its "
+        "typesetting (locator) files; the identifiers are GPO's."
+    )
     assert "the compiled text at" not in body["note"]
     # The index's source credits cite the section; no compilation of the law is loaded.
     assert [a["view"] for a in body["alternatives"]] == ["codified"]

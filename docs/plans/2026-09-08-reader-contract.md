@@ -61,6 +61,9 @@ Examples, from the dev database on 2026-09-08:
   source credits, the classification tables, and the Statute Compilations);
   amendment may still have occurred. To check for later amendments: the
   classification tables at uscode.house.gov for laws after August 30, 1950.`
+  Since ADR-0027 the note ends `The text is from GovInfo package STATUTE-64,
+  converted to USLM from the scanned volume by GPO's digitization vendor; the
+  identifiers below the law are assigned here by rule (rules-1.0).`
 - `/api/v1/us/act/1950-08-30/ch823/s3`: the same, prefixed by
   `/us/act/1950-08-30/ch823/s3 is served as /us/pl/81/740/s3, the same law
   under its other identifier.`

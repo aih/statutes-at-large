@@ -85,7 +85,33 @@ def enacted_note(result: UnitResult, *, compiled_link: str | None, codified: lis
     if codified:
         checks.append("the US Code section(s) classified from it at " + ", ".join(codified))
     checks.append(f"the classification tables at uscode.house.gov for laws after {date}")
-    return f"{first} {amended_sentence} To check for later amendments: " + "; ".join(checks) + "."
+    return (
+        f"{first} {amended_sentence} To check for later amendments: " + "; ".join(checks) + ". "
+        + source_sentence(law)
+    )
+
+
+LAST_DIGITIZED_VOLUME = 116
+"""The last volume whose USLM is marked `processedBy` `Digitization Vendor`.
+From volume 117, and in every PLAW file, it is `GPO Locator to USLM Converter`."""
+
+IDENTIFIER_CLAUSES = {
+    "rules-1.0": "the identifiers below the law are assigned here by rule (rules-1.0)",
+    "gpo-uslm": "the identifiers are GPO's",
+    "gpo-uslm+rules-1.0": "the identifiers are GPO's, and those GPO left out are assigned here by rule (rules-1.0)",
+}
+
+
+def source_sentence(law) -> str:
+    """Where the text came from: the GovInfo package, who converted it to
+    USLM, and who wrote the identifiers (`provenance_identifiers`)."""
+    if law.source_collection == "STATUTE" and law.stat_volume <= LAST_DIGITIZED_VOLUME:
+        made = "converted to USLM from the scanned volume by GPO's digitization vendor"
+    else:
+        made = "converted to USLM by GPO from its typesetting (locator) files"
+    identifiers = IDENTIFIER_CLAUSES.get(law.provenance_identifiers)
+    tail = f"; {identifiers}" if identifiers else ""
+    return f"The text is from GovInfo package {law.source_package}, {made}{tail}."
 
 
 INDEXES = "the US Code's source credits, the classification tables, and the Statute Compilations"
