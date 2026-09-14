@@ -93,8 +93,8 @@ describe("tables of contents", () => {
 
   it("finds the neighbouring sections across hierarchy", () => {
     expect(sectionNeighbors(toc, "/us/pl/118/22/dA/s101")).toEqual({
-      previous: { href: "/app/us/pl/118/22/s1", label: "Sec. 1 SHORT TITLE." },
-      next: { href: "/app/us/pl/118/22/dB/tI/s101", label: "Sec. 101 X" },
+      previous: { href: "/app/us/pl/118/22/s1", label: "Sec. 1", heading: "SHORT TITLE." },
+      next: { href: "/app/us/pl/118/22/dB/tI/s101", label: "Sec. 101", heading: "X" },
     });
     expect(sectionNeighbors(toc, "/us/pl/118/22/s1").previous).toBeNull();
     expect(sectionNeighbors(toc, "/us/pl/118/22/nope")).toEqual({ previous: null, next: null });

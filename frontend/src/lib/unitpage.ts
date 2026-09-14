@@ -6,10 +6,10 @@
  */
 
 import { ApiError, type CallOptions, fetchCitedBy, fetchLabels, fetchLawSummary, fetchUnit, fetchUnitXml } from "./api";
-import { NO_STORE, copiedCacheControl } from "./cache";
+import { NO_STORE, REVALIDATE } from "./cache";
 import { citedIdentifiers } from "./refs";
-import { onlySection, sectionNeighbors } from "./toc";
-import type { CitedBy, LawSummary, Link, TocEntry, Unit } from "./types";
+import { onlySection, type SectionLink, sectionNeighbors } from "./toc";
+import type { CitedBy, LawSummary, TocEntry, Unit } from "./types";
 import { hrefs, parseFragment, render, titleClass } from "./uslm";
 
 export interface Failure {
@@ -22,7 +22,6 @@ export interface UnitPageModel {
   identifier: string;
   unit: Unit | null;
   failure: Failure | null;
-  cacheControl: string | null;
   /** `/laws/{c}/{n}`, for a public law's law page and section page. */
   summary: LawSummary | null;
   /** The cited-by panel; null when the call failed or answered 404. */
@@ -34,7 +33,7 @@ export interface UnitPageModel {
   /** On a law or a hierarchy node whose contents are one section: that
    * section, rendered. Null otherwise or when its XML call failed. */
   onlySection: { entry: TocEntry; html: string } | null;
-  neighbors: { previous: Link | null; next: Link | null };
+  neighbors: { previous: SectionLink | null; next: SectionLink | null };
   /** A private law's or an act's nearest ancestor's `children` — the rail's
    * "In this law" list on a section that has no `/laws/{c}/{n}` toc. Empty
    * for a public law's section, where the rail uses the law summary's `toc`
@@ -52,14 +51,14 @@ export function describeFailure(error: unknown): Failure {
 /** Sets the status and the headers on the page's response. */
 export function applyResponse(
   response: { status?: number; headers: Headers },
-  page: { failure: Failure | null; cacheControl: string | null },
+  page: { failure: Failure | null },
 ): void {
   if (page.failure) {
     response.status = page.failure.status;
     response.headers.set("Cache-Control", NO_STORE);
     if (page.failure.retryAfter) response.headers.set("Retry-After", page.failure.retryAfter);
   } else {
-    response.headers.set("Cache-Control", copiedCacheControl(page.cacheControl));
+    response.headers.set("Cache-Control", REVALIDATE);
   }
 }
 
@@ -79,7 +78,6 @@ export async function loadUnitPage(identifier: string, options: CallOptions = {}
     identifier,
     unit: null,
     failure: null,
-    cacheControl: null,
     summary: null,
     citedBy: null,
     sectionHtml: null,
@@ -94,7 +92,6 @@ export async function loadUnitPage(identifier: string, options: CallOptions = {}
     const answer = await fetchUnit(identifier, options);
     unit = answer.body;
     model.unit = unit;
-    model.cacheControl = answer.cacheControl;
   } catch (error) {
     model.failure = describeFailure(error);
     return model;

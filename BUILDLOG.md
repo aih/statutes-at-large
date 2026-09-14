@@ -791,3 +791,40 @@ in `small-caps` and the quoted heading as a block; `/app/us/pl/118/22` opens
 Contents with no `#text`. `section.spec.ts` and `chrome.spec.ts` over that
 local reader: 23 passed; the 118-3 test's note assertion needs this API
 change deployed, or the dev stack.
+
+## 2026-09-14 — reader pages cached for five minutes, lower-case headings in small caps
+
+Asked: the small-caps h1 of `/app/us/pl/98/181/tI/chI/tVIII/s805` appeared
+only after a hard refresh; review the caching policy so a changed stylesheet
+reaches a reader on the next page. Set the headings in previous and next and
+in the rail in small caps too.
+
+Found: local `main` was 15 commits behind `origin/main` (ADR-0027 was in PR
+#4); the branch is cut from `origin/main`. A unit page copied the API's
+`Cache-Control`, so the section's HTML was `public, max-age=31536000,
+immutable` and kept naming the earlier stylesheet hash. The toc entries the
+rail, Contents and neighbours print carry `heading` text only. Across the 17
+volume files in `data/statute` and the PLAW zips for congresses 113 to 119,
+6,380 of 6,533 lower-case section headings are `smallCaps` and 293 of 65,984
+headings with a capital letter are (the table is in ADR-0028). No test
+fixture has a lower-case heading.
+
+Done: `lib/cache.ts` keeps `REVALIDATE` and `NO_STORE`; the enacted unit
+pages and the compiled pages set `max-age=300` on a 200. `smallCapsClass` in
+`lib/toc.ts`; the h1 of a node, a section and a compiled unit, `TocList`,
+`RailList`, `Neighbors` and `SearchResult` print the heading in its own span
+with that class. `sectionNeighbors` returns `label` and `heading` apart;
+`unitLinkText` is gone. The reader contract, ADR-0027's status line and
+CLAUDE.md follow.
+
+Decision: ADR-0028.
+
+Verified: `vitest` 115 passed; `astro check` 0 errors; `astro build`. The
+reader run locally against the production API: s805 answers
+`Cache-Control: public, max-age=300`, the h1, previous, next and the current
+rail link carry `smallCaps`, and title VIII's Contents headings do;
+`/app/us/sComp/51/647` answers `max-age=300`. `section.spec.ts`,
+`chrome.spec.ts` and `stat.spec.ts` over that local reader: 27 passed, 1
+failed (the 118-3 note assertion: production serves 118-3 from PLAW, the
+fixture database from the volume). `uv run pytest` not run: no Python
+changed.

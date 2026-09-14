@@ -1,7 +1,9 @@
 # ADR-0027: Contents open, a lone section shown on its parent's page, and the note's source sentence
 
 Date: 2026-09-11. Status: accepted. Amends ADR-0014 (the reader) and design
-section 4 (the as-enacted note).
+section 4 (the as-enacted note). Decision 3 is amended by ADR-0028: the
+table of contents, the rail, previous and next, and search results set a
+lower-case heading in small caps.
 
 ## Context
 
