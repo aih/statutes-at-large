@@ -76,6 +76,11 @@ const layoutClass = hasRail ? "reader-layout" : "reader-layout reader-layout--si
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content="Public laws from the Statutes at Large and the Statute Compilations, at the section level." />
+    {/* The tab mark is the API's (`main.py`), at the root; the apple-touch
+        icon is rendered from it by `scripts/icons.py` into `public/icons/`. */}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="mask-icon" href="/favicon.svg" color="#1a4480" />
+    <link rel="apple-touch-icon" href="/app/icons/apple-touch-icon-180.png" />
   </head>
   <body>
     <a class="usa-skipnav" href="#main">Skip to main content</a>

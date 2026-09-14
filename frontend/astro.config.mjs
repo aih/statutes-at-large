@@ -63,7 +63,7 @@ export default defineConfig({
       // The dev server strips `base` before the proxy sees a URL, so a request
       // that began with `/app/` is left to Astro whatever path remains.
       proxy: Object.fromEntries(
-        ["/api/v1", "/health", "/docs", "/openapi.json"].map((path) => [
+        ["/api/v1", "/health", "/docs", "/redoc", "/openapi.json", "/favicon"].map((path) => [
           `^${path}`,
           {
             target: API,
