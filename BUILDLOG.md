@@ -828,3 +828,34 @@ rail link carry `smallCaps`, and title VIII's Contents headings do;
 failed (the 118-3 note assertion: production serves 118-3 from PLAW, the
 fixture database from the volume). `uv run pytest` not run: no Python
 changed.
+
+## 2026-09-14 — the favicon
+
+Asked: review the favicon and branding of uscode.linkedlegislation.org and
+make the equivalent for this site: a single section sign, in the US Code
+site's colours.
+
+Found: the US Code site serves `static/favicon.svg` from its API at the root,
+a white "USC" on `#1a4480` with a 6/64 corner radius and `#2670c4` under a
+dark colour scheme; the reader links it with `mask-icon` and an apple-touch
+icon rendered by `scripts/icons.py`. Its header brand is the text "United
+States Code", no image, as this site's "Statutes at Large" is. This site had
+no favicon, and FastAPI's stock `/docs` and `/redoc` named
+fastapi.tiangolo.com's.
+
+Done: `static/favicon.svg`, the same card and colours with one § in Georgia
+Bold (font-size 63, baseline 51: ink 52 units tall, centred). Helvetica Bold
+and Times Bold were rendered beside it at 16, 32, 64 and 180 px; Helvetica's §
+reads as an S at 16 px, Times' strokes thin out. `main.py` serves
+`/favicon.svg` (`max-age=86400`), answers `/favicon.ico` with a 301, and
+replaces the stock docs pages with ones naming the favicon (the Swagger and
+ReDoc bundles still come from jsdelivr). `Base.astro` links the icon,
+`mask-icon` and `/app/icons/apple-touch-icon-180.png`, which
+`scripts/icons.py` renders from the SVG. The dev proxy passes `/redoc` and
+`/favicon`.
+
+Verified: `uv run pytest` 578 passed (`tests/test_favicon.py` parses the
+served SVG as XML, checks the 301, both docs pages, and the PNG's 180 × 180
+header); `vitest` 115 passed; `astro check` 0 errors; `astro build` carries
+`icons/apple-touch-icon-180.png`. The SVG rendered with cairosvg at 16, 32 and
+64 px was looked at. Not seen in a browser tab.

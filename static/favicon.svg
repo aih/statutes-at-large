@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="§">
+  <title>Statutes at Large</title>
+  <!--
+    The tab mark. Served at /favicon.svg by the API (main.py), linked from every
+    reader page (Base.astro) and from the two API docs pages. The PNG app icon
+    in frontend/public/icons is rendered from this file by scripts/icons.py.
+
+    The colours and the card are the US Code site's favicon: USWDS
+    primary-darker with white lettering, a 6/64 corner radius, and a lighter
+    blue under a dark colour scheme. That site's mark is the letters USC; this
+    one is a single section sign in a bold serif.
+
+    The glyph is text, not a path. Georgia Bold was measured with cairosvg: at
+    font-size 63 its ink is 52 units tall and 28 wide, centred on the card with
+    the baseline at y 51.
+
+    An SVG comment must not contain a double hyphen. The file is parsed as XML,
+    and a parse error is a blank tab.
+  -->
+  <style>
+    .bg { fill: #1a4480; }
+    .fg { fill: #ffffff; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #2670c4; }
+    }
+  </style>
+  <rect class="bg" width="64" height="64" rx="6" />
+  <text
+    class="fg"
+    x="32"
+    y="51"
+    text-anchor="middle"
+    font-family="Georgia, Times New Roman, Times, serif"
+    font-size="63"
+    font-weight="700"
+  >§</text>
+</svg>

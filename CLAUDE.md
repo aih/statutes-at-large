@@ -130,6 +130,7 @@ make dev-data                    load volumes 64 and 124 with reports
 make load-all                    all 137 volumes (resumable per volume)
 make test / test-slow / test-all pytest over SQLite; the slow set parses whole volumes
 make fixtures                    regenerate the committed slices
+DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib uv run --with cairosvg python scripts/icons.py   the apple-touch icon from static/favicon.svg
 make up                          the compose stack with Caddy on :8010
 python -m ingest statute PATH… --report docs/verification
 python -m ingest fetch-statute 64 72 [--if-changed]   the Hub tree listing against the files on disk

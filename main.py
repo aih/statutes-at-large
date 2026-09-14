@@ -8,8 +8,15 @@ answered by the `Repository` behind `storage/`.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse, Response
+from fastapi.openapi.docs import (
+    get_redoc_html,
+    get_swagger_ui_html,
+    get_swagger_ui_oauth2_redirect_html,
+)
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 
 from api.cite import cite_router
 from api.cited_by import cited_by_router
@@ -42,11 +49,18 @@ The bare citation URL (`/us/pl/81/740/s3`) is a **307 redirect** to whichever
 surface the caller can read, so `curl` it with `-L` or address `/api/v1`.
 """
 
+STATIC = Path(__file__).resolve().parent / "static"
+FAVICON = "/favicon.svg"
+
+# FastAPI's own docs pages are turned off so the two below can name the site's
+# favicon; the stock pages name fastapi.tiangolo.com's.
 app = FastAPI(
     title="statutes-linkedlegislation",
     version=SITE_VERSION,
     summary="Statutes at Large and Statute Compilations, by the identifiers the US Code cites.",
     description=DESCRIPTION,
+    docs_url=None,
+    redoc_url=None,
 )
 
 app.include_router(api)
@@ -55,6 +69,47 @@ app.include_router(cited_by_router)
 app.include_router(cite_router)
 app.include_router(search_router)
 app.include_router(citation_router)
+
+
+@app.get("/docs", include_in_schema=False)
+def swagger_ui() -> HTMLResponse:
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url or "/openapi.json",
+        title=f"{app.title} — Swagger UI",
+        oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+        swagger_favicon_url=FAVICON,
+    )
+
+
+@app.get(app.swagger_ui_oauth2_redirect_url or "/docs/oauth2-redirect", include_in_schema=False)
+def swagger_ui_redirect() -> HTMLResponse:
+    """The path Swagger UI's configuration names; `docs_url=None` unmounts it."""
+    return get_swagger_ui_oauth2_redirect_html()
+
+
+@app.get("/redoc", include_in_schema=False)
+def redoc() -> HTMLResponse:
+    return get_redoc_html(
+        openapi_url=app.openapi_url or "/openapi.json",
+        title=f"{app.title} — ReDoc",
+        redoc_favicon_url=FAVICON,
+    )
+
+
+@app.get(FAVICON, include_in_schema=False)
+def favicon() -> FileResponse:
+    """The tab mark for the reader and both docs pages, cached for a day."""
+    return FileResponse(
+        STATIC / "favicon.svg",
+        media_type="image/svg+xml",
+        headers={"Cache-Control": "public, max-age=86400"},
+    )
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon_ico() -> Response:
+    """A 301 to `/favicon.svg`."""
+    return Response(status_code=301, headers={"Location": FAVICON})
 
 
 @app.get("/health", tags=["ops"], summary="Liveness check")
