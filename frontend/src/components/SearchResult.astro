@@ -4,7 +4,7 @@
  * snippets, and the citation with the enacted date. */
 import { highlightSnippet } from "../lib/search";
 import type { SearchResultItem } from "../lib/types";
-import { unitLabel } from "../lib/toc";
+import { smallCapsClass, unitLabel } from "../lib/toc";
 import { appHref, longDate } from "../lib/url";
 
 interface Props {
@@ -12,7 +12,8 @@ interface Props {
 }
 
 const { result } = Astro.props;
-const unitText = [unitLabel(result.level ?? "", result.num), result.heading].filter(Boolean).join(" ").trim();
+const label = unitLabel(result.level ?? "", result.num);
+const heading = result.heading?.trim() || null;
 ---
 
 <li class="searchresult">
@@ -21,7 +22,12 @@ const unitText = [unitLabel(result.level ?? "", result.num), result.heading].fil
     {result.view === "compiled" && <span class="usa-tag">Compiled</span>}
   </p>
   <h3>
-    <a href={result.url}>{unitText || result.identifier}</a>
+    <a href={result.url}>
+      {label}
+      {label && heading && " "}
+      {heading && <span class={smallCapsClass(heading)}>{heading}</span>}
+      {!label && !heading && result.identifier}
+    </a>
   </h3>
   {
     result.snippets.map((snippet) => (

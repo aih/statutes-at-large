@@ -16,10 +16,10 @@ import TocList from "../../../components/TocList.astro";
 import VersionPicker from "../../../components/VersionPicker.astro";
 import Base from "../../../layouts/Base.astro";
 import { ApiError, fetchCompUnit, fetchCompUnitXml, fetchLabels } from "../../../lib/api";
-import { NO_STORE, copiedCacheControl } from "../../../lib/cache";
+import { NO_STORE, REVALIDATE } from "../../../lib/cache";
 import { clientAddressOf, identifierParam } from "../../../lib/params";
 import { citedIdentifiers } from "../../../lib/refs";
-import { nestToc, unitLabel } from "../../../lib/toc";
+import { nestToc, smallCapsClass, unitLabel } from "../../../lib/toc";
 import type { CompUnit, Link } from "../../../lib/types";
 import { APP, apiHref, appHref, uscodeHref } from "../../../lib/url";
 import { hrefs, parseFragment, render } from "../../../lib/uslm";
@@ -36,11 +36,9 @@ interface Failure {
 
 let unit: CompUnit | null = null;
 let failure: Failure | null = null;
-let cacheControl: string | null = null;
 try {
   const answer = await fetchCompUnit(identifier, through, call);
   unit = answer.body;
-  cacheControl = answer.cacheControl;
 } catch (error) {
   if (error instanceof ApiError) {
     failure = { status: error.status, detail: error.detail, retryAfter: error.retryAfter };
@@ -54,7 +52,7 @@ if (failure) {
   Astro.response.headers.set("Cache-Control", NO_STORE);
   if (failure.retryAfter) Astro.response.headers.set("Retry-After", failure.retryAfter);
 } else {
-  Astro.response.headers.set("Cache-Control", copiedCacheControl(cacheControl));
+  Astro.response.headers.set("Cache-Control", REVALIDATE);
 }
 
 const isSection = unit?.level === "section";
@@ -145,7 +143,7 @@ const up = upLink();
           ) : (
             <>
               <span class="doc-title__num">{unitLabel(unit.level, unit.num)}</span>
-              {unit.heading}
+              {unit.heading && <span class={smallCapsClass(unit.heading)}>{unit.heading}</span>}
             </>
           )}
         </h1>

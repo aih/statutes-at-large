@@ -66,10 +66,17 @@ export function onlySection(children: TocEntry[], summary: { section_count: numb
   return null;
 }
 
-/** A unit's link text: its label and its heading when it has one. */
-export function unitLinkText(entry: { level: string; num: string | null; heading: string | null }): string {
-  const label = unitLabel(entry.level, entry.num);
-  return entry.heading ? `${label} ${entry.heading}`.trim() : label || entry.heading || "";
+/** `smallCaps` for a heading that has lower-case letters and no capitals,
+ * else undefined. The volume and PLAW USLM type a small-caps heading in lower
+ * case (`<heading class="smallCaps">elimination of …</heading>`); the API's
+ * `heading` is that text without the class. */
+export function smallCapsClass(heading: string | null | undefined): "smallCaps" | undefined {
+  return heading && /\p{Ll}/u.test(heading) && !/\p{Lu}/u.test(heading) ? "smallCaps" : undefined;
+}
+
+/** A section link: `label` is the unit label, `heading` the heading printed after it. */
+export interface SectionLink extends Link {
+  heading: string | null;
 }
 
 /** The sections before and after `identifier` among the `is_section`
@@ -77,11 +84,11 @@ export function unitLinkText(entry: { level: string; num: string | null; heading
 export function sectionNeighbors(
   entries: TocLike[],
   identifier: string,
-): { previous: Link | null; next: Link | null } {
+): { previous: SectionLink | null; next: SectionLink | null } {
   const sections = entries.filter((entry) => entry.is_section);
   const at = sections.findIndex((entry) => entry.identifier === identifier);
-  const link = (entry: TocLike | undefined): Link | null =>
-    entry ? { href: appHref(entry.identifier), label: unitLinkText(entry) } : null;
+  const link = (entry: TocLike | undefined): SectionLink | null =>
+    entry ? { href: appHref(entry.identifier), label: unitLabel(entry.level, entry.num), heading: entry.heading } : null;
   if (at === -1) return { previous: null, next: null };
   return { previous: link(sections[at - 1]), next: link(sections[at + 1]) };
 }

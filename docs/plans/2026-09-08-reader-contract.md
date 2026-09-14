@@ -188,6 +188,11 @@ A hierarchy node, a section, or a provision. Calls `GET /api/v1{identifier}`
   act, the neighbouring sections among the nearest ancestor's `children`
   (`GET /api/v1{ancestors[-1].identifier}`, or the law when there is none).
   Both links are `/app{identifier}`.
+- Headings in small caps: a `heading` with lower-case letters and no
+  capital letters is printed in small caps (`lib/toc.ts: smallCapsClass`) in
+  the h1, the table of contents, the rail, previous and next, and a search
+  result. The section h1 also takes `smallCaps` from its XML heading
+  (ADR-0027, ADR-0028).
 - Cross references inside the rendered text (`ref/@href`): collected from
   the fragment, deduplicated, looked up with `POST /api/v1/labels` at most
   100 per request (`{"identifiers": […]}`), and resolved by the rules in
@@ -227,8 +232,8 @@ picker: one link per entry of `versions`, labelled `current_through.pl` and
 `/app{identifier}?through={current_through.pl}`. `alternatives` with
 `view: "enacted"` is the enacted counterpart link (`/app{identifier}`);
 `codified` links to the US Code site. Cross references resolve by the same
-rules as the enacted section. `Cache-Control` follows the API: the page is
-cacheable for a year only when the API answered `immutable`.
+rules as the enacted section. `Cache-Control` is `max-age=300` on a 200
+whatever the API sent (ADR-0028).
 
 ### `/app/us/stat/{vol}/{page}`
 
@@ -324,7 +329,9 @@ search cluster unavailable) renders `detail` with status 503.
 
 ## Caching
 
-The reader copies the API's `Cache-Control` for a unit page (`immutable` for
-an enacted unit and a pinned compilation, `max-age=300` otherwise) and sets
-`max-age=300` on `/app/`, the stat page, `/app/search` (a 200) and
-`/app/search/syntax`. `/app/search` is `no-store` on a 400, 429 or 503.
+Every reader page that answers 200 is `public, max-age=300`: `/app/`, the
+enacted unit pages, the compiled pages, the stat page, `/app/search` and
+`/app/search/syntax`. The API's `Cache-Control` is not copied (ADR-0028).
+Error pages are `private, no-store`, and `/app/search` is `no-store` on a
+400, 429 or 503. The hashed assets under `/app/_astro/` are
+`public, max-age=31536000, immutable`.

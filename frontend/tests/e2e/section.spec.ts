@@ -8,7 +8,7 @@ import { expect, test } from "@playwright/test";
 test("prints the API's note verbatim and renders the text", async ({ page }) => {
   const response = await page.goto("/app/us/pl/81/740/s3");
   expect(response?.status()).toBe(200);
-  expect(response?.headers()["cache-control"]).toBe("public, max-age=31536000, immutable");
+  expect(response?.headers()["cache-control"]).toBe("public, max-age=300");
 
   await expect(page.locator("h1")).toHaveCount(1);
   await expect(page.locator(".note")).toContainText(

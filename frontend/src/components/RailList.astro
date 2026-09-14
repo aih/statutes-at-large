@@ -8,7 +8,7 @@
  * other.
  */
 import type { RailNode } from "../lib/rail";
-import { unitLabel } from "../lib/toc";
+import { smallCapsClass, unitLabel } from "../lib/toc";
 import { appHref } from "../lib/url";
 
 interface Props {
@@ -24,11 +24,13 @@ const { nodes, current } = Astro.props;
     nodes.map((node) => {
       const here = node.entry.identifier === current;
       const label = unitLabel(node.entry.level, node.entry.num);
-      const text = node.entry.heading ? `${label} ${node.entry.heading}`.trim() : label;
+      const heading = node.entry.heading;
       return (
         <li>
           <a class="rail__link" href={appHref(node.entry.identifier)} aria-current={here ? "page" : undefined}>
-            {text}
+            {label}
+            {label && heading && " "}
+            {heading && <span class={smallCapsClass(heading)}>{heading}</span>}
           </a>
           {node.children.length > 0 && (
             <details class="rail__details" open={node.open}>

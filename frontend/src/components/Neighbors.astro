@@ -1,10 +1,14 @@
 ---
-/** Previous and next section. */
+/** Previous and next section: the unit label, then the heading, in small caps
+ * when `smallCapsClass` says so. */
 import type { Link } from "../lib/types";
+import { smallCapsClass } from "../lib/toc";
+
+type Neighbor = Link & { heading?: string | null };
 
 interface Props {
-  previous: Link | null;
-  next: Link | null;
+  previous: Neighbor | null;
+  next: Neighbor | null;
 }
 
 const { previous, next } = Astro.props;
@@ -17,7 +21,11 @@ const { previous, next } = Astro.props;
         {previous && (
           <a href={previous.href} rel="prev">
             <span class="neighbors__dir">Previous</span>
-            <span>{previous.label}</span>
+            <span>
+              {previous.label}
+              {previous.label && previous.heading && " "}
+              {previous.heading && <span class={smallCapsClass(previous.heading)}>{previous.heading}</span>}
+            </span>
           </a>
         )}
       </div>
@@ -25,7 +33,11 @@ const { previous, next } = Astro.props;
         {next && (
           <a href={next.href} rel="next">
             <span class="neighbors__dir">Next</span>
-            <span>{next.label}</span>
+            <span>
+              {next.label}
+              {next.label && next.heading && " "}
+              {next.heading && <span class={smallCapsClass(next.heading)}>{next.heading}</span>}
+            </span>
           </a>
         )}
       </div>

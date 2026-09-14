@@ -1,7 +1,7 @@
 ---
 /** A table of contents, nested by level, every entry linked to `/app{identifier}`. */
 import type { TocNode } from "../lib/toc";
-import { unitLabel } from "../lib/toc";
+import { smallCapsClass, unitLabel } from "../lib/toc";
 import { appHref } from "../lib/url";
 
 interface Props {
@@ -19,7 +19,7 @@ const { nodes, query } = Astro.props;
         <li>
           <a href={appHref(node.entry.identifier, query)}>
             <span class="toc__num">{unitLabel(node.entry.level, node.entry.num)}</span>
-            <span class="toc__heading">{node.entry.heading}</span>
+            <span class:list={["toc__heading", smallCapsClass(node.entry.heading)]}>{node.entry.heading}</span>
           </a>
           {node.children.length > 0 && <Astro.self nodes={node.children} query={query} />}
         </li>

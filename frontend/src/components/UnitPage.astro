@@ -30,7 +30,7 @@ import Pages from "./Pages.astro";
 import Provenance from "./Provenance.astro";
 import TocList from "./TocList.astro";
 import Base from "../layouts/Base.astro";
-import { nestToc, unitLabel } from "../lib/toc";
+import { nestToc, smallCapsClass, unitLabel } from "../lib/toc";
 import type { Link, Page, TocEntry } from "../lib/types";
 import type { UnitPageModel } from "../lib/unitpage";
 import { APP, apiHref, appHref, longDate, parseStatPage } from "../lib/url";
@@ -225,7 +225,7 @@ const up = upLink();
       <>
         <h1 class="doc-title">
           <span class="doc-title__num">{unitLabel(unit.level, unit.num)}</span>
-          {unit.heading}
+          {unit.heading && <span class={smallCapsClass(unit.heading)}>{unit.heading}</span>}
         </h1>
         <p class="doc-meta">{unit.law.label}</p>
         <Note note={unit.note} />
@@ -263,7 +263,7 @@ const up = upLink();
       <>
         <h1 class="doc-title">
           <span class="doc-title__num">{unitLabel(unit.level, unit.num)}</span>
-          {headingClass ? <span class={headingClass}>{unit.heading}</span> : unit.heading}
+          {unit.heading && <span class={headingClass ?? smallCapsClass(unit.heading)}>{unit.heading}</span>}
         </h1>
         <p class="doc-meta">
           {unit.law.label}
