@@ -878,3 +878,9 @@ span). `main:app` against a local OTLP receiver with the compose variables:
 POSTs to `/v1/traces` and `/v1/metrics`, the `Authorization` header arriving
 as `Basic abc`, `statutes-api` in the resource, and the sampler
 `ParentBased{root:TraceIdRatioBased{0.25}}`.
+
+Then: the token is kept in the US Code repository's GitHub secrets. Its deploy
+writes them to SSM Parameter Store (`/uscode/otel/*`); `deploy/otel-env.sh`,
+run by `deploy-on-box.sh`, copies them into `.env` with the instance role both
+sites run under. Checked against a stub `aws`: the two lines replaced, the
+rest of `.env` and its mode kept; a failed read leaves `.env` as it was.

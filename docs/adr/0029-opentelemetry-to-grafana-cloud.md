@@ -32,6 +32,11 @@ address or User-Agent. This repository locked 0.141.1, which has no
    60 s metric interval; the endpoint and its `Authorization` header come from
    `.env`.
 3. Traces are sampled at 25%. Metrics and logs are not sampled.
+4. The endpoint and header are GitHub secrets of aih/uscode-redesign. Its
+   deploy writes them to SSM Parameter Store at `/uscode/otel/endpoint` and
+   `/uscode/otel/headers`; `deploy/otel-env.sh`, run by `deploy-on-box.sh`,
+   reads them with the box's instance role, which this site's deploy shares,
+   and rewrites the two lines in `.env`. This repository holds no copy.
 
 ## Consequences
 

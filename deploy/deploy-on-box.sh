@@ -60,6 +60,9 @@ else
     echo "IMAGE_TAG=${TAG}" >> .env
 fi
 
+# The Grafana Cloud endpoint and header (ADR-0029), from SSM Parameter Store.
+bash deploy/otel-env.sh .env
+
 echo "=== pulling images ==="
 $COMPOSE pull api frontend
 
