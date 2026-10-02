@@ -82,6 +82,17 @@ services:
       # network and presents the OpenSearch image's self-signed certificate,
       # which names neither `opensearch` nor `search-relay`.
       SEARCH_VERIFY_CERTS: "false"
+      # FastAPI's built-in OpenTelemetry (ADR-0029), to the same Grafana Cloud
+      # stack as the US Code site. The endpoint and its Authorization header
+      # are the two lines the stack's OpenTelemetry tile prints, typed into
+      # .env; unset, nothing is exported.
+      OTEL_SERVICE_NAME: statutes-api
+      OTEL_RESOURCE_ATTRIBUTES: deployment.environment=prod,service.version=${IMAGE_TAG:-latest}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      OTEL_TRACES_SAMPLER: parentbased_traceidratio
+      OTEL_TRACES_SAMPLER_ARG: "0.25"
+      OTEL_METRIC_EXPORT_INTERVAL: "60000"
     expose:
       - "8001"
     volumes:

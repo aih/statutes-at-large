@@ -859,3 +859,28 @@ served SVG as XML, checks the 301, both docs pages, and the PNG's 180 × 180
 header); `vitest` 115 passed; `astro check` 0 errors; `astro build` carries
 `icons/apple-touch-icon-180.png`. The SVG rendered with cairosvg at 16, 32 and
 64 px was looked at. Not seen in a browser tab.
+
+## 2026-10-02 — OpenTelemetry to Grafana Cloud
+
+Asked: review FastAPI's new built-in OpenTelemetry for this site and the US
+Code site, plan telemetry with a dashboard behind a GitHub login; plan
+approved, carry out the first phase.
+
+Done (ADR-0029): FastAPI 0.141.1 → 0.142.2 with the `opentelemetry` extra
+(OpenTelemetry SDK and OTLP/HTTP exporter 1.45.0); `main.py` excludes
+`/health`; the api service in `docker-compose.prod.yml` exports as
+`statutes-api` when `.env` carries the Grafana Cloud endpoint and header,
+traces sampled at 25%. `.env.example` documents the two lines.
+
+Verified: `uv run pytest` 581 passed, three of them `tests/test_telemetry.py`
+(the server span carries `/api/v1/us/pl/{identifier}`; `/health` makes no
+span). `main:app` against a local OTLP receiver with the compose variables:
+POSTs to `/v1/traces` and `/v1/metrics`, the `Authorization` header arriving
+as `Basic abc`, `statutes-api` in the resource, and the sampler
+`ParentBased{root:TraceIdRatioBased{0.25}}`.
+
+Then: the token is kept in the US Code repository's GitHub secrets. Its deploy
+writes them to SSM Parameter Store (`/uscode/otel/*`); `deploy/otel-env.sh`,
+run by `deploy-on-box.sh`, copies them into `.env` with the instance role both
+sites run under. Checked against a stub `aws`: the two lines replaced, the
+rest of `.env` and its mode kept; a failed read leaves `.env` as it was.

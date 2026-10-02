@@ -8,7 +8,9 @@ answered by the `Repository` behind `storage/`.
 
 from __future__ import annotations
 
+from collections.abc import MutableMapping
 from pathlib import Path
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.openapi.docs import (
@@ -17,6 +19,7 @@ from fastapi.openapi.docs import (
     get_swagger_ui_oauth2_redirect_html,
 )
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
+from fastapi.telemetry import TelemetryConfig
 
 from api.cite import cite_router
 from api.cited_by import cited_by_router
@@ -52,6 +55,17 @@ surface the caller can read, so `curl` it with `-L` or address `/api/v1`.
 STATIC = Path(__file__).resolve().parent / "static"
 FAVICON = "/favicon.svg"
 
+
+def _untraced(scope: MutableMapping[str, Any]) -> bool:
+    """`/health` is polled every 10s by Docker and by the watchdog."""
+    return scope["path"] == "/health"
+
+
+# FastAPI's built-in OpenTelemetry (ADR-0029). It exports only when
+# OTEL_EXPORTER_OTLP_ENDPOINT is set, which it is on the box alone; the rest of
+# the export (service name, sampler, credentials) is OTEL_* in the environment.
+TELEMETRY: TelemetryConfig = {"exclude": _untraced}
+
 # FastAPI's own docs pages are turned off so the two below can name the site's
 # favicon; the stock pages name fastapi.tiangolo.com's.
 app = FastAPI(
@@ -61,6 +75,7 @@ app = FastAPI(
     description=DESCRIPTION,
     docs_url=None,
     redoc_url=None,
+    telemetry=TELEMETRY,
 )
 
 app.include_router(api)
