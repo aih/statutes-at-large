@@ -5,7 +5,7 @@ description = "Statutes at Large and Statute Compilations, served by the identif
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.13",
-    "fastapi>=0.115",
+    "fastapi[opentelemetry]>=0.142.2",
     "httpx>=0.27",
     "lxml>=5.2",
     "opensearch-py>=3.2",
