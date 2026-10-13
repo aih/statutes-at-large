@@ -21,7 +21,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 
 from api.comps import origins
-from api.schemas import CiteOut, ErrorOut
+from api.schemas import CiteOut, ErrorOut, PendingLawOut
 from citeparse import ParsedCitation, parse_citation
 from params import (
     REVALIDATE,
@@ -29,6 +29,7 @@ from params import (
     cite_chapter_not_on_page,
     cite_not_a_citation,
     cite_note,
+    cite_pending,
     if_none_match,
     public_cache,
     rate_limit,
@@ -75,9 +76,11 @@ def _resolve_unit(
 ) -> CiteOut:
     found = repository.labels([identifier]).get(identifier)
     if found is None:
+        pending, message = _pending(repository, parsed)
         return CiteOut.of(
             parsed, query, identifier=identifier, section_identifier=section_identifier, kind=kind, label=label,
             exists=False, note=cite_note(label=label, identifier=identifier, kind=kind, exists=False),
+            message=message, pending=pending,
         )
     message = None
     if found.resolution == "prefix" and parsed.subdivisions:
@@ -104,6 +107,26 @@ def _resolve_unit(
         ),
         message=message,
     )
+
+
+def _pending(repository: Repository, parsed: ParsedCitation) -> tuple[PendingLawOut | None, str | None]:
+    """A public law Congress.gov lists as enacted and this site has not
+    loaded (ADR-0030), and the sentence that says so."""
+    if parsed.kind != "pl" or parsed.law_identifier is None:
+        return None, None
+    law = repository.pending_law(parsed.law_identifier)
+    if law is None:
+        return None, None
+    out = PendingLawOut(
+        identifier=law.identifier,
+        bill=law.bill_label,
+        title=law.title,
+        action_date=law.action_date,
+        url=law.congress_gov_url,
+        checked_at=law.checked_at,
+    )
+    label = f"Public Law {law.congress}-{law.number}"
+    return out, cite_pending(label=label, bill=out.bill, url=out.url)
 
 
 def _resolve_page(repository: Repository, parsed: ParsedCitation, query: str) -> CiteOut:

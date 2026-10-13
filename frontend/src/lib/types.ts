@@ -360,6 +360,19 @@ export interface Cite {
   url: string | null;
   note: string;
   message: string | null;
+  /** On a miss: a public law Congress.gov lists as enacted whose text is not loaded yet (ADR-0030). */
+  pending: PendingLaw | null;
+}
+
+export interface PendingLaw {
+  identifier: string;
+  /** `H.R. 1234`. */
+  bill: string;
+  title: string | null;
+  action_date: string | null;
+  /** The bill's page on Congress.gov. */
+  url: string;
+  checked_at: string;
 }
 
 // --------------------------------------------------------------- compiled

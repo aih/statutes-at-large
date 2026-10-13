@@ -39,3 +39,10 @@ test("text that is not a citation redirects to search, the query prefilled", asy
   await expect(page).toHaveURL(/\/app\/search\?q=garbage$/u);
   await expect(page.locator("header input[name=q]")).toHaveValue("garbage");
 });
+
+test("a bare law number lands on the public law", async ({ page }) => {
+  await page.goto("/app/");
+  await page.fill(BOX, "81-740");
+  await page.press(BOX, "Enter");
+  await expect(page).toHaveURL(/\/app\/us\/pl\/81\/740$/u);
+});

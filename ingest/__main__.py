@@ -10,6 +10,7 @@
     python -m ingest classifications                 # the classification tables mirror (ingest/classifications.py)
     python -m ingest plaw fetch 113-119              # PLAW bulk-data zips into data/plaw
     python -m ingest plaw load 118 --report docs/verification   # public laws from the zips (ingest/plaw.py)
+    python -m ingest plaw pending                    # enacted public laws whose text is not published yet (ingest/plaw_pending.py)
     python -m ingest reindex-search [--if-changed] [--since YYYY-MM-DD] [--recreate]   # the OpenSearch index (ingest/reindex_search.py)
 """
 
@@ -197,6 +198,10 @@ def main(argv: list[str] | None = None) -> int:
         add_poll_command = None
     if add_poll_command is not None:
         add_poll_command(plaw_commands)
+
+    from ingest.plaw_pending import add_pending_command
+
+    add_pending_command(plaw_commands)
 
     from ingest.reindex_search import add_reindex_search_command
 

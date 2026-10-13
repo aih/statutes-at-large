@@ -486,3 +486,28 @@ class ClassificationCheck(Base):
     upstream_covered_text: Mapped[str | None] = mapped_column(Text)
     """The newest table's covered-law sentence, as the site reports it."""
     error: Mapped[str | None] = mapped_column(Text)
+
+
+# ------------------------------------------------------------- pending laws
+
+
+class PendingLaw(Base):
+    """A public law Congress.gov lists that is not loaded here: enacted, and
+    its text not yet published by GPO (ADR-0030). Written by `plaw pending`,
+    which replaces a congress's rows on every run."""
+
+    __tablename__ = "pending_laws"
+
+    identifier: Mapped[str] = mapped_column(Text, primary_key=True)
+    """`/us/pl/119/120`."""
+    congress: Mapped[int] = mapped_column(Integer, nullable=False, index=True)
+    number: Mapped[int] = mapped_column(Integer, nullable=False)
+    bill_type: Mapped[str] = mapped_column(Text, nullable=False)
+    """Congress.gov's bill type: `HR`, `S`, `HJRES`, `SJRES`."""
+    bill_number: Mapped[str] = mapped_column(Text, nullable=False)
+    title: Mapped[str | None] = mapped_column(Text)
+    action_date: Mapped[datetime.date | None] = mapped_column(Date)
+    """The bill's latest action date as Congress.gov lists it."""
+    congress_gov_url: Mapped[str] = mapped_column(Text, nullable=False)
+    """The bill's page on www.congress.gov."""
+    checked_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), nullable=False)

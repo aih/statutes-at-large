@@ -168,6 +168,11 @@ class GovInfoClient:
         response.encoding = response.encoding or "utf-8"
         return response.text
 
+    def get_json(self, url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+        """Any api.data.gov JSON route with the key on it; `plaw pending`
+        reads api.congress.gov this way (the key is one api.data.gov key)."""
+        return self._get_json(url, params)
+
     # --------------------------------------------------------------- plumbing
 
     def _get_json(self, url: str, params: dict[str, Any] | None) -> dict[str, Any]:

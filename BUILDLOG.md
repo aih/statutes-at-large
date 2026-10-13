@@ -884,3 +884,25 @@ writes them to SSM Parameter Store (`/uscode/otel/*`); `deploy/otel-env.sh`,
 run by `deploy-on-box.sh`, copies them into `.env` with the instance role both
 sites run under. Checked against a stub `aws`: the two lines replaced, the
 rest of `.env` and its mode kept; a failed read leaves `.env` as it was.
+
+## 2026-10-13 — a bare law number; the enacted law whose text is not published
+
+Asked: make `119-111` load the public law as `PL 119-111` does; for a law
+that has been enacted and is not on the site (PL 119-120), show a warning
+that says why, with a link to its page on Congress.gov.
+
+Done (ADR-0030): `citeparse` reads a bare `{congress}-{number}` as a public
+law, tried after every other form. `python -m ingest plaw pending` writes
+`pending_laws` (migration `b7e2c4a91f05`) from the Congress.gov API's
+`/law/{c}/pub` listing; `/api/v1/cite` answers a miss on such a law with
+`pending` and a `message`; the reader shows that sentence as a warning on
+`/app/goto` and under the 404 of `/app/us/pl/…`. The weekly update runs
+`plaw pending` after `plaw poll`; `make plaw-pending` runs it by hand.
+
+Verified: `uv run pytest` 605 passed, 12 of them `tests/test_plaw_pending.py`;
+`vitest` 115 passed; `astro check` 0 errors.
+The API on a SQLite copy of the test database and the reader's dev server:
+`/app/goto?q=81-740` is a 307 to `/app/us/pl/81/740`; `/app/goto?q=119-120`
+and `/app/us/pl/119/120` are 404s with the warning and its link, no axe
+violations; `tests/e2e/goto.spec.ts` 5 passed. Not run against
+api.congress.gov, which this session could not reach.
