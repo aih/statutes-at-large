@@ -1,5 +1,5 @@
 """`plaw pending` and what `/api/v1/cite` says about a law that has been
-enacted and is not loaded (ADR-0030). The listing is
+enacted and is not loaded (ADR-0031). The listing is
 `tests/fixtures/congress-gov/law-119-pub.json`."""
 
 import datetime

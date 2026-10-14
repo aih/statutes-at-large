@@ -8,7 +8,7 @@ the Congress.gov API which bills became public laws in a congress
 `laws` row or alias at its `/us/pl/{c}/{n}` identifier. A congress's rows are
 replaced on every run, so a law that has since been loaded drops out.
 `api/cite.py` reads the rows to tell a reader that the law exists, why its text
-is not here, and where Congress.gov has it (ADR-0030).
+is not here, and where Congress.gov has it (ADR-0031).
 
 Each listed bill carries `type` (`HR`, `S`, `HJRES`, `SJRES`), `number`,
 `title`, `latestAction.actionDate`, and `laws`, a list of `{number: "119-120",

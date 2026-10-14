@@ -493,7 +493,7 @@ class ClassificationCheck(Base):
 
 class PendingLaw(Base):
     """A public law Congress.gov lists that is not loaded here: enacted, and
-    its text not yet published by GPO (ADR-0030). Written by `plaw pending`,
+    its text not yet published by GPO (ADR-0031). Written by `plaw pending`,
     which replaces a congress's rows on every run."""
 
     __tablename__ = "pending_laws"

@@ -360,7 +360,7 @@ export interface Cite {
   url: string | null;
   note: string;
   message: string | null;
-  /** On a miss: a public law Congress.gov lists as enacted whose text is not loaded yet (ADR-0030). */
+  /** On a miss: a public law Congress.gov lists as enacted whose text is not loaded yet (ADR-0031). */
   pending: PendingLaw | null;
 }
 

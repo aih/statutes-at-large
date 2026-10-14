@@ -832,7 +832,7 @@ class CitedByOut(BaseModel):
 
 
 class PendingLawOut(BaseModel):
-    """A public law that has been enacted and whose text is not loaded yet (ADR-0030)."""
+    """A public law that has been enacted and whose text is not loaded yet (ADR-0031)."""
 
     identifier: str = Field(examples=["/us/pl/119/120"])
     bill: str = Field(description="The bill that became the law, as Congress.gov prints it.", examples=["H.R. 1234"])

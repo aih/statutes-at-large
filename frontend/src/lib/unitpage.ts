@@ -49,7 +49,7 @@ export interface UnitPageModel {
    * instead. */
   parentChildren: TocEntry[];
   /** On a 404 for a public law that has been enacted and is not loaded yet:
-   * the law and the API's sentence about it (ADR-0030). */
+   * the law and the API's sentence about it (ADR-0031). */
   pending: { law: PendingLaw; message: string } | null;
 }
 

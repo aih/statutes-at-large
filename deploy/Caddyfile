@@ -26,6 +26,65 @@
 			ROBOTS 200
 	}
 
+	# robots.txt says `Disallow: /` to every agent; this block is what it means
+	# for an agent that sends a crawler's User-Agent anyway: 403 at the proxy,
+	# before the reader renders or the API is called (ADR-0030). The list is the
+	# US Code site's (its ADR-0073); the generic `bot`, `crawler` and `spider`
+	# markers catch a crawler not named. curl, the watchdog's probes and a script
+	# written against /api/v1 match none of it.
+	@crawlers header_regexp User-Agent "(?i)(meta-externalagent|meta-webindexer|facebookexternalhit|claudebot|claude-web|gptbot|oai-searchbot|chatgpt-user|perplexitybot|perplexity-user|google-extended|googleother|applebot|amazonbot|bytespider|ccbot|cohere-ai|diffbot|imagesift|omgili|dataforseo|semrush|ahrefs|mj12|dotbot|petalbot|yandex|timpibot|webzio|scrapy|bot[/ ]|[ /(]bot\b|crawler|spider)"
+	handle @crawlers {
+		header Content-Type "text/plain; charset=utf-8"
+		respond "This site is closed to automated crawling. See /robots.txt." 403
+	}
+
+	# The reader asks for a cookie (ADR-0030, the US Code site's ADR-0088). A
+	# request to /app without `stat_h` gets 403 with `Set-Cookie` and one
+	# scripted reload; a browser passes once a month, and an HTTP client without
+	# a cookie jar gets no page and costs no render. /app/healthz (the
+	# watchdog's probe and the container healthcheck) and the static assets are
+	# outside it. `GATE_HOST` names the one hostname it applies to; the default,
+	# `gate.invalid`, matches no request, so the dev stack and the e2e suite
+	# never meet it. docker-compose.prod.yml sets it to the site's hostname.
+	@gate {
+		host {$GATE_HOST:gate.invalid}
+		path /app*
+		not path /app/healthz /app/_astro/* /app/icons/*
+		not header Cookie *stat_h=*
+	}
+	handle @gate {
+		header Content-Type "text/html; charset=utf-8"
+		header Cache-Control "no-store"
+		header Set-Cookie "stat_h=1; Path=/; Max-Age=2592000; SameSite=Lax; Secure; HttpOnly"
+		respond <<HTML
+			<!doctype html>
+			<html lang="en">
+			<head>
+			<meta charset="utf-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<title>Checking your browser</title>
+			<script>
+			try {
+			  if (!sessionStorage.getItem('stat-gate')) {
+			    sessionStorage.setItem('stat-gate', '1');
+			    location.reload();
+			  }
+			} catch (e) {}
+			</script>
+			</head>
+			<body>
+			<h1>Checking your browser</h1>
+			<p>This page should reload itself. The reader needs cookies enabled; if
+			you have them switched off, the pages under /app cannot be served.</p>
+			<p>For automated access, use the API at
+			<a href="/api/v1/status">/api/v1</a>, documented at
+			<a href="/docs">/docs</a>. This site is closed to crawling: see
+			<a href="/robots.txt">/robots.txt</a>.</p>
+			</body>
+			</html>
+			HTML 403
+	}
+
 	# The reader. `header_up X-Forwarded-For {client_ip}` overwrites the header
 	# (uvicorn and Astro's Node adapter both read the leftmost value under
 	# `--forwarded-allow-ips *`). `{client_ip}` is the same line on the dev
@@ -37,6 +96,8 @@
 	handle /app* {
 		reverse_proxy frontend:4321 {
 			header_up X-Forwarded-For {client_ip}
+			lb_try_duration 25s
+			lb_try_interval 250ms
 			transport http {
 				dial_timeout 5s
 				response_header_timeout 30s
@@ -44,12 +105,19 @@
 		}
 	}
 
+	# `lb_try_duration` (both blocks): while a deploy recreates a backend its
+	# name does not resolve, and a request retries the dial every 250ms for up
+	# to 25s instead of answering 502 (the US Code site's ADR-0092). Under the
+	# edge's own 30s `response_header_timeout`.
+	#
 	# Everything else is FastAPI: /api/v1, the citation redirector at /us/…,
 	# /health, and the OpenAPI docs. The same overwrite, so the rate limiter
 	# keys on the client the trusted hop named, or on the peer.
 	handle {
 		reverse_proxy api:8001 {
 			header_up X-Forwarded-For {client_ip}
+			lb_try_duration 25s
+			lb_try_interval 250ms
 			transport http {
 				dial_timeout 5s
 				response_header_timeout 30s

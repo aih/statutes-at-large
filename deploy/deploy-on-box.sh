@@ -7,7 +7,8 @@
 # ECR login, the tag pinned into .env as IMAGE_TAG, pull, the migration with
 # the new image before it serves, `up -d --wait`, the search index rebuilt if
 # this release changed its mapping (`|| echo`: never fatal, ADR-0023), the
-# proxy recreated so the bind-mounted Caddyfile is re-read, then robots.txt
+# proxy recreated when deploy/Caddyfile changed (after `caddy validate` with
+# the proxy's image, before anything else), then robots.txt
 # fetched through the edge on this box and asserted, then prune. flock on
 # ${DATA_ROOT}/deploy.lock; everything logs to ${DATA_ROOT}/logs/deploy.log.
 # It never recreates the edge or the US Code site's containers.
@@ -63,6 +64,16 @@ fi
 # The Grafana Cloud endpoint and header (ADR-0029), from SSM Parameter Store.
 bash deploy/otel-env.sh .env
 
+# A Caddyfile that does not parse would leave the proxy down once it is
+# recreated, so it is checked with the proxy's own image before anything on
+# the box changes (ADR-0030). A failure here leaves the running stack as it was.
+echo "=== validating deploy/Caddyfile ==="
+docker run --rm \
+    -e SITE_ADDRESS="$(env_value SITE_ADDRESS)" \
+    -e GATE_HOST="$(env_value GATE_HOST statutes.linkedlegislation.org)" \
+    -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+    caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+
 echo "=== pulling images ==="
 $COMPOSE pull api frontend
 
@@ -84,9 +95,18 @@ $COMPOSE exec -T api uv run python -m ingest reindex-search --if-changed \
 
 # A bind-mounted file's bytes are not a service definition change, and
 # `git checkout --force` gives the file a new inode; recreating the container
-# is what re-reads deploy/Caddyfile.
-echo "=== recreating the proxy so it picks up deploy/Caddyfile ==="
-$COMPOSE up -d --no-deps --force-recreate --wait proxy
+# is what re-reads deploy/Caddyfile. Only when the file changed (ADR-0030):
+# the edge has nothing to dial while the proxy is recreated. The comparison is
+# against the file the running container sees, which after the checkout is
+# either the old bytes or nothing.
+echo "=== recreating the proxy if deploy/Caddyfile changed ==="
+REPO_CADDYFILE_SUM="$(sha256sum deploy/Caddyfile | awk '{print $1}')"
+LIVE_CADDYFILE_SUM="$($COMPOSE exec -T proxy sha256sum /etc/caddy/Caddyfile 2>/dev/null | awk '{print $1}' || true)"
+if [ "$LIVE_CADDYFILE_SUM" = "$REPO_CADDYFILE_SUM" ]; then
+    echo "the running proxy has the current Caddyfile; left running"
+else
+    $COMPOSE up -d --no-deps --force-recreate --wait proxy
+fi
 
 # Through the edge, over the real hostname, on this box. The edge is compose
 # project `edge` (deploy/edge/up.sh); it needs to be up and to hold the

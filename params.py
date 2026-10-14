@@ -9,6 +9,7 @@ conventions, ADR-0018 there). Nothing here touches a database session:
 from __future__ import annotations
 
 import datetime
+import ipaddress
 import threading
 import time
 from collections.abc import Sequence
@@ -327,11 +328,28 @@ def client_key(request: Request) -> str:
 LIMITERS: dict[str, RateLimiter] = {}
 
 
-def rate_limit(name: str, *, capacity: int, per_second: float) -> Callable[[Request], None]:
+def is_internal_caller(request: Request) -> bool:
+    """Whether the caller's address is private or loopback: the reader's own
+    calls when it has no browser address to forward, and every caller on the
+    dev stack. Behind the edge the proxy overwrites `X-Forwarded-For` with the
+    real client, so a caller from outside cannot name a private address."""
+    host = request.client.host if request.client else ""
+    try:
+        address = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return address.is_private or address.is_loopback
+
+
+def rate_limit(
+    name: str, *, capacity: int, per_second: float, exempt_internal: bool = False
+) -> Callable[[Request], None]:
     limiter = RateLimiter(name=name, capacity=capacity, per_second=per_second)
     LIMITERS[name] = limiter
 
     def dependency(request: Request) -> None:
+        if exempt_internal and is_internal_caller(request):
+            return
         retry_after = limiter.check(client_key(request))
         if retry_after is not None:
             raise HTTPException(
@@ -341,6 +359,18 @@ def rate_limit(name: str, *, capacity: int, per_second: float) -> Callable[[Requ
             )
 
     return dependency
+
+
+limit_text = rate_limit("text", capacity=120, per_second=1.0, exempt_internal=True)
+"""One caller's budget for the text of the laws: every identifier route, the
+Statutes at Large page, the law summary and the Statute Compilations
+(ADR-0030). The reader forwards its reader's address (`frontend/src/lib/api.ts`),
+so a reader is one caller and its page renders spend from the reader's bucket:
+a page costs two or three calls, so 120 is a burst of about forty pages and one
+a second is about twenty pages a minute sustained. A walk of every section of a
+law at a page a second is over it within a minute and answers 429. A private
+or loopback caller is outside it (`is_internal_caller`), which is the dev
+stack and the e2e suite."""
 
 
 # ---------------------------------------------------------------- negotiation
@@ -470,7 +500,7 @@ def cite_note(
 
 
 def cite_pending(*, label: str, bill: str, url: str) -> str:
-    """A public law Congress.gov lists and this site has not loaded (ADR-0030)."""
+    """A public law Congress.gov lists and this site has not loaded (ADR-0031)."""
     return (
         f"{label} has been enacted, and its text is not on this site yet: a law is loaded once GPO "
         f"publishes its enrolled text. Congress.gov has the law as {bill} at {url}."

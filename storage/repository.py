@@ -398,7 +398,7 @@ class CollectionStatus:
 @dataclass(frozen=True, slots=True)
 class PendingLaw:
     """A public law Congress.gov lists and this site has not loaded: its text
-    is not published yet (ADR-0030)."""
+    is not published yet (ADR-0031)."""
 
     identifier: str
     congress: int
@@ -779,5 +779,5 @@ class Repository(Protocol):
 
     def pending_law(self, identifier: str) -> PendingLaw | None:
         """The public law at `identifier` when Congress.gov lists it and its
-        text is not loaded (ADR-0030); None otherwise."""
+        text is not loaded (ADR-0031); None otherwise."""
         ...

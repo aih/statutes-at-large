@@ -1,4 +1,4 @@
-# ADR-0030: A bare law number, and the enacted law whose text is not published
+# ADR-0031: A bare law number, and the enacted law whose text is not published
 
 Date: 2026-10-13. Status: accepted.
 

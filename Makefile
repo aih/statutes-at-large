@@ -60,7 +60,7 @@ plaw: migrate
 plaw-poll: migrate
 	uv run python -m ingest plaw poll --report docs/verification
 
-# Public laws Congress.gov lists whose text is not loaded yet (ADR-0030).
+# Public laws Congress.gov lists whose text is not loaded yet (ADR-0031).
 plaw-pending: migrate
 	uv run python -m ingest plaw pending
 

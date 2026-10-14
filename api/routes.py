@@ -52,6 +52,7 @@ from params import (
     RepositoryDep,
     ThroughParam,
     ViewParam,
+    limit_text,
     negotiated_format,
     normalize_identifier,
     not_found,
@@ -127,6 +128,7 @@ def compiled_view(request: Request, repository: Repository, path: str, query: Un
 
 @api.get(
     "/us/pl/{congress}/{number}",
+    dependencies=[Depends(limit_text)],
     response_model=None,
     responses=_UNIT_RESPONSES,
     summary="A public law",
@@ -141,6 +143,7 @@ def public_law(
 
 @api.get(
     "/us/pl/{congress}/{number}/{path:path}",
+    dependencies=[Depends(limit_text)],
     response_model=None,
     responses=_UNIT_RESPONSES,
     summary="A section or lower level of a public law",
@@ -160,6 +163,7 @@ def public_law_unit(
 
 @api.get(
     "/us/pvtl/{congress}/{number}",
+    dependencies=[Depends(limit_text)],
     response_model=None,
     responses=_UNIT_RESPONSES,
     summary="A private law",
@@ -173,6 +177,7 @@ def private_law(
 
 @api.get(
     "/us/pvtl/{congress}/{number}/{path:path}",
+    dependencies=[Depends(limit_text)],
     response_model=None,
     responses=_UNIT_RESPONSES,
     summary="A section or lower level of a private law",
@@ -186,6 +191,7 @@ def private_law_unit(
 
 @api.get(
     "/us/act/{date}/ch{chapter}",
+    dependencies=[Depends(limit_text)],
     response_model=None,
     responses=_UNIT_RESPONSES,
     summary="A chapter-numbered act",
@@ -201,6 +207,7 @@ def act(
 
 @api.get(
     "/us/act/{date}/ch{chapter}/{path:path}",
+    dependencies=[Depends(limit_text)],
     response_model=None,
     responses=_UNIT_RESPONSES,
     summary="A section or lower level of a chapter-numbered act",
@@ -222,6 +229,7 @@ def act_unit(
 
 @api.get(
     "/us/stat/{volume}/{page}",
+    dependencies=[Depends(limit_text)],
     response_model=None,
     responses={
         200: {"content": {"application/json": {"schema": StatPageOut.model_json_schema()}, "application/xml": {}}},
@@ -351,6 +359,7 @@ def status(repository: RepositoryDep) -> StatusOut:
 
 @api.get(
     "/laws/{congress}/{number}",
+    dependencies=[Depends(limit_text)],
     response_model=LawSummaryOut,
     responses={404: {"model": ErrorOut}},
     summary="A public law's summary",
@@ -372,6 +381,7 @@ def law_summary(congress: int, number: int, repository: RepositoryDep) -> LawSum
 
 @api.get(
     "/laws/{congress}/{number}/sections/{num}",
+    dependencies=[Depends(limit_text)],
     response_model=None,
     responses=_UNIT_RESPONSES,
     summary="A section of a public law by number, ignoring hierarchy",

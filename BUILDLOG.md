@@ -891,7 +891,7 @@ Asked: make `119-111` load the public law as `PL 119-111` does; for a law
 that has been enacted and is not on the site (PL 119-120), show a warning
 that says why, with a link to its page on Congress.gov.
 
-Done (ADR-0030): `citeparse` reads a bare `{congress}-{number}` as a public
+Done (ADR-0031): `citeparse` reads a bare `{congress}-{number}` as a public
 law, tried after every other form. `python -m ingest plaw pending` writes
 `pending_laws` (migration `b7e2c4a91f05`) from the Congress.gov API's
 `/law/{c}/pub` listing; `/api/v1/cite` answers a miss on such a law with
@@ -899,10 +899,39 @@ law, tried after every other form. `python -m ingest plaw pending` writes
 `/app/goto` and under the 404 of `/app/us/pl/…`. The weekly update runs
 `plaw pending` after `plaw poll`; `make plaw-pending` runs it by hand.
 
-Verified: `uv run pytest` 605 passed, 12 of them `tests/test_plaw_pending.py`;
+Verified: `uv run pytest` 607 passed after the merge with main, 12 of them `tests/test_plaw_pending.py`;
 `vitest` 115 passed; `astro check` 0 errors.
 The API on a SQLite copy of the test database and the reader's dev server:
 `/app/goto?q=81-740` is a 307 to `/app/us/pl/81/740`; `/app/goto?q=119-120`
 and `/app/us/pl/119/120` are 404s with the warning and its link, no axe
 violations; `tests/e2e/goto.spec.ts` 5 passed. Not run against
 api.congress.gov, which this session could not reach.
+
+## 2026-10-14 — the traffic spike: crawler blocks, a cookie gate, a text budget
+
+Asked: Grafana's spike alerts fired; review the data, rate-limit bots, block
+bots that ignore robots.txt.
+
+Found: the spike was this site's, not the US Code site's. `statutes-api` went
+from ~0.01 to 2.2–3.7 requests a second at 02:20 UTC, 8,503 responses in three
+hours, from the reader rendering one page per section of Pub. L. 117-328 at
+about a page a second (ADR-0030 has the routes and counts). `uscode-api` stayed
+at ~0.1 a second. Read through Grafana's API with the US Code repository's
+`GRAFANA_TOKEN`, from a temporary workflow on that repository's branch, since
+this environment cannot reach grafana.net.
+
+Done (ADR-0030): declared crawlers get 403 at the proxy; `/app` asks for a
+cookie on the box's hostname; `limit_text` (120, one a second, per caller,
+private callers exempt) on the identifier, `/us/stat` and `/laws` routes;
+`lb_try_duration 25s` on both upstreams; the deploy validates the Caddyfile
+with the proxy's image first and recreates the proxy only when the file
+changed.
+
+Verified: `uv run pytest` 583 passed, two new in `tests/test_api.py`.
+`caddy validate` (2.10.2) on the Caddyfile. Caddy 2.10.2 running it against
+two stub backends: `/app/us/pl/117/328/s1` without the cookie 403 with
+`Set-Cookie: stat_h=1`, with it passed through; `/app/healthz` and
+`/app/_astro/*` passed through without it; GPTBot on `/api/v1/status` and
+Googlebot on `/app` 403; curl on `/health` passed through; a host other than
+`GATE_HOST` not gated; a request to a stopped backend restarted three seconds
+later answered by the backend after 3.27 s instead of 502. Not run on the box.

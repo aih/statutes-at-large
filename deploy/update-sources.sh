@@ -9,7 +9,7 @@
 # Steps, each logged with its exit status and time; a failed step is logged
 # and the run goes on, and the exit status is 1 when any step failed:
 #
-#   1  plaw poll --report data/verification, then plaw pending (ADR-0030)
+#   1  plaw poll --report data/verification, then plaw pending (ADR-0031)
 #   2  comps poll --since <the day before the last COMPS check, from /api/v1/status;
 #      8 days ago when there is none>
 #   3  fetch-statute 1-137 --if-changed, then statute --volumes 1-137 --changed-only

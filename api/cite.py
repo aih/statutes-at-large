@@ -111,7 +111,7 @@ def _resolve_unit(
 
 def _pending(repository: Repository, parsed: ParsedCitation) -> tuple[PendingLawOut | None, str | None]:
     """A public law Congress.gov lists as enacted and this site has not
-    loaded (ADR-0030), and the sentence that says so."""
+    loaded (ADR-0031), and the sentence that says so."""
     if parsed.kind != "pl" or parsed.law_identifier is None:
         return None, None
     law = repository.pending_law(parsed.law_identifier)
