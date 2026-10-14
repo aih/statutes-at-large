@@ -1,0 +1,38 @@
+---
+/**
+ * A public law that has been enacted and whose text is not loaded yet
+ * (ADR-0031): the API's `message`, printed verbatim, with the Congress.gov
+ * URL inside it made a link. Shown by `/app/goto` and by a law page's 404.
+ */
+import type { PendingLaw } from "../lib/types";
+
+interface Props {
+  pending: PendingLaw;
+  message: string;
+}
+
+const { pending, message } = Astro.props;
+const at = message.indexOf(pending.url);
+const before = at >= 0 ? message.slice(0, at) : message;
+const after = at >= 0 ? message.slice(at + pending.url.length) : "";
+---
+
+<div class="usa-alert usa-alert--warning pending-law" role="status">
+  <div class="usa-alert__body">
+    <h2 class="usa-alert__heading">Enacted; text not yet published</h2>
+    <p class="usa-alert__text">
+      {before}{at >= 0 && <a href={pending.url}>{pending.url}</a>}{after}
+    </p>
+    {at < 0 && (
+      <p class="usa-alert__text">
+        <a href={pending.url}>{pending.bill} on Congress.gov</a>
+      </p>
+    )}
+  </div>
+</div>
+
+<style>
+  .pending-law {
+    margin-block: 1.5rem;
+  }
+</style>

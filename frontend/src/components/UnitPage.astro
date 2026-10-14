@@ -27,6 +27,7 @@ import LawSources from "./LawSources.astro";
 import Neighbors from "./Neighbors.astro";
 import Note from "./Note.astro";
 import Pages from "./Pages.astro";
+import PendingLaw from "./PendingLaw.astro";
 import Provenance from "./Provenance.astro";
 import TocList from "./TocList.astro";
 import Base from "../layouts/Base.astro";
@@ -40,7 +41,8 @@ interface Props {
 }
 
 const { model } = Astro.props;
-const { unit, failure, summary, citedBy, sectionHtml, headingClass, onlySection, neighbors, parentChildren } = model;
+const { unit, failure, summary, citedBy, sectionHtml, headingClass, onlySection, neighbors, parentChildren, pending } =
+  model;
 
 const isLaw = unit?.level === "law";
 const isSection = unit?.level === "section";
@@ -130,6 +132,7 @@ const up = upLink();
   up={up}
 >
   {failure && <ErrorPage status={failure.status} detail={failure.detail} retryAfter={failure.retryAfter} />}
+  {pending && <PendingLaw pending={pending.law} message={pending.message} />}
 
   {
     unit && isLaw && (

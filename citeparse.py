@@ -1,6 +1,7 @@
 """What a person types, turned into the identifier this site serves.
 
 `Pub. L. 104-333, § 814(e)(1)` → `/us/pl/104/333/s814/e/1`;
+`119-111` → `/us/pl/119/111`, a bare law number read as a public law;
 `Act of Aug. 25, 1916, ch. 408` → `/us/act/1916-08-25/ch408`;
 `110 Stat. 4196` → `/us/stat/110/4196`;
 `43 U.S.C. 1701` → `/us/usc/t43/s1701`, which the US Code site serves.
@@ -148,6 +149,10 @@ _LAW = re.compile(
     r"^(?:(?P<pl>" + _PL_WORD + r")|(?P<pvtl>" + _PVTL_WORD + r"))\s*" + _LAW_NUM + r"(?P<tail>(?:\s*[,;:]?\s*.+)?)$",
     re.IGNORECASE,
 )
+#: `119-111`: a law number with no word before it is a public law. Tried
+#: after every other form, so a Stat. page range or a US Code section keeps
+#: its reading.
+_BARE_LAW = re.compile(r"^" + _LAW_NUM + r"(?P<tail>(?:\s*[,;:]?\s*.+)?)$")
 _SECTION_OF_LAW = re.compile(
     r"^" + _SECTION + r"\s+of\s+(?:the\s+)?(?:(?P<pl>" + _PL_WORD + r")|(?P<pvtl>" + _PVTL_WORD + r"))\s*" + _LAW_NUM + r"(?P<tail>(?:\s*[,;:]?\s*.+)?)$",
     re.IGNORECASE,
@@ -486,7 +491,14 @@ def parse_citation(text: str) -> ParsedCitation | None:
     cleaned = _normalize(text)
     if not cleaned:
         return None
-    return _parse_path(cleaned) or _parse_law(cleaned) or _parse_act(cleaned) or _parse_stat(cleaned) or _parse_usc(cleaned)
+    return (
+        _parse_path(cleaned)
+        or _parse_law(cleaned)
+        or _parse_act(cleaned)
+        or _parse_stat(cleaned)
+        or _parse_usc(cleaned)
+        or _parse_bare_law(cleaned)
+    )
 
 
 def _parse_path(text: str) -> ParsedCitation | None:
@@ -565,6 +577,20 @@ def _parse_law(text: str) -> ParsedCitation | None:
     kind: Kind = "pl" if groups.get("pl") else "pvtl"
     congress, number = int(groups["congress"] or 0), int(groups["number"] or 0)
     return _build_law(kind, f"/us/{kind}/{congress}/{number}", tail, congress=congress, number=number)
+
+
+def _parse_bare_law(text: str) -> ParsedCitation | None:
+    """`119-111` → `/us/pl/119/111`, the reading `PL 119-111` gets."""
+    match = _BARE_LAW.match(text)
+    if not match:
+        return None
+    congress, number = int(match.group("congress")), int(match.group("number"))
+    if congress == 0 or number == 0:
+        return None
+    tail = _parse_tail(match.group("tail"))
+    if tail is None:
+        return None
+    return _build_law("pl", f"/us/pl/{congress}/{number}", tail, congress=congress, number=number)
 
 
 def _parse_act(text: str) -> ParsedCitation | None:

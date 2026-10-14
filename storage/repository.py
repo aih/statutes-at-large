@@ -395,6 +395,39 @@ class CollectionStatus:
         return tuple(c for c, _ in self.laws_by_congress)
 
 
+@dataclass(frozen=True, slots=True)
+class PendingLaw:
+    """A public law Congress.gov lists and this site has not loaded: its text
+    is not published yet (ADR-0031)."""
+
+    identifier: str
+    congress: int
+    number: int
+    bill_type: str
+    bill_number: str
+    title: str | None
+    action_date: datetime.date | None
+    congress_gov_url: str
+    checked_at: datetime.datetime
+
+    @property
+    def bill_label(self) -> str:
+        """`H.R. 1234`, `S.J.Res. 5`: the bill as Congress.gov prints it."""
+        return f"{BILL_TYPE_LABELS.get(self.bill_type.upper(), self.bill_type)} {self.bill_number}"
+
+
+BILL_TYPE_LABELS = {
+    "HR": "H.R.",
+    "S": "S.",
+    "HJRES": "H.J.Res.",
+    "SJRES": "S.J.Res.",
+    "HCONRES": "H.Con.Res.",
+    "SCONRES": "S.Con.Res.",
+    "HRES": "H.Res.",
+    "SRES": "S.Res.",
+}
+
+
 # ------------------------------------------------------- stage 3: the indexes
 
 
@@ -742,4 +775,9 @@ class Repository(Protocol):
         ...
 
     def last_source_check(self, collection: str) -> SourceCheckInfo | None:
+        ...
+
+    def pending_law(self, identifier: str) -> PendingLaw | None:
+        """The public law at `identifier` when Congress.gov lists it and its
+        text is not loaded (ADR-0031); None otherwise."""
         ...

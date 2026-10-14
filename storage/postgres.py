@@ -34,6 +34,7 @@ from db.models import (
     CompVersion,
     Law,
     LawAlias,
+    PendingLaw as PendingLawRow,
     SourceCheck,
     StatPage,
     Unit,
@@ -58,6 +59,7 @@ from storage.repository import (
     CompUnitResult,
     CompVersionRef,
     LabelInfo,
+    PendingLaw,
     LawRef,
     LawSummary,
     PageRef,
@@ -1147,4 +1149,20 @@ class PostgresRepository:
             packages_seen=row.packages_seen,
             new_packages=tuple(row.new_packages or ()),
             error=row.error,
+        )
+
+    def pending_law(self, identifier: str) -> PendingLaw | None:
+        row = self._session.get(PendingLawRow, identifier)
+        if row is None:
+            return None
+        return PendingLaw(
+            identifier=row.identifier,
+            congress=row.congress,
+            number=row.number,
+            bill_type=row.bill_type,
+            bill_number=row.bill_number,
+            title=row.title,
+            action_date=row.action_date,
+            congress_gov_url=row.congress_gov_url,
+            checked_at=row.checked_at,
         )

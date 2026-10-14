@@ -831,6 +831,17 @@ class CitedByOut(BaseModel):
 # ---------------------------------------------------------------------- cite
 
 
+class PendingLawOut(BaseModel):
+    """A public law that has been enacted and whose text is not loaded yet (ADR-0031)."""
+
+    identifier: str = Field(examples=["/us/pl/119/120"])
+    bill: str = Field(description="The bill that became the law, as Congress.gov prints it.", examples=["H.R. 1234"])
+    title: str | None
+    action_date: datetime.date | None = Field(description="The bill's latest action date on Congress.gov.")
+    url: str = Field(description="The bill's page on Congress.gov.")
+    checked_at: datetime.datetime = Field(description="When Congress.gov was last asked.")
+
+
 class CiteOut(BaseModel):
     """A written citation resolved to the identifier it names, and whether
     that is loaded (design section 5; `citeparse`)."""
@@ -852,7 +863,8 @@ class CiteOut(BaseModel):
     stat_page: str | None = Field(description="A Stat. page the citation gave beside a law, not resolved.")
     hierarchy: list[str] = Field(default_factory=list, description="The hierarchy the citation wrote, as GPO segments; not in the identifier.")
     note: str
-    message: str | None = Field(description="Something specific about a hit that did not land exactly: a provision missing from its section, a chapter absent from its page.")
+    message: str | None = Field(description="Something specific about a hit that did not land exactly: a provision missing from its section, a chapter absent from its page; on a miss, a public law enacted and not yet published.")
+    pending: PendingLawOut | None = Field(default=None, description="On a miss: the public law, when Congress.gov lists it as enacted and its text is not loaded yet.")
 
     @classmethod
     def of(
@@ -875,6 +887,7 @@ class CiteOut(BaseModel):
         law_label: str | None = None,
         url: str | None = None,
         message: str | None = None,
+        pending: PendingLawOut | None = None,
     ) -> CiteOut:
         return cls(
             query=query,
@@ -895,4 +908,5 @@ class CiteOut(BaseModel):
             hierarchy=list(parsed.hierarchy),
             note=note,
             message=message,
+            pending=pending,
         )

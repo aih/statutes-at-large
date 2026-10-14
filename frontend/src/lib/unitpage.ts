@@ -5,11 +5,20 @@
  * `Cache-Control` are set before the response starts.
  */
 
-import { ApiError, type CallOptions, fetchCitedBy, fetchLabels, fetchLawSummary, fetchUnit, fetchUnitXml } from "./api";
+import {
+  ApiError,
+  type CallOptions,
+  fetchCite,
+  fetchCitedBy,
+  fetchLabels,
+  fetchLawSummary,
+  fetchUnit,
+  fetchUnitXml,
+} from "./api";
 import { NO_STORE, REVALIDATE } from "./cache";
 import { citedIdentifiers } from "./refs";
 import { onlySection, type SectionLink, sectionNeighbors } from "./toc";
-import type { CitedBy, LawSummary, TocEntry, Unit } from "./types";
+import type { CitedBy, LawSummary, PendingLaw, TocEntry, Unit } from "./types";
 import { hrefs, parseFragment, render, titleClass } from "./uslm";
 
 export interface Failure {
@@ -39,6 +48,9 @@ export interface UnitPageModel {
    * for a public law's section, where the rail uses the law summary's `toc`
    * instead. */
   parentChildren: TocEntry[];
+  /** On a 404 for a public law that has been enacted and is not loaded yet:
+   * the law and the API's sentence about it (ADR-0031). */
+  pending: { law: PendingLaw; message: string } | null;
 }
 
 export function describeFailure(error: unknown): Failure {
@@ -72,6 +84,17 @@ async function renderSection(
   return render(fragment, { target, labels });
 }
 
+/** `/api/v1/cite` on the identifier: its `pending` answer, when Congress.gov
+ * lists the law as enacted. Null on any failure. */
+async function pendingLaw(identifier: string, options: CallOptions): Promise<UnitPageModel["pending"]> {
+  try {
+    const cite = await fetchCite(identifier, options);
+    return cite.pending && cite.message ? { law: cite.pending, message: cite.message } : null;
+  } catch {
+    return null;
+  }
+}
+
 /** `options.clientAddress` is the browser's address, forwarded on every call. */
 export async function loadUnitPage(identifier: string, options: CallOptions = {}): Promise<UnitPageModel> {
   const model: UnitPageModel = {
@@ -85,6 +108,7 @@ export async function loadUnitPage(identifier: string, options: CallOptions = {}
     onlySection: null,
     neighbors: { previous: null, next: null },
     parentChildren: [],
+    pending: null,
   };
 
   let unit: Unit;
@@ -94,6 +118,9 @@ export async function loadUnitPage(identifier: string, options: CallOptions = {}
     model.unit = unit;
   } catch (error) {
     model.failure = describeFailure(error);
+    if (model.failure.status === 404 && identifier.startsWith("/us/pl/")) {
+      model.pending = await pendingLaw(identifier, options);
+    }
     return model;
   }
 

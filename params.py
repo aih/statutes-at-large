@@ -499,6 +499,14 @@ def cite_note(
     return f"{first} It is served as {served_identifier}."
 
 
+def cite_pending(*, label: str, bill: str, url: str) -> str:
+    """A public law Congress.gov lists and this site has not loaded (ADR-0031)."""
+    return (
+        f"{label} has been enacted, and its text is not on this site yet: a law is loaded once GPO "
+        f"publishes its enrolled text. Congress.gov has the law as {bill} at {url}."
+    )
+
+
 def cite_chapter_not_on_page(*, chapter: int, page_identifier: str) -> str:
     """A chapter cited with a Stat. page, when the page is loaded and no law
     on it has that chapter."""

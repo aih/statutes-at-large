@@ -10,7 +10,7 @@ USCODE = "https://uscode.linkedlegislation.org"
 KEYS = {
     "query", "kind", "identifier", "section_identifier", "law_identifier", "label", "exists",
     "served_identifier", "resolution", "level", "num", "heading", "law_label", "url", "stat_page",
-    "hierarchy", "note", "message",
+    "hierarchy", "note", "message", "pending",
 }
 
 

@@ -1,0 +1,53 @@
+{
+  "bills": [
+    {
+      "congress": 119,
+      "latestAction": {"actionDate": "2026-10-02", "text": "Became Public Law No: 119-120."},
+      "laws": [{"number": "119-120", "type": "Public Law"}],
+      "number": "9001",
+      "originChamber": "House",
+      "originChamberCode": "H",
+      "title": "A placeholder bill that became Public Law 119-120",
+      "type": "HR",
+      "updateDate": "2026-10-03",
+      "url": "https://api.congress.gov/v3/bill/119/hr/9001?format=json"
+    },
+    {
+      "congress": 119,
+      "latestAction": {"actionDate": "2026-09-30", "text": "Became Public Law No: 119-119."},
+      "laws": [{"number": "119-119", "type": "Public Law"}],
+      "number": "77",
+      "originChamber": "Senate",
+      "originChamberCode": "S",
+      "title": "A placeholder joint resolution that became Public Law 119-119",
+      "type": "SJRES",
+      "updateDate": "2026-10-01",
+      "url": "https://api.congress.gov/v3/bill/119/sjres/77?format=json"
+    },
+    {
+      "congress": 119,
+      "latestAction": {"actionDate": "2025-01-29", "text": "Became Public Law No: 119-1."},
+      "laws": [{"number": "119-1", "type": "Public Law"}],
+      "number": "5",
+      "originChamber": "Senate",
+      "originChamberCode": "S",
+      "title": "Laken Riley Act",
+      "type": "S",
+      "updateDate": "2025-02-04",
+      "url": "https://api.congress.gov/v3/bill/119/s/5?format=json"
+    },
+    {
+      "congress": 119,
+      "latestAction": {"actionDate": "2026-06-01", "text": "Became Private Law No: 119-2."},
+      "laws": [{"number": "119-2", "type": "Private Law"}],
+      "number": "8000",
+      "originChamber": "House",
+      "originChamberCode": "H",
+      "title": "A placeholder private bill",
+      "type": "HR",
+      "updateDate": "2026-06-02",
+      "url": "https://api.congress.gov/v3/bill/119/hr/8000?format=json"
+    }
+  ],
+  "pagination": {"count": 4}
+}

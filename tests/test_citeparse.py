@@ -27,6 +27,12 @@ PUBLIC_LAWS = [
     ("pub. l. 104-333.", "/us/pl/104/333"),
     ("(Pub. L. 104-333)", "/us/pl/104/333"),
     ("  Pub. L.   104 - 333  ", "/us/pl/104/333"),
+    # A bare law number is a public law.
+    ("119-111", "/us/pl/119/111"),
+    ("119–111", "/us/pl/119/111"),
+    (" 119 - 111 ", "/us/pl/119/111"),
+    ("81-740, § 3", "/us/pl/81/740/s3"),
+    ("104-333 § 814(e)(1)", "/us/pl/104/333/s814/e/1"),
 ]
 
 SECTIONS_OF_LAWS = [
@@ -162,6 +168,11 @@ REJECTED = [
     "Pub. L. 104",
     "section 814",
     "title VIII",
+    "0-5",
+    "119-0",
+    "119-111a",
+    "1950-08-30",
+    "119-111 and other words",
 ]
 
 
@@ -292,3 +303,16 @@ def test_a_compilation_path_carries_its_section():
 def test_a_typed_identifier_round_trips():
     for identifier in ("/us/pl/81/740/s3", "/us/act/1950-08-30/ch823/s3", "/us/stat/64/563", "/us/usc/t16/s45f/c/5"):
         assert parse_citation(identifier).identifier == identifier
+
+
+def test_a_bare_law_number_reads_as_the_public_law():
+    bare, written = parse_citation("119-111"), parse_citation("PL 119-111")
+    assert bare == written
+    assert bare.kind == "pl"
+    assert bare.label == "Public Law 119-111"
+
+
+def test_a_bare_number_does_not_take_other_forms():
+    assert parse_citation("64 Stat. 563-564").kind == "stat"
+    assert parse_citation("42 USC 2000e-2").kind == "usc"
+    assert parse_citation("/us/stat/64/563").kind == "stat"
