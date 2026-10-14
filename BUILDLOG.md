@@ -884,3 +884,32 @@ writes them to SSM Parameter Store (`/uscode/otel/*`); `deploy/otel-env.sh`,
 run by `deploy-on-box.sh`, copies them into `.env` with the instance role both
 sites run under. Checked against a stub `aws`: the two lines replaced, the
 rest of `.env` and its mode kept; a failed read leaves `.env` as it was.
+
+## 2026-10-14 — the traffic spike: crawler blocks, a cookie gate, a text budget
+
+Asked: Grafana's spike alerts fired; review the data, rate-limit bots, block
+bots that ignore robots.txt.
+
+Found: the spike was this site's, not the US Code site's. `statutes-api` went
+from ~0.01 to 2.2–3.7 requests a second at 02:20 UTC, 8,503 responses in three
+hours, from the reader rendering one page per section of Pub. L. 117-328 at
+about a page a second (ADR-0030 has the routes and counts). `uscode-api` stayed
+at ~0.1 a second. Read through Grafana's API with the US Code repository's
+`GRAFANA_TOKEN`, from a temporary workflow on that repository's branch, since
+this environment cannot reach grafana.net.
+
+Done (ADR-0030): declared crawlers get 403 at the proxy; `/app` asks for a
+cookie on the box's hostname; `limit_text` (120, one a second, per caller,
+private callers exempt) on the identifier, `/us/stat` and `/laws` routes;
+`lb_try_duration 25s` on both upstreams; the deploy validates the Caddyfile
+with the proxy's image first and recreates the proxy only when the file
+changed.
+
+Verified: `uv run pytest` 583 passed, two new in `tests/test_api.py`.
+`caddy validate` (2.10.2) on the Caddyfile. Caddy 2.10.2 running it against
+two stub backends: `/app/us/pl/117/328/s1` without the cookie 403 with
+`Set-Cookie: stat_h=1`, with it passed through; `/app/healthz` and
+`/app/_astro/*` passed through without it; GPTBot on `/api/v1/status` and
+Googlebot on `/app` 403; curl on `/health` passed through; a host other than
+`GATE_HOST` not gated; a request to a stopped backend restarted three seconds
+later answered by the backend after 3.27 s instead of 502. Not run on the box.

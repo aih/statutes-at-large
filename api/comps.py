@@ -38,6 +38,7 @@ from params import (
     cache_control,
     compiled_note,
     if_none_match,
+    limit_text,
     negotiated_format,
     not_found,
     public_cache,
@@ -283,6 +284,7 @@ def compiled_response(
 
 @comps_router.get(
     "/us/sComp/{congress}/{number}",
+    dependencies=[Depends(limit_text)],
     response_model=CompUnitOut,
     summary="A Statute Compilation",
     responses={304: {"description": "Not modified"}, 404: {"description": "No compilation has this prefix, or `through` names no stored version"}},
@@ -304,6 +306,7 @@ def compiled_root(
 
 @comps_router.get(
     "/us/sComp/{congress}/{number}/{path:path}",
+    dependencies=[Depends(limit_text)],
     response_model=CompUnitOut,
     summary="A unit of a Statute Compilation",
     responses={304: {"description": "Not modified"}, 404: {"description": "No compilation has this prefix, or `through` names no stored version"}},
