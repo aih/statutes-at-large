@@ -564,3 +564,29 @@ def test_labels_answer_a_stat_page(client):
     assert body["/us/stat/64/A12"]["exists"] is True
     assert body["/us/stat/64/A12"]["served_identifier"] == "/us/stat/64/a12"
     assert body["/us/stat/110/4196"] == {"exists": False}
+
+
+def test_the_text_of_the_laws_is_rate_limited_per_caller(client):
+    limiter = LIMITERS["text"]
+    assert limiter.capacity == 120 and limiter.per_second == 1.0
+    while limiter.check("testclient") is None:
+        pass
+    for path in ("/api/v1/us/pl/81/740/s3", "/api/v1/laws/81/740", "/api/v1/us/stat/64/563"):
+        response = client.get(path)
+        assert response.status_code == 429, path
+        assert response.headers["retry-after"]
+    assert client.get("/health").status_code == 200
+
+
+def test_a_private_caller_is_outside_the_text_budget():
+    from starlette.requests import Request
+
+    from params import is_internal_caller
+
+    def caller(host: str) -> Request:
+        return Request({"type": "http", "client": (host, 1234), "headers": []})
+
+    assert is_internal_caller(caller("172.18.0.5"))
+    assert is_internal_caller(caller("127.0.0.1"))
+    assert not is_internal_caller(caller("8.8.8.8"))
+    assert not is_internal_caller(caller("testclient"))

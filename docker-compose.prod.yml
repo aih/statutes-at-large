@@ -176,6 +176,9 @@ services:
       # `http://<host>:8000`: plain HTTP on 8000, matched on the hostname the
       # edge passes through. The edge terminates TLS.
       SITE_ADDRESS: ${SITE_ADDRESS:?set SITE_ADDRESS in .env}
+      # The hostname the reader's cookie gate applies to (deploy/Caddyfile,
+      # ADR-0030). `GATE_HOST=gate.invalid` in .env turns the gate off.
+      GATE_HOST: ${GATE_HOST:-statutes.linkedlegislation.org}
     volumes:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
       - ${DATA_ROOT:-/var/lib/statutes}/caddy:/data
