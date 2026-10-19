@@ -254,20 +254,66 @@ def title_order(partial_of: str | None) -> tuple[int, str]:
     return (10**6, text)
 
 
-def history_ref_label(identifier: str, date: datetime.date | None = None) -> str:
-    """A human-readable label for a statutory history ref:
-    `/us/act/1946-08-01/ch724/tI/s291` -> `Act of August 1, 1946, ch. 724, § 291`,
-    `/us/pl/102/486/tIX/s902/a/8` -> `Public Law 102-486, § 902(a)(8)`,
-    `/us/stat/68/960` -> `68 Stat. 960`.
+_LEVEL_LABELS: dict[str, str] = {
+    "division": "div.",
+    "title": "title",
+    "subtitle": "subtitle",
+    "chapter": "ch.",
+    "subchapter": "subch.",
+    "part": "pt.",
+    "subpart": "subpt.",
+}
+"""How a US Code source credit writes each level: `div. A`, `title IX`."""
+
+
+def _level_label(segment: str) -> str | None:
+    """`dA` → `div. A`, `tIX` → `title IX`; None for a section or a
+    subdivision. Below a section `dd` and `tt` are subsections, so a level's
+    designator starts with a capital or a digit."""
+    if _SECTION_SEGMENT.match(segment):
+        return None
+    for prefix, level in LEVEL_PREFIXES:
+        rest = segment[len(prefix):]
+        if segment.startswith(prefix) and rest and (rest[0].isupper() or rest[0].isdigit()):
+            return f"{_LEVEL_LABELS[level]} {rest}"
+    return None
+
+
+def history_ref_label(identifier: str) -> str:
+    """A cited law, provision or Statutes at Large page in the form a US Code
+    source credit gives it, with the law's name spelled out:
+
+    `/us/act/1946-08-01/ch724/tI/s291` → `Act of August 1, 1946, ch. 724, title I, § 291`,
+    `/us/pl/102/486/tIX/s902/a/8` → `Public Law 102-486, title IX, § 902(a)(8)`,
+    `/us/pl/105/277/dA/s101/f/tVIII/s405/d/14/A` →
+    `Public Law 105-277, div. A, § 101(f) [title VIII, § 405(d)(14)(A)]`,
+    `/us/stat/64/a12` → `64 Stat. A12`.
+
+    A level or section below a section (an act enacted inside another law's
+    section) is bracketed. Anything that is not a law or a page is returned
+    as given.
     """
     stat = parse_stat_page(identifier)
     if stat is not None:
-        return f"{stat.volume} Stat. {stat.page}"
-    p = parse_identifier(identifier)
-    if p is None:
+        return f"{stat.volume} Stat. {stat.page.upper()}"
+    parsed = parse_identifier(identifier)
+    if parsed is None or parsed.kind == "sComp":
         return identifier
-    law_part = law_label(p.kind, p.congress, p.number, p.chapter, p.enacted or date)
-    if p.section_num is not None:
-        sub = "".join(f"({seg})" for seg in p.below_section)
-        return f"{law_part}, § {p.section_num}{sub}"
-    return law_part
+    outer = [law_label(parsed.kind, parsed.congress, parsed.number, parsed.chapter, parsed.enacted)]
+    inner: list[str] = []
+    pieces = outer
+    seen_section = False
+    for segment in parsed.segments:
+        section = _SECTION_SEGMENT.match(segment)
+        level = None if section else _level_label(segment)
+        if (section or level) and seen_section:
+            pieces = inner
+        if section:
+            pieces.append(f"§ {section.group('num')}")
+            seen_section = True
+        elif level:
+            pieces.append(level)
+        else:
+            pieces[-1] += f"({segment})"
+    label = ", ".join(outer)
+    return f"{label} [{', '.join(inner)}]" if inner else label

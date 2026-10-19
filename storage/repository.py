@@ -544,47 +544,44 @@ class ClassificationRow:
 
 @dataclass(frozen=True, slots=True)
 class CanonicalUscHistoryItem:
+    """One ref of the note or source credit, in document order: a law or one
+    of its provisions, or the Statutes at Large page that follows it."""
+
     identifier: str
     label: str
+    """`Public Law 102-486, title IX, § 902(a)(8)`, `106 Stat. 2944`."""
     date: datetime.date | None = None
 
 
 @dataclass(frozen=True, slots=True)
 class CanonicalUscRef:
+    """The US Code section an act is found at: the one whose Short Title note
+    cites the act as enacting or adding the short title, else the first one
+    whose source credit cites the act as enacting it (ADR-0032)."""
+
     identifier: str
+    """`/us/usc/t42/s2011`."""
     citation: str | None
     heading: str | None
-    url: str
+    context: str
+    """`note` or `sourceCredit`: where in the section the act is cited."""
     note_topic: str | None
+    """`shortTitle` for a note; None for a source credit."""
     history: tuple[CanonicalUscHistoryItem, ...]
+    """The refs of that Short Title note or source credit."""
     citing_sections_count: int
-
-
-@dataclass(frozen=True, slots=True)
-class ActCompilationRef:
-    identifier: str
-    package_id: str
-    current_through_pl: str | None = None
-    current_through_date: datetime.date | None = None
-    url: str = ""
-
-
-@dataclass(frozen=True, slots=True)
-class ActLawRef:
-    identifier: str
-    label: str
-    aliases: tuple[str, ...]
-    citation: str | None
-    enacted: datetime.date | None
-    official_title: str | None
+    """US Code sections that cite the act anywhere."""
 
 
 @dataclass(frozen=True, slots=True)
 class ActMatch:
+    """An act whose popular name a search query matches: its compilation,
+    the enacted law, and its US Code section, each when there is one."""
+
     title: str
     short_titles: tuple[str, ...]
-    compilation: ActCompilationRef | None = None
-    law: ActLawRef | None = None
+    compilation: CompRef | None = None
+    law: LawRef | None = None
     canonical_usc: CanonicalUscRef | None = None
 
 
@@ -829,7 +826,7 @@ class Repository(Protocol):
         ...
 
     def act_matches(self, query: str, *, limit: int = 5) -> list[ActMatch]:
-        """Find compilations and laws matching a search query by title or short
-        titles, with their linked canonical U.S. Code Short Title section and
-        statutory history."""
+        """Compilations and laws whose popular name the query matches as whole
+        words, best match first, one per compilation prefix (ADR-0032). A
+        query of only common title words or numbers matches nothing."""
         ...
