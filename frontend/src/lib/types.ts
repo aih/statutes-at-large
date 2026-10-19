@@ -485,6 +485,8 @@ export interface SearchCanonicalUsc {
   citation: string | null;
   heading: string | null;
   url: string;
+  /** `note` (a Short Title note) or `sourceCredit`. */
+  context: string;
   note_topic: string | null;
   history: SearchUscHistoryItem[];
   citing_sections_count: number;
@@ -506,6 +508,7 @@ export interface SearchLawMatch {
   official_title: string | null;
 }
 
+/** An act whose popular name the query matches (ADR-0032). */
 export interface SearchActMatch {
   title: string;
   short_titles: string[];

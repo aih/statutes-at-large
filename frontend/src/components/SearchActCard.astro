@@ -1,22 +1,37 @@
 ---
 /**
- * Primary Act match card displayed at the top of search results.
- * Prioritizes:
- * 1. Statute Compilation (title, as compiled prefix, currency)
- * 2. Canonical U.S. Code section and statutory history chain
- * 3. Original Enactment (law identifier, citation, date)
+ * One act whose popular name the query matches (`acts`, ADR-0032), above the
+ * results: its Statute Compilation and currency, the US Code section that
+ * names it with the refs of that Short Title note or source credit, and the
+ * law as enacted.
  */
-import type { SearchActMatch } from "../lib/types";
-import { appHref, longDate } from "../lib/url";
+import type { SearchActMatch, SearchUscHistoryItem } from "../lib/types";
+import { appHref, longDate, uscodeHref } from "../lib/url";
 
 interface Props {
   act: SearchActMatch;
 }
 
 const { act } = Astro.props;
+const usc = act.canonical_usc ?? null;
+
+const isPage = (ref: SearchUscHistoryItem) => ref.identifier.startsWith("/us/stat/");
+
+/** Each cited law or provision with the Statutes at Large page cited after it. */
+const steps: { ref: SearchUscHistoryItem; page: SearchUscHistoryItem | null }[] = [];
+for (const ref of usc?.history ?? []) {
+  const last = steps.at(-1);
+  if (isPage(ref) && last && !last.page && !isPage(last.ref)) {
+    last.page = ref;
+  } else {
+    steps.push({ ref, page: null });
+  }
+}
+const where = usc?.note_topic === "shortTitle" ? "Short Title note" : "Source credit";
+const through = act.compilation?.current_through ?? null;
 ---
 
-<div class="usa-summary-box act-card" role="region" aria-label={`Act: ${act.title}`}>
+<div class="usa-summary-box act-card" role="region" aria-label={act.title}>
   <div class="usa-summary-box__body">
     <h3 class="usa-summary-box__heading">{act.title}</h3>
     <div class="usa-summary-box__text">
@@ -26,53 +41,37 @@ const { act } = Astro.props;
             <>
               <dt>Statute Compilation</dt>
               <dd>
-                <div>
-                  <a href={appHref(act.compilation.identifier)}>{act.title}</a>
-                  <span class="toc__meta"> — As compiled ({act.compilation.identifier})</span>
-                </div>
-                {act.compilation.current_through?.pl && (
-                  <div class="toc__meta">
-                    Updated through Pub. L. {act.compilation.current_through.pl}
-                    {act.compilation.current_through.enacted && `, ${longDate(act.compilation.current_through.enacted)}`}
-                  </div>
-                )}
+                <a href={appHref(act.compilation.identifier)}>{act.compilation.identifier}</a>
+                {through?.pl && <span class="toc__meta">{` (current through Public Law ${through.pl}${through.enacted ? `, ${longDate(through.enacted)}` : ""})`}</span>}
               </dd>
             </>
           )
         }
 
         {
-          act.canonical_usc && (
+          usc && (
             <>
               <dt>U.S. Code</dt>
               <dd>
                 <div>
-                  <a class="usa-link usa-link--external" href={act.canonical_usc.url}>
-                    {act.canonical_usc.citation}
-                    {act.canonical_usc.heading && ` — ${act.canonical_usc.heading}`}
-                  </a>
-                  {act.canonical_usc.note_topic && (
-                    <span class="toc__meta">
-                      {" "}({act.canonical_usc.note_topic === "shortTitle" ? "Short Title note" : act.canonical_usc.note_topic})
-                    </span>
-                  )}
+                  <a class="usa-link usa-link--external" href={uscodeHref(usc.identifier)}>{usc.citation ?? usc.identifier}</a>
+                  {usc.heading && ` — ${usc.heading}`}
                 </div>
-                {act.canonical_usc.history && act.canonical_usc.history.length > 0 && (
+                {steps.length > 0 && (
                   <div class="act-history">
-                    <span class="toc__meta">Statutory history: </span>
+                    <span class="toc__meta">{where}: </span>
                     <ol class="history-list">
-                      {act.canonical_usc.history.map((step) => (
+                      {steps.map(({ ref, page }) => (
                         <li>
-                          <a href={appHref(step.identifier)}>{step.label}</a>
-                          {step.date && <span class="toc__meta"> ({longDate(step.date)})</span>}
+                          <a href={appHref(ref.identifier)}>{ref.label}</a>{page && <>, <a href={appHref(page.identifier)}>{page.label}</a></>}{ref.date && !ref.identifier.startsWith("/us/act/") && <span class="toc__meta">{` (${longDate(ref.date)})`}</span>}
                         </li>
                       ))}
                     </ol>
                   </div>
                 )}
-                {act.canonical_usc.citing_sections_count > 0 && (
+                {usc.citing_sections_count > 0 && (
                   <div class="toc__meta">
-                    Cited by {act.canonical_usc.citing_sections_count} U.S. Code section{act.canonical_usc.citing_sections_count === 1 ? "" : "s"}
+                    {`Cited by ${usc.citing_sections_count.toLocaleString()} U.S. Code section${usc.citing_sections_count === 1 ? "" : "s"}`}
                   </div>
                 )}
               </dd>
@@ -83,11 +82,11 @@ const { act } = Astro.props;
         {
           act.law && (
             <>
-              <dt>Original Enactment</dt>
+              <dt>As enacted</dt>
               <dd>
                 <a href={appHref(act.law.identifier)}>{act.law.label}</a>
                 {act.law.citation && <span class="toc__meta"> ({act.law.citation})</span>}
-                {act.law.enacted && <span class="toc__meta"> · Enacted {longDate(act.law.enacted)}</span>}
+                {act.law.enacted && <span class="toc__meta"> · enacted {longDate(act.law.enacted)}</span>}
               </dd>
             </>
           )
