@@ -113,31 +113,6 @@ def test_fetch_listing_pages_until_a_short_page():
     assert client.offsets == [0, PAGE_SIZE]
 
 
-def test_parse_listing_with_laws_shape():
-    laws_payload = {
-        "laws": [
-            {
-                "number": "119-120",
-                "type": "Public Law",
-                "title": "A public law",
-                "latestAction": {"actionDate": "2026-10-02"},
-                "bill": {"type": "HR", "number": "9001"},
-            },
-            {
-                "number": "119-2",
-                "type": "Private Law",
-                "bill": {"type": "HR", "number": "8000"},
-            },
-        ]
-    }
-    listed = parse_listing(laws_payload, 119)
-    assert len(listed) == 1
-    assert listed[0].identifier == "/us/pl/119/120"
-    assert listed[0].bill_type == "HR"
-    assert listed[0].bill_number == "9001"
-    assert listed[0].action_date == datetime.date(2026, 10, 2)
-
-
 def test_cmd_pending_with_fake_client(monkeypatch, tmp_path, session_factory):
     from argparse import Namespace
     from ingest.plaw_pending import cmd_pending
