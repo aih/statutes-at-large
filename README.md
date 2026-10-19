@@ -205,7 +205,7 @@ Search:
 
 | Route | Answer |
 |---|---|
-| `GET /api/v1/search?q=` | keyword search over the units and compiled sections that carry text: `q` (the query, scopes `law:`, `congress:`, `year:`, `vol:`, `kind:`, `view:`, `heading:`, quoted phrases), `limit` (1 to 100, default 20), `offset` (0 to 1000), `sort` (`relevance`, `date`, `citation`), `view` (`enacted`, default; `compiled`; `all`); `{results: [{identifier, law_identifier, law_label, level, num, heading, snippets, enacted, citation, view, comp_prefix, url}], total, facets: {congress, kind, view}, note}`; 400 on a bad `sort` or an empty query, 503 when the cluster is unavailable; `max-age=300`; 120 requests then 10 per second per address (ADR-0023) |
+| `GET /api/v1/search?q=` | keyword search over the units and compiled sections that carry text: `q` (the query, scopes `law:`, `congress:`, `year:`, `vol:`, `kind:`, `view:`, `heading:`, quoted phrases), `limit` (1 to 100, default 20), `offset` (0 to 1000), `sort` (`relevance`, `date`, `citation`), `view` (`enacted`, default; `compiled`; `all`); `{results: [{identifier, law_identifier, law_label, level, num, heading, snippets, enacted, citation, view, comp_prefix, url}], total, facets: {congress, kind, view}, note, acts: [{title, short_titles, compilation, law, canonical_usc}]}`, `acts` on the first page only: the acts whose popular name the words match, with the US Code section that names each (ADR-0032); 400 on a bad `sort` or an empty query, 503 when the cluster is unavailable; `max-age=300`; 120 requests then 10 per second per address (ADR-0023) |
 
 Runs over the US Code site's OpenSearch cluster, reached through
 `search-relay` (ADR-0024); this project runs no cluster of its own on the
@@ -264,7 +264,7 @@ and bottom, `/` focuses the citation box, `?` opens the shortcut list
 | `/app/us/pl/{c}/{n}/{path}` (and the other kinds) | a hierarchy node's contents, or a section's text rendered from `?format=xml` with a provision marked, the note, the currency line, alternatives, Stat. pages with govinfo links, breadcrumbs, previous and next, cross references resolved through `/labels`, the "cited by" panel, provenance |
 | `/app/us/sComp/{c}/{n}[/{path}]` | the compiled view with the version picker (`?through=`) and the enacted counterpart |
 | `/app/us/stat/{vol}/{page}` | the page label and volume, numeric neighbours, the text the law prints on the page (the slice between page markers from `?format=xml`, rendered through the USLM renderer), "Begins inside Sec. N — Read section N in full" for each unit on the page, and every law that starts on or spans the page (ADR-0020) |
-| `/app/search?q=` | keyword results over `/api/v1/search`: law and unit linked, highlighted snippets, facets that edit the query, a sort and view control, a pager, the note; zero results links the syntax page and the six citation forms (ADR-0023) |
+| `/app/search?q=` | keyword results over `/api/v1/search`: a box per act the words name, with its compilation, US Code section and enacted law (ADR-0032); law and unit linked, highlighted snippets, facets that edit the query, a sort and view control, a pager, the note; zero results links the syntax page and the six citation forms (ADR-0023) |
 | `/app/search/syntax` | the search operators and scope words, static, no API call |
 
 Cross references: `/us/usc/…` links to the US Code site (`USCODE_ORIGIN`);
