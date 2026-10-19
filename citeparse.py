@@ -117,11 +117,11 @@ _STAT_PAGE = r"(?P<page>\d+[A-Za-z]?(?:" + _DASH + r"\d+)?|[A-Za-z]\d+)"
 _STAT = r"(?P<volume>\d{1,3})\s*Stat\.?\s*" + _STAT_PAGE + r"(?:\s*,\s*\d+[A-Za-z]?)*(?:\s*\(\d{4}\))?"
 
 #: `814`, `2A`, `204-1`; a range (`§§ 814–816`) keeps its first number.
-_SECTION_WORD = r"(?:(?P<plural>§§|[Ss]ecs?\.?|[Ss]ections?)|§|[Ss]ec\.?|[Ss]ection)"
-_SECTION_NUM = r"(?P<section>\d+[A-Za-z]*(?:-\d+[A-Za-z]*)?)"
+_SECTION_WORD = r"(?:(?P<plural>§§|[Ss]ecs\.?|[Ss]ections)|§|[Ss]ec\.?|[Ss]ection)"
+_SECTION_NUM = r"(?P<section>\d+[A-Za-z]?(?:-\d+[A-Za-z]?)?)(?![A-Za-z])"
 #: `(a)(1)(B)`; a four-digit parenthetical is a year, not a subdivision.
 _PARENS = r"(?P<subs>(?:\s*\((?!\d{4}\))[A-Za-z0-9]+\))*)"
-_SECTION = _SECTION_WORD + r"\s*" + _SECTION_NUM + _PARENS + r"(?:\s*" + _DASH + r"\s*\d+[A-Za-z]*)?"
+_SECTION = _SECTION_WORD + r"\s*" + _SECTION_NUM + _PARENS + r"(?:\s*" + _DASH + r"\s*\d+[A-Za-z]?)?"
 
 _LEVELS: tuple[tuple[str, str], ...] = (
     (r"div(?:ision)?\.?", "d"),
