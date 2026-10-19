@@ -936,6 +936,74 @@ Googlebot on `/app` 403; curl on `/health` passed through; a host other than
 `GATE_HOST` not gated; a request to a stopped backend restarted three seconds
 later answered by the backend after 3.27 s instead of 502. Not run on the box.
 
+## 2026-10-19 — search ranking, Statute Compilations, and canonical U.S. Code short titles
+
+Asked: issue #10. Rank an act above its amending laws when it is searched by
+popular name, show its Statute Compilation at the top of the first page, and
+link the US Code section that carries its short title, with its history.
+
+Done (ADR-0032): `FIELDS` searches `short_titles^10` and `official_title^4`. In
+`ingest/search_sync.py` a law with no short title takes its whole-act
+compilation's. `PostgresRepository.list_comps` drops quotes around `q`, ranks
+exact matches first and kept one file per prefix. `act_matches` returns the
+matched acts with their compilation, law, and US Code section from the Short
+Title note or, failing that, a source credit. `/api/v1/search` returns them as
+`acts` on the first page; `/app/search` shows them in a summary box above the
+results.
+
+Verified: `uv run pytest` 611 passed, new tests in `tests/test_repository.py`,
+`tests/test_search_route.py` and `tests/test_search_mapping.py`, an updated
+assertion in `tests/test_searchquery.py`. `npm --prefix frontend test` 115
+passed; `npm --prefix frontend run build` completed.
+
+## 2026-10-19 — review of PR #20
+
+Asked: review the PR, fix errors and inaccuracies as commits on it.
+
+Found and fixed:
+- `act_matches` matched any substring of a title, so `of`, `a` or `act` showed
+  five act boxes. It now matches whole words of popular names (not the long
+  title), and a query of only common title words and numbers names no act.
+- The source-credit fallback took the first section whose credit cites the
+  law anywhere, so an amending law was given the amended act's section (Public
+  Law 111-344 got 19 U.S.C. 2296). The law now has to be cited before the
+  credit's first Stat. page; the Short Title note is read the same way.
+- A compilation with no `law_id` was matched to `Law.number == law_number`,
+  which misses a chapter prefix and a law known by alias; it now goes through
+  `_law_by_congress_number`. The guessed `/us/pl/{c}/{n}` alias for an
+  unloaded law is gone: for a chapter prefix it names another law.
+- `list_comps` kept one file per prefix, which made `/api/v1/comps?q=` a list
+  of acts rather than of files: the Social Security Act's title XVIII file
+  could be dropped from `?q=medicare` for another file of the same prefix. It
+  lists every file again, ranked.
+- `history_ref_label` dropped the division and title (`Public Law 117-328,
+  § 101` for div. GG) and printed an inner act's path as
+  `§ 101(f)(tVIII)(s405)(d)(14)(A)`. It now writes `div. GG, § 101` and
+  `div. A, § 101(f) [title VIII, § 405(d)(14)(A)]`, and upper-cases a page
+  label (`64 Stat. A12`).
+- `storage/postgres.py` read `USCODE_ORIGIN` from the environment and built
+  `/app` URLs; the API builds both now, from `api.alternatives.USCODE_ORIGIN`.
+  `ActCompilationRef` and `ActLawRef` duplicated `CompRef` and `LawRef` and are
+  gone. `note_topic` carried `sourceCredit`, a context; `context` is a field of
+  its own.
+- Compiled documents of a matched law did not take the compilation's short
+  titles; they do.
+- The search route's tests without the fixture database reached for the dev
+  Postgres through `get_repository`; `api_client` now answers `act_matches`
+  from a fake and puts the session's override back afterwards.
+- The card printed `sourceCredit`, listed each Stat. page as a step of its
+  own, and said "Updated through Pub. L."; it now reads "Source credit:",
+  follows each law with its page, and says "current through Public Law" as the
+  other pages do.
+- The ADR is rewrapped and records that `reindex-search --if-changed` will not
+  rebuild for this change; README documents `acts`.
+
+Verified: `uv run pytest` 633 passed; `astro check` 0 errors; vitest 115
+passed; `npm run build` completed. The API over the fixture database with a
+cluster answering no hits, and the reader's dev server: `/app/search?q=Atomic
+energy act of 1954` and `?q=Sherman Act` show one box each, no axe
+violations. Not run against the box's database or cluster.
+
 ## 2026-10-19 — QA, accuracy, robustness, and modularity fixes (#11–#18)
 
 Asked: Track 1 fixes covering GitHub Issues #11, #12, #13, #14, #15, #16, #17, and #18.
