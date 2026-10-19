@@ -489,3 +489,87 @@ export interface Link {
   href: string;
   label: string;
 }
+
+// ------------------------------------------------------------- congresses
+
+export interface ClassificationSessionUrl {
+  session: string;
+  url: string;
+}
+
+export interface CongressSummary {
+  congress: number;
+  ordinal: string;
+  start_year: number;
+  end_year: number;
+  first_enacted: string | null;
+  last_enacted: string | null;
+  total_laws: number;
+  public_laws: number;
+  private_laws: number;
+  chapter_acts: number;
+  volumes: number[];
+  section_count: number;
+  compilations_count: number;
+  classified_laws_count: number;
+  classification_sessions: number[];
+  cited_laws_count: number;
+  citing_sections_count: number;
+  pending_laws_count: number;
+  url: string;
+  uscode_classification_urls: ClassificationSessionUrl[];
+}
+
+export interface CongressesOverview {
+  total_congresses: number;
+  total_laws: number;
+  total_public_laws: number;
+  total_private_laws: number;
+  total_chapter_acts: number;
+  total_sections: number;
+  total_compilations: number;
+  note: string;
+  congresses: CongressSummary[];
+}
+
+export interface CongressLawComp {
+  identifier_prefix: string;
+  display_title: string | null;
+  current_through_pl: string | null;
+  url: string;
+}
+
+export interface CongressLawItem {
+  identifier: string;
+  kind: string;
+  congress: number;
+  number: number | null;
+  chapter: number | null;
+  label: string;
+  citation: string | null;
+  volume: number;
+  page_first: string | null;
+  enacted: string | null;
+  official_title: string | null;
+  short_titles: string[];
+  section_count: number;
+  url: string;
+  stat_url: string | null;
+  compilations: CongressLawComp[];
+  usc_citing_sections_count: number;
+  cited_by_url: string | null;
+  usc_classifications_count: number;
+  usc_titles: string[];
+  uscode_classification_url: string | null;
+}
+
+export interface CongressDetail {
+  summary: CongressSummary;
+  laws: CongressLawItem[];
+  pending_laws: PendingLaw[];
+  total: number;
+  limit: number;
+  offset: number;
+  note: string;
+}
+

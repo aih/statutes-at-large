@@ -910,3 +910,88 @@ class CiteOut(BaseModel):
             message=message,
             pending=pending,
         )
+
+
+# ------------------------------------------------------------------ congresses
+
+
+class ClassificationSessionUrlOut(BaseModel):
+    session: str = Field(description="The session number or 'all'.")
+    url: str = Field(description="Absolute URL to the OLRC table on uscode.linkedlegislation.org.")
+
+
+class CongressSummaryOut(BaseModel):
+    congress: int
+    ordinal: str
+    start_year: int
+    end_year: int
+    first_enacted: datetime.date | None = None
+    last_enacted: datetime.date | None = None
+    total_laws: int
+    public_laws: int
+    private_laws: int
+    chapter_acts: int
+    volumes: list[int] = Field(default_factory=list)
+    section_count: int
+    compilations_count: int
+    classified_laws_count: int
+    classification_sessions: list[int] = Field(default_factory=list)
+    cited_laws_count: int
+    citing_sections_count: int
+    pending_laws_count: int
+    url: str
+    uscode_classification_urls: list[ClassificationSessionUrlOut] = Field(default_factory=list)
+
+
+class CongressesOverviewOut(BaseModel):
+    total_congresses: int
+    total_laws: int
+    total_public_laws: int
+    total_private_laws: int
+    total_chapter_acts: int
+    total_sections: int
+    total_compilations: int
+    note: str
+    congresses: list[CongressSummaryOut]
+
+
+class CongressLawCompOut(BaseModel):
+    identifier_prefix: str
+    display_title: str | None = None
+    current_through_pl: str | None = None
+    url: str
+
+
+class CongressLawItemOut(BaseModel):
+    identifier: str
+    kind: str
+    congress: int
+    number: int | None = None
+    chapter: int | None = None
+    label: str
+    citation: str | None = None
+    volume: int
+    page_first: str | None = None
+    enacted: datetime.date | None = None
+    official_title: str | None = None
+    short_titles: list[str] = Field(default_factory=list)
+    section_count: int
+    url: str
+    stat_url: str | None = None
+    compilations: list[CongressLawCompOut] = Field(default_factory=list)
+    usc_citing_sections_count: int
+    cited_by_url: str | None = None
+    usc_classifications_count: int
+    usc_titles: list[str] = Field(default_factory=list)
+    uscode_classification_url: str | None = None
+
+
+class CongressDetailOut(BaseModel):
+    summary: CongressSummaryOut
+    laws: list[CongressLawItemOut]
+    pending_laws: list[PendingLawOut] = Field(default_factory=list)
+    total: int
+    limit: int
+    offset: int
+    note: str
+

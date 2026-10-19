@@ -252,3 +252,35 @@ def title_order(partial_of: str | None) -> tuple[int, str]:
     if value is not None:
         return (value, text)
     return (10**6, text)
+
+
+def congress_ordinal(congress: int) -> str:
+    """The English ordinal for a Congress number: 1 -> '1st', 2 -> '2nd', 3 -> '3rd', 11 -> '11th', 21 -> '21st', 118 -> '118th'."""
+    if 11 <= (congress % 100) <= 13:
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(congress % 10, "th")
+    return f"{congress}{suffix}"
+
+
+def congress_years(congress: int) -> tuple[int, int]:
+    """The calendar years of a Congress term: (1787 + 2 * congress, 1789 + 2 * congress)."""
+    return (1787 + 2 * congress, 1789 + 2 * congress)
+
+
+def congress_of_date(enacted: datetime.date) -> int:
+    """The Congress that sat when a law was enacted.
+
+    Before 1935 (the 74th Congress), a Congress term began March 4 of odd years;
+    from 1935 onward, January 3 of odd years (Twentieth Amendment).
+    """
+    if enacted < datetime.date(1935, 1, 3):
+        cutoff = (3, 4)
+    else:
+        cutoff = (1, 3)
+    start_year = enacted.year if (enacted.month, enacted.day) >= cutoff else enacted.year - 1
+    if start_year % 2 == 0:
+        start_year -= 1
+    congress = (start_year - 1789) // 2 + 1
+    return max(1, congress)
+

@@ -428,6 +428,82 @@ BILL_TYPE_LABELS = {
 }
 
 
+# ------------------------------------------------------------------ congresses
+
+
+@dataclass(frozen=True, slots=True)
+class CongressSummary:
+    """Historical summary of one Congress: laws enacted, sections, compilations, and citations."""
+
+    congress: int
+    ordinal: str
+    start_year: int
+    end_year: int
+    first_enacted: datetime.date | None
+    last_enacted: datetime.date | None
+    total_laws: int
+    public_laws: int
+    private_laws: int
+    chapter_acts: int
+    volumes: tuple[int, ...]
+    section_count: int
+    compilations_count: int
+    classified_laws_count: int
+    classification_sessions: tuple[int, ...]
+    cited_laws_count: int
+    citing_sections_count: int
+    pending_laws_count: int
+
+
+@dataclass(frozen=True, slots=True)
+class CongressesOverview:
+    """Overview across all loaded Congresses from the 1st Congress on."""
+
+    total_congresses: int
+    total_laws: int
+    total_public_laws: int
+    total_private_laws: int
+    total_chapter_acts: int
+    total_sections: int
+    total_compilations: int
+    congresses: tuple[CongressSummary, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class CongressLawItem:
+    """One enacted law listed in a Congress detail view with cross-references."""
+
+    identifier: str
+    kind: str
+    congress: int
+    number: int | None
+    chapter: int | None
+    label: str
+    citation: str | None
+    volume: int
+    page_first: str | None
+    enacted: datetime.date | None
+    official_title: str | None
+    short_titles: tuple[str, ...]
+    section_count: int
+    compilations: tuple[CompRef, ...]
+    usc_classifications_count: int
+    usc_titles: tuple[str, ...]
+    usc_citing_sections_count: int
+
+
+@dataclass(frozen=True, slots=True)
+class CongressDetail:
+    """Detailed view of one Congress: its summary, laws page, and pending laws."""
+
+    summary: CongressSummary
+    laws: tuple[CongressLawItem, ...]
+    pending_laws: tuple[PendingLaw, ...]
+    total: int
+    limit: int
+    offset: int
+
+
 # ------------------------------------------------------- stage 3: the indexes
 
 
@@ -781,3 +857,25 @@ class Repository(Protocol):
         """The public law at `identifier` when Congress.gov lists it and its
         text is not loaded (ADR-0031); None otherwise."""
         ...
+
+    # --------------------------------------------------------------- congresses
+
+    def congresses_overview(self) -> CongressesOverview:
+        """Historical overview of Acts by Congress from the 1st Congress on."""
+        ...
+
+    def congress_detail(
+        self,
+        congress: int,
+        *,
+        kind: str | None = None,
+        has_comp: bool = False,
+        cited: bool = False,
+        q: str | None = None,
+        sort: str = "sequence",
+        limit: int = 100,
+        offset: int = 0,
+    ) -> CongressDetail | None:
+        """Acts enacted by one Congress, with pagination, filters, and cross-references."""
+        ...
+

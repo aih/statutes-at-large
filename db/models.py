@@ -366,6 +366,7 @@ class Citation(Base):
     """For a `stat` target: the volume and lower-case page label."""
 
     __table_args__ = (
+        Index("ix_citations_to_congress", "to_congress"),
         Index("ix_citations_to_law_section", "to_law", "to_section_num"),
         Index("ix_citations_to_stat", "to_volume", "to_page"),
     )

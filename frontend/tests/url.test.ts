@@ -4,6 +4,8 @@ import { nestToc, sectionNeighbors, unitLabel } from "../src/lib/toc";
 import {
   apiHref,
   appHref,
+  congressHref,
+  congressesHref,
   encodePath,
   gotoHref,
   govinfoPlaw,
@@ -28,6 +30,16 @@ describe("encodePath", () => {
 });
 
 describe("hrefs", () => {
+  it("congressesHref returns /app/congress", () => {
+    expect(congressesHref()).toBe("/app/congress");
+  });
+
+  it("congressHref builds /app/congress/{c} with optional query", () => {
+    expect(congressHref(81)).toBe("/app/congress/81");
+    expect(congressHref("118", { kind: "pl", sort: "date" })).toBe("/app/congress/118?kind=pl&sort=date");
+    expect(congressHref(83, { has_comp: "true", cited: null })).toBe("/app/congress/83?has_comp=true");
+  });
+
   it("appHref prefixes /app and carries a query", () => {
     expect(appHref("/us/pl/81/740/s3")).toBe("/app/us/pl/81/740/s3");
     expect(appHref("/us/sComp/83/703/tI/ch1./s1", { through: "118-67" })).toBe(

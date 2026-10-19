@@ -17,7 +17,15 @@ from typing import Annotated, Callable, Literal
 
 from fastapi import Depends, HTTPException, Query, Request, Response
 
-from storage import CompUnitResult, Repository, UnitResult, get_repository, long_date
+from storage import (
+    CompUnitResult,
+    CongressDetail,
+    CongressesOverview,
+    Repository,
+    UnitResult,
+    get_repository,
+    long_date,
+)
 
 Format = Literal["json", "xml", "html"]
 View = Literal["enacted", "compiled"]
@@ -228,6 +236,25 @@ def compiled_note(result: CompUnitResult, *, enacted_link: str | None, codified:
 def _files(result: CompUnitResult) -> str:
     count = len(result.files)
     return f"{count} file" if count == 1 else f"{count} files"
+ 
+ 
+def congresses_note(overview: CongressesOverview) -> str:
+    """The overview note: how many Congresses and laws are loaded."""
+    return (
+        f"Acts enacted across {overview.total_congresses} Congresses "
+        f"({overview.total_laws:,} laws), cross-referenced to the United States Code "
+        f"and OLRC classification tables."
+    )
+
+
+def congress_note(detail: CongressDetail) -> str:
+    """The detail note for one Congress."""
+    return (
+        f"Acts enacted by the {detail.summary.ordinal} Congress "
+        f"({detail.summary.start_year}–{detail.summary.end_year}), "
+        f"cross-referenced to the United States Code and OLRC classification tables."
+    )
+
 
 
 # -------------------------------------------------------------------- caching

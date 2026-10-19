@@ -37,6 +37,16 @@ export function encodePath(identifier: string): string {
     .join("/");
 }
 
+/** `/app/congress`, the Congresses overview page. */
+export function congressesHref(): string {
+  return `${APP}/congress`;
+}
+
+/** `/app/congress/{congress}`, with optional filter and sort parameters. */
+export function congressHref(congress: number | string, params?: Query): string {
+  return `${APP}/congress/${congress}${queryString(params)}`;
+}
+
 /** `/app{identifier}`, with an optional query (`through=` for a compilation). */
 export function appHref(identifier: string, query?: Query): string {
   return `${APP}${encodePath(identifier)}${queryString(query)}`;

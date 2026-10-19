@@ -935,3 +935,27 @@ two stub backends: `/app/us/pl/117/328/s1` without the cookie 403 with
 Googlebot on `/app` 403; curl on `/health` passed through; a host other than
 `GATE_HOST` not gated; a request to a stopped backend restarted three seconds
 later answered by the backend after 3.27 s instead of 502. Not run on the box.
+
+## 2026-10-19 — historical data analysis of Acts by Congress (1st to 119th)
+
+Asked: Issue #19: historical data analysis of Acts by Congress from the 1st
+to the 119th Congress, cross-referenced to uscode.linkedlegislation.org and
+statutes.linkedlegislation.org.
+
+Done (ADR-0032): index `ix_citations_to_congress` on `citations.to_congress`
+(migration `d8e3c7b1a209_ix_citations_to_congress.py`); Congress metadata
+helpers `congress_ordinal`, `congress_years`, and `congress_of_date` in
+`storage/identifiers.py`; `Repository.congresses_overview()` and
+`Repository.congress_detail()` in `storage/repository.py` and
+`storage/postgres.py`; API routes `GET /api/v1/congress` and
+`GET /api/v1/congress/{congress}` in `api/congress.py`; reader pages
+`/app/congress` (facts, pure SVG timeline, master table) and
+`/app/congress/[congress]` (facts, pending laws, filter and sort pills,
+search, laws table with cross-links, keyboard navigation) in
+`frontend/src/pages/congress/`; header navigation in `SiteHeader.astro`;
+route JS budget for `/app/congress` set to 3500 bytes in
+`docs/js-budgets.json` (3139 bytes measured).
+
+Verified: `uv run pytest` 620 passed, 13 new in `tests/test_congress.py`;
+`npm --prefix frontend test` 118 passed across 10 test files; `npm --prefix frontend run build`
+built cleanly.
