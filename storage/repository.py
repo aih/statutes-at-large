@@ -543,6 +543,52 @@ class ClassificationRow:
 
 
 @dataclass(frozen=True, slots=True)
+class CanonicalUscHistoryItem:
+    identifier: str
+    label: str
+    date: datetime.date | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class CanonicalUscRef:
+    identifier: str
+    citation: str | None
+    heading: str | None
+    url: str
+    note_topic: str | None
+    history: tuple[CanonicalUscHistoryItem, ...]
+    citing_sections_count: int
+
+
+@dataclass(frozen=True, slots=True)
+class ActCompilationRef:
+    identifier: str
+    package_id: str
+    current_through_pl: str | None = None
+    current_through_date: datetime.date | None = None
+    url: str = ""
+
+
+@dataclass(frozen=True, slots=True)
+class ActLawRef:
+    identifier: str
+    label: str
+    aliases: tuple[str, ...]
+    citation: str | None
+    enacted: datetime.date | None
+    official_title: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class ActMatch:
+    title: str
+    short_titles: tuple[str, ...]
+    compilation: ActCompilationRef | None = None
+    law: ActLawRef | None = None
+    canonical_usc: CanonicalUscRef | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class IndexCoverage:
     """Whether the indexes know a law at all: what tells `no_record` from
     `unknown` (design section 4)."""
@@ -780,4 +826,10 @@ class Repository(Protocol):
     def pending_law(self, identifier: str) -> PendingLaw | None:
         """The public law at `identifier` when Congress.gov lists it and its
         text is not loaded (ADR-0031); None otherwise."""
+        ...
+
+    def act_matches(self, query: str, *, limit: int = 5) -> list[ActMatch]:
+        """Find compilations and laws matching a search query by title or short
+        titles, with their linked canonical U.S. Code Short Title section and
+        statutory history."""
         ...

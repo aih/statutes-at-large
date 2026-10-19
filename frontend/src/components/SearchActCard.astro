@@ -1,0 +1,120 @@
+---
+/**
+ * Primary Act match card displayed at the top of search results.
+ * Prioritizes:
+ * 1. Statute Compilation (title, as compiled prefix, currency)
+ * 2. Canonical U.S. Code section and statutory history chain
+ * 3. Original Enactment (law identifier, citation, date)
+ */
+import type { SearchActMatch } from "../lib/types";
+import { appHref, longDate } from "../lib/url";
+
+interface Props {
+  act: SearchActMatch;
+}
+
+const { act } = Astro.props;
+---
+
+<div class="usa-summary-box act-card" role="region" aria-label={`Act: ${act.title}`}>
+  <div class="usa-summary-box__body">
+    <h3 class="usa-summary-box__heading">{act.title}</h3>
+    <div class="usa-summary-box__text">
+      <dl class="facts">
+        {
+          act.compilation && (
+            <>
+              <dt>Statute Compilation</dt>
+              <dd>
+                <div>
+                  <a href={appHref(act.compilation.identifier)}>{act.title}</a>
+                  <span class="toc__meta"> — As compiled ({act.compilation.identifier})</span>
+                </div>
+                {act.compilation.current_through?.pl && (
+                  <div class="toc__meta">
+                    Updated through Pub. L. {act.compilation.current_through.pl}
+                    {act.compilation.current_through.enacted && `, ${longDate(act.compilation.current_through.enacted)}`}
+                  </div>
+                )}
+              </dd>
+            </>
+          )
+        }
+
+        {
+          act.canonical_usc && (
+            <>
+              <dt>U.S. Code</dt>
+              <dd>
+                <div>
+                  <a class="usa-link usa-link--external" href={act.canonical_usc.url}>
+                    {act.canonical_usc.citation}
+                    {act.canonical_usc.heading && ` — ${act.canonical_usc.heading}`}
+                  </a>
+                  {act.canonical_usc.note_topic && (
+                    <span class="toc__meta">
+                      {" "}({act.canonical_usc.note_topic === "shortTitle" ? "Short Title note" : act.canonical_usc.note_topic})
+                    </span>
+                  )}
+                </div>
+                {act.canonical_usc.history && act.canonical_usc.history.length > 0 && (
+                  <div class="act-history">
+                    <span class="toc__meta">Statutory history: </span>
+                    <ol class="history-list">
+                      {act.canonical_usc.history.map((step) => (
+                        <li>
+                          <a href={appHref(step.identifier)}>{step.label}</a>
+                          {step.date && <span class="toc__meta"> ({longDate(step.date)})</span>}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+                {act.canonical_usc.citing_sections_count > 0 && (
+                  <div class="toc__meta">
+                    Cited by {act.canonical_usc.citing_sections_count} U.S. Code section{act.canonical_usc.citing_sections_count === 1 ? "" : "s"}
+                  </div>
+                )}
+              </dd>
+            </>
+          )
+        }
+
+        {
+          act.law && (
+            <>
+              <dt>Original Enactment</dt>
+              <dd>
+                <a href={appHref(act.law.identifier)}>{act.law.label}</a>
+                {act.law.citation && <span class="toc__meta"> ({act.law.citation})</span>}
+                {act.law.enacted && <span class="toc__meta"> · Enacted {longDate(act.law.enacted)}</span>}
+              </dd>
+            </>
+          )
+        }
+      </dl>
+    </div>
+  </div>
+</div>
+
+<style>
+  .act-card {
+    margin-block: 1rem 1.5rem;
+  }
+  .act-history {
+    margin-top: 0.35rem;
+  }
+  .history-list {
+    display: inline;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .history-list li {
+    display: inline;
+  }
+  .history-list li + li::before {
+    content: " → ";
+    color: var(--muted);
+  }
+</style>

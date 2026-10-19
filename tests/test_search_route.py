@@ -168,3 +168,42 @@ def test_an_unconfigured_cluster_answers_503_with_the_same_sentence(api_client, 
 
     assert response.status_code == 503
     assert response.json()["detail"] == SEARCH_UNAVAILABLE
+
+
+def test_search_surfaces_matched_act_and_canonical_usc(client):
+    fake = FakeSearchClient(response={"hits": {"total": {"value": 0}, "hits": []}})
+    _use(fake)
+
+    response = client.get(ROUTE, params={"q": "Atomic energy act of 1954"})
+    assert response.status_code == 200
+    body = response.json()
+    assert len(body["acts"]) >= 1
+    act = body["acts"][0]
+    assert act["title"] == "Atomic Energy Act of 1954"
+    assert act["compilation"]["identifier"] == "/us/sComp/83/703"
+    assert act["compilation"]["package_id"] == "COMPS-1630"
+    assert act["compilation"]["current_through"]["pl"] == "118-67"
+    assert act["compilation"]["url"] == "/app/us/sComp/83/703"
+
+    assert act["law"]["identifier"] == "/us/pl/83/703"
+    assert act["law"]["label"] == "Public Law 83-703"
+    assert "/us/act/1954-08-30/ch1073" in act["law"]["aliases"]
+    assert act["law"]["citation"] == "68 Stat. 919"
+    assert act["law"]["enacted"] == "1954-08-30"
+
+    assert act["canonical_usc"]["identifier"] == "/us/usc/t42/s2011"
+    assert act["canonical_usc"]["citation"] == "42 U.S.C. § 2011"
+    assert act["canonical_usc"]["heading"] == "Congressional declaration of policy"
+    assert act["canonical_usc"]["url"] == "https://uscode.linkedlegislation.org/us/usc/t42/s2011"
+    assert act["canonical_usc"]["note_topic"] == "shortTitle"
+    assert act["canonical_usc"]["citing_sections_count"] >= 8
+
+    history_labels = [h["label"] for h in act["canonical_usc"]["history"]]
+    assert history_labels == [
+        "Act of August 1, 1946, ch. 724, § 291",
+        "Act of August 30, 1954, ch. 1073, § 1",
+        "68 Stat. 960",
+        "Public Law 102-486, § 902(a)(8)",
+        "106 Stat. 2944",
+    ]
+

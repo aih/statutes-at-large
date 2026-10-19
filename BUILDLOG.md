@@ -935,3 +935,16 @@ two stub backends: `/app/us/pl/117/328/s1` without the cookie 403 with
 Googlebot on `/app` 403; curl on `/health` passed through; a host other than
 `GATE_HOST` not gated; a request to a stopped backend restarted three seconds
 later answered by the backend after 3.27 s instead of 502. Not run on the box.
+
+## 2026-10-19 — search ranking, Statute Compilations, and canonical U.S. Code short titles
+
+Asked: GitHub Issue #10: Search ranking & Act resolution — query short_titles/official_title, surface Statute Compilations, and link canonical U.S. Code Short Title sections and statutory history.
+
+Done (ADR-0032):
+- Updated `storage/searchquery.py` `FIELDS` to include `short_titles^10` and `official_title^4`.
+- In `ingest/search_sync.py`, restated acts inherit `short_titles` from linked whole `Comp` rows when `law.short_titles` is empty.
+- In `storage/postgres.py`, updated `list_comps` to strip quotes and rank exact matches first while deduplicating multi-file compilations by `identifier_prefix`. Added `act_matches` to resolve matched acts, their compiled version, enacted law, and canonical U.S. Code short title section with statutory history refs and citing sections count.
+- In `api/search.py`, injected repository dependency gracefully and added `acts` to `SearchResponse`.
+- In `frontend/src/pages/search.astro` and `frontend/src/components/SearchActCard.astro`, rendered matched Act cards prioritizing the Statute Compilation, the canonical U.S. Code section and linked statutory history chain, and the original enactment.
+
+Verified: `uv run pytest` 611 passed, including new tests in `tests/test_repository.py`, `tests/test_search_route.py`, `tests/test_search_mapping.py`, and `tests/test_searchquery.py`. `npm --prefix frontend test` 115 passed; `npm --prefix frontend run build` completed cleanly.

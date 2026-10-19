@@ -282,6 +282,12 @@ class TestEnactedDocuments:
         assert doc["heading"] == "OFFICE OF THE SECRETARY OF DEFENSE"
         assert doc["text"] is None
 
+    def test_restated_law_inherits_compilation_short_titles(self, enacted):
+        """Public Law 83-703's short title is inside <quotedContent> so
+        laws.short_titles is empty, but its linked compilation carries it."""
+        doc = enacted["/us/pl/83/703/s1"]
+        assert doc["short_titles"] == ["Atomic Energy Act of 1954"]
+
     def test_a_quoted_section_is_not_a_document_of_its_own(self, enacted, db):
         """A `<section>` inside `quotedContent` is not a section of this law
         (gotcha 5): it stays inside the enclosing section's text."""

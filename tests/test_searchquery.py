@@ -151,7 +151,7 @@ class TestBody:
         ]
         assert clause["default_operator"] == "and"
         assert clause["flags"] == QUERY_SYNTAX_FLAGS
-        assert clause["fields"] == ["heading^2", "text"]
+        assert clause["fields"] == ["short_titles^10", "official_title^4", "heading^2", "text"]
         assert "fuzziness" not in clause
 
     def test_the_whole_body_asks_for_no_fuzziness(self):

@@ -163,3 +163,55 @@ def test_status(repo):
     assert plaw.laws == 4 and plaw.laws_by_congress == ((118, 3), (119, 1)) and plaw.congresses == (118, 119)
     assert plaw.latest_package == "PLAW-119publ1" and plaw.volumes == (137, 139)
     assert repo.last_source_check("PLAW").newest_package == "PLAW-119publ1"
+
+
+def test_act_matches_atomic_energy_act(repo):
+    matches = repo.act_matches('"Atomic energy act of 1954"')
+    assert matches
+    match = matches[0]
+    assert match.title == "Atomic Energy Act of 1954"
+    assert match.compilation is not None
+    assert match.compilation.identifier == "/us/sComp/83/703"
+    assert match.compilation.package_id == "COMPS-1630"
+    assert match.compilation.current_through_pl == "118-67"
+    assert match.compilation.url == "/app/us/sComp/83/703"
+
+    assert match.law is not None
+    assert match.law.identifier == "/us/pl/83/703"
+    assert match.law.label == "Public Law 83-703"
+    assert "/us/act/1954-08-30/ch1073" in match.law.aliases
+    assert match.law.citation == "68 Stat. 919"
+    assert match.law.enacted == datetime.date(1954, 8, 30)
+
+    assert match.canonical_usc is not None
+    assert match.canonical_usc.identifier == "/us/usc/t42/s2011"
+    assert match.canonical_usc.citation == "42 U.S.C. § 2011"
+    assert match.canonical_usc.heading == "Congressional declaration of policy"
+    assert match.canonical_usc.url == "https://uscode.linkedlegislation.org/us/usc/t42/s2011"
+    assert match.canonical_usc.note_topic == "shortTitle"
+    assert match.canonical_usc.citing_sections_count >= 8
+
+    history_labels = [h.label for h in match.canonical_usc.history]
+    assert history_labels == [
+        "Act of August 1, 1946, ch. 724, § 291",
+        "Act of August 30, 1954, ch. 1073, § 1",
+        "68 Stat. 960",
+        "Public Law 102-486, § 902(a)(8)",
+        "106 Stat. 2944",
+    ]
+
+
+def test_act_matches_sherman_act(repo):
+    matches = repo.act_matches("Sherman Act")
+    assert matches
+    match = matches[0]
+    assert match.title == "Sherman Act"
+    assert match.compilation is not None
+    assert match.compilation.identifier == "/us/sComp/51/647"
+    assert match.compilation.package_id == "COMPS-3055"
+    assert match.law is not None
+    assert match.law.identifier == "/us/act/1890-07-02/ch647"
+    assert match.canonical_usc is not None
+    assert match.canonical_usc.identifier == "/us/usc/t15/s1"
+    assert match.canonical_usc.note_topic == "sourceCredit"
+

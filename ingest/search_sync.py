@@ -272,7 +272,14 @@ def compiled_doc_id(identifier: str, package_id: str) -> str:
     return f"{identifier}@{package_id}"
 
 
-def _law_fields(law: Law) -> dict[str, Any]:
+def _law_fields(
+    law: Law, comp_short_titles: dict[int, list[str]] | None = None
+) -> dict[str, Any]:
+    short_titles = list(law.short_titles or ())
+    if not short_titles and comp_short_titles:
+        comp_titles = comp_short_titles.get(law.id)
+        if comp_titles:
+            short_titles = list(comp_titles)
     return {
         "law_identifier": law.identifier,
         "law_label": law_label(law.kind, law.congress, law.number, law.chapter, law.enacted),
@@ -280,7 +287,7 @@ def _law_fields(law: Law) -> dict[str, Any]:
         "congress": law.congress,
         "number": law.number,
         "chapter": law.chapter,
-        "short_titles": list(law.short_titles or ()),
+        "short_titles": short_titles,
         "official_title": law.official_title,
         "enacted": law.enacted.isoformat() if law.enacted else None,
         "year": law.enacted.year if law.enacted else None,
@@ -305,6 +312,17 @@ def unit_documents(
     batch of 500 rows carrying each section's XML held hundreds of megabytes
     on the box, and the API container's limit is 512 MB.
     """
+    comp_short_titles: dict[int, list[str]] = {
+        row[0]: list(row[1] or ())
+        for row in session.execute(
+            select(Comp.law_id, Comp.short_titles).where(
+                Comp.law_id.is_not(None),
+                Comp.partial_of.is_(None),
+                Comp.short_titles.is_not(None),
+            )
+        ).all()
+        if row[1]
+    }
     unit_columns = Bundle(
         "unit",
         Unit.identifier,
@@ -331,7 +349,7 @@ def unit_documents(
         if not text and not heading:
             continue
         page = unit.first_page or law.stat_page_first
-        source = _law_fields(law) | {
+        source = _law_fields(law, comp_short_titles) | {
             "identifier": unit.identifier,
             "level": unit.level,
             "num": unit.num,

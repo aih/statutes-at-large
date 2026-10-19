@@ -252,3 +252,22 @@ def title_order(partial_of: str | None) -> tuple[int, str]:
     if value is not None:
         return (value, text)
     return (10**6, text)
+
+
+def history_ref_label(identifier: str, date: datetime.date | None = None) -> str:
+    """A human-readable label for a statutory history ref:
+    `/us/act/1946-08-01/ch724/tI/s291` -> `Act of August 1, 1946, ch. 724, § 291`,
+    `/us/pl/102/486/tIX/s902/a/8` -> `Public Law 102-486, § 902(a)(8)`,
+    `/us/stat/68/960` -> `68 Stat. 960`.
+    """
+    stat = parse_stat_page(identifier)
+    if stat is not None:
+        return f"{stat.volume} Stat. {stat.page}"
+    p = parse_identifier(identifier)
+    if p is None:
+        return identifier
+    law_part = law_label(p.kind, p.congress, p.number, p.chapter, p.enacted or date)
+    if p.section_num is not None:
+        sub = "".join(f"({seg})" for seg in p.below_section)
+        return f"{law_part}, § {p.section_num}{sub}"
+    return law_part

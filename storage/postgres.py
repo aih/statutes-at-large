@@ -19,6 +19,7 @@ import dataclasses
 import datetime
 import functools
 import hashlib
+import os
 from collections.abc import Sequence
 
 from sqlalchemy import Text, and_, cast, func, or_, select
@@ -39,8 +40,13 @@ from db.models import (
     StatPage,
     Unit,
 )
-from storage.identifiers import ParsedIdentifier, act_title, parse_identifier, parse_stat_page, title_order
+from storage.identifiers import ParsedIdentifier, act_title, history_ref_label, parse_identifier, parse_stat_page, title_order
 from storage.repository import (
+    ActCompilationRef,
+    ActLawRef,
+    ActMatch,
+    CanonicalUscHistoryItem,
+    CanonicalUscRef,
     CitationIndexStatus,
     CitationRef,
     CitedBy,
@@ -71,6 +77,8 @@ from storage.repository import (
     UnitResult,
 )
 from uslmtext import PageSlice, fragment_by_identifier, page_slice, plain_text, serialize
+
+USCODE_ORIGIN = os.environ.get("USCODE_ORIGIN", "https://uscode.linkedlegislation.org")
 
 
 _slice_source: contextvars.ContextVar[Law] = contextvars.ContextVar("law_of_the_slice")
@@ -455,7 +463,10 @@ class PostgresRepository:
             return self.compilations_for_law(law_identifier)[:limit]
         stmt = select(Comp)
         if q:
-            needle = f"%{q.strip()}%"
+            q_clean = q.strip().strip("'\"").strip()
+            if not q_clean:
+                return []
+            needle = f"%{q_clean}%"
             stmt = stmt.where(
                 or_(
                     Comp.title.ilike(needle),
@@ -463,8 +474,230 @@ class PostgresRepository:
                     cast(Comp.short_titles, Text).ilike(needle),
                 )
             )
+            comps = list(self._session.scalars(stmt.order_by(Comp.display_title, Comp.file_id)).all())
+            q_lower = q_clean.lower()
+
+            def rank_key(c: Comp):
+                titles = [c.display_title or "", c.title or "", act_title(c.display_title, c.partial_of) or ""]
+                short_titles = [st for st in (c.short_titles or ()) if isinstance(st, str)]
+                all_titles = titles + short_titles
+                exact = any(t.strip().lower() == q_lower for t in all_titles if t)
+                starts = any(t.strip().lower().startswith(q_lower) for t in all_titles if t)
+                score = 0 if exact else (1 if starts else 2)
+                partial_rank = 1 if c.partial_of else 0
+                return (score, partial_rank, (c.display_title or "").lower(), c.file_id)
+
+            comps.sort(key=rank_key)
+            seen_prefixes: set[str] = set()
+            deduped: list[Comp] = []
+            for c in comps:
+                if c.identifier_prefix in seen_prefixes:
+                    continue
+                seen_prefixes.add(c.identifier_prefix)
+                deduped.append(c)
+                if len(deduped) >= limit:
+                    break
+            return [self._comp_ref(c) for c in deduped]
+
         stmt = stmt.order_by(Comp.display_title, Comp.file_id).limit(limit)
         return [self._comp_ref(c) for c in self._session.scalars(stmt).all()]
+
+    def act_matches(self, query: str, *, limit: int = 5) -> list[ActMatch]:
+        q_clean = query.strip().strip("'\"").strip()
+        if not q_clean:
+            return []
+        q_lower = q_clean.lower()
+        needle = f"%{q_clean}%"
+
+        comp_stmt = select(Comp).where(
+            or_(
+                Comp.title.ilike(needle),
+                Comp.display_title.ilike(needle),
+                cast(Comp.short_titles, Text).ilike(needle),
+            )
+        ).order_by(Comp.display_title, Comp.file_id)
+        matching_comps = list(self._session.scalars(comp_stmt).all())
+
+        def comp_rank_key(c: Comp):
+            titles = [c.display_title or "", c.title or "", act_title(c.display_title, c.partial_of) or ""]
+            short_titles = [st for st in (c.short_titles or ()) if isinstance(st, str)]
+            all_titles = titles + short_titles
+            exact = any(t.strip().lower() == q_lower for t in all_titles if t)
+            starts = any(t.strip().lower().startswith(q_lower) for t in all_titles if t)
+            score = 0 if exact else (1 if starts else 2)
+            partial_rank = 1 if c.partial_of else 0
+            return (score, partial_rank, (c.display_title or "").lower(), c.file_id)
+
+        matching_comps.sort(key=comp_rank_key)
+        seen_prefixes: set[str] = set()
+        deduped_comps: list[Comp] = []
+        for c in matching_comps:
+            if c.identifier_prefix in seen_prefixes:
+                continue
+            seen_prefixes.add(c.identifier_prefix)
+            deduped_comps.append(c)
+
+        law_stmt = select(Law).where(cast(Law.short_titles, Text).ilike(needle)).order_by(Law.id)
+        matching_laws = list(self._session.scalars(law_stmt).all())
+
+        candidates: list[tuple[int, int, Comp | None, Law | None]] = []
+        linked_law_ids: set[int] = set()
+        for c in deduped_comps:
+            if c.law_id is not None:
+                linked_law_ids.add(c.law_id)
+            titles = [c.display_title or "", c.title or "", act_title(c.display_title, c.partial_of) or ""]
+            short_titles = [st for st in (c.short_titles or ()) if isinstance(st, str)]
+            all_titles = titles + short_titles
+            exact = any(t.strip().lower() == q_lower for t in all_titles if t)
+            starts = any(t.strip().lower().startswith(q_lower) for t in all_titles if t)
+            score = 0 if exact else (1 if starts else 2)
+            candidates.append((score, 0, c, None))
+
+        for law in matching_laws:
+            if law.id in linked_law_ids:
+                continue
+            short_titles = [st for st in (law.short_titles or ()) if isinstance(st, str)]
+            exact = any(t.strip().lower() == q_lower for t in short_titles if t)
+            starts = any(t.strip().lower().startswith(q_lower) for t in short_titles if t)
+            score = 0 if exact else (1 if starts else 2)
+            candidates.append((score, 1, None, law))
+
+        candidates.sort(key=lambda item: (item[0], item[1]))
+        selected_candidates = candidates[:limit]
+
+        out: list[ActMatch] = []
+        for _, _, comp, law in selected_candidates:
+            act_comp: ActCompilationRef | None = None
+            resolved_law: Law | None = law
+            if comp is not None:
+                version = self._version_of(comp, None)
+                act_comp = ActCompilationRef(
+                    identifier=comp.identifier_prefix,
+                    package_id=comp.package_id,
+                    current_through_pl=version.current_through_pl if version else None,
+                    current_through_date=version.current_through_date if version else None,
+                    url=f"/app{comp.identifier_prefix}",
+                )
+                if resolved_law is None:
+                    if comp.law_id:
+                        resolved_law = self._session.get(Law, comp.law_id)
+                    elif comp.law_congress and comp.law_number:
+                        resolved_law = self._session.scalars(
+                            select(Law).where(Law.congress == comp.law_congress, Law.number == comp.law_number)
+                        ).first()
+
+            act_law: ActLawRef | None = None
+            aliases: list[str] = []
+            if resolved_law is not None:
+                law_ref = self._law_ref(resolved_law)
+                act_law = ActLawRef(
+                    identifier=law_ref.identifier,
+                    label=law_ref.label,
+                    aliases=law_ref.aliases,
+                    citation=law_ref.citation,
+                    enacted=law_ref.enacted,
+                    official_title=law_ref.official_title,
+                )
+                aliases = list(law_ref.aliases)
+            elif comp is not None and comp.law_congress and comp.law_number:
+                aliases = [f"/us/pl/{comp.law_congress}/{comp.law_number}"]
+
+            if comp is not None:
+                short_titles = list(comp.short_titles or ())
+                if not short_titles and resolved_law and resolved_law.short_titles:
+                    short_titles = list(resolved_law.short_titles)
+                title = short_titles[0] if short_titles else (act_title(comp.display_title, comp.partial_of) or comp.display_title or comp.title or "")
+            else:
+                short_titles = list(resolved_law.short_titles or ()) if resolved_law else []
+                title = short_titles[0] if short_titles else (act_law.label if act_law else "")
+
+            canonical_usc: CanonicalUscRef | None = None
+            if aliases:
+                short_title_cit = self._session.scalars(
+                    select(Citation)
+                    .where(
+                        Citation.to_law.in_(aliases),
+                        Citation.context == "note",
+                        Citation.note_topic == "shortTitle",
+                    )
+                    .order_by(Citation.from_identifier, Citation.seq)
+                ).first()
+
+                target_cit = short_title_cit
+                if target_cit is None:
+                    target_cit = self._session.scalars(
+                        select(Citation)
+                        .where(
+                            Citation.to_law.in_(aliases),
+                            Citation.context == "sourceCredit",
+                        )
+                        .order_by(Citation.from_identifier, Citation.seq)
+                    ).first()
+
+                if target_cit is not None:
+                    canonical_from = target_cit.from_identifier
+                    canonical_topic = target_cit.note_topic
+                    canonical_context = target_cit.context
+                    canonical_citation = target_cit.from_citation
+                    canonical_heading = target_cit.from_heading
+
+                    stmt = select(Citation).where(
+                        Citation.from_identifier == canonical_from,
+                        Citation.context == canonical_context,
+                    )
+                    if canonical_topic is not None:
+                        stmt = stmt.where(Citation.note_topic == canonical_topic)
+                    cits_in_sec = list(self._session.scalars(stmt.order_by(Citation.seq)).all())
+
+                    history_cits = cits_in_sec
+                    if canonical_topic == "shortTitle" and target_cit in cits_in_sec:
+                        idx = cits_in_sec.index(target_cit)
+                        left = idx
+                        while left > 0 and cits_in_sec[left].seq == cits_in_sec[left - 1].seq + 1:
+                            left -= 1
+                        right = idx
+                        while right < len(cits_in_sec) - 1 and cits_in_sec[right + 1].seq == cits_in_sec[right].seq + 1:
+                            right += 1
+                        history_cits = cits_in_sec[left : right + 1]
+
+                    history_items = [
+                        CanonicalUscHistoryItem(
+                            identifier=r.to_identifier,
+                            label=history_ref_label(r.to_identifier, r.to_date),
+                            date=r.to_date,
+                        )
+                        for r in history_cits
+                    ]
+
+                    citing_count = int(
+                        self._session.scalar(
+                            select(func.count(func.distinct(Citation.from_identifier)))
+                            .where(Citation.to_law.in_(aliases))
+                        )
+                        or 0
+                    )
+
+                    canonical_usc = CanonicalUscRef(
+                        identifier=canonical_from,
+                        citation=canonical_citation,
+                        heading=canonical_heading,
+                        url=f"{USCODE_ORIGIN}{canonical_from}",
+                        note_topic=canonical_topic or canonical_context,
+                        history=tuple(history_items),
+                        citing_sections_count=citing_count,
+                    )
+
+            out.append(
+                ActMatch(
+                    title=title,
+                    short_titles=tuple(short_titles),
+                    compilation=act_comp,
+                    law=act_law,
+                    canonical_usc=canonical_usc,
+                )
+            )
+
+        return out
 
     def get_comp_unit(self, identifier: str, *, through: str | None = None, wanted: str = "json") -> CompUnitResult | None:
         parsed = parse_identifier(identifier)

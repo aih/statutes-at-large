@@ -10,6 +10,7 @@ imports `storage.search` and `storage.searchquery` and nothing from
 
 from __future__ import annotations
 
+import datetime
 import logging
 from typing import Annotated, Optional
 
@@ -17,7 +18,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from opensearchpy import OpenSearch
 from pydantic import BaseModel
 
-from params import SEARCH_UNAVAILABLE, public_cache, rate_limit, search_note
+from api.comps_schemas import CurrentThroughOut
+from params import RepositoryDep, SEARCH_UNAVAILABLE, public_cache, rate_limit, search_note
 from storage.search import UNITS_ALIAS, SearchNotConfigured, get_search_client
 from storage.searchquery import (
     DEFAULT_VIEW,
@@ -87,11 +89,52 @@ class SearchResult(BaseModel):
     url: str
 
 
+class SearchUscHistoryItem(BaseModel):
+    identifier: str
+    label: str
+    date: Optional[datetime.date] = None
+
+
+class SearchCanonicalUsc(BaseModel):
+    identifier: str
+    citation: Optional[str] = None
+    heading: Optional[str] = None
+    url: str
+    note_topic: Optional[str] = None
+    history: list[SearchUscHistoryItem] = []
+    citing_sections_count: int = 0
+
+
+class SearchCompilationMatch(BaseModel):
+    identifier: str
+    package_id: str
+    current_through: Optional[CurrentThroughOut] = None
+    url: str
+
+
+class SearchLawMatch(BaseModel):
+    identifier: str
+    label: str
+    aliases: list[str] = []
+    citation: Optional[str] = None
+    enacted: Optional[datetime.date] = None
+    official_title: Optional[str] = None
+
+
+class SearchActMatch(BaseModel):
+    title: str
+    short_titles: list[str] = []
+    compilation: Optional[SearchCompilationMatch] = None
+    law: Optional[SearchLawMatch] = None
+    canonical_usc: Optional[SearchCanonicalUsc] = None
+
+
 class SearchResponse(BaseModel):
     results: list[SearchResult]
     total: int
     facets: SearchFacets
     note: str
+    acts: list[SearchActMatch] = []
 
 
 # ---------------------------------------------------------------------- route
@@ -106,6 +149,7 @@ class SearchResponse(BaseModel):
 )
 def search(
     client: SearchClientDep,
+    repo: RepositoryDep,
     q: Annotated[
         str,
         Query(
@@ -149,7 +193,67 @@ def search(
     results = [_result_of(hit) for hit in hits]
     facets = _facets(response.get("aggregations", {}))
 
-    return SearchResponse(results=results, total=total, facets=facets, note=search_note(resolved_view))
+    acts: list[SearchActMatch] = []
+    if offset == 0 and parsed.text:
+        try:
+            for m in repo.act_matches(parsed.text):
+                comp_match = None
+                if m.compilation:
+                    ct = None
+                    if m.compilation.current_through_pl or m.compilation.current_through_date:
+                        ct = CurrentThroughOut(
+                            pl=m.compilation.current_through_pl,
+                            enacted=m.compilation.current_through_date,
+                        )
+                    comp_match = SearchCompilationMatch(
+                        identifier=m.compilation.identifier,
+                        package_id=m.compilation.package_id,
+                        current_through=ct,
+                        url=m.compilation.url,
+                    )
+                law_match = None
+                if m.law:
+                    law_match = SearchLawMatch(
+                        identifier=m.law.identifier,
+                        label=m.law.label,
+                        aliases=list(m.law.aliases),
+                        citation=m.law.citation,
+                        enacted=m.law.enacted,
+                        official_title=m.law.official_title,
+                    )
+                usc_match = None
+                if m.canonical_usc:
+                    history = [
+                        SearchUscHistoryItem(
+                            identifier=h.identifier,
+                            label=h.label,
+                            date=h.date,
+                        )
+                        for h in m.canonical_usc.history
+                    ]
+                    usc_match = SearchCanonicalUsc(
+                        identifier=m.canonical_usc.identifier,
+                        citation=m.canonical_usc.citation,
+                        heading=m.canonical_usc.heading,
+                        url=m.canonical_usc.url,
+                        note_topic=m.canonical_usc.note_topic,
+                        history=history,
+                        citing_sections_count=m.canonical_usc.citing_sections_count,
+                    )
+                acts.append(
+                    SearchActMatch(
+                        title=m.title,
+                        short_titles=list(m.short_titles),
+                        compilation=comp_match,
+                        law=law_match,
+                        canonical_usc=usc_match,
+                    )
+                )
+        except Exception:
+            log.warning("act resolution failed or database unavailable", exc_info=True)
+            acts = []
+
+    return SearchResponse(results=results, total=total, facets=facets, note=search_note(resolved_view), acts=acts)
 
 
 def _result_of(hit: dict) -> SearchResult:
