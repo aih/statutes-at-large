@@ -195,7 +195,8 @@ def with_compilation():
         )
         session.add(comp)
         session.commit()
-    return factory
+    yield factory
+    engine.dispose()
 
 
 @pytest.fixture(scope="module")

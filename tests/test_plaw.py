@@ -203,7 +203,8 @@ def fresh():
         load_volume(session, FIXTURES / "statute-137-slice.xml")
         load_citations(session, [CITATIONS_SLICE], revision="fixture")
         load_classifications(session, DirectorySource(CLASSIFICATIONS_FIXTURES))
-    return factory
+    yield factory
+    engine.dispose()
 
 
 def _decisions(factory, identifiers):

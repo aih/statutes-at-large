@@ -36,6 +36,12 @@ default-groups = ["dev", "dataset"]
 pythonpath = ["."]
 testpaths = ["tests"]
 addopts = "-m 'not slow'"
+# An unclosed SQLite connection raises ResourceWarning at garbage collection,
+# which pytest reports as unraisable; both fail the run.
+filterwarnings = [
+    "error::ResourceWarning",
+    "error::pytest.PytestUnraisableExceptionWarning",
+]
 markers = [
     "slow: parses a whole STATUTE volume; run with `make test-slow`",
     "integration: needs the Postgres from docker compose with volumes loaded; skips when absent",
