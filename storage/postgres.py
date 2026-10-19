@@ -90,7 +90,8 @@ def _page_slice(law_id: int, content_hash: str, page: str) -> PageSlice:
     """The slice, cached on the law and the page (ADR-0020). The law itself is
     not an argument, so the cache holds no row and reads the XML on a miss
     only."""
-    return page_slice(_slice_source.get().xml, page)
+    law = _slice_source.get()
+    return page_slice(law.xml, page, first_page=law.stat_page_first)
 
 
 def _law_page_slice(law: Law, page: str) -> PageSlice:

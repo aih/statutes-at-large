@@ -88,31 +88,17 @@ def test_every_marker_of_volume_124_slices():
     assert seen == 14
 
 
-def test_nonexistent_page_returns_empty_slice():
-    cut = page_slice(DOC, "9999")
-    assert cut.xml == ""
-    assert cut.text == ""
-    assert cut.to is None
+def test_a_page_not_in_the_law_is_an_empty_slice():
+    cut = page_slice(DOC, "9999", first_page="1")
+    assert (cut.xml, cut.text, cut.to) == ("", "", None)
+    assert page_slice(DOC, "1", first_page="1").text == page_slice(DOC, "1").text
 
 
-def test_first_page_marker_in_preface_preserves_preface_content():
-    xml = f"""<pLaw xmlns="{USLM_NS}">
-  <meta>
-    <citableAs>137 Stat. 112</citableAs>
-  </meta>
-  <preface>
-    <docNumber>118-22</docNumber>
-    <page identifier="/us/stat/137/112">137 STAT. 112</page>
-  </preface>
-  <main>
-    <longTitle>An Act to test preface preservation.</longTitle>
-    <section identifier="/us/pl/118/22/s1"><num>1.</num><content>body<page identifier="/us/stat/137/113">113</page>after</content></section>
-  </main>
-</pLaw>"""
-    cut = page_slice(xml, "112")
+def test_a_slip_law_first_page_starts_at_its_marker():
+    """The `137 STAT. 112` marker follows the slip law's cover page and comes
+    before `docNumber`, so the page holds the docNumber and not the cover."""
+    xml = (FIXTURES / "plaw" / "PLAW-118publ22.xml").read_text()
+    cut = page_slice(xml, "112", first_page="112")
+    assert cut.text.startswith("Public Law118–22 118th Congress")
+    assert "FURTHER CONTINUING APPROPRIATIONS AND OTHER EXTENSIONS ACT, 2024" not in cut.text
     assert cut.to == "/us/stat/137/113"
-    assert "118-22" in cut.text
-    assert "An Act to test preface preservation." in cut.text
-    assert "118-22" in cut.xml
-    assert "An Act to test preface preservation." in cut.xml
-

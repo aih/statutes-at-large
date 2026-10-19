@@ -104,34 +104,6 @@ class PageSlice:
     document's end and when that marker carries no identifier."""
 
 
-_STAT_CITE_PAGE = re.compile(r"\bStat\.?\s*([0-9A-Za-z]+(?:-\d+)?)", re.IGNORECASE)
-
-
-def _starting_page_from_meta(root: etree._Element) -> str | None:
-    for citable in root.iter(f"{{{USLM_NS}}}citableAs"):
-        text = citable.text or ""
-        match = _STAT_CITE_PAGE.search(text)
-        if match:
-            return "".join(match.group(1).split()).lower()
-    return None
-
-
-def _in_preface_or_before_main(marker: etree._Element, root: etree._Element) -> bool:
-    curr = marker.getparent()
-    while curr is not None and curr != root:
-        if local_name(curr) == "preface":
-            return True
-        curr = curr.getparent()
-    main = root.find(f"{{{USLM_NS}}}main")
-    if main is not None:
-        for elem in root.iter():
-            if elem == marker:
-                return True
-            if elem == main:
-                return False
-    return False
-
-
 def page_slice(xml: str, page: str, *, first_page: str | None = None) -> PageSlice:
     """The slice of a law's stored XML that the page prints.
 
@@ -139,57 +111,23 @@ def page_slice(xml: str, page: str, *, first_page: str | None = None) -> PageSli
     case-insensitively. The range runs from the marker that names the page to
     the next marker in document order, whichever page that one names. A law
     that starts on the page carries no marker for it, and the range then starts
-    at the root and ends at the first marker. The law's `meta` is dropped: it
-    is the package's metadata, not text the page prints.
+    at the root and ends at the first marker. With `first_page` (the law's
+    first page label), a page no marker names and that is not `first_page` is
+    not in the law, and the slice is empty. The law's `meta` is dropped: it is
+    the package's metadata, not text the page prints.
     """
     root = etree.fromstring(xml.encode("utf-8"))
     label = "".join(page.split()).lower()
-    markers = [element for element in root.iter() if local_name(element) == "page" and element.get("display") != "no"]
-    law_start_page = "".join(first_page.split()).lower() if first_page is not None else _starting_page_from_meta(root)
-
+    markers = [element for element in root.iter() if local_name(element) == "page"]
     start_at = next(
         (i for i, marker in enumerate(markers) if page_label(marker.get("identifier")) == label),
         None,
     )
-
-    if start_at is not None:
-        is_first_identified = all(page_label(m.get("identifier")) is None for m in markers[:start_at])
-        if is_first_identified and (
-            law_start_page == label
-            or (law_start_page is None and _in_preface_or_before_main(markers[start_at], root))
-        ):
-            start = None
-            end = markers[start_at + 1] if start_at + 1 < len(markers) else None
-        else:
-            start = markers[start_at]
-            end = markers[start_at + 1] if start_at + 1 < len(markers) else None
-    else:
-        starts_on_label = False
-        if law_start_page is not None and law_start_page == label:
-            starts_on_label = True
-        elif markers:
-            first_id_marker = next(
-                (m for m in markers if page_label(m.get("identifier")) is not None),
-                None,
-            )
-            if first_id_marker is not None:
-                first_label = page_label(first_id_marker.get("identifier"))
-                if (
-                    first_label
-                    and first_label.isdigit()
-                    and label.isdigit()
-                    and int(first_label) == int(label) + 1
-                ):
-                    starts_on_label = True
-        elif not markers and law_start_page is None:
-            starts_on_label = False
-
-        if not starts_on_label:
-            return PageSlice(xml="", text="", to=None)
-
-        start = None
-        end = markers[0] if markers else None
-
+    if start_at is None and first_page is not None and label != "".join(first_page.split()).lower():
+        return PageSlice(xml="", text="", to=None)
+    end_at = 0 if start_at is None else start_at + 1
+    start = markers[start_at] if start_at is not None else None
+    end = markers[end_at] if end_at < len(markers) else None
     cut = slice_between(root, start, end)
     for meta in cut.findall(f"{{{USLM_NS}}}meta"):
         cut.remove(meta)
