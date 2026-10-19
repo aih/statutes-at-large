@@ -272,14 +272,11 @@ def compiled_doc_id(identifier: str, package_id: str) -> str:
     return f"{identifier}@{package_id}"
 
 
-def _law_fields(
-    law: Law, comp_short_titles: dict[int, list[str]] | None = None
-) -> dict[str, Any]:
-    short_titles = list(law.short_titles or ())
-    if not short_titles and comp_short_titles:
-        comp_titles = comp_short_titles.get(law.id)
-        if comp_titles:
-            short_titles = list(comp_titles)
+def _law_fields(law: Law, fallback_short_titles: Iterable[str] = ()) -> dict[str, Any]:
+    """The law's fields of a document. A law with no short title of its own
+    takes `fallback_short_titles`, its compilation's (ADR-0032): a restated
+    act's short title is inside `quotedContent` (Public Law 83-703)."""
+    short_titles = list(law.short_titles or ()) or list(fallback_short_titles)
     return {
         "law_identifier": law.identifier,
         "law_label": law_label(law.kind, law.congress, law.number, law.chapter, law.enacted),
@@ -304,7 +301,8 @@ def unit_documents(
     One document per unit that carries text or a heading: a section with its
     text, a hierarchy node with its heading and no text. `since` limits the
     stream to laws whose `loaded_at` is at or after that moment, which is what
-    `--since` re-syncs.
+    `--since` re-syncs. A law with no short title of its own takes its
+    whole-act compilation's.
 
     Each item is `{"_id": …, "_source": {…}}`; the index is `sync`'s to name.
 
@@ -313,15 +311,11 @@ def unit_documents(
     on the box, and the API container's limit is 512 MB.
     """
     comp_short_titles: dict[int, list[str]] = {
-        row[0]: list(row[1] or ())
-        for row in session.execute(
-            select(Comp.law_id, Comp.short_titles).where(
-                Comp.law_id.is_not(None),
-                Comp.partial_of.is_(None),
-                Comp.short_titles.is_not(None),
-            )
+        law_id: list(titles)
+        for law_id, titles in session.execute(
+            select(Comp.law_id, Comp.short_titles).where(Comp.law_id.is_not(None), Comp.partial_of.is_(None))
         ).all()
-        if row[1]
+        if titles
     }
     unit_columns = Bundle(
         "unit",
@@ -349,7 +343,7 @@ def unit_documents(
         if not text and not heading:
             continue
         page = unit.first_page or law.stat_page_first
-        source = _law_fields(law, comp_short_titles) | {
+        source = _law_fields(law, comp_short_titles.get(law.id, ())) | {
             "identifier": unit.identifier,
             "level": unit.level,
             "num": unit.num,
@@ -410,7 +404,7 @@ def comp_documents(
         if not text and not heading:
             continue
         if law is not None:
-            fields = _law_fields(law)
+            fields = _law_fields(law, comp.short_titles or ())
             page = law.stat_page_first
             fields["citation_sort"] = citation_sort_key(law.stat_volume, page, unit.seq)
         else:

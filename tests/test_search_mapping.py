@@ -287,6 +287,8 @@ class TestEnactedDocuments:
         laws.short_titles is empty, but its linked compilation carries it."""
         doc = enacted["/us/pl/83/703/s1"]
         assert doc["short_titles"] == ["Atomic Energy Act of 1954"]
+        # A law with a short title of its own keeps it.
+        assert enacted["/us/pl/119/1/s1"]["short_titles"] == ["Laken Riley Act"]
 
     def test_a_quoted_section_is_not_a_document_of_its_own(self, enacted, db):
         """A `<section>` inside `quotedContent` is not a section of this law
@@ -325,6 +327,11 @@ class TestCompiledDocuments:
         assert "contract" in doc["text"]
         # The enacted section of the same law is its own document.
         assert "/us/act/1890-07-02/ch647/s1" in enacted
+
+    def test_a_compiled_section_of_a_restated_law_carries_the_compilation_short_titles(self, compiled):
+        doc = next(d for i, d in compiled.items() if i.endswith("@COMPS-1630") and d["level"] == "section")
+        assert doc["law_identifier"] == "/us/pl/83/703"
+        assert doc["short_titles"] == ["Atomic Energy Act of 1954"]
 
     def test_a_compilation_with_no_loaded_law_still_indexes(self, compiled):
         """The FD&C Act's compilation is loaded and its law is not, so the
