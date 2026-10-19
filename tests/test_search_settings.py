@@ -13,7 +13,7 @@ from ingest import search_sync
 from storage import search
 from storage.search import SearchNotConfigured, SearchSettings
 
-VARIABLES = ("SEARCH_URL", "SEARCH_USER", "SEARCH_PASSWORD", "SEARCH_VERIFY_CERTS", "DISABLE_SEARCH_SYNC")
+VARIABLES = ("SEARCH_URL", "SEARCH_USER", "SEARCH_PASSWORD", "SEARCH_VERIFY_CERTS", "DISABLE_SEARCH_SYNC", "SEARCH_TIMEOUT")
 
 
 @pytest.fixture(autouse=True)
@@ -45,6 +45,7 @@ def test_the_defaults_with_no_file_and_no_environment():
     assert settings.search_password is None
     assert settings.search_verify_certs is True
     assert settings.disable_search_sync is False
+    assert settings.search_timeout == 10.0
 
 
 def test_the_file_is_read(env_file):
@@ -80,3 +81,28 @@ def test_a_blank_flag_is_its_default(monkeypatch):
 
 def test_a_test_run_reads_no_env_file():
     assert search.ENV_FILE is None
+
+
+def test_build_client_passes_timeout_and_scheme_aware_ssl(monkeypatch):
+    captured = {}
+
+    def fake_opensearch(**kwargs):
+        captured.update(kwargs)
+        return None
+
+    monkeypatch.setattr(search, "OpenSearch", fake_opensearch)
+    monkeypatch.setenv("SEARCH_PASSWORD", "secret")
+
+    # https url -> use_ssl=True, default timeout 10.0
+    monkeypatch.setenv("SEARCH_URL", "https://localhost:9201")
+    search._build_client()
+    assert captured["use_ssl"] is True
+    assert captured["timeout"] == 10.0
+
+    # http url -> use_ssl=False, custom timeout
+    monkeypatch.setenv("SEARCH_URL", "http://localhost:9200")
+    monkeypatch.setenv("SEARCH_TIMEOUT", "5.5")
+    search._build_client()
+    assert captured["use_ssl"] is False
+    assert captured["timeout"] == 5.5
+

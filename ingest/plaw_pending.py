@@ -108,22 +108,55 @@ def parse_listing(data: dict[str, Any], congress: int) -> list[ListedLaw]:
     law (rare) yields each; a private law and a law of another congress are
     left out."""
     out: list[ListedLaw] = []
-    for bill in data.get("bills") or []:
-        bill_type = str(bill.get("type") or "").strip()
-        bill_number = str(bill.get("number") or "").strip()
-        if not bill_type or not bill_number:
-            continue
-        action = (bill.get("latestAction") or {}).get("actionDate")
-        try:
-            action_date = datetime.date.fromisoformat(action) if action else None
-        except ValueError:
-            action_date = None
-        for law in bill.get("laws") or []:
-            if "public" not in str(law.get("type") or "").lower():
+    items = data.get("bills") or data.get("laws") or []
+    for item in items:
+        laws_list = item.get("laws")
+        if laws_list:
+            bill_type = str(item.get("type") or "").strip()
+            bill_number = str(item.get("number") or "").strip()
+            if not bill_type or not bill_number:
                 continue
-            parsed = parse_law_number(law.get("number") or "")
+            action = (item.get("latestAction") or {}).get("actionDate")
+            try:
+                action_date = datetime.date.fromisoformat(action) if action else None
+            except ValueError:
+                action_date = None
+            title = item.get("title")
+            for law in laws_list:
+                if "public" not in str(law.get("type") or "").lower():
+                    continue
+                parsed = parse_law_number(law.get("number") or "")
+                if parsed is None or parsed[0] != congress:
+                    continue
+                out.append(
+                    ListedLaw(
+                        identifier=f"/us/pl/{parsed[0]}/{parsed[1]}",
+                        congress=parsed[0],
+                        number=parsed[1],
+                        bill_type=bill_type.upper(),
+                        bill_number=bill_number,
+                        title=title,
+                        action_date=action_date,
+                    )
+                )
+        else:
+            law_type = str(item.get("type") or "").lower()
+            if "public" not in law_type and law_type != "pub":
+                continue
+            parsed = parse_law_number(item.get("number") or "")
             if parsed is None or parsed[0] != congress:
                 continue
+            bill = item.get("bill") or item
+            bill_type = str(bill.get("type") or bill.get("billType") or "").strip()
+            bill_number = str(bill.get("number") or bill.get("billNumber") or "").strip()
+            if not bill_type or not bill_number:
+                continue
+            action = (item.get("latestAction") or bill.get("latestAction") or {}).get("actionDate")
+            try:
+                action_date = datetime.date.fromisoformat(action) if action else None
+            except ValueError:
+                action_date = None
+            title = item.get("title") or bill.get("title")
             out.append(
                 ListedLaw(
                     identifier=f"/us/pl/{parsed[0]}/{parsed[1]}",
@@ -131,7 +164,7 @@ def parse_listing(data: dict[str, Any], congress: int) -> list[ListedLaw]:
                     number=parsed[1],
                     bill_type=bill_type.upper(),
                     bill_number=bill_number,
-                    title=bill.get("title"),
+                    title=title,
                     action_date=action_date,
                 )
             )
@@ -146,9 +179,9 @@ def fetch_listing(client: Any, congress: int) -> Iterator[ListedLaw]:
             f"{CONGRESS_API}/law/{congress}/pub",
             {"format": "json", "limit": PAGE_SIZE, "offset": offset},
         )
-        bills = data.get("bills") or []
+        items = data.get("bills") or data.get("laws") or []
         yield from parse_listing(data, congress)
-        if len(bills) < PAGE_SIZE:
+        if len(items) < PAGE_SIZE:
             return
         offset += PAGE_SIZE
 

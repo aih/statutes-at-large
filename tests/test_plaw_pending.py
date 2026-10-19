@@ -111,3 +111,59 @@ def test_fetch_listing_pages_until_a_short_page():
     client = Client()
     assert len(list(fetch_listing(client, 119))) == PAGE_SIZE + 1
     assert client.offsets == [0, PAGE_SIZE]
+
+
+def test_parse_listing_with_laws_shape():
+    laws_payload = {
+        "laws": [
+            {
+                "number": "119-120",
+                "type": "Public Law",
+                "title": "A public law",
+                "latestAction": {"actionDate": "2026-10-02"},
+                "bill": {"type": "HR", "number": "9001"},
+            },
+            {
+                "number": "119-2",
+                "type": "Private Law",
+                "bill": {"type": "HR", "number": "8000"},
+            },
+        ]
+    }
+    listed = parse_listing(laws_payload, 119)
+    assert len(listed) == 1
+    assert listed[0].identifier == "/us/pl/119/120"
+    assert listed[0].bill_type == "HR"
+    assert listed[0].bill_number == "9001"
+    assert listed[0].action_date == datetime.date(2026, 10, 2)
+
+
+def test_cmd_pending_with_fake_client(monkeypatch, tmp_path, session_factory):
+    from argparse import Namespace
+    from ingest.plaw_pending import cmd_pending
+
+    data = json.loads(LISTING.read_text())
+
+    class FakeClient:
+        def get_json(self, url, params):
+            return data
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr("ingest.govinfo.GovInfoClient", lambda **kwargs: FakeClient())
+    monkeypatch.setattr("db.base.SessionLocal", session_factory)
+    args = Namespace(congress=[119], from_file=None, report=str(tmp_path))
+    ret = cmd_pending(args)
+    assert ret == 0
+
+    report_file = tmp_path / "plaw-pending.json"
+    assert report_file.exists()
+    saved = json.loads(report_file.read_text())
+    assert saved["congresses"][0]["congress"] == 119
+    assert saved["congresses"][0]["listed"] == 3
+
+    with session_factory() as session:
+        session.execute(delete(PendingLaw))
+        session.commit()
+

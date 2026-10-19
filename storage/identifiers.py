@@ -211,12 +211,14 @@ def law_label_of_identifier(identifier: str) -> str:
 
 
 _ROMAN = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "D": 500, "M": 1000}
+_VALID_ROMAN = re.compile(r"^M{0,4}(?:CM|CD|D?C{0,3})(?:XC|XL|L?X{0,3})(?:IX|IV|V?I{0,3})$")
+_ROMAN_WORDS = frozenset({"DIV", "MIX", "DIM"})
 
 
 def roman_to_int(text: str) -> int | None:
     """`CXLVII` → 147. None for anything that is not a Roman numeral."""
     letters = text.strip().upper().rstrip(".")
-    if not letters or any(ch not in _ROMAN for ch in letters):
+    if not letters or not _VALID_ROMAN.match(letters) or letters in _ROMAN_WORDS:
         return None
     total = 0
     for index, ch in enumerate(letters):

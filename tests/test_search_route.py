@@ -80,7 +80,7 @@ def test_a_hit_with_a_highlight_becomes_a_result(api_client):
     assert body["total"] == 1
     result = body["results"][0]
     assert result["identifier"] == "/us/pl/81/740/s3"
-    assert result["url"] == "/app/us/pl/81/740/s3"
+    assert result["url"] == "https://statutes.linkedlegislation.org/us/pl/81/740/s3"
     assert result["snippets"] == ["a <em>wild</em> horse"]
     assert result["law_label"] == "Public Law 81-740"
     assert body["facets"]["congress"] == [{"value": "81", "count": 1}]

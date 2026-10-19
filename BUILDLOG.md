@@ -935,3 +935,20 @@ two stub backends: `/app/us/pl/117/328/s1` without the cookie 403 with
 Googlebot on `/app` 403; curl on `/health` passed through; a host other than
 `GATE_HOST` not gated; a request to a stopped backend restarted three seconds
 later answered by the backend after 3.27 s instead of 502. Not run on the box.
+
+## 2026-10-19 — QA, accuracy, robustness, and modularity fixes (#11–#18)
+
+Asked: Track 1 fixes covering GitHub Issues #11, #12, #13, #14, #15, #16, #17, and #18.
+
+Done:
+- #11: `uslmtext.page_slice` preserves preface elements (`docNumber`, `longTitle`) when the first page marker of a law sits in preface or matches the starting page in meta; returns an empty `PageSlice` for nonexistent pages.
+- #12: `PostgresRepository.labels` batches `Law` and `LawAlias` queries and candidate unit lookups without loading XML, text, children, pages, or occurrences.
+- #13: `roman_to_int` strictly validates Roman numeral syntax against `_VALID_ROMAN` and excludes English words `DIV`, `MIX`, and `DIM`.
+- #14: `citeparse` supports hyphenated public law section numbers (`§ 204-1`) while preserving range parsing for plural section designators.
+- #15: `ingest.plaw_pending.parse_listing` supports both `"bills"` and `"laws"` top-level listing shapes from Congress.gov.
+- #16: `storage.search.SearchSettings` adds `search_timeout` (10.0s default); `_build_client` configures `use_ssl` based on scheme and passes `timeout`.
+- #17: Centralized `Origins` and `origins` singleton in `params.py`; standardized `SearchResult.url` to absolute URL and updated `SearchResult.astro` to use `appHref`.
+- #18: Enabled `PRAGMA foreign_keys=ON` on SQLite engine connections; disposed engine bindings in test sessions fixtures; wrapped `decodeURIComponent` in `try / catch` in `Base.astro`.
+
+Verified: `uv run pytest -W error::ResourceWarning` 616 passed; `npm --prefix frontend test` 115 passed.
+

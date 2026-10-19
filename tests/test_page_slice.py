@@ -86,3 +86,33 @@ def test_every_marker_of_volume_124_slices():
             etree.fromstring(cut.xml.encode())
             assert cut.text and cut.text in whole
     assert seen == 14
+
+
+def test_nonexistent_page_returns_empty_slice():
+    cut = page_slice(DOC, "9999")
+    assert cut.xml == ""
+    assert cut.text == ""
+    assert cut.to is None
+
+
+def test_first_page_marker_in_preface_preserves_preface_content():
+    xml = f"""<pLaw xmlns="{USLM_NS}">
+  <meta>
+    <citableAs>137 Stat. 112</citableAs>
+  </meta>
+  <preface>
+    <docNumber>118-22</docNumber>
+    <page identifier="/us/stat/137/112">137 STAT. 112</page>
+  </preface>
+  <main>
+    <longTitle>An Act to test preface preservation.</longTitle>
+    <section identifier="/us/pl/118/22/s1"><num>1.</num><content>body<page identifier="/us/stat/137/113">113</page>after</content></section>
+  </main>
+</pLaw>"""
+    cut = page_slice(xml, "112")
+    assert cut.to == "/us/stat/137/113"
+    assert "118-22" in cut.text
+    assert "An Act to test preface preservation." in cut.text
+    assert "118-22" in cut.xml
+    assert "An Act to test preface preservation." in cut.xml
+

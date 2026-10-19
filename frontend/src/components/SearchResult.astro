@@ -22,7 +22,7 @@ const heading = result.heading?.trim() || null;
     {result.view === "compiled" && <span class="usa-tag">Compiled</span>}
   </p>
   <h3>
-    <a href={result.url}>
+    <a href={appHref(result.identifier)}>
       {label}
       {label && heading && " "}
       {heading && <span class={smallCapsClass(heading)}>{heading}</span>}

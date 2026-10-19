@@ -75,7 +75,8 @@ def sessions(monkeypatch):
 
     made = factory()
     monkeypatch.setattr(db.base, "SessionLocal", made)
-    return made
+    yield made
+    made.kw["bind"].dispose()
 
 
 # ---------------------------------------------------------------- the listing

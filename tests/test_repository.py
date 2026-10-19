@@ -153,6 +153,33 @@ def test_labels(repo):
     assert found["/us/pl/81/740/s3"].law.kind == "pl"
 
 
+def test_labels_batch_resolution(repo):
+    batch = [
+        "/us/pl/81/740/s3",
+        "/us/pl/81/740/s3",  # duplicate
+        "/us/act/1950-08-30/ch823",
+        "/us/pl/111/344/tI",
+        "/us/pl/111/344/tI/stA/s101",
+        "/us/pl/81/9999",  # nonexistent law
+        "/us/pl/81/740/s9999",  # nonexistent section in known law -> prefix resolution
+    ]
+    found = repo.labels(batch)
+    assert set(found) == {
+        "/us/pl/81/740/s3",
+        "/us/act/1950-08-30/ch823",
+        "/us/pl/111/344/tI",
+        "/us/pl/111/344/tI/stA/s101",
+        "/us/pl/81/740/s9999",
+    }
+    assert found["/us/pl/81/740/s3"].resolution == "exact"
+    assert found["/us/act/1950-08-30/ch823"].resolution == "alias"
+    assert found["/us/pl/111/344/tI"].level == "title"
+    assert found["/us/pl/111/344/tI/stA/s101"].level == "section"
+    assert found["/us/pl/81/740/s9999"].resolution == "prefix"
+    assert found["/us/pl/81/740/s9999"].served_identifier == "/us/pl/81/740"
+
+
+
 def test_status(repo):
     status = repo.collection_status("STATUTE")
     assert status.volumes == (26, 64, 68, 72, 116, 124, 137)

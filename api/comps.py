@@ -14,7 +14,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from fastapi.responses import JSONResponse
-from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from api.comps_schemas import (
     CompDetailOut,
@@ -33,6 +32,7 @@ from api.comps_schemas import (
 from params import (
     FormatParam,
     MACHINE_FORMATS,
+    Origins,
     RepositoryDep,
     ThroughParam,
     cache_control,
@@ -41,6 +41,7 @@ from params import (
     limit_text,
     negotiated_format,
     not_found,
+    origins,
     public_cache,
     served_note,
     serves_xml,
@@ -55,17 +56,8 @@ FIRST_NUMBERED_CONGRESS = 57
 second number is a chapter (CLAUDE.md gotcha 8)."""
 
 
-class _Origins(BaseSettings):
-    """The public origins used in absolute URLs. `db.config` has the same two
-    fields; `api/` may not import `db`, so they are read here as well."""
+_Origins = Origins
 
-    site_origin: str = "https://statutes.linkedlegislation.org"
-    uscode_origin: str = "https://uscode.linkedlegislation.org"
-
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
-
-origins = _Origins()
 
 comps_router = APIRouter(prefix=API_PREFIX, tags=["compiled"], dependencies=[Depends(public_cache)])
 

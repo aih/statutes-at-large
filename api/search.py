@@ -17,7 +17,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from opensearchpy import OpenSearch
 from pydantic import BaseModel
 
-from params import SEARCH_UNAVAILABLE, public_cache, rate_limit, search_note
+from params import SEARCH_UNAVAILABLE, origins, public_cache, rate_limit, search_note
 from storage.search import UNITS_ALIAS, SearchNotConfigured, get_search_client
 from storage.searchquery import (
     DEFAULT_VIEW,
@@ -167,7 +167,7 @@ def _result_of(hit: dict) -> SearchResult:
         citation=source.get("citation"),
         view=source.get("view", DEFAULT_VIEW),
         comp_prefix=source.get("comp_prefix"),
-        url=f"/app{identifier}",
+        url=f"{origins.site_origin}{identifier}",
     )
 
 

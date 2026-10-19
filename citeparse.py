@@ -116,12 +116,12 @@ _CHAPTER = r"ch(?:ap(?:ter)?)?\.?\s*(?P<chapter>\d+)"
 _STAT_PAGE = r"(?P<page>\d+[A-Za-z]?(?:" + _DASH + r"\d+)?|[A-Za-z]\d+)"
 _STAT = r"(?P<volume>\d{1,3})\s*Stat\.?\s*" + _STAT_PAGE + r"(?:\s*,\s*\d+[A-Za-z]?)*(?:\s*\(\d{4}\))?"
 
-#: `814`, `2A`; a range (`§§ 814–816`) keeps its first number.
-_SECTION_NUM = r"(?P<section>\d+[A-Za-z]?)"
+#: `814`, `2A`, `204-1`; a range (`§§ 814–816`) keeps its first number.
+_SECTION_WORD = r"(?:(?P<plural>§§|[Ss]ecs?\.?|[Ss]ections?)|§|[Ss]ec\.?|[Ss]ection)"
+_SECTION_NUM = r"(?P<section>\d+[A-Za-z]*(?:-\d+[A-Za-z]*)?)"
 #: `(a)(1)(B)`; a four-digit parenthetical is a year, not a subdivision.
 _PARENS = r"(?P<subs>(?:\s*\((?!\d{4}\))[A-Za-z0-9]+\))*)"
-_SECTION_WORD = r"(?:§§?|[Ss]ecs?\.?|[Ss]ections?)"
-_SECTION = _SECTION_WORD + r"\s*" + _SECTION_NUM + _PARENS + r"(?:\s*" + _DASH + r"\s*\d+[A-Za-z]?)?"
+_SECTION = _SECTION_WORD + r"\s*" + _SECTION_NUM + _PARENS + r"(?:\s*" + _DASH + r"\s*\d+[A-Za-z]*)?"
 
 _LEVELS: tuple[tuple[str, str], ...] = (
     (r"div(?:ision)?\.?", "d"),
@@ -320,7 +320,10 @@ def _parse_tail(tail: str | None) -> _Tail | None:
     for piece in _split_tail(tail or ""):
         match = _TAIL_SECTION.match(piece)
         if match and out.section is None:
-            out.section = match.group("section")
+            section = match.group("section")
+            if match.groupdict().get("plural") and "-" in section:
+                section = section.split("-")[0]
+            out.section = section
             out.subdivisions = _subdivisions(match.group("subs"))
             if match.group("note"):
                 out.note = True
@@ -572,7 +575,10 @@ def _parse_law(text: str) -> ParsedCitation | None:
     if tail is None:
         return None
     if groups.get("section") and tail.section is None:
-        tail.section = groups["section"]
+        section = groups["section"]
+        if groups.get("plural") and "-" in section:
+            section = section.split("-")[0]
+        tail.section = section
         tail.subdivisions = _subdivisions(groups.get("subs"))
     kind: Kind = "pl" if groups.get("pl") else "pvtl"
     congress, number = int(groups["congress"] or 0), int(groups["number"] or 0)

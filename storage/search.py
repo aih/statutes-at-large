@@ -37,6 +37,7 @@ class SearchSettings(BaseSettings):
 
     search_user: str = "admin"
     search_password: str | None = None
+    search_timeout: float = 10.0
 
     search_verify_certs: bool = True
     """Verify TLS unless `SEARCH_VERIFY_CERTS=false`. The dev and box clusters
@@ -102,16 +103,18 @@ def _build_client() -> OpenSearch:
             "SEARCH_PASSWORD is not set. Set it (and SEARCH_URL) to point at a "
             "cluster, or set DISABLE_SEARCH_SYNC=1 to run without search."
         )
-    verify = settings.search_verify_certs
+    use_ssl = settings.search_url.lower().startswith("https://")
+    verify = settings.search_verify_certs if use_ssl else False
     return OpenSearch(
         hosts=[settings.search_url],
         http_compress=True,
         http_auth=(settings.search_user, settings.search_password),
-        use_ssl=True,
+        use_ssl=use_ssl,
         verify_certs=verify,
         # Hostname assertion is part of verification, not a separate knob.
         ssl_assert_hostname=verify,
         ssl_show_warn=verify,
+        timeout=settings.search_timeout,
     )
 
 
