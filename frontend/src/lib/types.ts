@@ -474,12 +474,56 @@ export interface SearchResultItem {
   url: string;
 }
 
+export interface SearchUscHistoryItem {
+  identifier: string;
+  label: string;
+  date: string | null;
+}
+
+export interface SearchCanonicalUsc {
+  identifier: string;
+  citation: string | null;
+  heading: string | null;
+  url: string;
+  /** `note` (a Short Title note) or `sourceCredit`. */
+  context: string;
+  note_topic: string | null;
+  history: SearchUscHistoryItem[];
+  citing_sections_count: number;
+}
+
+export interface SearchCompilationMatch {
+  identifier: string;
+  package_id: string;
+  current_through?: CurrentThrough | null;
+  url: string;
+}
+
+export interface SearchLawMatch {
+  identifier: string;
+  label: string;
+  aliases: string[];
+  citation: string | null;
+  enacted: string | null;
+  official_title: string | null;
+}
+
+/** An act whose popular name the query matches (ADR-0032). */
+export interface SearchActMatch {
+  title: string;
+  short_titles: string[];
+  compilation?: SearchCompilationMatch | null;
+  law?: SearchLawMatch | null;
+  canonical_usc?: SearchCanonicalUsc | null;
+}
+
 /** `SearchResponse`: `GET /api/v1/search`. */
 export interface SearchResponse {
   results: SearchResultItem[];
   total: number;
   facets: SearchFacets;
   note: string;
+  acts?: SearchActMatch[];
 }
 
 // ------------------------------------------------------------------- pages

@@ -163,3 +163,111 @@ def test_status(repo):
     assert plaw.laws == 4 and plaw.laws_by_congress == ((118, 3), (119, 1)) and plaw.congresses == (118, 119)
     assert plaw.latest_package == "PLAW-119publ1" and plaw.volumes == (137, 139)
     assert repo.last_source_check("PLAW").newest_package == "PLAW-119publ1"
+
+
+def test_act_matches_atomic_energy_act(repo):
+    """Public Law 83-703's short title is inside `quotedContent`, so the law
+    has none of its own; the compilation names it, and 42 U.S.C. 2011's Short
+    Title note cites the 1954 act as adding the short title section."""
+    matches = repo.act_matches('"Atomic energy act of 1954"')
+    assert [m.title for m in matches] == ["Atomic Energy Act of 1954"]
+    match = matches[0]
+    assert match.compilation.identifier_prefix == "/us/sComp/83/703"
+    assert match.compilation.package_id == "COMPS-1630"
+    assert match.compilation.current.current_through_pl == "118-67"
+
+    assert match.law.identifier == "/us/pl/83/703"
+    assert match.law.label == "Public Law 83-703"
+    assert "/us/act/1954-08-30/ch1073" in match.law.aliases
+    assert match.law.citation == "68 Stat. 919"
+    assert match.law.enacted == datetime.date(1954, 8, 30)
+
+    usc = match.canonical_usc
+    assert usc.identifier == "/us/usc/t42/s2011"
+    assert usc.citation == "42 U.S.C. § 2011"
+    assert usc.heading == "Congressional declaration of policy"
+    assert (usc.context, usc.note_topic) == ("note", "shortTitle")
+    assert usc.citing_sections_count >= 8
+    assert [h.label for h in usc.history] == [
+        "Act of August 1, 1946, ch. 724, title I, § 291",
+        "Act of August 30, 1954, ch. 1073, § 1",
+        "68 Stat. 960",
+        "Public Law 102-486, title IX, § 902(a)(8)",
+        "106 Stat. 2944",
+    ]
+    assert repo.act_matches("atomic energy")[0].title == "Atomic Energy Act of 1954"
+
+
+def test_act_matches_sherman_act_falls_back_to_the_enacting_source_credit(repo):
+    """15 U.S.C. 1's Short Title note cites only the 1976 law that added the
+    short title, so the section is found by its source credit, which cites
+    the Sherman Act before its first Stat. page."""
+    match = repo.act_matches("Sherman Act")[0]
+    assert match.title == "Sherman Act"
+    assert match.compilation.identifier_prefix == "/us/sComp/51/647"
+    assert match.compilation.package_id == "COMPS-3055"
+    assert match.law.identifier == "/us/act/1890-07-02/ch647"
+    usc = match.canonical_usc
+    assert usc.identifier == "/us/usc/t15/s1"
+    assert (usc.context, usc.note_topic) == ("sourceCredit", None)
+    assert [h.label for h in usc.history[:2]] == ["Act of July 2, 1890, ch. 647, § 1", "26 Stat. 209"]
+
+
+def test_an_amending_law_is_not_given_the_section_it_amended(repo):
+    """Public Law 111-344 is cited in 19 U.S.C. 2296's source credit after
+    the Trade Act of 1974 and its Stat. page: it amended that section."""
+    match = repo.act_matches("Omnibus Trade Act of 2010")[0]
+    assert match.compilation is None and match.law.identifier == "/us/pl/111/344"
+    assert match.canonical_usc is None
+
+
+def test_act_matches_whole_words_only(repo):
+    assert repo.act_matches("act") == []
+    assert repo.act_matches("of") == []
+    assert repo.act_matches("a") == []
+    assert repo.act_matches("1954") == []
+    assert repo.act_matches("the act of 2010") == []
+    assert repo.act_matches("nuclear") == []
+    assert repo.act_matches("energ") == []
+    assert [m.title for m in repo.act_matches("security")] == ["Federal Food, Drug, and Cosmetic Act", "Social Security Act"]
+
+
+def test_one_title_file_of_an_act_is_one_act_and_list_comps_keeps_every_file(repo, db):
+    """`act_matches` answers one card per prefix, titled with the act's name;
+    `list_comps` lists files, so both title files of the Social Security Act
+    stay in it."""
+    from db.models import Comp
+
+    title_ii = db.query(Comp).filter_by(file_id="8755").one()
+    db.add(
+        Comp(
+            file_id="99999",
+            package_id="COMPS-99999",
+            identifier_prefix=title_ii.identifier_prefix,
+            law_congress=title_ii.law_congress,
+            law_number=title_ii.law_number,
+            title=title_ii.title,
+            display_title="Social Security Act-TITLE XVIII (Health Insurance for the Aged and Disabled)",
+            short_titles=list(title_ii.short_titles),
+            partial_of="XVIII",
+        )
+    )
+    db.flush()
+    try:
+        matches = repo.act_matches("medicare")
+        assert [(m.title, m.compilation.identifier_prefix) for m in matches] == [("Social Security Act", "/us/sComp/74/271")]
+        assert sorted(c.file_id for c in repo.list_comps(q="medicare")) == ["8755", "99999"]
+    finally:
+        db.rollback()
+
+
+def test_list_comps_puts_a_whole_title_first(repo, db):
+    from db.models import Comp
+
+    db.add(Comp(file_id="99998", package_id="COMPS-99998", identifier_prefix="/us/sComp/99/1",
+                display_title="Antitrust Amendments to the Sherman Act", short_titles=[]))
+    db.flush()
+    try:
+        assert [c.file_id for c in repo.list_comps(q='"sherman act"')] == ["3055", "99998"]
+    finally:
+        db.rollback()

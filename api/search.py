@@ -3,21 +3,25 @@ that carry text (ADR-0023).
 
 The query is built in `storage/searchquery.py`, not here, so a test can score
 the ranking that ships rather than a second copy of the builder. This module
-only validates the request, calls the cluster, and shapes the answer: it
-imports `storage.search` and `storage.searchquery` and nothing from
-`ingest/` (architecture rule 1).
+validates the request, calls the cluster, asks the `Repository` for the acts
+the words name (`acts`, first page only; ADR-0032), and shapes the answer: it
+imports `storage` and nothing from `ingest/` (architecture rule 1).
 """
 
 from __future__ import annotations
 
+import datetime
 import logging
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from opensearchpy import OpenSearch
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from params import SEARCH_UNAVAILABLE, public_cache, rate_limit, search_note
+from api.alternatives import USCODE_ORIGIN
+from api.comps_schemas import CurrentThroughOut
+from params import SEARCH_UNAVAILABLE, RepositoryDep, public_cache, rate_limit, search_note
+from storage import ActMatch, Repository
 from storage.search import UNITS_ALIAS, SearchNotConfigured, get_search_client
 from storage.searchquery import (
     DEFAULT_VIEW,
@@ -87,11 +91,58 @@ class SearchResult(BaseModel):
     url: str
 
 
+class SearchUscHistoryItem(BaseModel):
+    identifier: str = Field(description="A law, a provision, or a Statutes at Large page, as cited.")
+    label: str = Field(description="`Public Law 102-486, title IX, § 902(a)(8)`, `106 Stat. 2944`.")
+    date: Optional[datetime.date] = None
+
+
+class SearchCanonicalUsc(BaseModel):
+    """The US Code section whose Short Title note names the act, else the
+    first one whose source credit names it as enacting the section."""
+
+    identifier: str
+    citation: Optional[str] = None
+    heading: Optional[str] = None
+    url: str
+    context: str = Field(description="`note` or `sourceCredit`.")
+    note_topic: Optional[str] = Field(None, description="`shortTitle` for a note.")
+    history: list[SearchUscHistoryItem] = Field([], description="The refs of that note or source credit, in order.")
+    citing_sections_count: int = Field(0, description="US Code sections that cite the act anywhere.")
+
+
+class SearchCompilationMatch(BaseModel):
+    identifier: str = Field(description="The compilation's prefix: `/us/sComp/83/703`.")
+    package_id: str
+    current_through: Optional[CurrentThroughOut] = None
+    url: str
+
+
+class SearchLawMatch(BaseModel):
+    identifier: str
+    label: str
+    aliases: list[str] = []
+    citation: Optional[str] = None
+    enacted: Optional[datetime.date] = None
+    official_title: Optional[str] = None
+
+
+class SearchActMatch(BaseModel):
+    title: str
+    short_titles: list[str] = []
+    compilation: Optional[SearchCompilationMatch] = None
+    law: Optional[SearchLawMatch] = None
+    canonical_usc: Optional[SearchCanonicalUsc] = None
+
+
 class SearchResponse(BaseModel):
     results: list[SearchResult]
     total: int
     facets: SearchFacets
     note: str
+    acts: list[SearchActMatch] = Field(
+        [], description="Acts whose popular name the words match, on the first page only (ADR-0032)."
+    )
 
 
 # ---------------------------------------------------------------------- route
@@ -106,6 +157,7 @@ class SearchResponse(BaseModel):
 )
 def search(
     client: SearchClientDep,
+    repo: RepositoryDep,
     q: Annotated[
         str,
         Query(
@@ -125,7 +177,9 @@ def search(
     """`enacted` reads the laws as printed in the Statutes at Large; `compiled`
     reads a Statute Compilation's current version; `all` filters neither, so
     an enacted and a compiled section are two answers. A cluster failure is a
-    503; the exception goes to the log, not to the caller."""
+    503; the exception goes to the log, not to the caller. On the first page
+    `acts` lists the acts whose popular name the words match (ADR-0032); a
+    database failure there is logged and leaves `acts` empty."""
     if sort not in SORTS:
         raise HTTPException(status_code=400, detail=f"sort must be one of: {', '.join(SORTS)}")
 
@@ -149,7 +203,62 @@ def search(
     results = [_result_of(hit) for hit in hits]
     facets = _facets(response.get("aggregations", {}))
 
-    return SearchResponse(results=results, total=total, facets=facets, note=search_note(resolved_view))
+    acts = _acts(repo, parsed.text) if offset == 0 and parsed.text else []
+
+    return SearchResponse(results=results, total=total, facets=facets, note=search_note(resolved_view), acts=acts)
+
+
+def _acts(repository: Repository, text: str) -> list[SearchActMatch]:
+    """The act cards; a failure is logged and answers none, so the results
+    are served without them."""
+    try:
+        return [_act_of(match) for match in repository.act_matches(text)]
+    except Exception:
+        log.warning("act_matches failed; answering without acts", exc_info=True)
+        return []
+
+
+def _act_of(match: ActMatch) -> SearchActMatch:
+    comp, law, usc = match.compilation, match.law, match.canonical_usc
+    compilation = None
+    if comp is not None:
+        current = comp.current
+        through = None
+        if current is not None and (current.current_through_pl or current.current_through_date):
+            through = CurrentThroughOut(pl=current.current_through_pl, enacted=current.current_through_date)
+        compilation = SearchCompilationMatch(
+            identifier=comp.identifier_prefix,
+            package_id=comp.package_id,
+            current_through=through,
+            url=f"/app{comp.identifier_prefix}",
+        )
+    return SearchActMatch(
+        title=match.title,
+        short_titles=list(match.short_titles),
+        compilation=compilation,
+        law=SearchLawMatch(
+            identifier=law.identifier,
+            label=law.label,
+            aliases=list(law.aliases),
+            citation=law.citation,
+            enacted=law.enacted,
+            official_title=law.official_title,
+        )
+        if law is not None
+        else None,
+        canonical_usc=SearchCanonicalUsc(
+            identifier=usc.identifier,
+            citation=usc.citation,
+            heading=usc.heading,
+            url=f"{USCODE_ORIGIN}{usc.identifier}",
+            context=usc.context,
+            note_topic=usc.note_topic,
+            history=[SearchUscHistoryItem(identifier=h.identifier, label=h.label, date=h.date) for h in usc.history],
+            citing_sections_count=usc.citing_sections_count,
+        )
+        if usc is not None
+        else None,
+    )
 
 
 def _result_of(hit: dict) -> SearchResult:

@@ -31,7 +31,7 @@ and `+` are never read as leading operators, so `water -pollution` parses to
 valid either way.
 """
 
-FIELDS: tuple[str, ...] = ("heading^2", "text")
+FIELDS: tuple[str, ...] = ("short_titles^10", "official_title^4", "heading^2", "text")
 """The searched fields and their weights."""
 
 PHRASE_BOOST = 4.0
