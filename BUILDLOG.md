@@ -1148,3 +1148,36 @@ Verified: `make test` 698 passed, 1 skipped; vitest 120 passed. The citation
 fixture's four `/us/stat/68A/…` refs now load as parsed rows
 (`rows_unparsed` 0); `cited-by` for `/us/stat/68A/483` returns 26 U.S.C.
 §§ 4081 and 4083. Not run against the dev or box database.
+
+## 2026-10-20 — the Congress pages: a daily run, and laws in the wrong Congress
+
+Asked: review the statistics and links on `/app/congress`, check for a
+periodic update of the current Congress and add one, and fix errors in the
+method or the numbers.
+
+The weekly update (ADR-0018) already loaded the 119th Congress's laws, pending
+laws and classification tables on Mondays and Thursdays. Added
+`update-sources.sh --current`, run daily at 10:17 UTC by the update workflow
+(ADR-0036).
+
+Every Congress's laws were read from the live API (94,691 laws). The counts
+equal their filters' totals in every Congress. Laws in a volume that does not
+print their Congress: 39, in volumes 32, 34, 37, 44, 46, 54, 77, 89 and 123.
+Of these, 34 were moved by an OCR approval date or a wrong `meta/congress`,
+and the four public and four private laws among them had wrong identifiers;
+Public Law 110-78 (2007) had been replaced by 123 Stat. 2085 (Public Law
+111-78) under the same identifier. Five are right: volume 77 reprints two
+laws of the 87th, volume 89 prints two of the 93rd, and Public Law 91-696
+is left as it is. First and last approval dates included `0001-01-01`,
+`1110-04-16` and other OCR years.
+
+Done: `volume_congresses` and `congress_in_volume` decide a law's Congress
+from its volume; a numbered law's identifier is built with it; a volume load
+deletes its laws whose identifier the file no longer yields; the date range
+counts only dates within the Congress's term (ADR-0036).
+
+Verified: `make test` 733 passed, 1 skipped. The parser over the Hub's volumes 6, 26, 32,
+34, 37 and 44: every law in its volume's Congress, Public Nos. 427–430 of
+volume 37 as `/us/pl/62/427`…`430`, and the light pass and the full pass
+yielding the same identifiers in all six. Not run against the box: the
+reload of volumes 32, 34, 37, 44, 46, 54, 121 and 123 is in ADR-0036.

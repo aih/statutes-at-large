@@ -362,6 +362,21 @@ def congress_years(congress: int) -> tuple[int, int]:
     return (1787 + 2 * congress, 1789 + 2 * congress)
 
 
+def congress_term(congress: int) -> tuple[datetime.date, datetime.date]:
+    """The first and last day a Congress's laws can be approved: from the
+    start of its term (March 4 until the 73rd, January 3 from the 74th) to
+    the start of the next, and from the 73rd a month past it, for a law
+    approved after the Congress ended."""
+
+    def start(c: int) -> datetime.date:
+        return datetime.date(1787 + 2 * c, 3, 4) if c <= 73 else datetime.date(1787 + 2 * c, 1, 3)
+
+    end = start(congress + 1)
+    if congress >= 73:
+        end += datetime.timedelta(days=31)
+    return start(congress), end
+
+
 def congress_of_date(day: datetime.date) -> int:
     """The Congress sitting on `day`. A term began on March 4 of an odd year
     until 1935 and on January 3 since (the Twentieth Amendment); March 4 is

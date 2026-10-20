@@ -2,7 +2,8 @@
 
 Date: 2026-09-08. Status: accepted. Implements the deployment plan's
 section 6 and section 2 item 6; follows the US Code site's ADR-0036
-(record every check) and departs from its daily cadence.
+(record every check) and departs from its daily cadence. Decision 6
+amended by ADR-0036 (a daily `--current` run).
 
 ## Context
 

@@ -1,14 +1,24 @@
 # The weekly source update (docs/plans/2026-09-08-deployment-plan.md, section
 # 6): one SSM command running deploy/update-sources.sh on the box, Mondays and
 # on demand. The box's own cron runs the same script on Thursdays
-# (deploy/install-crons.sh); the two schedules fail independently.
+# (deploy/install-crons.sh); the two schedules fail independently. Daily at
+# 10:17 UTC it runs with --current: the public laws, pending laws and
+# classification tables of the current Congress and the one before.
 name: Update sources
 
 on:
   schedule:
     # Monday 07:53 UTC.
     - cron: "53 7 * * 1"
-  workflow_dispatch: {}
+    # Daily 10:17 UTC: the current Congress (--current).
+    - cron: "17 10 * * *"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "update-sources.sh mode"
+        type: choice
+        options: [auto, current, check-only]
+        default: auto
 
 permissions:
   id-token: write
@@ -46,14 +56,20 @@ jobs:
           fi
           echo "instance_id=$INSTANCE_ID" >> "$GITHUB_OUTPUT"
 
-          REMOTE_CMD="sudo -iu ec2-user bash /home/ec2-user/statutes-at-large/deploy/update-sources.sh"
+          MODE="${{ inputs.mode || 'auto' }}"
+          if [ "${{ github.event.schedule }}" = "17 10 * * *" ]; then
+            MODE=current
+          fi
+          ARGS=""
+          [ "$MODE" = "auto" ] || ARGS="--$MODE"
+          REMOTE_CMD="sudo -iu ec2-user bash /home/ec2-user/statutes-at-large/deploy/update-sources.sh $ARGS"
           # executionTimeout 4 hours: a full volume reload is about an hour.
           PARAMS=$(jq -n --arg cmd "$REMOTE_CMD" \
             '{commands: [$cmd], executionTimeout: ["14400"]}')
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "$INSTANCE_ID" \
             --document-name "AWS-RunShellScript" \
-            --comment "statutes weekly source update" \
+            --comment "statutes source update ($MODE)" \
             --parameters "$PARAMS" \
             --query "Command.CommandId" --output text)
           echo "command_id=$COMMAND_ID" >> "$GITHUB_OUTPUT"
