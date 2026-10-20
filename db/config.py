@@ -13,9 +13,6 @@ class Settings(BaseSettings):
     db_statement_timeout_ms: int = 20_000
     db_idle_in_transaction_timeout_ms: int = 30_000
 
-    site_origin: str = "https://statutes.linkedlegislation.org"
-    uscode_origin: str = "https://uscode.linkedlegislation.org"
-
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

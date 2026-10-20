@@ -32,7 +32,6 @@ from api.comps_schemas import (
 from params import (
     FormatParam,
     MACHINE_FORMATS,
-    Origins,
     RepositoryDep,
     ThroughParam,
     cache_control,
@@ -54,9 +53,6 @@ IDENTIFIER_PROVENANCE = "gpo-uslm"
 FIRST_NUMBERED_CONGRESS = 57
 """Public-law numbering begins with the 57th Congress; before it the prefix's
 second number is a chapter (CLAUDE.md gotcha 8)."""
-
-
-_Origins = Origins
 
 
 comps_router = APIRouter(prefix=API_PREFIX, tags=["compiled"], dependencies=[Depends(public_cache)])

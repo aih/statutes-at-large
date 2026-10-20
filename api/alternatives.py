@@ -8,22 +8,16 @@ sections the compilation's own editorial note names for that section, then
 the ones whose source credits cite the unit in the citation index
 (`api.currency.citing_sections`), at most `CODIFIED_CAP` in all. A hierarchy
 node has no alternatives.
-
-The origins come from the environment (`SITE_ORIGIN`, `USCODE_ORIGIN`), read
-here because `api/` may not import `db.config`.
 """
 
 from __future__ import annotations
 
-import os
 from collections.abc import Sequence
 
 from api.currency import CODIFIED_CAP, codified_from_index
 from api.schemas import AlternativeOut
+from params import origins
 from storage import CompCounterpart, Repository, UnitResult
-
-SITE_ORIGIN = os.environ.get("SITE_ORIGIN", "https://statutes.linkedlegislation.org")
-USCODE_ORIGIN = os.environ.get("USCODE_ORIGIN", "https://uscode.linkedlegislation.org")
 
 
 def alternatives_for(
@@ -52,7 +46,7 @@ def _alternatives(counterparts: list[CompCounterpart], from_index: Sequence[str]
                 view="compiled",
                 identifier=counterpart.identifier,
                 current_through=_current_through(counterpart),
-                url=f"{SITE_ORIGIN}{counterpart.identifier}",
+                url=f"{origins.site_origin}{counterpart.identifier}",
             )
         )
         for ref in counterpart.usc_refs:
@@ -64,7 +58,7 @@ def _alternatives(counterparts: list[CompCounterpart], from_index: Sequence[str]
     codified = codified[:CODIFIED_CAP]
     if codified:
         out.append(
-            AlternativeOut(view="codified", identifiers=codified, url=f"{USCODE_ORIGIN}{codified[0]}")
+            AlternativeOut(view="codified", identifiers=codified, url=f"{origins.uscode_origin}{codified[0]}")
         )
     return out
 
