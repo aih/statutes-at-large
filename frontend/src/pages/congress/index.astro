@@ -1,141 +1,113 @@
 ---
 /**
- * `/app/congress` — Acts by Congress from the 1st Congress on.
+ * `/app/congress` — every Congress from the 1st to the latest with a loaded
+ * law (ADR-0033): the totals, a chart of laws per Congress, and a table of
+ * each Congress's counts.
  *
- * Overview page listing all loaded Congresses with summary facts, a timeline
- * bar chart of laws enacted per Congress, and links to each Congress's laws,
- * Statute Compilations, and US Code classification tables.
+ * The chart stacks public laws and public acts, private laws and private
+ * acts, and acts the source marks neither. It is hidden from assistive
+ * technology and out of the tab order: the table below holds the same counts
+ * and the same links.
  */
 import Note from "../../components/Note.astro";
 import Base from "../../layouts/Base.astro";
 import { fetchCongresses } from "../../lib/api";
 import { REVALIDATE } from "../../lib/cache";
 import { clientAddressOf } from "../../lib/params";
-import { APP, appHref, congressHref, uscodeHref } from "../../lib/url";
+import { APP, congressHref } from "../../lib/url";
 
 Astro.response.headers.set("Cache-Control", REVALIDATE);
 
-const answer = await fetchCongresses({ clientAddress: clientAddressOf(Astro) });
-const overview = answer.body;
+const overview = (await fetchCongresses({ clientAddress: clientAddressOf(Astro) })).body;
 const congresses = overview.congresses;
 
 const number = (val: number) => val.toLocaleString("en-US");
 
-// Compute chart dimensions
-const chartWidth = 800;
-const chartHeight = 220;
-const padLeft = 45;
-const padRight = 15;
-const padTop = 25;
-const padBottom = 35;
-const plotWidth = chartWidth - padLeft - padRight;
-const plotHeight = chartHeight - padTop - padBottom;
+const width = 800;
+const height = 220;
+const left = 45;
+const right = 10;
+const top = 15;
+const bottom = 30;
+const plotWidth = width - left - right;
+const plotHeight = height - top - bottom;
+const slot = plotWidth / Math.max(1, congresses.length);
+const barWidth = Math.max(1, slot * 0.8);
+const most = Math.max(1, ...congresses.map((c) => c.total_laws));
+const scale = (n: number) => (n / most) * plotHeight;
+const base = top + plotHeight;
 
-const maxLaws = Math.max(1, ...congresses.map((c) => c.total_laws));
-const n = congresses.length;
-const slotWidth = n > 0 ? plotWidth / n : plotWidth;
-const barWidth = Math.max(8, Math.min(36, slotWidth - 4));
-
-const totalCiting = congresses.reduce((acc, c) => acc + c.citing_sections_count, 0);
+const bars = congresses.map((c, i) => {
+  const publicCount = c.public_laws + c.public_acts;
+  const privateCount = c.private_laws + c.private_acts;
+  const unmarked = c.total_laws - publicCount - privateCount;
+  const x = left + i * slot + (slot - barWidth) / 2;
+  const hPublic = scale(publicCount);
+  const hPrivate = scale(privateCount);
+  const hUnmarked = scale(unmarked);
+  return {
+    c,
+    x,
+    segments: [
+      { cls: "bar--public", y: base - hPublic, h: hPublic },
+      { cls: "bar--private", y: base - hPublic - hPrivate, h: hPrivate },
+      { cls: "bar--unmarked", y: base - hPublic - hPrivate - hUnmarked, h: hUnmarked },
+    ].filter((s) => s.h > 0),
+    tip: `${c.ordinal} Congress (${c.start_year}–${c.end_year}): ${number(c.total_laws)} laws, ${number(publicCount)} public, ${number(privateCount)} private`,
+  };
+});
+const ticks = congresses.filter((c) => c.congress === 1 || c.congress % 10 === 0);
 ---
 
-<Base
-  title="Acts by Congress — Statutes at Large"
-  crumbs={[{ label: "Home", href: `${APP}/` }]}
-  current="Congresses"
->
+<Base title="Acts by Congress · Statutes at Large" crumbs={[{ label: "Home", href: `${APP}/` }]} current="Congresses">
   <h1 class="doc-title">Acts by Congress</h1>
-  <p class="lede">
-    Historical data analysis of Acts enacted by Congress from the 1st Congress on,
-    cross-referenced to the United States Code and OLRC classification tables.
-  </p>
 
   <Note note={overview.note} />
 
-  <h2 class="group">Summary facts</h2>
   <dl class="facts status">
-    <dt>Congresses loaded</dt>
+    <dt>Congresses</dt>
     <dd>{number(overview.total_congresses)}</dd>
-    <dt>Total laws</dt>
+    <dt>Laws loaded</dt>
     <dd>
-      {number(overview.total_laws)} ({number(overview.total_public_laws)} public, {number(overview.total_private_laws)} private, {number(overview.total_chapter_acts)} chapter acts)
+      {number(overview.total_laws)}: {number(overview.total_public_laws)} public laws, {number(overview.total_private_laws)} private laws,
+      {number(overview.total_chapter_acts)} chapter acts
     </dd>
-    <dt>Total sections</dt>
+    <dt>Sections</dt>
     <dd>{number(overview.total_sections)}</dd>
-    <dt>Statute Compilations</dt>
+    <dt>Statute Compilation files</dt>
     <dd>{number(overview.total_compilations)}</dd>
-    <dt>US Code citing sections</dt>
-    <dd>{number(totalCiting)} sections cite laws across these Congresses</dd>
   </dl>
 
-  <h2 class="group" id="timeline">Laws enacted per Congress</h2>
-  <div class="timeline-container">
-    <div class="timeline-legend">
-      <span class="legend-item"><span class="legend-swatch swatch--pl"></span> Public Laws</span>
-      <span class="legend-item"><span class="legend-swatch swatch--pvtl"></span> Private Laws</span>
-      <span class="legend-item"><span class="legend-swatch swatch--act"></span> Chapter Acts</span>
-    </div>
-
-    <svg
-      role="img"
-      viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-      class="congress-chart"
-      aria-labelledby="chart-title chart-desc"
-    >
-      <title id="chart-title">Laws enacted per Congress</title>
-      <desc id="chart-desc">
-        Bar chart displaying laws enacted per Congress, distinguishing public laws, private laws, and chapter acts.
-      </desc>
-
-      {/* Y-axis guidelines */}
-      <line x1={padLeft} y1={padTop} x2={chartWidth - padRight} y2={padTop} stroke="#e0e0e0" stroke-dasharray="2 2" />
-      <line x1={padLeft} y1={padTop + plotHeight / 2} x2={chartWidth - padRight} y2={padTop + plotHeight / 2} stroke="#e0e0e0" stroke-dasharray="2 2" />
-      <line x1={padLeft} y1={padTop + plotHeight} x2={chartWidth - padRight} y2={padTop + plotHeight} stroke="#71767a" />
-
-      {/* Y-axis labels */}
-      <text x={padLeft - 8} y={padTop + 4} text-anchor="end" font-size="11" fill="#71767a">{maxLaws}</text>
-      <text x={padLeft - 8} y={padTop + plotHeight / 2 + 4} text-anchor="end" font-size="11" fill="#71767a">{Math.round(maxLaws / 2)}</text>
-      <text x={padLeft - 8} y={padTop + plotHeight + 4} text-anchor="end" font-size="11" fill="#71767a">0</text>
-
-      {/* Bars */}
-      {congresses.map((c, i) => {
-        const xCenter = padLeft + (i + 0.5) * slotWidth;
-        const x = xCenter - barWidth / 2;
-
-        const hAct = (c.chapter_acts / maxLaws) * plotHeight;
-        const hPvtl = (c.private_laws / maxLaws) * plotHeight;
-        const hPl = (c.public_laws / maxLaws) * plotHeight;
-
-        const yBase = padTop + plotHeight;
-        const yPl = yBase - hPl;
-        const yPvtl = yPl - hPvtl;
-        const yAct = yPvtl - hAct;
-
-        const tip = `${c.ordinal} Congress (${c.start_year}–${c.end_year}): ${c.total_laws} laws (${c.public_laws} public, ${c.private_laws} private, ${c.chapter_acts} chapter acts)`;
-
-        return (
-          <a href={congressHref(c.congress)} class="chart-bar-group" tabindex="0">
-            <title>{tip}</title>
-            {hPl > 0 && <rect x={x} y={yPl} width={barWidth} height={hPl} fill="#1a4480" />}
-            {hPvtl > 0 && <rect x={x} y={yPvtl} width={barWidth} height={hPvtl} fill="#2670c4" />}
-            {hAct > 0 && <rect x={x} y={yAct} width={barWidth} height={hAct} fill="#565c65" />}
-            <text
-              x={xCenter}
-              y={yBase + 16}
-              text-anchor="middle"
-              font-size="11"
-              fill="#1b1b1b"
-              font-weight="bold"
-            >
-              {c.congress}
-            </text>
-          </a>
-        );
-      })}
+  <h2 class="group" id="timeline">Laws per Congress</h2>
+  <figure class="timeline">
+    <ul class="timeline-legend" aria-hidden="true">
+      <li><span class="swatch bar--public"></span> Public</li>
+      <li><span class="swatch bar--private"></span> Private</li>
+      <li><span class="swatch bar--unmarked"></span> Not marked</li>
+    </ul>
+    <svg viewBox={`0 0 ${width} ${height}`} class="congress-chart" aria-hidden="true" focusable="false">
+      <line x1={left} y1={top} x2={width - right} y2={top} class="grid" />
+      <line x1={left} y1={top + plotHeight / 2} x2={width - right} y2={top + plotHeight / 2} class="grid" />
+      <line x1={left} y1={base} x2={width - right} y2={base} class="axis" />
+      <text x={left - 6} y={top + 4} text-anchor="end" class="label">{number(most)}</text>
+      <text x={left - 6} y={top + plotHeight / 2 + 4} text-anchor="end" class="label">{number(Math.round(most / 2))}</text>
+      <text x={left - 6} y={base + 4} text-anchor="end" class="label">0</text>
+      {bars.map((bar) => (
+        <a href={congressHref(bar.c.congress)} tabindex="-1">
+          <title>{bar.tip}</title>
+          {bar.segments.map((s) => <rect x={bar.x} y={s.y} width={barWidth} height={s.h} class={s.cls} />)}
+        </a>
+      ))}
+      {ticks.map((c) => (
+        <text x={left + (c.congress - congresses[0].congress + 0.5) * slot} y={base + 16} text-anchor="middle" class="label">
+          {c.congress}
+        </text>
+      ))}
     </svg>
-  </div>
+    <figcaption class="doc-meta">Laws loaded per Congress, 1st to {congresses.at(-1)?.ordinal ?? "1st"}. The table below has each count.</figcaption>
+  </figure>
 
-  <h2 class="group" id="table">All Congresses</h2>
+  <h2 class="group" id="table">Every Congress</h2>
   <div class="uslm-tablewrap">
     <table class="usa-table usa-table--borderless congresses-table">
       <thead>
@@ -144,63 +116,47 @@ const totalCiting = congresses.reduce((acc, c) => acc + c.citing_sections_count,
           <th scope="col">Volumes</th>
           <th scope="col">Laws</th>
           <th scope="col">Sections</th>
-          <th scope="col">Compilations</th>
-          <th scope="col">US Code Citations</th>
-          <th scope="col">Classification Tables</th>
+          <th scope="col">Compiled</th>
+          <th scope="col">Cited in the US Code</th>
+          <th scope="col">Classification tables</th>
         </tr>
       </thead>
       <tbody>
         {congresses.map((c) => (
           <tr>
+            <th scope="row">
+              <a href={congressHref(c.congress)}>{c.ordinal} Congress</a>
+              <div class="doc-meta">{c.start_year}–{c.end_year}</div>
+            </th>
+            <td>{c.volumes.length > 0 ? c.volumes.join(", ") : <span class="doc-meta">—</span>}</td>
             <td>
-              <a href={congressHref(c.congress)} class="congress-link">
-                <strong>{c.ordinal} Congress</strong>
-              </a>
-              <br />
-              <span class="doc-meta">{c.start_year}–{c.end_year}</span>
-            </td>
-            <td>
-              {c.volumes.length > 0
-                ? c.volumes.map((v) => (
-                    <a href={appHref(`/us/stat/${v}/1`)} class="vol-tag">
-                      Vol. {v}
-                    </a>
-                  ))
-                : <span class="doc-meta">—</span>}
-            </td>
-            <td>
-              <strong>{number(c.total_laws)}</strong>
-              <br />
-              <span class="doc-meta">
-                {c.public_laws > 0 && `${c.public_laws} pl`}
-                {c.private_laws > 0 && ` · ${c.private_laws} pvtl`}
-                {c.chapter_acts > 0 && ` · ${c.chapter_acts} act`}
-                {c.total_laws === 0 && "none"}
-              </span>
+              {number(c.total_laws)}
+              {c.total_laws > 0 && (
+                <div class="doc-meta">
+                  {number(c.public_laws + c.public_acts)} public, {number(c.private_laws + c.private_acts)} private
+                </div>
+              )}
             </td>
             <td>{number(c.section_count)}</td>
             <td>
-              {c.compilations_count > 0 ? (
-                <a href={congressHref(c.congress, { has_comp: "true" })}>
-                  {number(c.compilations_count)}
-                </a>
+              {c.compiled_laws_count > 0 ? (
+                <a href={congressHref(c.congress, { has_comp: "true" })}>{number(c.compiled_laws_count)}</a>
               ) : (
                 <span class="doc-meta">0</span>
               )}
             </td>
             <td>
               {c.cited_laws_count > 0 ? (
-                <a href={congressHref(c.congress, { cited: "true" })}>
-                  {number(c.cited_laws_count)} {c.cited_laws_count === 1 ? "law" : "laws"} cited
-                </a>
+                <>
+                  <a href={congressHref(c.congress, { cited: "true" })}>
+                    {number(c.cited_laws_count)} {c.cited_laws_count === 1 ? "law" : "laws"}
+                  </a>
+                  <div class="doc-meta">
+                    by {number(c.citing_sections_count)} {c.citing_sections_count === 1 ? "section" : "sections"}
+                  </div>
+                </>
               ) : (
                 <span class="doc-meta">0</span>
-              )}
-              {c.citing_sections_count > 0 && (
-                <span class="doc-meta">
-                  <br />
-                  ({number(c.citing_sections_count)} citing {c.citing_sections_count === 1 ? "section" : "sections"})
-                </span>
               )}
             </td>
             <td>
@@ -208,8 +164,8 @@ const totalCiting = congresses.reduce((acc, c) => acc + c.citing_sections_count,
                 <ul class="classification-links">
                   {c.uscode_classification_urls.map((u) => (
                     <li>
-                      <a href={u.url} target="_blank" rel="noopener noreferrer">
-                        Session {u.session}
+                      <a class="usa-link usa-link--external" href={u.url}>
+                        {u.session === "all" ? "whole Congress" : `session ${u.session}`}
                       </a>
                     </li>
                   ))}
@@ -226,74 +182,64 @@ const totalCiting = congresses.reduce((acc, c) => acc + c.citing_sections_count,
 </Base>
 
 <style>
-  .timeline-container {
-    background: #f0f4f8;
-    border: 1px solid #d9e2ec;
-    border-radius: 4px;
+  .timeline {
+    margin: 0 0 2rem;
     padding: 1rem 1rem 0.5rem;
-    margin-bottom: 2rem;
+    background: var(--panel);
+    border: 1px solid var(--rule);
   }
   .timeline-legend {
     display: flex;
+    flex-wrap: wrap;
     gap: 1.5rem;
-    margin-bottom: 0.75rem;
+    margin: 0 0 0.75rem;
+    padding: 0;
+    list-style: none;
     font-size: 0.875rem;
-    color: #486581;
   }
-  .legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-  }
-  .legend-swatch {
+  .swatch {
     display: inline-block;
     width: 12px;
     height: 12px;
-    border-radius: 2px;
-  }
-  .swatch--pl {
-    background-color: #1a4480;
-  }
-  .swatch--pvtl {
-    background-color: #2670c4;
-  }
-  .swatch--act {
-    background-color: #565c65;
+    vertical-align: -1px;
   }
   .congress-chart {
     width: 100%;
     height: auto;
     display: block;
   }
-  .chart-bar-group {
-    cursor: pointer;
-    transition: opacity 0.15s ease-in-out;
+  .bar--public {
+    fill: var(--bar);
+    background: var(--bar);
   }
-  .chart-bar-group:hover,
-  .chart-bar-group:focus {
-    opacity: 0.8;
-    outline: none;
+  .bar--private {
+    fill: #2670c4;
+    background: #2670c4;
   }
-  .vol-tag {
-    display: inline-block;
-    margin-right: 0.35rem;
-    margin-bottom: 0.25rem;
-    font-size: 0.875rem;
+  .bar--unmarked {
+    fill: var(--muted);
+    background: var(--muted);
+  }
+  .grid {
+    stroke: var(--rule);
+    stroke-dasharray: 2 2;
+  }
+  .axis {
+    stroke: var(--muted);
+  }
+  .label {
+    fill: var(--muted);
+    font-size: 11px;
   }
   .congresses-table {
     width: 100%;
-    margin-top: 1rem;
   }
-  .congress-link {
-    font-size: 1.05rem;
+  .congresses-table th[scope="row"] {
+    font-weight: normal;
   }
   .classification-links {
     list-style: none;
     padding: 0;
     margin: 0;
-    font-size: 0.875rem;
-  }
-  .classification-links li {
-    margin-bottom: 0.2rem;
   }
 </style>

@@ -5,6 +5,7 @@ import {
   apiHref,
   appHref,
   congressHref,
+  congressOrdinal,
   congressesHref,
   encodePath,
   gotoHref,
@@ -30,6 +31,12 @@ describe("encodePath", () => {
 });
 
 describe("hrefs", () => {
+  it("congressOrdinal writes the English ordinal", () => {
+    expect([1, 2, 3, 4, 11, 12, 13, 21, 22, 23, 111, 112, 113, 119].map(congressOrdinal)).toEqual([
+      "1st", "2nd", "3rd", "4th", "11th", "12th", "13th", "21st", "22nd", "23rd", "111th", "112th", "113th", "119th",
+    ]);
+  });
+
   it("congressesHref returns /app/congress", () => {
     expect(congressesHref()).toBe("/app/congress");
   });

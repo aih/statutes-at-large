@@ -551,10 +551,17 @@ export interface CongressSummary {
   total_laws: number;
   public_laws: number;
   private_laws: number;
+  /** Acts known by chapter only, before the 57th Congress. */
   chapter_acts: number;
+  /** Chapter acts the source marks public, and private. */
+  public_acts: number;
+  private_acts: number;
   volumes: number[];
   section_count: number;
+  /** Compilation files of the Congress's laws, loaded or not. */
   compilations_count: number;
+  compiled_laws_count: number;
+  /** Public laws with a row in an OLRC classification table. */
   classified_laws_count: number;
   classification_sessions: number[];
   cited_laws_count: number;
@@ -583,9 +590,18 @@ export interface CongressLawComp {
   url: string;
 }
 
+export interface VolumeStart {
+  volume: number;
+  /** The lowest numeric first page of the Congress's laws in the volume. */
+  page: string | null;
+  url: string | null;
+}
+
 export interface CongressLawItem {
   identifier: string;
   kind: string;
+  /** `public` or `private`, as the source marks the law. */
+  public_private: string | null;
   congress: number;
   number: number | null;
   chapter: number | null;
@@ -609,6 +625,9 @@ export interface CongressLawItem {
 
 export interface CongressDetail {
   summary: CongressSummary;
+  /** The latest Congress with a loaded or a pending law. */
+  latest_congress: number;
+  volume_starts: VolumeStart[];
   laws: CongressLawItem[];
   pending_laws: PendingLaw[];
   total: number;
