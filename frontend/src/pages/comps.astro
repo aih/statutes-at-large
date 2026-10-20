@@ -1,0 +1,177 @@
+---
+/**
+ * `/app/comps`: every Statute Compilation file by title, from
+ * `/api/v1/comps/titles`, grouped A to Z with a letter bar. `q=` filters on
+ * the server: every word in the display title, the official title, the
+ * prefix or the package id. The inline script runs the same filter as the
+ * box is typed into, hiding entries and empty letters, and announces the
+ * count in `#comps-count`.
+ */
+import Base from "../layouts/Base.astro";
+import { fetchCompTitles } from "../lib/api";
+import { REVALIDATE } from "../lib/cache";
+import { compMatches, compName, groupComps } from "../lib/comps";
+import { clientAddressOf } from "../lib/params";
+import type { CompTitle } from "../lib/types";
+import { APP, appHref, compsHref } from "../lib/url";
+
+Astro.response.headers.set("Cache-Control", REVALIDATE);
+
+const q = Astro.url.searchParams.get("q")?.trim() ?? "";
+let all: CompTitle[] | null = null;
+try {
+  all = (await fetchCompTitles({ clientAddress: clientAddressOf(Astro) })).comps;
+} catch {
+  all = null;
+}
+const shown = all ? all.filter((comp) => compMatches(comp, q)) : [];
+const groups = groupComps(shown);
+const number = (value: number) => value.toLocaleString("en-US");
+const countText = (n: number) => `${number(n)} of ${number(all?.length ?? 0)} compilation files`;
+const searchText = (comp: CompTitle) =>
+  [comp.display_title, comp.title, comp.identifier_prefix, comp.package_id].join(" ").toLowerCase();
+---
+
+<Base title="Statute Compilations — Statutes at Large" crumbs={[{ label: "Home", href: `${APP}/` }]} current="Statute Compilations">
+  <h1 class="doc-title">Statute Compilations</h1>
+  <p class="lede">
+    Every Statute Compilation file loaded from GovInfo, by title. An act compiled one title per file
+    is listed once per title.
+  </p>
+
+  {
+    all === null ? (
+      <p class="doc-meta">The list of compilations could not be read.</p>
+    ) : (
+      <>
+        <form method="get" action={compsHref()} class="search-bar" role="search">
+          <label class="usa-sr-only" for="comps-q">Words of a title, a prefix, or a package id</label>
+          <input
+            type="search"
+            id="comps-q"
+            name="q"
+            value={q}
+            placeholder="Title, prefix, or package"
+            class="usa-input search-input"
+            autocomplete="off"
+          />
+          <button type="submit" class="usa-button usa-button--outline search-button">Filter</button>
+          {q && (
+            <a href={compsHref()} class="clear-link">
+              Clear
+            </a>
+          )}
+        </form>
+        <p class="doc-meta" id="comps-count" role="status" aria-live="polite" data-total={all.length}>
+          {countText(shown.length)}
+        </p>
+
+        <nav class="letters" aria-label="Letters">
+          {groups.map((group) => (
+            <a href={`#letter-${group.letter === "#" ? "num" : group.letter}`} data-letter={group.letter}>
+              {group.letter}
+            </a>
+          ))}
+        </nav>
+
+        {groups.length === 0 && <p class="doc-meta">No compilation matches.</p>}
+        {groups.map((group) => (
+          <section class="comps-group" data-letter={group.letter} aria-labelledby={`letter-${group.letter === "#" ? "num" : group.letter}`}>
+            <h2 class="group" id={`letter-${group.letter === "#" ? "num" : group.letter}`}>
+              {group.letter === "#" ? "0–9" : group.letter}
+            </h2>
+            <ul class="comps-list">
+              {group.comps.map((comp) => (
+                <li data-q={searchText(comp)}>
+                  <a href={appHref(comp.identifier)}>{compName(comp)}</a>
+                  <span class="comps-meta">
+                    <code>{comp.identifier_prefix}</code>
+                    {comp.partial_of && <span> · Title {comp.partial_of}</span>}
+                    {comp.current_through && <span> · through Public Law {comp.current_through}</span>}
+                    <span> · {comp.package_id}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </>
+    )
+  }
+
+  <script is:inline>
+    (function () {
+      var box = document.getElementById("comps-q");
+      var count = document.getElementById("comps-count");
+      if (!box || !count) return;
+      var items = Array.prototype.slice.call(document.querySelectorAll(".comps-list li"));
+      var groups = Array.prototype.slice.call(document.querySelectorAll(".comps-group"));
+      var letters = Array.prototype.slice.call(document.querySelectorAll(".letters a"));
+      var total = Number(count.getAttribute("data-total")) || 0;
+      var timer = 0;
+      function filter() {
+        var words = box.value.toLowerCase().split(/\s+/).filter(Boolean);
+        var shown = 0;
+        items.forEach(function (li) {
+          var text = li.getAttribute("data-q") || "";
+          var match = words.every(function (w) { return text.indexOf(w) !== -1; });
+          li.hidden = !match;
+          if (match) shown += 1;
+        });
+        var open = {};
+        groups.forEach(function (g) {
+          var any = g.querySelector("li:not([hidden])") !== null;
+          g.hidden = !any;
+          if (any) open[g.getAttribute("data-letter")] = true;
+        });
+        letters.forEach(function (a) { a.hidden = !open[a.getAttribute("data-letter")]; });
+        count.textContent = shown.toLocaleString("en-US") + " of " + total.toLocaleString("en-US") + " compilation files";
+      }
+      box.addEventListener("input", function () {
+        clearTimeout(timer);
+        timer = setTimeout(filter, 120);
+      });
+    })();
+  </script>
+</Base>
+
+<style>
+  .search-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .search-input {
+    max-width: 24rem;
+    margin-top: 0;
+  }
+  .search-button {
+    margin-top: 0;
+  }
+  .clear-link {
+    font-size: 0.875rem;
+  }
+  .letters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.6rem;
+    margin: 0.75rem 0 1rem;
+    font-weight: 700;
+  }
+  .comps-list {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+  }
+  .comps-list li {
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .comps-meta {
+    display: block;
+    font-size: 0.8125rem;
+    color: var(--muted);
+  }
+</style>

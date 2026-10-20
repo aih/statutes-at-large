@@ -10,20 +10,25 @@ import RailList from "./RailList.astro";
 import { railNodes } from "../lib/rail";
 import type { TocNode } from "../lib/toc";
 import type { Link } from "../lib/types";
+import type { Query } from "../lib/url";
 
 interface Props {
   sections: Link[];
   toc: TocNode[] | null;
   current: string | null;
+  /** Added to every contents link: `through=` on a pinned compilation. */
+  query?: Query;
+  /** The contents list's title: "In this law" or "In this compilation". */
+  tocTitle?: string;
 }
 
-const { sections, toc, current } = Astro.props;
+const { sections, toc, current, query, tocTitle = "In this law" } = Astro.props;
 const nodes = toc ? railNodes(toc, current) : [];
 ---
 
 {
   (sections.length > 0 || nodes.length > 0) && (
-    <nav class="rail" aria-label="On this page and in this law">
+    <nav class="rail" aria-label={`On this page and ${tocTitle.toLowerCase()}`}>
       {sections.length > 0 && (
         <>
           <p class="rail__title">On this page</p>
@@ -40,8 +45,8 @@ const nodes = toc ? railNodes(toc, current) : [];
       )}
       {nodes.length > 0 && (
         <>
-          <p class="rail__title">In this law</p>
-          <RailList nodes={nodes} current={current} />
+          <p class="rail__title">{tocTitle}</p>
+          <RailList nodes={nodes} current={current} query={query} />
         </>
       )}
     </nav>

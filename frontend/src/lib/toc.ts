@@ -4,7 +4,7 @@
  */
 
 import type { Link, TocEntry } from "./types";
-import { appHref } from "./url";
+import { appHref, type Query } from "./url";
 
 export interface TocLike {
   identifier: string;
@@ -33,6 +33,31 @@ export function nestToc(entries: TocLike[]): TocNode[] {
     stack.push(node);
   }
   return roots;
+}
+
+/** The children of the node whose identifier is `identifier`, searched
+ * through the whole tree; null when no node has it. */
+export function subtreeOf(nodes: TocNode[], identifier: string): TocNode[] | null {
+  for (const node of nodes) {
+    if (node.entry.identifier === identifier) return node.children;
+    if (identifier.startsWith(`${node.entry.identifier}/`)) {
+      const found = subtreeOf(node.children, identifier);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+/** Every node in the tree, counted, and the sections among them. */
+export function countToc(nodes: TocNode[]): { units: number; sections: number } {
+  let units = 0;
+  let sections = 0;
+  for (const node of nodes) {
+    const below = countToc(node.children);
+    units += 1 + below.units;
+    sections += (node.entry.is_section ? 1 : 0) + below.sections;
+  }
+  return { units, sections };
 }
 
 const LEVEL_WORDS: Record<string, string> = {
@@ -80,15 +105,17 @@ export interface SectionLink extends Link {
 }
 
 /** The sections before and after `identifier` among the `is_section`
- * entries, as links; null at either end or when it is not in the list. */
+ * entries, as links carrying `query`; null at either end or when it is not
+ * in the list. */
 export function sectionNeighbors(
   entries: TocLike[],
   identifier: string,
+  query?: Query,
 ): { previous: SectionLink | null; next: SectionLink | null } {
   const sections = entries.filter((entry) => entry.is_section);
   const at = sections.findIndex((entry) => entry.identifier === identifier);
   const link = (entry: TocLike | undefined): SectionLink | null =>
-    entry ? { href: appHref(entry.identifier), label: unitLabel(entry.level, entry.num), heading: entry.heading } : null;
+    entry ? { href: appHref(entry.identifier, query), label: unitLabel(entry.level, entry.num), heading: entry.heading } : null;
   if (at === -1) return { previous: null, next: null };
   return { previous: link(sections[at - 1]), next: link(sections[at + 1]) };
 }

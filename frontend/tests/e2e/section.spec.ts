@@ -107,3 +107,30 @@ test("a 404 prints the API's detail with status 404", async ({ page }) => {
     "nothing at /us/pl/99/99999 in the loaded Statutes at Large volumes",
   );
 });
+
+test("a compiled section's rail lists the whole compilation with its branch open", async ({ page }) => {
+  await page.goto("/app/us/sComp/83/703/tI/ch1./s1?through=118-67");
+  const rail = page.locator("nav.rail");
+  await expect(rail.locator(".rail__title").nth(1)).toHaveText("In this compilation");
+  const here = rail.locator("a[aria-current='page']");
+  await expect(here).toHaveAttribute("href", "/app/us/sComp/83/703/tI/ch1./s1?through=118-67");
+  await expect(here).toBeVisible();
+  await expect(rail.locator("a[href^='/app/us/sComp/83/703/tI/ch1./s2']")).toBeVisible();
+  await expect(page.locator(".neighbors a[rel='next']")).toHaveAttribute("href", /\/app\/us\/sComp\/83\/703\/.*\?through=118-67$/u);
+});
+
+test("a compilation's landing page opens its whole Contents", async ({ page }) => {
+  await page.goto("/app/us/sComp/83/703");
+  const contents = page.locator("details#contents");
+  await expect(contents).toHaveAttribute("open", "");
+  await expect(contents.locator("a[href='/app/us/sComp/83/703/tI/ch1./s1']")).toBeVisible();
+});
+
+test("the compilations index filters as the box is typed into", async ({ page }) => {
+  await page.goto("/app/");
+  await page.getByRole("link", { name: "Statute Compilations by title" }).click();
+  await expect(page).toHaveURL(/\/app\/comps$/u);
+  await page.fill("#comps-q", "atomic");
+  await expect(page.locator(".comps-list li:not([hidden])")).toHaveCount(1);
+  await expect(page.locator("#comps-count")).toContainText("1 of ");
+});

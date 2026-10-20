@@ -403,3 +403,56 @@ def test_the_citation_url_redirects_to_the_compiled_view(client, path):
     assert response.status_code == 307 and response.headers["location"] == f"/api/v1{path}"
     followed = client.get(path)
     assert followed.status_code == 200 and followed.json()["view"] == "compiled"
+
+
+def test_the_whole_table_of_contents(client):
+    response = client.get("/api/v1/comps/83/703/toc")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["identifier_prefix"] == "/us/sComp/83/703"
+    assert body["current_through"] == {"pl": "118-67", "enacted": None}
+    toc = body["toc"]
+    assert body["units_count"] == len(toc) and body["sections_count"] == sum(1 for u in toc if u["is_section"])
+    identifiers = [u["identifier"] for u in toc]
+    # Reading order, every level: the title, its chapter, then the chapter's sections.
+    assert identifiers[:3] == ["/us/sComp/83/703/tI", "/us/sComp/83/703/tI/ch1.", "/us/sComp/83/703/tI/ch1./s1"]
+    assert toc[2] == {
+        "identifier": "/us/sComp/83/703/tI/ch1./s1",
+        "level": "section",
+        "num": "1",
+        "heading": "Declaration.—",
+        "is_section": True,
+    }
+    root = client.get("/api/v1/us/sComp/83/703").json()
+    assert [c["identifier"] for c in root["children"]] == [u["identifier"] for u in toc if u["identifier"].count("/") == 5]
+    assert client.get("/api/v1/comps/83/703/toc?through=118-67").json()["toc"] == toc
+    assert client.get("/api/v1/comps/83/703/toc?through=1-1").status_code == 404
+    assert client.get("/api/v1/comps/1/1/toc").status_code == 404
+
+
+def test_the_table_of_contents_of_an_act_served_title_by_title(client):
+    body = client.get("/api/v1/comps/74/271/toc").json()
+    assert body["toc"][0]["identifier"] == "/us/sComp/74/271/tII"
+    assert "/us/sComp/74/271/tII/s201" in [u["identifier"] for u in body["toc"]]
+    assert body["current_through"]["pl"] == "119-77"
+
+
+def test_the_title_index(client):
+    response = client.get("/api/v1/comps/titles")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["count"] == 4 == len(body["comps"])
+    titles = [c["display_title"] for c in body["comps"]]
+    assert titles == sorted(titles)
+    by_file = {c["file_id"]: c for c in body["comps"]}
+    assert by_file["1630"] == {
+        "file_id": "1630",
+        "package_id": "COMPS-1630",
+        "identifier_prefix": "/us/sComp/83/703",
+        "identifier": "/us/sComp/83/703",
+        "display_title": "Atomic Energy Act of 1954",
+        "title": by_file["1630"]["title"],
+        "partial_of": None,
+        "current_through": "118-67",
+    }
+    assert by_file["8755"]["identifier"] == "/us/sComp/74/271/tII" and by_file["8755"]["partial_of"] == "II"

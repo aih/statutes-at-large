@@ -77,6 +77,32 @@ describe("the element map", () => {
     expect(out).toContain("<td");
   });
 
+  it("renders a COMPS CALS table as an HTML table", () => {
+    const xml = `<section ${NS}><content>table:<foreign role="passthroughContent"><compsdtd:table xmlns:compsdtd="http://schemas.gpo.gov/xml/comps-dtd"><compsdtd:ttitle>NUTRIENTS</compsdtd:ttitle><compsdtd:tgroup cols="2"><compsdtd:colspec colname="c1"/><compsdtd:colspec colname="c2"/><compsdtd:thead><compsdtd:row><compsdtd:entry align="center" colname="c1">Nutrient</compsdtd:entry><compsdtd:entry colname="c2">Minimum<compsdtd:superscript>1</compsdtd:superscript></compsdtd:entry></compsdtd:row></compsdtd:thead><compsdtd:tfoot><compsdtd:row><compsdtd:entry namest="c1" nameend="c2"><compsdtd:superscript>1</compsdtd:superscript> Per <compsdtd:quote>100</compsdtd:quote>.</compsdtd:entry></compsdtd:row></compsdtd:tfoot><compsdtd:tbody><compsdtd:row><compsdtd:entry colname="c1">Protein</compsdtd:entry><compsdtd:entry colname="c2"><compsdtd:italic>1.8</compsdtd:italic></compsdtd:entry></compsdtd:row></compsdtd:tbody></compsdtd:tgroup></compsdtd:table></foreign></content></section>`;
+    const out = html(xml);
+    expect(out).toContain('<div class="uslm-tablewrap" role="region" tabindex="0" aria-label="NUTRIENTS"><table class="uslm-table uslm-cals"><caption class="uslm-caption">NUTRIENTS</caption><thead class="uslm-thead">');
+    expect(out).toContain('<th class="uslm-th" scope="col" style="text-align: center">Nutrient</th>');
+    expect(out).toContain('<tbody class="uslm-tbody"><tr class="uslm-tr"><td class="uslm-td">Protein</td><td class="uslm-td"><i>1.8</i></td></tr></tbody><tfoot');
+    expect(out).toContain('<td class="uslm-td" colspan="2"><sup>1</sup> Per <q>100</q>.</td>');
+    expect(out).not.toContain("uslm-row");
+    expect(out).not.toContain("uslm-entry");
+  });
+
+  it("spans a CALS entry by colN names when the tgroup has no colspec", () => {
+    const xml = `<section ${NS}><compsdtd:table xmlns:compsdtd="http://schemas.gpo.gov/xml/comps-dtd"><compsdtd:tgroup cols="2"><compsdtd:tfoot><compsdtd:row><compsdtd:entry namest="col1" nameend="col2">note</compsdtd:entry></compsdtd:row></compsdtd:tfoot><compsdtd:tbody><compsdtd:row><compsdtd:entry colname="I25">Alabama</compsdtd:entry><compsdtd:entry colname="I07">.011398</compsdtd:entry></compsdtd:row></compsdtd:tbody></compsdtd:tgroup></compsdtd:table></section>`;
+    const out = html(xml);
+    expect(out).toContain('aria-label="Table"');
+    expect(out).toContain('<td class="uslm-td" colspan="2">note</td>');
+    expect(out).toContain('<td class="uslm-td">Alabama</td><td class="uslm-td">.011398</td>');
+  });
+
+  it("spans the last CALS entry of a short row across the remaining columns", () => {
+    const xml = `<section ${NS}><compsdtd:table xmlns:compsdtd="http://schemas.gpo.gov/xml/comps-dtd"><compsdtd:tgroup cols="2"><compsdtd:thead><compsdtd:row><compsdtd:entry colname="I06">Fiscal years</compsdtd:entry></compsdtd:row></compsdtd:thead><compsdtd:tbody><compsdtd:row><compsdtd:entry>a</compsdtd:entry><compsdtd:entry>b</compsdtd:entry></compsdtd:row></compsdtd:tbody></compsdtd:tgroup></compsdtd:table></section>`;
+    const out = html(xml);
+    expect(out).toContain('<th class="uslm-th" colspan="2" scope="col">Fiscal years</th>');
+    expect(out).toContain('<td class="uslm-td">a</td><td class="uslm-td">b</td>');
+  });
+
   it("drops meta and namespaced elements", () => {
     const xml = `<section ${NS} xmlns:dc="http://purl.org/dc/elements/1.1/"><meta><dc:title>x</dc:title></meta><content>kept</content></section>`;
     const out = html(xml);
