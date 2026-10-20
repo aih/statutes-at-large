@@ -38,6 +38,8 @@ class SearchSettings(BaseSettings):
     search_user: str = "admin"
     search_password: str | None = None
     search_timeout: float = 10.0
+    """Seconds per request, for the API's queries and `ingest`'s bulk loads
+    alike. 10 is also opensearch-py's own default."""
 
     search_verify_certs: bool = True
     """Verify TLS unless `SEARCH_VERIFY_CERTS=false`. The dev and box clusters
