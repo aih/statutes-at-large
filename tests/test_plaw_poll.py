@@ -82,7 +82,17 @@ def make_fresh():
 
 @pytest.fixture(scope="module")
 def fresh():
-    return make_fresh()
+    factory = make_fresh()
+    yield factory
+    factory.kw["bind"].dispose()
+
+
+@pytest.fixture()
+def blank():
+    """`make_fresh` for one test, disposed after it."""
+    factory = make_fresh()
+    yield factory
+    factory.kw["bind"].dispose()
 
 
 def mock_118(times: dict[str, str] | None = None, *, top: dict | None = None):
@@ -293,10 +303,10 @@ def test_limit_stops_after_n_files(fresh, tmp_path):
 
 
 @mock
-def test_a_stale_zip_on_disk_is_refetched(tmp_path):
+def test_a_stale_zip_on_disk_is_refetched(blank, tmp_path):
     """A congress with nothing PLAW-derived takes the zip; the file on disk is
     older than the listing's zip time, so it is downloaded again."""
-    factory = make_fresh()
+    factory = blank
     later = (datetime.datetime.now(UTC) + datetime.timedelta(hours=1)).strftime("%d-%b-%Y %H:%M")
     mock_118({"PLAW-118-public.zip": later})
     stale = tmp_path / "PLAW-118-public.zip"
@@ -311,8 +321,8 @@ def test_a_stale_zip_on_disk_is_refetched(tmp_path):
 # -------------------------------------------------------------- the directory
 
 
-def test_from_dir_loads_the_four_laws_with_no_network(tmp_path):
-    factory = make_fresh()
+def test_from_dir_loads_the_four_laws_with_no_network(blank, tmp_path):
+    factory = blank
     with mock:
         with factory() as session, DirectorySource(PLAW_FIXTURES) as source:
             report = poll(session, source, directory=tmp_path)
@@ -333,8 +343,8 @@ def test_from_dir_loads_the_four_laws_with_no_network(tmp_path):
     assert target.name == "plaw-poll.json" and json.loads(target.read_text())["loaded"] == 4
 
 
-def test_from_dir_without_a_listing_is_the_walk_failing(tmp_path):
-    factory = make_fresh()
+def test_from_dir_without_a_listing_is_the_walk_failing(blank, tmp_path):
+    factory = blank
     with factory() as session, DirectorySource(PLAW_FIXTURES) as source:
         with pytest.raises(FileNotFoundError):
             poll(session, source, congresses=[113], directory=tmp_path)
@@ -344,11 +354,11 @@ def test_from_dir_without_a_listing_is_the_walk_failing(tmp_path):
     assert report.ok and report.congresses == [] and report.listed == 0
 
 
-def test_the_command_line(tmp_path, monkeypatch, capsys):
+def test_the_command_line(blank, tmp_path, monkeypatch, capsys):
     import db.base
     from ingest.__main__ import main
 
-    factory = make_fresh()
+    factory = blank
     monkeypatch.setattr(db.base, "SessionLocal", factory)
     with mock:
         code = main(["plaw", "poll", "--from-dir", str(PLAW_FIXTURES), "--congress", "118", "--report", str(tmp_path), "--json", "--dir", str(tmp_path)])

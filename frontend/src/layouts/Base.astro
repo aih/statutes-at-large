@@ -98,7 +98,7 @@ const layoutClass = hasRail ? "reader-layout" : "reader-layout reader-layout--si
     <SiteFooter />
     <script is:inline>
       function o(i){var t=document.getElementById(i);if(!t)return;var n=t.tagName==="DETAILS"?t:t.closest("details");while(n){n.open=true;n=n.parentElement?n.parentElement.closest("details"):null}t.scrollIntoView()}
-      function h(){if(location.hash.length>1)o(decodeURIComponent(location.hash.slice(1)))}
+      function h(){if(location.hash.length>1){try{o(decodeURIComponent(location.hash.slice(1)))}catch{}}}
       addEventListener("load",h);addEventListener("hashchange",h);
     </script>
     <ShortcutsDialog />

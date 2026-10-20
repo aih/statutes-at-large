@@ -86,3 +86,19 @@ def test_every_marker_of_volume_124_slices():
             etree.fromstring(cut.xml.encode())
             assert cut.text and cut.text in whole
     assert seen == 14
+
+
+def test_a_page_not_in_the_law_is_an_empty_slice():
+    cut = page_slice(DOC, "9999", first_page="1")
+    assert (cut.xml, cut.text, cut.to) == ("", "", None)
+    assert page_slice(DOC, "1", first_page="1").text == page_slice(DOC, "1").text
+
+
+def test_a_slip_law_first_page_starts_at_its_marker():
+    """The `137 STAT. 112` marker follows the slip law's cover page and comes
+    before `docNumber`, so the page holds the docNumber and not the cover."""
+    xml = (FIXTURES / "plaw" / "PLAW-118publ22.xml").read_text()
+    cut = page_slice(xml, "112", first_page="112")
+    assert cut.text.startswith("Public Law118–22 118th Congress")
+    assert "FURTHER CONTINUING APPROPRIATIONS AND OTHER EXTENSIONS ACT, 2024" not in cut.text
+    assert cut.to == "/us/stat/137/113"

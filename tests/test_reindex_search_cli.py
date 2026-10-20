@@ -27,7 +27,8 @@ def sessions(monkeypatch):
 
     made = _factory()
     monkeypatch.setattr(db.base, "SessionLocal", made)
-    return made
+    yield made
+    made.kw["bind"].dispose()
 
 
 @pytest.fixture()

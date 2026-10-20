@@ -72,7 +72,8 @@ def require(path: Path) -> Path:
 def engine():
     engine = make_engine("sqlite://")
     Base.metadata.create_all(engine)
-    return engine
+    yield engine
+    engine.dispose()
 
 
 @pytest.fixture(scope="session")

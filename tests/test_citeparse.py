@@ -51,9 +51,16 @@ SECTIONS_OF_LAWS = [
     ("section 3 of Public Law 81-740", "/us/pl/81/740/s3"),
     ("§ 3(a) of Pub. L. 81-740", "/us/pl/81/740/s3/a"),
     ("Sec. 3 of the Pub. L. 81-740", "/us/pl/81/740/s3"),
+    ("Pub. L. 94-579, § 204-1", "/us/pl/94/579/s204-1"),
+    ("Pub. L. 94-579, § 204-1(a)", "/us/pl/94/579/s204-1/a"),
+    ("Pub. L. 94-579, sec. 204-1", "/us/pl/94/579/s204-1"),
+    ("Pub. L. 94-579, section 204-1(a)", "/us/pl/94/579/s204-1/a"),
+    ("Pub. L. 94-579, § 254b-2", "/us/pl/94/579/s254b-2"),
     # A range keeps its first section.
     ("Pub. L. 104-333, §§ 814–816", "/us/pl/104/333/s814"),
     ("Pub. L. 104-333, §§ 814-816", "/us/pl/104/333/s814"),
+    ("Pub. L. 104-333, secs. 814-816", "/us/pl/104/333/s814"),
+    ("Pub. L. 104-333, sections 814-816", "/us/pl/104/333/s814"),
     # The full source-credit form.
     (
         "Pub. L. 104–333, div. I, title VIII, § 814(e)(1), Nov. 12, 1996, 110 Stat. 4196",
@@ -316,3 +323,14 @@ def test_a_bare_number_does_not_take_other_forms():
     assert parse_citation("64 Stat. 563-564").kind == "stat"
     assert parse_citation("42 USC 2000e-2").kind == "usc"
     assert parse_citation("/us/stat/64/563").kind == "stat"
+
+
+def test_hyphenated_section_number():
+    parsed = parse_citation("Pub. L. 94-579, § 204-1")
+    assert parsed.section_num == "204-1"
+    assert parsed.identifier == "/us/pl/94/579/s204-1"
+    assert parsed.section_identifier == "/us/pl/94/579/s204-1"
+
+
+def test_a_word_after_the_section_number_is_not_part_of_it():
+    assert parse_citation("Pub. L. 94-579, § 204note") is None

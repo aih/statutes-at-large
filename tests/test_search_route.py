@@ -9,10 +9,9 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-from api.alternatives import USCODE_ORIGIN
 from api.search import search_client_dependency
 from main import app
-from params import SEARCH_UNAVAILABLE
+from params import SEARCH_UNAVAILABLE, origins
 from storage import get_repository
 
 ROUTE = "/api/v1/search"
@@ -119,7 +118,7 @@ def test_a_hit_with_a_highlight_becomes_a_result(api_client):
     assert body["total"] == 1
     result = body["results"][0]
     assert result["identifier"] == "/us/pl/81/740/s3"
-    assert result["url"] == "/app/us/pl/81/740/s3"
+    assert result["url"] == "https://statutes.linkedlegislation.org/us/pl/81/740/s3"
     assert result["snippets"] == ["a <em>wild</em> horse"]
     assert result["law_label"] == "Public Law 81-740"
     assert body["facets"]["congress"] == [{"value": "81", "count": 1}]
@@ -238,7 +237,7 @@ def test_search_surfaces_matched_act_and_canonical_usc(acts_client):
         "identifier": "/us/sComp/83/703",
         "package_id": "COMPS-1630",
         "current_through": {"pl": "118-67", "enacted": "2024-07-09"},
-        "url": "/app/us/sComp/83/703",
+        "url": f"{origins.site_origin}/us/sComp/83/703",
     }
 
     assert act["law"]["identifier"] == "/us/pl/83/703"
@@ -251,7 +250,7 @@ def test_search_surfaces_matched_act_and_canonical_usc(acts_client):
     assert usc["identifier"] == "/us/usc/t42/s2011"
     assert usc["citation"] == "42 U.S.C. § 2011"
     assert usc["heading"] == "Congressional declaration of policy"
-    assert usc["url"] == f"{USCODE_ORIGIN}/us/usc/t42/s2011"
+    assert usc["url"] == f"{origins.uscode_origin}/us/usc/t42/s2011"
     assert (usc["context"], usc["note_topic"]) == ("note", "shortTitle")
     assert usc["citing_sections_count"] >= 8
     assert usc["history"][3] == {

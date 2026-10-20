@@ -104,15 +104,17 @@ class PageSlice:
     document's end and when that marker carries no identifier."""
 
 
-def page_slice(xml: str, page: str) -> PageSlice:
+def page_slice(xml: str, page: str, *, first_page: str | None = None) -> PageSlice:
     """The slice of a law's stored XML that the page prints.
 
     `page` is a page label (`564`, `a12`), matched against the `page` markers
     case-insensitively. The range runs from the marker that names the page to
     the next marker in document order, whichever page that one names. A law
     that starts on the page carries no marker for it, and the range then starts
-    at the root and ends at the first marker. The law's `meta` is dropped: it
-    is the package's metadata, not text the page prints.
+    at the root and ends at the first marker. With `first_page` (the law's
+    first page label), a page no marker names and that is not `first_page` is
+    not in the law, and the slice is empty. The law's `meta` is dropped: it is
+    the package's metadata, not text the page prints.
     """
     root = etree.fromstring(xml.encode("utf-8"))
     label = "".join(page.split()).lower()
@@ -121,6 +123,8 @@ def page_slice(xml: str, page: str) -> PageSlice:
         (i for i, marker in enumerate(markers) if page_label(marker.get("identifier")) == label),
         None,
     )
+    if start_at is None and first_page is not None and label != "".join(first_page.split()).lower():
+        return PageSlice(xml="", text="", to=None)
     end_at = 0 if start_at is None else start_at + 1
     start = markers[start_at] if start_at is not None else None
     end = markers[end_at] if end_at < len(markers) else None

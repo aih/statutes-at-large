@@ -120,7 +120,16 @@ def test_law_labels():
 def test_roman_chapter_numbers_of_the_first_volumes():
     from ingest.identifiers import parse_doc_number, roman_to_int
 
-    assert roman_to_int("CXLVII") == 147 and roman_to_int("IV") == 4 and roman_to_int("x") == 10
+    assert roman_to_int("I") == 1
+    assert roman_to_int("XIV") == 14
+    assert roman_to_int("CXLVII") == 147
+    assert roman_to_int("MCMXCIX") == 1999
+    assert roman_to_int("IV") == 4
+    assert roman_to_int("x") == 10
+    assert roman_to_int("DIV") is None
+    assert roman_to_int("MIX") is None
+    assert roman_to_int("LLC") is None
+    assert roman_to_int("IIV") is None
     assert roman_to_int("12") is None and roman_to_int("") is None
     assert parse_doc_number("I") == 1 and parse_doc_number("3]") == 3 and parse_doc_number("[CHAPTER 5") == 5
     identity = identify_law(congress=1, doc_type="Chapter", doc_number="I", public_private="public",

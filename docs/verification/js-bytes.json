@@ -2,12 +2,12 @@
   "generated_by": "frontend/tests/jsbudget.test.ts, via `make test-web`",
   "counts": "Bytes inside <script is:inline> across each route's transitive .astro import graph. A component behind a false condition is still counted, so this is what a route can ship, not always what it did.",
   "client_bundles": "None. `astro build` emits no client JavaScript for this site; dist/client/_astro holds only CSS, because every island is is:inline and Astro never bundles those.",
-  "total_bytes": 28251,
+  "total_bytes": 28377,
   "routes": [
     {
       "route": "/app/",
       "page": "pages/index.astro",
-      "bytes": 3139,
+      "bytes": 3153,
       "scripts": 2,
       "components": [
         "KeyboardNav.astro",
@@ -17,7 +17,7 @@
     {
       "route": "/app/goto",
       "page": "pages/goto.astro",
-      "bytes": 3139,
+      "bytes": 3153,
       "scripts": 2,
       "components": [
         "KeyboardNav.astro",
@@ -34,7 +34,7 @@
     {
       "route": "/app/search",
       "page": "pages/search.astro",
-      "bytes": 3139,
+      "bytes": 3153,
       "scripts": 2,
       "components": [
         "KeyboardNav.astro",
@@ -44,7 +44,7 @@
     {
       "route": "/app/search/syntax",
       "page": "pages/search/syntax.astro",
-      "bytes": 3139,
+      "bytes": 3153,
       "scripts": 2,
       "components": [
         "KeyboardNav.astro",
@@ -54,7 +54,7 @@
     {
       "route": "/app/us/act",
       "page": "pages/us/act/[...identifier].astro",
-      "bytes": 3139,
+      "bytes": 3153,
       "scripts": 2,
       "components": [
         "KeyboardNav.astro",
@@ -64,7 +64,7 @@
     {
       "route": "/app/us/pl",
       "page": "pages/us/pl/[...identifier].astro",
-      "bytes": 3139,
+      "bytes": 3153,
       "scripts": 2,
       "components": [
         "KeyboardNav.astro",
@@ -74,7 +74,7 @@
     {
       "route": "/app/us/pvtl",
       "page": "pages/us/pvtl/[...identifier].astro",
-      "bytes": 3139,
+      "bytes": 3153,
       "scripts": 2,
       "components": [
         "KeyboardNav.astro",
@@ -84,7 +84,7 @@
     {
       "route": "/app/us/sComp",
       "page": "pages/us/sComp/[...identifier].astro",
-      "bytes": 3139,
+      "bytes": 3153,
       "scripts": 2,
       "components": [
         "KeyboardNav.astro",
@@ -94,7 +94,7 @@
     {
       "route": "/app/us/stat/[volume]",
       "page": "pages/us/stat/[volume]/[page].astro",
-      "bytes": 3139,
+      "bytes": 3153,
       "scripts": 2,
       "components": [
         "KeyboardNav.astro",

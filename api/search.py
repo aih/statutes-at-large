@@ -18,9 +18,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from opensearchpy import OpenSearch
 from pydantic import BaseModel, Field
 
-from api.alternatives import USCODE_ORIGIN
 from api.comps_schemas import CurrentThroughOut
-from params import SEARCH_UNAVAILABLE, RepositoryDep, public_cache, rate_limit, search_note
+from params import SEARCH_UNAVAILABLE, RepositoryDep, origins, public_cache, rate_limit, search_note
 from storage import ActMatch, Repository
 from storage.search import UNITS_ALIAS, SearchNotConfigured, get_search_client
 from storage.searchquery import (
@@ -230,7 +229,7 @@ def _act_of(match: ActMatch) -> SearchActMatch:
             identifier=comp.identifier_prefix,
             package_id=comp.package_id,
             current_through=through,
-            url=f"/app{comp.identifier_prefix}",
+            url=f"{origins.site_origin}{comp.identifier_prefix}",
         )
     return SearchActMatch(
         title=match.title,
@@ -250,7 +249,7 @@ def _act_of(match: ActMatch) -> SearchActMatch:
             identifier=usc.identifier,
             citation=usc.citation,
             heading=usc.heading,
-            url=f"{USCODE_ORIGIN}{usc.identifier}",
+            url=f"{origins.uscode_origin}{usc.identifier}",
             context=usc.context,
             note_topic=usc.note_topic,
             history=[SearchUscHistoryItem(identifier=h.identifier, label=h.label, date=h.date) for h in usc.history],
@@ -276,7 +275,7 @@ def _result_of(hit: dict) -> SearchResult:
         citation=source.get("citation"),
         view=source.get("view", DEFAULT_VIEW),
         comp_prefix=source.get("comp_prefix"),
-        url=f"/app{identifier}",
+        url=f"{origins.site_origin}{identifier}",
     )
 
 

@@ -42,7 +42,11 @@ exists.
 A law enacted after the weekly run gets no warning until the next one; a
 reader still sees the 404. `make plaw-pending` refreshes the rows by hand.
 
-The Congress.gov response shape is taken from the API's documentation. The
-session that wrote this could not reach api.congress.gov, and
-`tests/fixtures/congress-gov/law-119-pub.json` is hand-written in that shape,
-not a capture. The first run on the box is the check.
+The Congress.gov response shape was first taken from the API's
+documentation, and `tests/fixtures/congress-gov/law-119-pub.json` is
+hand-written in that shape, not a capture. A live request on 2026-10-19
+confirmed it: `GET /v3/law/119/pub` answers 200 with `bills` (each with its
+`laws`), `pagination` and `request`; `GET /v3/law/119/public` answers 404
+`Unknown resource: law/119/public`. A live bill also carries
+`updateDateIncludingText`, which the fixture omits and `parse_listing` does
+not read.
