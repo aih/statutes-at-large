@@ -273,205 +273,124 @@ class PostgresRepository:
         return tuple(self._unit_ref(u) for u in units)
 
     def labels(self, identifiers: Sequence[str]) -> dict[str, LabelInfo]:
-        unique_identifiers = list(dict.fromkeys(identifiers))
-        parsed_map = {ident: parse_identifier(ident) for ident in unique_identifiers}
-        valid_items = [
-            (ident, parsed_map[ident])
-            for ident in unique_identifiers
-            if parsed_map[ident] is not None and parsed_map[ident].kind != "sComp"
-        ]
-        if not valid_items:
+        """`get_unit`'s resolution for each identifier, in at most six queries:
+        the laws by alias, their aliases, the units each path could name, the
+        sections by number, and the XML of the sections a path goes below.
+        Children, pages and occurrences are not read."""
+        parsed = {
+            identifier: p
+            for identifier in dict.fromkeys(identifiers)
+            if (p := parse_identifier(identifier)) is not None and p.kind != "sComp"
+        }
+        law_by_alias: dict[str, Law] = {
+            alias: law
+            for alias, law in self._session.execute(
+                select(LawAlias.identifier, Law)
+                .join(Law, Law.id == LawAlias.law_id)
+                .where(LawAlias.identifier.in_({p.law_identifier for p in parsed.values()}))
+            ).tuples()
+        } if parsed else {}
+        laws = {law.id: law for law in law_by_alias.values()}
+        if not laws:
             return {}
+        aliases: dict[int, list[str]] = defaultdict(list)
+        for law_id, alias in self._session.execute(
+            select(LawAlias.law_id, LawAlias.identifier)
+            .where(LawAlias.law_id.in_(laws))
+            .order_by(LawAlias.is_primary.desc(), LawAlias.identifier)
+        ).tuples():
+            aliases[law_id].append(alias)
+        refs = {law_id: self._law_ref(law, aliases[law_id]) for law_id, law in laws.items()}
 
-        law_identifiers = {p.law_identifier for _, p in valid_items}
-        rows = self._session.execute(
-            select(LawAlias.identifier, Law)
-            .join(Law, Law.id == LawAlias.law_id)
-            .where(LawAlias.identifier.in_(law_identifiers))
-        ).all()
-        law_by_alias = {alias_id: law for alias_id, law in rows}
+        # Every unit a path could name: each of its prefixes, longest first.
+        candidates: set[str] = set()
+        section_nums: set[str] = set()
+        for p in parsed.values():
+            law = law_by_alias.get(p.law_identifier)
+            if law is None or not p.path:
+                continue
+            segments = p.segments
+            candidates.update(law.identifier + "/" + "/".join(segments[:cut]) for cut in range(1, len(segments) + 1))
+            if p.section_num is not None:
+                section_nums.add(p.section_num)
+        columns = (Unit.law_id, Unit.identifier, Unit.level, Unit.num, Unit.heading, Unit.section_num)
+        units = {
+            (row.law_id, row.identifier): row
+            for row in self._session.execute(
+                select(*columns).where(Unit.law_id.in_(laws), Unit.identifier.in_(candidates), Unit.occurrence == 1)
+            )
+        } if candidates else {}
+        sections: dict[tuple[int, str], Any] = {}
+        if section_nums:
+            for row in self._session.execute(
+                select(*columns)
+                .where(Unit.law_id.in_(laws), Unit.level == "section", Unit.section_num.in_(section_nums), Unit.occurrence == 1)
+                .order_by(Unit.seq)
+            ):
+                sections.setdefault((row.law_id, row.section_num), row)
 
-        distinct_laws = {l.id: l for l in law_by_alias.values()}
-        law_ref_cache: dict[int, LawRef] = {}
-        if distinct_laws:
-            alias_rows = self._session.execute(
-                select(LawAlias.law_id, LawAlias.identifier)
-                .where(LawAlias.law_id.in_(distinct_laws.keys()))
-                .order_by(LawAlias.is_primary.desc(), LawAlias.identifier)
-            ).all()
-            aliases_by_law: dict[int, list[str]] = defaultdict(list)
-            for lid, aid in alias_rows:
-                aliases_by_law[lid].append(aid)
-            for lid, law in distinct_laws.items():
-                law_ref_cache[lid] = LawRef(
-                    identifier=law.identifier,
-                    kind=law.kind,
-                    congress=law.congress,
-                    number=law.number,
-                    chapter=law.chapter,
-                    enacted=law.enacted,
-                    doc_type=law.doc_type,
-                    official_title=law.official_title,
-                    short_titles=tuple(law.short_titles or ()),
-                    stat_volume=law.stat_volume,
-                    stat_page_first=law.stat_page_first,
-                    stat_page_last=law.stat_page_last,
-                    citation=law.citation,
-                    source_collection=law.source_collection,
-                    source_package=law.source_package,
-                    source_granule=law.source_granule,
-                    provenance_text=law.provenance_text,
-                    provenance_identifiers=law.provenance_identifiers,
-                    content_hash=law.content_hash,
-                    aliases=tuple(aliases_by_law[lid]),
-                )
-
-        found: dict[str, LabelInfo] = {}
-        items_with_path: list[tuple[str, ParsedIdentifier, Law]] = []
-        all_unit_candidates: set[tuple[int, str]] = set()
-        all_section_nums: set[tuple[int, str]] = set()
-
-        for ident, parsed in valid_items:
-            law = law_by_alias.get(parsed.law_identifier)
+        # Each identifier's unit and resolution; a provision below a section
+        # waits for the section's XML, read in one query below.
+        answers: dict[str, tuple[Law, Any, str]] = {}
+        below: dict[str, str] = {}
+        for identifier, p in parsed.items():
+            law = law_by_alias.get(p.law_identifier)
             if law is None:
                 continue
-            if not parsed.path:
-                base = "exact" if parsed.law_identifier == law.identifier else "alias"
-                found[ident] = LabelInfo(
-                    identifier=ident,
-                    served_identifier=law.identifier,
-                    resolution=base,
-                    law=law_ref_cache[law.id],
-                    level="law",
-                    num=None,
-                    heading=law.official_title,
-                )
+            base = "exact" if p.law_identifier == law.identifier else "alias"
+            if not p.path:
+                answers[identifier] = (law, None, base)
                 continue
-
-            items_with_path.append((ident, parsed, law))
-            segments = list(parsed.segments)
+            segments = p.segments
             for cut in range(len(segments), 0, -1):
-                candidate = law.identifier + "/" + "/".join(segments[:cut])
-                all_unit_candidates.add((law.id, candidate))
-            if parsed.section_num is not None:
-                all_section_nums.add((law.id, parsed.section_num))
-
-        units_by_cand: dict[tuple[int, str], Any] = {}
-        if all_unit_candidates:
-            candidate_ident_set = {cand for _, cand in all_unit_candidates}
-            unit_rows = self._session.execute(
-                select(
-                    Unit.law_id,
-                    Unit.identifier,
-                    Unit.level,
-                    Unit.num,
-                    Unit.heading,
-                    Unit.section_num,
-                    Unit.seq,
-                ).where(
-                    Unit.law_id.in_(distinct_laws.keys()),
-                    Unit.identifier.in_(candidate_ident_set),
-                    Unit.occurrence == 1,
-                )
-            ).all()
-            for r in unit_rows:
-                units_by_cand[(r.law_id, r.identifier)] = r
-
-        sections_by_num: dict[tuple[int, str], Any] = {}
-        if all_section_nums:
-            section_num_set = {num for _, num in all_section_nums}
-            sec_rows = self._session.execute(
-                select(
-                    Unit.law_id,
-                    Unit.identifier,
-                    Unit.level,
-                    Unit.num,
-                    Unit.heading,
-                    Unit.section_num,
-                    Unit.seq,
-                ).where(
-                    Unit.law_id.in_(distinct_laws.keys()),
-                    Unit.level == "section",
-                    Unit.section_num.in_(section_num_set),
-                    Unit.occurrence == 1,
-                ).order_by(Unit.seq)
-            ).all()
-            for r in sec_rows:
-                if (r.law_id, r.section_num) not in sections_by_num:
-                    sections_by_num[(r.law_id, r.section_num)] = r
-
-        for ident, parsed, law in items_with_path:
-            law_ref = law_ref_cache[law.id]
-            base = "exact" if parsed.law_identifier == law.identifier else "alias"
-            requested = parsed.law_identifier + parsed.path
-            segments = list(parsed.segments)
-            matched = False
-
-            for cut in range(len(segments), 0, -1):
-                candidate = law.identifier + "/" + "/".join(segments[:cut])
-                unit_row = units_by_cand.get((law.id, candidate))
-                if unit_row is None:
+                unit = units.get((law.id, law.identifier + "/" + "/".join(segments[:cut])))
+                if unit is None:
                     continue
-                rest = segments[cut:]
-                resolution = base
-                if not rest:
-                    resolution = base
-                elif unit_row.level == "section":
-                    xml = self._session.scalar(
-                        select(Unit.xml).where(Unit.law_id == law.id, Unit.identifier == unit_row.identifier, Unit.occurrence == 1)
-                    ) or ""
-                    prov_path = requested if base == "exact" else candidate + "/" + "/".join(rest)
-                    fragment = fragment_by_identifier(xml, prov_path)
-                    if fragment is None and resolution == "exact":
-                        resolution = "prefix"
+                if cut == len(segments):
+                    answers[identifier] = (law, unit, base)
+                elif unit.level == "section":
+                    answers[identifier] = (law, unit, base)
+                    # Only an exact answer turns `prefix` when the provision is
+                    # not in the section's XML.
+                    if base == "exact":
+                        below[identifier] = p.law_identifier + p.path
                 else:
-                    resolution = "prefix"
-
-                found[ident] = LabelInfo(
-                    identifier=ident,
-                    served_identifier=unit_row.identifier,
-                    resolution=resolution,
-                    law=law_ref,
-                    level=unit_row.level,
-                    num=unit_row.num,
-                    heading=unit_row.heading,
-                )
-                matched = True
+                    answers[identifier] = (law, unit, "prefix")
                 break
+            else:
+                unit = sections.get((law.id, p.section_num)) if p.section_num is not None else None
+                answers[identifier] = (law, unit, "section_number") if unit is not None else (law, None, "prefix")
 
-            if not matched and parsed.section_num is not None:
-                unit_row = sections_by_num.get((law.id, parsed.section_num))
-                if unit_row is not None:
-                    resolution = "section_number"
-                    if parsed.below_section:
-                        xml = self._session.scalar(
-                            select(Unit.xml).where(Unit.law_id == law.id, Unit.identifier == unit_row.identifier, Unit.occurrence == 1)
-                        ) or ""
-                        prov_path = f"{unit_row.identifier}/{'/'.join(parsed.below_section)}"
-                        fragment_by_identifier(xml, prov_path)
-                    found[ident] = LabelInfo(
-                        identifier=ident,
-                        served_identifier=unit_row.identifier,
-                        resolution=resolution,
-                        law=law_ref,
-                        level=unit_row.level,
-                        num=unit_row.num,
-                        heading=unit_row.heading,
+        if below:
+            xml = {
+                (law_id, unit_identifier): text or ""
+                for law_id, unit_identifier, text in self._session.execute(
+                    select(Unit.law_id, Unit.identifier, Unit.xml).where(
+                        Unit.law_id.in_({answers[i][0].id for i in below}),
+                        Unit.identifier.in_({answers[i][1].identifier for i in below}),
+                        Unit.occurrence == 1,
                     )
-                    matched = True
+                ).tuples()
+            }
+            for identifier, provision_path in below.items():
+                law, unit, _ = answers[identifier]
+                if fragment_by_identifier(xml.get((law.id, unit.identifier), ""), provision_path) is None:
+                    answers[identifier] = (law, unit, "prefix")
 
-            if not matched:
-                found[ident] = LabelInfo(
-                    identifier=ident,
-                    served_identifier=law.identifier,
-                    resolution="prefix",
-                    law=law_ref,
-                    level="law",
-                    num=None,
-                    heading=law.official_title,
-                )
-
-        return found
+        # A provision that was not found is a prefix answer, and the label
+        # says so through `resolution`; the caller decides what to make of it.
+        return {
+            identifier: LabelInfo(
+                identifier=identifier,
+                served_identifier=unit.identifier if unit is not None else law.identifier,
+                resolution=resolution,
+                law=refs[law.id],
+                level=unit.level if unit is not None else "law",
+                num=unit.num if unit is not None else None,
+                heading=unit.heading if unit is not None else law.official_title,
+            )
+            for identifier, (law, unit, resolution) in answers.items()
+        }
 
     def law_sources(self, law_identifier: str) -> LawSources | None:
         parsed = parse_identifier(law_identifier)
@@ -649,10 +568,12 @@ class PostgresRepository:
             occurrences=self._occurrences(law, unit.identifier),
         )
 
-    def _law_ref(self, law: Law) -> LawRef:
-        aliases = self._session.scalars(
-            select(LawAlias.identifier).where(LawAlias.law_id == law.id).order_by(LawAlias.is_primary.desc(), LawAlias.identifier)
-        ).all()
+    def _law_ref(self, law: Law, aliases: Sequence[str] | None = None) -> LawRef:
+        """`aliases`, when the caller has read them, in the order this reads them."""
+        if aliases is None:
+            aliases = self._session.scalars(
+                select(LawAlias.identifier).where(LawAlias.law_id == law.id).order_by(LawAlias.is_primary.desc(), LawAlias.identifier)
+            ).all()
         return LawRef(
             identifier=law.identifier,
             kind=law.kind,
