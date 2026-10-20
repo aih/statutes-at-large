@@ -1,0 +1,463 @@
+---
+/**
+ * `/app/congress/{congress}` — one Congress's laws (ADR-0033).
+ *
+ * Every Congress from the 1st to the latest with a loaded law has a page, so
+ * the previous and next Congress are its neighbours. Each filter pill's count
+ * is the total that filter returns: public and private take in the chapter
+ * acts the source marks so, which before the 57th Congress are all of them.
+ */
+import ErrorPage from "../../components/ErrorPage.astro";
+import Note from "../../components/Note.astro";
+import Pager from "../../components/Pager.astro";
+import Base from "../../layouts/Base.astro";
+import { ApiError, fetchCongressDetail } from "../../lib/api";
+import { REVALIDATE } from "../../lib/cache";
+import { clientAddressOf } from "../../lib/params";
+import type { CongressDetail, Link } from "../../lib/types";
+import {
+  APP,
+  appHref,
+  congressHref,
+  congressOrdinal,
+  congressesHref,
+  longDate,
+  pageOffset,
+  parseLawNumber,
+} from "../../lib/url";
+
+const { congress: rawCongress } = Astro.params;
+const congressNum = Number(rawCongress);
+
+if (!Number.isInteger(congressNum) || congressNum < 1 || congressNum > 200) {
+  return new Response("Invalid Congress number", { status: 404 });
+}
+
+Astro.response.headers.set("Cache-Control", REVALIDATE);
+
+const PAGE_SIZE = 100;
+const params = Astro.url.searchParams;
+const offset = pageOffset(params, PAGE_SIZE);
+
+const kindParam = params.get("kind");
+const kind = kindParam === "pl" || kindParam === "pvtl" || kindParam === "act" ? kindParam : null;
+const sideParam = params.get("public_private");
+const side = sideParam === "public" || sideParam === "private" ? sideParam : null;
+const hasComp = params.get("has_comp") === "true";
+const cited = params.get("cited") === "true";
+const classified = params.get("classified") === "true";
+const q = (params.get("q") ?? "").trim();
+const sortParam = params.get("sort");
+const sort = sortParam === "date" || sortParam === "sections" ? sortParam : "sequence";
+
+let detail: CongressDetail | null = null;
+let failure: { status: number; detail: string; retryAfter: string | null } | null = null;
+
+try {
+  detail = (
+    await fetchCongressDetail(
+      congressNum,
+      {
+        kind: kind ?? undefined,
+        public_private: side ?? undefined,
+        has_comp: hasComp ? "true" : undefined,
+        cited: cited ? "true" : undefined,
+        classified: classified ? "true" : undefined,
+        q: q || undefined,
+        sort,
+        limit: PAGE_SIZE,
+        offset,
+      },
+      { clientAddress: clientAddressOf(Astro) },
+    )
+  ).body;
+} catch (err) {
+  failure =
+    err instanceof ApiError
+      ? { status: err.status, detail: err.detail, retryAfter: err.retryAfter }
+      : { status: 502, detail: `The API did not answer: ${(err as Error).message}`, retryAfter: null };
+}
+
+if (failure) {
+  Astro.response.status = failure.status;
+}
+
+const summary = detail?.summary;
+const previousLink: Link | null =
+  congressNum > 1 ? { href: congressHref(congressNum - 1), label: `${congressOrdinal(congressNum - 1)} Congress` } : null;
+const nextLink: Link | null =
+  detail && congressNum < detail.latest_congress
+    ? { href: congressHref(congressNum + 1), label: `${congressOrdinal(congressNum + 1)} Congress` }
+    : null;
+
+/** The filters reset one another; the sort and the words carry over. */
+const kept = { q: q || undefined, sort: sort !== "sequence" ? sort : undefined };
+const filtered = kind || side || hasComp || cited || classified;
+const currentQuery = {
+  kind: kind ?? undefined,
+  public_private: side ?? undefined,
+  has_comp: hasComp ? "true" : undefined,
+  cited: cited ? "true" : undefined,
+  classified: classified ? "true" : undefined,
+  ...kept,
+};
+
+const number = (val: number) => val.toLocaleString("en-US");
+const plural = (n: number, one: string, many: string) => `${number(n)} ${n === 1 ? one : many}`;
+
+/** `/us/pl/119/120` → `Public Law 119-120`. */
+const pendingLabel = (identifier: string) => {
+  const law = parseLawNumber(identifier);
+  return law ? `Public Law ${law.congress}-${law.number}` : identifier;
+};
+
+const lawCounts = (s: NonNullable<typeof summary>) => {
+  const parts = [];
+  if (s.public_laws) parts.push(plural(s.public_laws, "public law", "public laws"));
+  if (s.private_laws) parts.push(plural(s.private_laws, "private law", "private laws"));
+  if (s.public_acts) parts.push(plural(s.public_acts, "public act", "public acts"));
+  if (s.private_acts) parts.push(plural(s.private_acts, "private act", "private acts"));
+  const unmarked = s.chapter_acts - s.public_acts - s.private_acts;
+  if (unmarked) parts.push(plural(unmarked, "act not marked public or private", "acts not marked public or private"));
+  return parts.join(", ");
+};
+
+const pills = summary
+  ? [
+      { label: "All", query: {}, active: !filtered, show: true },
+      { label: `Public (${number(summary.public_laws + summary.public_acts)})`, query: { public_private: "public" }, active: side === "public", show: summary.public_laws + summary.public_acts > 0 },
+      { label: `Private (${number(summary.private_laws + summary.private_acts)})`, query: { public_private: "private" }, active: side === "private", show: summary.private_laws + summary.private_acts > 0 },
+      { label: `Chapter acts (${number(summary.chapter_acts)})`, query: { kind: "act" }, active: kind === "act", show: summary.chapter_acts > 0 },
+      { label: `Compiled (${number(summary.compiled_laws_count)})`, query: { has_comp: "true" }, active: hasComp, show: summary.compiled_laws_count > 0 },
+      { label: `Cited in the Code (${number(summary.cited_laws_count)})`, query: { cited: "true" }, active: cited, show: summary.cited_laws_count > 0 },
+      { label: `In classification tables (${number(summary.classified_laws_count)})`, query: { classified: "true" }, active: classified, show: summary.classified_laws_count > 0 },
+    ]
+  : [];
+---
+
+{
+  failure ? (
+    <Base
+      title={`${failure.status} · Statutes at Large`}
+      crumbs={[{ label: "Home", href: `${APP}/` }, { label: "Congresses", href: congressesHref() }]}
+      current={rawCongress}
+    >
+      <ErrorPage status={failure.status} detail={failure.detail} retryAfter={failure.retryAfter} />
+    </Base>
+  ) : detail && summary ? (
+    <Base
+      title={`${summary.ordinal} Congress (${summary.start_year}–${summary.end_year}) · Statutes at Large`}
+      crumbs={[{ label: "Home", href: `${APP}/` }, { label: "Congresses", href: congressesHref() }]}
+      current={`${summary.ordinal} Congress`}
+      up={{ href: congressesHref(), label: "Congresses" }}
+      previous={previousLink}
+      next={nextLink}
+    >
+      <h1 class="doc-title">{summary.ordinal} Congress ({summary.start_year}–{summary.end_year})</h1>
+
+      <Note note={detail.note} />
+
+      <dl class="facts status">
+        <dt>Term</dt>
+        <dd>
+          {summary.start_year}–{summary.end_year}
+          {summary.first_enacted && summary.last_enacted && (
+            <span>; laws enacted {longDate(summary.first_enacted)} to {longDate(summary.last_enacted)}</span>
+          )}
+        </dd>
+        <dt>Statutes at Large volumes</dt>
+        <dd>
+          {detail.volume_starts.length > 0 ? (
+            detail.volume_starts.map((v, idx) => (
+              <>
+                {idx > 0 && ", "}
+                {v.page ? <a href={appHref(`/us/stat/${v.volume}/${v.page}`)}>{v.volume} Stat. {v.page}</a> : `volume ${v.volume}`}
+              </>
+            ))
+          ) : (
+            "none loaded"
+          )}
+        </dd>
+        <dt>Laws loaded</dt>
+        <dd>
+          {number(summary.total_laws)}
+          {summary.total_laws > 0 && ` (${lawCounts(summary)})`}
+        </dd>
+        <dt>Sections</dt>
+        <dd>{number(summary.section_count)}</dd>
+        <dt>Statute Compilations</dt>
+        <dd>
+          {summary.compilations_count > 0
+            ? `${plural(summary.compilations_count, "file", "files")}, of ${plural(summary.compiled_laws_count, "loaded law", "loaded laws")}`
+            : "none"}
+        </dd>
+        <dt>US Code citations</dt>
+        <dd>
+          {summary.cited_laws_count > 0
+            ? `${plural(summary.cited_laws_count, "law", "laws")} cited by ${plural(summary.citing_sections_count, "section", "sections")}`
+            : "none"}
+        </dd>
+        {summary.uscode_classification_urls.length > 0 && (
+          <>
+            <dt>OLRC classification tables</dt>
+            <dd>
+              {summary.uscode_classification_urls.map((u, idx) => (
+                <>
+                  {idx > 0 && ", "}
+                  <a class="usa-link usa-link--external" href={u.url}>
+                    {u.session === "all" ? "whole Congress" : `session ${u.session}`}
+                  </a>
+                </>
+              ))}
+            </dd>
+          </>
+        )}
+      </dl>
+
+      {detail.pending_laws.length > 0 && (
+        <section class="usa-alert usa-alert--info pending-laws-callout" aria-labelledby="pending-heading">
+          <div class="usa-alert__body">
+            <h2 class="usa-alert__heading" id="pending-heading">
+              Enacted, text not yet published ({detail.pending_laws.length})
+            </h2>
+            <p class="usa-alert__text">
+              Congress.gov lists these laws of the {summary.ordinal} Congress as enacted; GPO has not published their text.
+            </p>
+            <ul class="pending-list">
+              {detail.pending_laws.map((p) => (
+                <li>
+                  <strong>{pendingLabel(p.identifier)}</strong> ({p.bill}){p.title && `: ${p.title}`}.{" "}
+                  <a class="usa-link usa-link--external" href={p.url}>Congress.gov</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      <h2 class="group" id="laws">Laws ({number(detail.total)})</h2>
+
+      <div class="toolbar">
+        <nav class="filter-pills" aria-label="Filter laws">
+          <span class="toolbar-label">Filter:</span>
+          {pills.filter((p) => p.show).map((p) => (
+            <a href={congressHref(congressNum, { ...kept, ...p.query })} class:list={["pill", p.active && "pill--active"]} aria-current={p.active ? "true" : undefined}>
+              {p.label}
+            </a>
+          ))}
+        </nav>
+
+        <nav class="sort-pills" aria-label="Sort laws">
+          <span class="toolbar-label">Sort:</span>
+          {[
+            ["sequence", "Statutes at Large order"],
+            ["date", "Date"],
+            ["sections", "Sections"],
+          ].map(([value, label]) => (
+            <a
+              href={congressHref(congressNum, { ...currentQuery, sort: value === "sequence" ? undefined : value, offset: undefined })}
+              class:list={["pill", sort === value && "pill--active"]}
+              aria-current={sort === value ? "true" : undefined}
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
+      </div>
+
+      <form method="get" action={congressHref(congressNum)} class="search-bar" role="search">
+        {kind && <input type="hidden" name="kind" value={kind} />}
+        {side && <input type="hidden" name="public_private" value={side} />}
+        {hasComp && <input type="hidden" name="has_comp" value="true" />}
+        {cited && <input type="hidden" name="cited" value="true" />}
+        {classified && <input type="hidden" name="classified" value="true" />}
+        {sort !== "sequence" && <input type="hidden" name="sort" value={sort} />}
+        <label class="usa-sr-only" for="congress-q">Words of a title, a citation, or an identifier</label>
+        <input type="search" id="congress-q" name="q" value={q} placeholder="Title, citation, or identifier" class="usa-input search-input" />
+        <button type="submit" class="usa-button usa-button--outline search-button">Filter</button>
+        {q && (
+          <a href={congressHref(congressNum, { ...currentQuery, q: undefined })} class="clear-link">
+            Clear
+          </a>
+        )}
+      </form>
+
+      {detail.laws.length === 0 ? (
+        <p class="doc-meta empty-msg">{summary.total_laws === 0 ? "No law of this Congress is loaded." : "No law matches."}</p>
+      ) : (
+        <div class="uslm-tablewrap">
+          <table class="usa-table usa-table--borderless laws-table">
+            <thead>
+              <tr>
+                <th scope="col">Law</th>
+                <th scope="col">Statutes at Large</th>
+                <th scope="col">Title</th>
+                <th scope="col">Cross-references</th>
+              </tr>
+            </thead>
+            <tbody>
+              {detail.laws.map((law) => (
+                <tr>
+                  <td>
+                    <a href={appHref(law.identifier)} class="law-title-link">
+                      <strong>{law.label}</strong>
+                    </a>
+                    {law.kind === "act" && law.public_private && <div class="doc-meta">{law.public_private === "private" ? "Private act" : "Public act"}</div>}
+                    {law.enacted && <div class="doc-meta">{longDate(law.enacted)}</div>}
+                    <div class="doc-meta">{plural(law.section_count, "section", "sections")}</div>
+                  </td>
+                  <td>
+                    {law.page_first ? (
+                      <a href={appHref(`/us/stat/${law.volume}/${law.page_first}`)}>{law.citation ?? `${law.volume} Stat. ${law.page_first}`}</a>
+                    ) : (
+                      law.citation ?? <span class="doc-meta">—</span>
+                    )}
+                  </td>
+                  <td>
+                    <div class="official-title">{law.official_title || law.short_titles[0] || "—"}</div>
+                  </td>
+                  <td>
+                    {law.compilations.length > 0 && (
+                      <div class="xref-group">
+                        <span class="xref-label">Compilation:</span>{" "}
+                        {law.compilations.map((c, idx) => (
+                          <>
+                            {idx > 0 && ", "}
+                            <a href={appHref(c.identifier_prefix)}>{c.display_title || c.identifier_prefix}</a>
+                            {c.current_through_pl && <span class="doc-meta"> (through Public Law {c.current_through_pl})</span>}
+                          </>
+                        ))}
+                      </div>
+                    )}
+                    {law.usc_citing_sections_count > 0 && (
+                      <div class="xref-group">
+                        <span class="xref-label">US Code:</span>{" "}
+                        <a href={`${appHref(law.identifier)}#cited-by`}>
+                          cited by {plural(law.usc_citing_sections_count, "section", "sections")}
+                        </a>
+                        {law.usc_titles.length > 0 && (
+                          <span class="doc-meta">{` (${law.usc_titles.length === 1 ? "title" : "titles"} ${law.usc_titles.join(", ")})`}</span>
+                        )}
+                      </div>
+                    )}
+                    {law.uscode_classification_url && (
+                      <div class="xref-group">
+                        <a class="usa-link usa-link--external" href={law.uscode_classification_url}>
+                          OLRC classification table
+                        </a>
+                      </div>
+                    )}
+                    {law.compilations.length === 0 && law.usc_citing_sections_count === 0 && !law.uscode_classification_url && (
+                      <span class="doc-meta">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <Pager
+        total={detail.total}
+        offset={offset}
+        limit={PAGE_SIZE}
+        shown={detail.laws.length}
+        href={(o) => congressHref(congressNum, { ...currentQuery, offset: o || undefined })}
+      />
+    </Base>
+  ) : null
+}
+
+<style>
+  .pending-laws-callout {
+    margin-block: 1.5rem;
+  }
+  .pending-list {
+    margin-top: 0.5rem;
+    padding-left: 1.25rem;
+  }
+  .pending-list li {
+    margin-bottom: 0.35rem;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-block: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+  }
+  .toolbar-label {
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: var(--muted);
+    margin-right: 0.25rem;
+  }
+  .filter-pills,
+  .sort-pills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .pill {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.8125rem;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid var(--muted);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .pill:hover {
+    background: var(--rule);
+  }
+  .pill--active,
+  .pill--active:hover {
+    background: var(--bar);
+    color: #fff;
+    border-color: var(--bar);
+    font-weight: bold;
+  }
+  .search-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .search-input {
+    max-width: 24rem;
+    margin-top: 0;
+  }
+  .search-button {
+    margin-top: 0;
+  }
+  .clear-link {
+    font-size: 0.875rem;
+  }
+  .laws-table {
+    width: 100%;
+  }
+  .official-title {
+    font-size: 0.875rem;
+    line-height: 1.4;
+    max-width: 24rem;
+  }
+  .xref-group {
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+  .xref-label {
+    font-weight: bold;
+    color: var(--muted);
+  }
+  .empty-msg {
+    margin-block: 2rem;
+  }
+</style>

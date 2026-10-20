@@ -8,7 +8,7 @@ import Base from "../layouts/Base.astro";
 import { fetchStatus } from "../lib/api";
 import { REVALIDATE } from "../lib/cache";
 import { clientAddressOf } from "../lib/params";
-import { appHref, gotoHref, searchHref } from "../lib/url";
+import { appHref, congressesHref, gotoHref, searchHref } from "../lib/url";
 
 /** `params.CITE_FORMS`, the same six strings. */
 const CITE_FORMS = [
@@ -28,6 +28,7 @@ const EXAMPLES: [string, string][] = [
   [appHref("/us/stat/64/563"), "64 Stat. 563"],
   [appHref("/us/stat/110/4196"), "110 Stat. 4196, a page printed in the middle of a section"],
   [searchHref("wild horses"), "wild horses, a keyword search"],
+  [congressesHref(), "Acts by Congress, from the 1st Congress on"],
 ];
 
 const status = await fetchStatus({ clientAddress: clientAddressOf(Astro) });
@@ -86,6 +87,10 @@ const number = (value: number) => value.toLocaleString("en-US");
   {
     status ? (
       <dl class="facts status">
+        <dt>Acts by Congress</dt>
+        <dd>
+          <a href={congressesHref()}>Historical analysis of Acts by Congress, from the 1st Congress on</a>
+        </dd>
         <dt>Statutes at Large volumes</dt>
         <dd>
           {statute && statute.volumes.length > 0

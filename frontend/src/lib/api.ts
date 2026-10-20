@@ -14,6 +14,8 @@ import type {
   Cite,
   CitedBy,
   CompUnit,
+  CongressDetail,
+  CongressesOverview,
   Labels,
   LawSummary,
   SearchResponse,
@@ -217,3 +219,18 @@ export async function fetchLabels(identifiers: string[], options: CallOptions = 
     return {};
   }
 }
+
+/** Historical overview of Acts by Congress: `GET /api/v1/congress`. */
+export async function fetchCongresses(options: CallOptions = {}): Promise<Answer<CongressesOverview>> {
+  return getJson<CongressesOverview>(`${API}/congress`, options);
+}
+
+/** Detail of one Congress: `GET /api/v1/congress/{c}`. */
+export async function fetchCongressDetail(
+  congress: number | string,
+  query?: Query,
+  options: CallOptions = {},
+): Promise<Answer<CongressDetail>> {
+  return getJson<CongressDetail>(apiHref(`/congress/${congress}`, query), options);
+}
+

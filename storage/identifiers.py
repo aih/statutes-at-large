@@ -319,3 +319,28 @@ def history_ref_label(identifier: str) -> str:
             pieces[-1] += f"({segment})"
     label = ", ".join(outer)
     return f"{label} [{', '.join(inner)}]" if inner else label
+
+
+def congress_ordinal(congress: int) -> str:
+    """`1` → `1st`, `12` → `12th`, `22` → `22nd`, `113` → `113th`."""
+    if 11 <= (congress % 100) <= 13:
+        suffix = "th"
+    else:
+        suffix = {1: "st", 2: "nd", 3: "rd"}.get(congress % 10, "th")
+    return f"{congress}{suffix}"
+
+
+def congress_years(congress: int) -> tuple[int, int]:
+    """The years a Congress's term begins and ends: `1` → (1789, 1791)."""
+    return (1787 + 2 * congress, 1789 + 2 * congress)
+
+
+def congress_of_date(day: datetime.date) -> int:
+    """The Congress sitting on `day`. A term began on March 4 of an odd year
+    until 1935 and on January 3 since (the Twentieth Amendment); March 4 is
+    counted to the new term."""
+    start = (3, 4) if day < datetime.date(1935, 1, 3) else (1, 3)
+    year = day.year if (day.month, day.day) >= start else day.year - 1
+    if year % 2 == 0:
+        year -= 1
+    return max(1, (year - 1789) // 2 + 1)

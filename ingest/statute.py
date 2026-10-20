@@ -31,6 +31,7 @@ from lxml import etree
 from ingest.identifiers import (
     HIERARCHY_LEVELS,
     SUBSECTION_LEVELS,
+    congress_of_act,
     designator,
     identify_law,
     segment,
@@ -101,6 +102,8 @@ class LawRecord:
     warnings: list[str] = field(default_factory=list)
     source_collection: str = "STATUTE"
     """`STATUTE` (a volume file) or `PLAW` (a GovInfo public-law package)."""
+    public_private: str | None = None
+    """`public` | `private`, from the law's `meta/publicPrivate`."""
     provenance_identifiers: str = IDENTIFIER_RULES_VERSION
     """`rules-1.0` when this module assigned every identifier; `gpo-uslm` when
     the source carried them (`ingest/plaw.py`); `gpo-uslm+rules-1.0` when a
@@ -345,6 +348,7 @@ def _parse_law(
         return None, 0, SkippedComponent(seq, "pLaw", doc_type, doc_number, "unidentified law")
     identity, meta = found
     congress = _int(meta.findtext(f"{N}congress"))
+    public_private = (meta.findtext(f"{N}publicPrivate") or "").strip().lower()
     enacted = _date(meta.findtext(f"{N}approvedDate"))
     if enacted is None:
         approved = root.find(f".//{N}approvedDate")
@@ -361,6 +365,11 @@ def _parse_law(
 
     component = root
     warnings: list[str] = []
+    if identity.kind == "act":
+        dated = congress_of_act(congress, enacted)
+        if dated != congress:
+            warnings.append(f"{identity.primary} congress taken from the approval date, not meta/congress")
+            congress = dated
     citation, first_page, last_page = _pages_of(meta, component, volume)
     official_title = None
     if long_title is not None:
@@ -411,6 +420,7 @@ def _parse_law(
         units=units,
         page_units=page_units,
         warnings=warnings,
+        public_private=public_private if public_private in ("public", "private") else None,
     )
     return law, quoted, None
 

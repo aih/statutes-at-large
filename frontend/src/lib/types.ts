@@ -533,3 +533,106 @@ export interface Link {
   href: string;
   label: string;
 }
+
+// ------------------------------------------------------------- congresses
+
+export interface ClassificationSessionUrl {
+  session: string;
+  url: string;
+}
+
+export interface CongressSummary {
+  congress: number;
+  ordinal: string;
+  start_year: number;
+  end_year: number;
+  first_enacted: string | null;
+  last_enacted: string | null;
+  total_laws: number;
+  public_laws: number;
+  private_laws: number;
+  /** Acts known by chapter only, before the 57th Congress. */
+  chapter_acts: number;
+  /** Chapter acts the source marks public, and private. */
+  public_acts: number;
+  private_acts: number;
+  volumes: number[];
+  section_count: number;
+  /** Compilation files of the Congress's laws, loaded or not. */
+  compilations_count: number;
+  compiled_laws_count: number;
+  /** Public laws with a row in an OLRC classification table. */
+  classified_laws_count: number;
+  classification_sessions: number[];
+  cited_laws_count: number;
+  citing_sections_count: number;
+  pending_laws_count: number;
+  url: string;
+  uscode_classification_urls: ClassificationSessionUrl[];
+}
+
+export interface CongressesOverview {
+  total_congresses: number;
+  total_laws: number;
+  total_public_laws: number;
+  total_private_laws: number;
+  total_chapter_acts: number;
+  total_sections: number;
+  total_compilations: number;
+  note: string;
+  congresses: CongressSummary[];
+}
+
+export interface CongressLawComp {
+  identifier_prefix: string;
+  display_title: string | null;
+  current_through_pl: string | null;
+  url: string;
+}
+
+export interface VolumeStart {
+  volume: number;
+  /** The lowest numeric first page of the Congress's laws in the volume. */
+  page: string | null;
+  url: string | null;
+}
+
+export interface CongressLawItem {
+  identifier: string;
+  kind: string;
+  /** `public` or `private`, as the source marks the law. */
+  public_private: string | null;
+  congress: number;
+  number: number | null;
+  chapter: number | null;
+  label: string;
+  citation: string | null;
+  volume: number;
+  page_first: string | null;
+  enacted: string | null;
+  official_title: string | null;
+  short_titles: string[];
+  section_count: number;
+  url: string;
+  stat_url: string | null;
+  compilations: CongressLawComp[];
+  usc_citing_sections_count: number;
+  cited_by_url: string | null;
+  usc_classifications_count: number;
+  usc_titles: string[];
+  uscode_classification_url: string | null;
+}
+
+export interface CongressDetail {
+  summary: CongressSummary;
+  /** The latest Congress with a loaded or a pending law. */
+  latest_congress: number;
+  volume_starts: VolumeStart[];
+  laws: CongressLawItem[];
+  pending_laws: PendingLaw[];
+  total: number;
+  limit: number;
+  offset: number;
+  note: string;
+}
+

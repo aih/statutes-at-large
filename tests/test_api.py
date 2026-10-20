@@ -478,7 +478,7 @@ def test_status(client):
     assert statute["volumes"] == [26, 64, 68, 72, 116, 124, 137]
     assert statute["packages_loaded"] == 7 and statute["latest_package"] == "STATUTE-137"
     # 28 laws in the volume slices; 118-22 and 118-34 are served from PLAW.
-    assert statute["laws"] == 26 and statute["units"] > 0 and statute["latest_loaded_at"]
+    assert statute["laws"] == 27 and statute["units"] > 0 and statute["latest_loaded_at"]
     comps = body["collections"]["COMPS"]
     assert comps["packages_loaded"] == 4 and comps["latest_package"] == "COMPS-1630"
     assert comps["units"] > 0 and comps["volumes"] == []

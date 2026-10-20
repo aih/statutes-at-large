@@ -428,6 +428,120 @@ BILL_TYPE_LABELS = {
 }
 
 
+# ------------------------------------------------------------------ congresses
+
+
+@dataclass(frozen=True, slots=True)
+class CongressSummary:
+    """One Congress's laws as loaded, and how they reach the compilations,
+    the citation index and the classification tables. Every `*_laws_count`
+    counts loaded laws, and is the total its filter on `congress_detail`
+    returns."""
+
+    congress: int
+    ordinal: str
+    start_year: int
+    end_year: int
+    first_enacted: datetime.date | None
+    last_enacted: datetime.date | None
+    total_laws: int
+    public_laws: int
+    """Numbered public laws (`kind` `pl`)."""
+    private_laws: int
+    """Numbered private laws (`kind` `pvtl`)."""
+    chapter_acts: int
+    """Acts known by chapter only (`kind` `act`, before the 57th Congress)."""
+    public_acts: int
+    """Chapter acts the source marks public."""
+    private_acts: int
+    """Chapter acts the source marks private."""
+    volumes: tuple[int, ...]
+    section_count: int
+    compilations_count: int
+    """Compilation files whose law is of this Congress, loaded or not."""
+    compiled_laws_count: int
+    classified_laws_count: int
+    """Loaded public laws with a row in an OLRC classification table."""
+    classification_sessions: tuple[int, ...]
+    """The sessions with a table; 0 is a whole-congress table."""
+    cited_laws_count: int
+    """Loaded laws that a US Code section cites, under any alias."""
+    citing_sections_count: int
+    pending_laws_count: int
+
+    @property
+    def public_count(self) -> int:
+        return self.public_laws + self.public_acts
+
+    @property
+    def private_count(self) -> int:
+        return self.private_laws + self.private_acts
+
+
+@dataclass(frozen=True, slots=True)
+class CongressesOverview:
+    """Every Congress from the 1st to the latest with a loaded or a pending law."""
+
+    total_congresses: int
+    total_laws: int
+    total_public_laws: int
+    total_private_laws: int
+    total_chapter_acts: int
+    total_sections: int
+    total_compilations: int
+    congresses: tuple[CongressSummary, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class VolumeStart:
+    """Where a Congress's laws begin in one Statutes at Large volume: the
+    lowest numeric first page among them."""
+
+    volume: int
+    page: str | None
+
+
+@dataclass(frozen=True, slots=True)
+class CongressLawItem:
+    """One law on a Congress's page, with its cross-references."""
+
+    identifier: str
+    kind: str
+    public_private: str | None
+    congress: int
+    number: int | None
+    chapter: int | None
+    label: str
+    citation: str | None
+    volume: int
+    page_first: str | None
+    enacted: datetime.date | None
+    official_title: str | None
+    short_titles: tuple[str, ...]
+    section_count: int
+    compilations: tuple[CompRef, ...]
+    usc_classifications_count: int
+    classification_session: int | None
+    """The session of the table that lists the law; 0 is a whole-congress table."""
+    usc_titles: tuple[str, ...]
+    usc_citing_sections_count: int
+
+
+@dataclass(frozen=True, slots=True)
+class CongressDetail:
+    """One Congress: its summary, one page of its laws, and its pending laws."""
+
+    summary: CongressSummary
+    latest_congress: int
+    """The latest Congress with a loaded or a pending law: the last page."""
+    volume_starts: tuple[VolumeStart, ...]
+    laws: tuple[CongressLawItem, ...]
+    pending_laws: tuple[PendingLaw, ...]
+    total: int
+    limit: int
+    offset: int
+
+
 # ------------------------------------------------------- stage 3: the indexes
 
 
@@ -830,3 +944,31 @@ class Repository(Protocol):
         words, best match first, one per compilation prefix (ADR-0032). A
         query of only common title words or numbers matches nothing."""
         ...
+
+    # --------------------------------------------------------------- congresses
+
+    def congresses_overview(self) -> CongressesOverview:
+        """Every Congress from the 1st to the latest with a loaded or a pending law."""
+        ...
+
+    def congress_detail(
+        self,
+        congress: int,
+        *,
+        kind: str | None = None,
+        public_private: str | None = None,
+        has_comp: bool = False,
+        cited: bool = False,
+        classified: bool = False,
+        q: str | None = None,
+        sort: str = "sequence",
+        limit: int = 100,
+        offset: int = 0,
+    ) -> CongressDetail | None:
+        """One page of a Congress's laws. `kind` is `pl`, `pvtl` or `act`;
+        `public_private` is `public` (public laws and public acts) or
+        `private`; `has_comp`, `cited` and `classified` keep the laws a
+        compilation, the citation index or a classification table reaches.
+        None past the latest Congress with a loaded or a pending law."""
+        ...
+

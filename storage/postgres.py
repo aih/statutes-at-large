@@ -25,7 +25,7 @@ from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from typing import Any
 
-from sqlalchemy import Text, and_, cast, func, or_, select
+from sqlalchemy import Text, and_, case, cast, func, or_, select
 from sqlalchemy.orm import Session
 
 from db.models import (
@@ -43,7 +43,17 @@ from db.models import (
     StatPage,
     Unit,
 )
-from storage.identifiers import ParsedIdentifier, act_title, history_ref_label, parse_identifier, parse_stat_page, title_order
+from storage.identifiers import (
+    ParsedIdentifier,
+    act_title,
+    congress_ordinal,
+    congress_years,
+    history_ref_label,
+    law_label,
+    parse_identifier,
+    parse_stat_page,
+    title_order,
+)
 from storage.repository import (
     ActMatch,
     CanonicalUscHistoryItem,
@@ -57,6 +67,10 @@ from storage.repository import (
     ClassificationRow,
     ClassificationStatus,
     CollectionStatus,
+    CongressDetail,
+    CongressesOverview,
+    CongressLawItem,
+    CongressSummary,
     IndexCoverage,
     LawCite,
     LawSources,
@@ -76,6 +90,7 @@ from storage.repository import (
     StatPageResult,
     UnitRef,
     UnitResult,
+    VolumeStart,
 )
 from uslmtext import PageSlice, fragment_by_identifier, page_slice, plain_text, serialize
 
@@ -173,6 +188,13 @@ def _names_the_enactment(refs: Sequence[Citation], aliases: set[str]) -> bool:
         if ref.to_law in aliases:
             return True
     return False
+
+
+
+def _usc_title_order(title: str) -> tuple[int, str]:
+    """`5` before `5a` before `42`; a title without a number last."""
+    digits = re.match(r"\d+", title)
+    return (int(digits.group()) if digits else 10**6, title)
 
 
 class PostgresRepository:
@@ -1477,8 +1499,10 @@ class PostgresRepository:
 
     def pending_law(self, identifier: str) -> PendingLaw | None:
         row = self._session.get(PendingLawRow, identifier)
-        if row is None:
-            return None
+        return self._pending_of(row) if row is not None else None
+
+    @staticmethod
+    def _pending_of(row: PendingLawRow) -> PendingLaw:
         return PendingLaw(
             identifier=row.identifier,
             congress=row.congress,
@@ -1490,3 +1514,366 @@ class PostgresRepository:
             congress_gov_url=row.congress_gov_url,
             checked_at=row.checked_at,
         )
+
+    # --------------------------------------------------------------- congresses
+
+    def congresses_overview(self) -> CongressesOverview:
+        summaries = self._congress_summaries(None, self._latest_congress())
+        return CongressesOverview(
+            total_congresses=len(summaries),
+            total_laws=sum(s.total_laws for s in summaries),
+            total_public_laws=sum(s.public_laws for s in summaries),
+            total_private_laws=sum(s.private_laws for s in summaries),
+            total_chapter_acts=sum(s.chapter_acts for s in summaries),
+            total_sections=sum(s.section_count for s in summaries),
+            total_compilations=sum(s.compilations_count for s in summaries),
+            congresses=tuple(summaries),
+        )
+
+    def _latest_congress(self) -> int:
+        """The latest Congress with a loaded or a pending law; 0 for none."""
+        return max(
+            self._session.scalar(select(func.max(Law.congress))) or 0,
+            self._session.scalar(select(func.max(PendingLawRow.congress))) or 0,
+        )
+
+    def _congress_summaries(self, only: int | None, latest: int) -> list[CongressSummary]:
+        """Every Congress from the 1st to `latest`, or only `only` (none when
+        it is past `latest`), in a fixed number of queries whatever the number
+        of Congresses."""
+        wanted = range(1, latest + 1) if only is None else [only] if 1 <= only <= latest else []
+        if not wanted:
+            return []
+
+        def of(stmt, column):
+            return stmt.where(column == only) if only is not None else stmt
+
+        laws = {
+            row[0]: row[1:]
+            for row in self._session.execute(
+                of(
+                    select(
+                        Law.congress,
+                        func.min(Law.enacted),
+                        func.max(Law.enacted),
+                        func.count(Law.id),
+                        func.count(case((Law.kind == "pl", 1))),
+                        func.count(case((Law.kind == "pvtl", 1))),
+                        func.count(case((Law.kind == "act", 1))),
+                        func.count(case((and_(Law.kind == "act", Law.public_private == "public"), 1))),
+                        func.count(case((and_(Law.kind == "act", Law.public_private == "private"), 1))),
+                    )
+                    .where(Law.congress.is_not(None))
+                    .group_by(Law.congress),
+                    Law.congress,
+                )
+            ).tuples()
+        }
+        volumes: dict[int, set[int]] = defaultdict(set)
+        for c, volume in self._session.execute(
+            of(select(Law.congress, Law.stat_volume).where(Law.congress.is_not(None)).distinct(), Law.congress)
+        ).tuples():
+            volumes[c].add(volume)
+        sections = {
+            c: n
+            for c, n in self._session.execute(
+                of(
+                    select(Law.congress, func.count(Unit.id))
+                    .join(Unit, Unit.law_id == Law.id)
+                    .where(Law.congress.is_not(None), Unit.level == "section")
+                    .group_by(Law.congress),
+                    Law.congress,
+                )
+            ).tuples()
+        }
+        comp_files: dict[int, int] = defaultdict(int)
+        compiled: dict[int, set[int]] = defaultdict(set)
+        for comp, law_id in self._comp_laws(only).items():
+            comp_files[comp.law_congress] += 1
+            if law_id is not None:
+                compiled[comp.law_congress].add(law_id)
+        classified = {
+            c: n
+            for c, n in self._session.execute(
+                of(
+                    select(Law.congress, func.count(func.distinct(Law.id)))
+                    .join(ClassificationEntry, and_(ClassificationEntry.pl_congress == Law.congress, ClassificationEntry.pl_num == Law.number))
+                    .where(Law.kind == "pl")
+                    .group_by(Law.congress),
+                    Law.congress,
+                )
+            ).tuples()
+        }
+        sessions: dict[int, list[int]] = defaultdict(list)
+        for c, session in self._session.execute(
+            of(select(ClassificationFile.congress, ClassificationFile.session), ClassificationFile.congress)
+            .order_by(ClassificationFile.congress, ClassificationFile.session)
+        ).tuples():
+            sessions[c].append(session)
+        cited = {
+            row[0]: row[1:]
+            for row in self._session.execute(
+                of(
+                    select(Law.congress, func.count(func.distinct(Law.id)), func.count(func.distinct(Citation.from_identifier)))
+                    .select_from(Citation)
+                    .join(LawAlias, LawAlias.identifier == Citation.to_law)
+                    .join(Law, Law.id == LawAlias.law_id)
+                    .where(Law.congress.is_not(None))
+                    .group_by(Law.congress),
+                    Law.congress,
+                )
+            ).tuples()
+        }
+        pending = {
+            c: n
+            for c, n in self._session.execute(
+                of(select(PendingLawRow.congress, func.count()).group_by(PendingLawRow.congress), PendingLawRow.congress)
+            ).tuples()
+        }
+
+        summaries = []
+        for c in wanted:
+            first, last, total, pl, pvtl, acts, public_acts, private_acts = laws.get(c, (None, None, 0, 0, 0, 0, 0, 0))
+            start_year, end_year = congress_years(c)
+            cited_laws, citing_sections = cited.get(c, (0, 0))
+            summaries.append(
+                CongressSummary(
+                    congress=c,
+                    ordinal=congress_ordinal(c),
+                    start_year=start_year,
+                    end_year=end_year,
+                    first_enacted=first,
+                    last_enacted=last,
+                    total_laws=total,
+                    public_laws=pl,
+                    private_laws=pvtl,
+                    chapter_acts=acts,
+                    public_acts=public_acts,
+                    private_acts=private_acts,
+                    volumes=tuple(sorted(volumes.get(c, ()))),
+                    section_count=sections.get(c, 0),
+                    compilations_count=comp_files.get(c, 0),
+                    compiled_laws_count=len(compiled.get(c, ())),
+                    classified_laws_count=classified.get(c, 0),
+                    classification_sessions=tuple(sessions.get(c, ())),
+                    cited_laws_count=cited_laws,
+                    citing_sections_count=citing_sections,
+                    pending_laws_count=pending.get(c, 0),
+                )
+            )
+        return summaries
+
+    def _comp_laws(self, congress: int | None) -> dict[Comp, int | None]:
+        """Each compilation (of `congress`, or all) and the id of the law it
+        compiles: `Comp.law_id`, else what `_law_by_congress_number` finds,
+        read in at most three queries. A compilation loaded before its law has
+        no `law_id`."""
+        stmt = select(Comp)
+        if congress is not None:
+            stmt = stmt.where(Comp.law_congress == congress)
+        comps = self._session.scalars(stmt.where(Comp.law_congress.is_not(None))).all()
+        unlinked = [c for c in comps if c.law_id is None and c.law_number is not None]
+        by_alias: dict[str, int] = {}
+        by_chapter: dict[tuple[int, int], int] = {}
+        if unlinked:
+            by_alias = {
+                alias: law_id
+                for alias, law_id in self._session.execute(
+                    select(LawAlias.identifier, LawAlias.law_id).where(
+                        LawAlias.identifier.in_({f"/us/pl/{c.law_congress}/{c.law_number}" for c in unlinked})
+                    )
+                ).tuples()
+            }
+            for law_id, c, chapter in self._session.execute(
+                select(Law.id, Law.congress, Law.chapter)
+                .where(
+                    Law.kind == "act",
+                    Law.congress.in_({c.law_congress for c in unlinked}),
+                    Law.chapter.in_({c.law_number for c in unlinked}),
+                )
+                .order_by(Law.id)
+            ).tuples():
+                by_chapter.setdefault((c, chapter), law_id)
+        found: dict[Comp, int | None] = {}
+        for comp in comps:
+            if comp.law_id is not None or comp.law_number is None:
+                found[comp] = comp.law_id
+            else:
+                found[comp] = by_alias.get(f"/us/pl/{comp.law_congress}/{comp.law_number}") or by_chapter.get(
+                    (comp.law_congress, comp.law_number)
+                )
+        return found
+
+    def congress_detail(
+        self,
+        congress: int,
+        *,
+        kind: str | None = None,
+        public_private: str | None = None,
+        has_comp: bool = False,
+        cited: bool = False,
+        classified: bool = False,
+        q: str | None = None,
+        sort: str = "sequence",
+        limit: int = 100,
+        offset: int = 0,
+    ) -> CongressDetail | None:
+        latest = self._latest_congress()
+        summaries = self._congress_summaries(congress, latest)
+        if not summaries:
+            return None
+        pending = tuple(
+            self._pending_of(row)
+            for row in self._session.scalars(
+                select(PendingLawRow).where(PendingLawRow.congress == congress).order_by(PendingLawRow.number)
+            )
+        )
+        comps_of_law: dict[int, list[Comp]] = defaultdict(list)
+        for comp, law_id in sorted(self._comp_laws(congress).items(), key=lambda item: item[0].file_id):
+            if law_id is not None:
+                comps_of_law[law_id].append(comp)
+
+        stmt = select(Law).where(Law.congress == congress)
+        if kind in ("pl", "pvtl", "act"):
+            stmt = stmt.where(Law.kind == kind)
+        if public_private in ("public", "private"):
+            numbered = "pl" if public_private == "public" else "pvtl"
+            stmt = stmt.where(or_(Law.kind == numbered, and_(Law.kind == "act", Law.public_private == public_private)))
+        if has_comp:
+            stmt = stmt.where(Law.id.in_(list(comps_of_law)))
+        if cited:
+            stmt = stmt.where(
+                select(Citation.id).join(LawAlias, LawAlias.identifier == Citation.to_law).where(LawAlias.law_id == Law.id).exists()
+            )
+        if classified:
+            stmt = stmt.where(
+                Law.kind == "pl",
+                select(ClassificationEntry.id)
+                .where(ClassificationEntry.pl_congress == Law.congress, ClassificationEntry.pl_num == Law.number)
+                .exists(),
+            )
+        if q and q.strip():
+            needle = f"%{q.strip()}%"
+            stmt = stmt.where(
+                or_(
+                    Law.official_title.ilike(needle),
+                    cast(Law.short_titles, Text).ilike(needle),
+                    Law.citation.ilike(needle),
+                    Law.identifier.ilike(needle),
+                )
+            )
+        if sort == "date":
+            stmt = stmt.order_by(Law.enacted.asc().nullslast(), Law.stat_volume, Law.seq_in_volume, Law.id)
+        elif sort == "sections":
+            count = select(func.count(Unit.id)).where(Unit.law_id == Law.id, Unit.level == "section").scalar_subquery()
+            stmt = stmt.order_by(count.desc(), Law.stat_volume, Law.seq_in_volume, Law.id)
+        else:
+            stmt = stmt.order_by(Law.stat_volume, Law.seq_in_volume, Law.number.asc().nullslast(), Law.chapter.asc().nullslast(), Law.id)
+        total = int(self._session.scalar(select(func.count()).select_from(stmt.subquery())) or 0)
+        rows = list(self._session.scalars(stmt.offset(offset).limit(limit)).all())
+
+        return CongressDetail(
+            summary=summaries[0],
+            latest_congress=latest,
+            volume_starts=self._volume_starts(congress),
+            laws=self._congress_law_items(congress, rows, comps_of_law),
+            pending_laws=pending,
+            total=total,
+            limit=limit,
+            offset=offset,
+        )
+
+    def _volume_starts(self, congress: int) -> tuple[VolumeStart, ...]:
+        """Per volume, the lowest numeric first page of the Congress's laws in
+        it; a volume where none has a numeric first page has no page."""
+        first: dict[int, int | None] = {}
+        for volume, page in self._session.execute(
+            select(Law.stat_volume, Law.stat_page_first).where(Law.congress == congress).distinct()
+        ).tuples():
+            number = int(page) if page and page.isdigit() else None
+            held = first.get(volume)
+            first[volume] = number if held is None else (held if number is None else min(held, number))
+        return tuple(VolumeStart(volume, str(page) if page is not None else None) for volume, page in sorted(first.items()))
+
+    def _congress_law_items(
+        self, congress: int, rows: Sequence[Law], comps_of_law: dict[int, list[Comp]]
+    ) -> tuple[CongressLawItem, ...]:
+        """The page's laws with their counts, in six queries for the page."""
+        if not rows:
+            return ()
+        ids = [law.id for law in rows]
+        public_numbers = [law.number for law in rows if law.kind == "pl" and law.number is not None]
+        sections = {
+            law_id: n
+            for law_id, n in self._session.execute(
+                select(Unit.law_id, func.count(Unit.id)).where(Unit.law_id.in_(ids), Unit.level == "section").group_by(Unit.law_id)
+            ).tuples()
+        }
+        entries: dict[int, tuple[int, int]] = {}
+        titles: dict[tuple[str, int], set[str]] = defaultdict(set)
+        if public_numbers:
+            entries = {
+                number: (n, session)
+                for number, n, session in self._session.execute(
+                    select(ClassificationEntry.pl_num, func.count(ClassificationEntry.id), func.min(ClassificationEntry.session))
+                    .where(ClassificationEntry.pl_congress == congress, ClassificationEntry.pl_num.in_(public_numbers))
+                    .group_by(ClassificationEntry.pl_num)
+                ).tuples()
+            }
+            for number, title in self._session.execute(
+                select(ClassificationEntry.pl_num, ClassificationEntry.title_num)
+                .where(
+                    ClassificationEntry.pl_congress == congress,
+                    ClassificationEntry.pl_num.in_(public_numbers),
+                    ClassificationEntry.title_num.is_not(None),
+                )
+                .distinct()
+            ).tuples():
+                titles[("pl", number)].add(title)
+        citing = {
+            law_id: n
+            for law_id, n in self._session.execute(
+                select(LawAlias.law_id, func.count(func.distinct(Citation.from_identifier)))
+                .join(LawAlias, LawAlias.identifier == Citation.to_law)
+                .where(LawAlias.law_id.in_(ids))
+                .group_by(LawAlias.law_id)
+            ).tuples()
+        }
+        for law_id, title in self._session.execute(
+            select(LawAlias.law_id, Citation.from_title)
+            .join(LawAlias, LawAlias.identifier == Citation.to_law)
+            .where(LawAlias.law_id.in_(ids))
+            .distinct()
+        ).tuples():
+            titles[("law", law_id)].add(title)
+
+        items = []
+        for law in rows:
+            classification = entries.get(law.number) if law.kind == "pl" else None
+            usc_titles = titles.get(("law", law.id), set())
+            if law.kind == "pl":
+                usc_titles = usc_titles | titles.get(("pl", law.number), set())
+            items.append(
+                CongressLawItem(
+                    identifier=law.identifier,
+                    kind=law.kind,
+                    public_private=law.public_private,
+                    congress=law.congress,
+                    number=law.number,
+                    chapter=law.chapter,
+                    label=law_label(law.kind, law.congress, law.number, law.chapter, law.enacted),
+                    citation=law.citation,
+                    volume=law.stat_volume,
+                    page_first=law.stat_page_first,
+                    enacted=law.enacted,
+                    official_title=law.official_title,
+                    short_titles=tuple(law.short_titles or ()),
+                    section_count=sections.get(law.id, 0),
+                    compilations=tuple(self._comp_ref(comp) for comp in comps_of_law.get(law.id, ())),
+                    usc_classifications_count=classification[0] if classification else 0,
+                    classification_session=classification[1] if classification else None,
+                    usc_titles=tuple(sorted(usc_titles, key=_usc_title_order)),
+                    usc_citing_sections_count=citing.get(law.id, 0),
+                )
+            )
+        return tuple(items)

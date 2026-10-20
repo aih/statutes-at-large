@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Verbatim slice of STATUTE-26.xml from the Hub dataset dreamproit/us-statutes-at-large: the volume meta and the laws numbered 647. Regenerate with scripts/extract_fixture.py. -->
+<!-- Verbatim slice of STATUTE-26.xml from the Hub dataset dreamproit/us-statutes-at-large: the volume meta and the laws numbered 647, 784. Regenerate with scripts/extract_fixture.py. -->
 <statutesAtLarge xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/" xml:lang="en">
 <meta xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
 <dc:publisher>United States Government Publishing Office</dc:publisher>
@@ -78,6 +78,43 @@
 </section>
 <action>
 <actionDescription>Approved, July 2, 1890.</actionDescription>
+</action>
+</main>
+</pLaw>
+</component>
+
+<component xmlns="http://schemas.gpo.gov/xml/uslm" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dcterms="http://purl.org/dc/terms/">
+<pLaw>
+<meta>
+<dc:title>Chap. 784: to increase the pension of Cornelia R. Chandler.</dc:title>
+<dc:type>Chapter</dc:type>
+<docNumber>784</docNumber>
+<citableAs>26 Stat. 1237</citableAs>
+<dc:date>1890-08-15</dc:date>
+<dc:publisher>United States Government Publishing Office</dc:publisher>
+<dc:format>text/xml</dc:format>
+<dc:language>EN</dc:language>
+<dc:rights>Pursuant to Title 17 Section 105 of the United States Code, this file is not subject to copyright protection and is in the public domain.</dc:rights>
+<processedBy>Digitization Vendor</processedBy>
+<processedDate>2026-02-21</processedDate>
+<congress>52</congress>
+<session>1</session>
+<publicPrivate>private</publicPrivate>
+</meta>
+<preface>
+<p class="bold"><dc:type>CHAP.</dc:type> <docNumber>784.&#8212;</docNumber></p>
+</preface>
+<main>
+<longTitle>
+<docTitle class="inline">An Act </docTitle>
+<officialTitle class="inline">to increase the pension of Cornelia R. Chandler.</officialTitle><sidenote><p class="centered fontsize8"><approvedDate date="1890-08-15">August 15, 1890</approvedDate></p>.</sidenote>
+</longTitle>
+<enactingFormula><i>Be it enacted by the Senate and House of Representatives of the United States of America in Congress assembled</i>,</enactingFormula><sidenote><p class="firstIndent1 fontsize8">Cornelia R. Chandler.</p><p class="firstIndent1 fontsize8">Pension increased.</p></sidenote>
+<section class="inline">
+<content class="inline">That the Secretary of the Interior be, and he is hereby, authorized to increase the pension now allowed by law to Cornelia R. Chandler, widow of the late Rear-Admiral Chandler, from thirty to fifty dollars per month.</content>
+</section>
+<action>
+<actionDescription>Approved, August 15, 1890.</actionDescription>
 </action>
 </main>
 </pLaw>

@@ -21,6 +21,11 @@ const PAGES = [
   "/app/goto?q=110%20Stat.%204196",
   "/app/goto?q=garbage",
   "/app/us/pl/99/99999",
+  "/app/congress",
+  "/app/congress/51",
+  "/app/congress/81?public_private=private",
+  "/app/congress/104",
+  "/app/congress/119",
 ];
 
 for (const path of PAGES) {

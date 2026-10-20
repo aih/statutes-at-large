@@ -45,6 +45,11 @@ class Law(Base):
     chapter: Mapped[int | None] = mapped_column(Integer)
     """Chapter number, for laws through 1957."""
 
+    public_private: Mapped[str | None] = mapped_column(Text)
+    """`public` | `private`, the source's `publicPrivate`; null when it does
+    not say. For an act (`kind` `act`, before the 57th Congress) it is the
+    only record of which the act is."""
+
     enacted: Mapped[datetime.date | None] = mapped_column(Date)
     doc_type: Mapped[str | None] = mapped_column(Text)
     """`An Act` | `Joint Resolution`, as the long title names it."""

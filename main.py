@@ -24,6 +24,7 @@ from fastapi.telemetry import TelemetryConfig
 from api.cite import cite_router
 from api.cited_by import cited_by_router
 from api.comps import comps_router
+from api.congress import congress_router
 from api.routes import api
 from api.search import search_router
 from citation import router as citation_router
@@ -47,6 +48,8 @@ Compilations the House Office of the Legislative Counsel maintains.
   identifier and checked.
 * `/api/v1/search?q=wild horses` — keyword search over the laws as enacted
   and as compiled.
+* `/api/v1/congress` — Acts by Congress from the 1st Congress on, cross-referenced
+  to the US Code and classification tables.
 
 The bare citation URL (`/us/pl/81/740/s3`) is a **307 redirect** to whichever
 surface the caller can read, so `curl` it with `-L` or address `/api/v1`.
@@ -80,6 +83,7 @@ app = FastAPI(
 
 app.include_router(api)
 app.include_router(comps_router)
+app.include_router(congress_router)
 app.include_router(cited_by_router)
 app.include_router(cite_router)
 app.include_router(search_router)

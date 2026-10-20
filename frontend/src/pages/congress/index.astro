@@ -1,0 +1,245 @@
+---
+/**
+ * `/app/congress` — every Congress from the 1st to the latest with a loaded
+ * law (ADR-0033): the totals, a chart of laws per Congress, and a table of
+ * each Congress's counts.
+ *
+ * The chart stacks public laws and public acts, private laws and private
+ * acts, and acts the source marks neither. It is hidden from assistive
+ * technology and out of the tab order: the table below holds the same counts
+ * and the same links.
+ */
+import Note from "../../components/Note.astro";
+import Base from "../../layouts/Base.astro";
+import { fetchCongresses } from "../../lib/api";
+import { REVALIDATE } from "../../lib/cache";
+import { clientAddressOf } from "../../lib/params";
+import { APP, congressHref } from "../../lib/url";
+
+Astro.response.headers.set("Cache-Control", REVALIDATE);
+
+const overview = (await fetchCongresses({ clientAddress: clientAddressOf(Astro) })).body;
+const congresses = overview.congresses;
+
+const number = (val: number) => val.toLocaleString("en-US");
+
+const width = 800;
+const height = 220;
+const left = 45;
+const right = 10;
+const top = 15;
+const bottom = 30;
+const plotWidth = width - left - right;
+const plotHeight = height - top - bottom;
+const slot = plotWidth / Math.max(1, congresses.length);
+const barWidth = Math.max(1, slot * 0.8);
+const most = Math.max(1, ...congresses.map((c) => c.total_laws));
+const scale = (n: number) => (n / most) * plotHeight;
+const base = top + plotHeight;
+
+const bars = congresses.map((c, i) => {
+  const publicCount = c.public_laws + c.public_acts;
+  const privateCount = c.private_laws + c.private_acts;
+  const unmarked = c.total_laws - publicCount - privateCount;
+  const x = left + i * slot + (slot - barWidth) / 2;
+  const hPublic = scale(publicCount);
+  const hPrivate = scale(privateCount);
+  const hUnmarked = scale(unmarked);
+  return {
+    c,
+    x,
+    segments: [
+      { cls: "bar--public", y: base - hPublic, h: hPublic },
+      { cls: "bar--private", y: base - hPublic - hPrivate, h: hPrivate },
+      { cls: "bar--unmarked", y: base - hPublic - hPrivate - hUnmarked, h: hUnmarked },
+    ].filter((s) => s.h > 0),
+    tip: `${c.ordinal} Congress (${c.start_year}–${c.end_year}): ${number(c.total_laws)} laws, ${number(publicCount)} public, ${number(privateCount)} private`,
+  };
+});
+const ticks = congresses.filter((c) => c.congress === 1 || c.congress % 10 === 0);
+---
+
+<Base title="Acts by Congress · Statutes at Large" crumbs={[{ label: "Home", href: `${APP}/` }]} current="Congresses">
+  <h1 class="doc-title">Acts by Congress</h1>
+
+  <Note note={overview.note} />
+
+  <dl class="facts status">
+    <dt>Congresses</dt>
+    <dd>{number(overview.total_congresses)}</dd>
+    <dt>Laws loaded</dt>
+    <dd>
+      {number(overview.total_laws)}: {number(overview.total_public_laws)} public laws, {number(overview.total_private_laws)} private laws,
+      {number(overview.total_chapter_acts)} chapter acts
+    </dd>
+    <dt>Sections</dt>
+    <dd>{number(overview.total_sections)}</dd>
+    <dt>Statute Compilation files</dt>
+    <dd>{number(overview.total_compilations)}</dd>
+  </dl>
+
+  <h2 class="group" id="timeline">Laws per Congress</h2>
+  <figure class="timeline">
+    <ul class="timeline-legend" aria-hidden="true">
+      <li><span class="swatch bar--public"></span> Public</li>
+      <li><span class="swatch bar--private"></span> Private</li>
+      <li><span class="swatch bar--unmarked"></span> Not marked</li>
+    </ul>
+    <svg viewBox={`0 0 ${width} ${height}`} class="congress-chart" aria-hidden="true" focusable="false">
+      <line x1={left} y1={top} x2={width - right} y2={top} class="grid" />
+      <line x1={left} y1={top + plotHeight / 2} x2={width - right} y2={top + plotHeight / 2} class="grid" />
+      <line x1={left} y1={base} x2={width - right} y2={base} class="axis" />
+      <text x={left - 6} y={top + 4} text-anchor="end" class="label">{number(most)}</text>
+      <text x={left - 6} y={top + plotHeight / 2 + 4} text-anchor="end" class="label">{number(Math.round(most / 2))}</text>
+      <text x={left - 6} y={base + 4} text-anchor="end" class="label">0</text>
+      {bars.map((bar) => (
+        <a href={congressHref(bar.c.congress)} tabindex="-1">
+          <title>{bar.tip}</title>
+          {bar.segments.map((s) => <rect x={bar.x} y={s.y} width={barWidth} height={s.h} class={s.cls} />)}
+        </a>
+      ))}
+      {ticks.map((c) => (
+        <text x={left + (c.congress - congresses[0].congress + 0.5) * slot} y={base + 16} text-anchor="middle" class="label">
+          {c.congress}
+        </text>
+      ))}
+    </svg>
+    <figcaption class="doc-meta">Laws loaded per Congress, 1st to {congresses.at(-1)?.ordinal ?? "1st"}. The table below has each count.</figcaption>
+  </figure>
+
+  <h2 class="group" id="table">Every Congress</h2>
+  <div class="uslm-tablewrap">
+    <table class="usa-table usa-table--borderless congresses-table">
+      <thead>
+        <tr>
+          <th scope="col">Congress</th>
+          <th scope="col">Volumes</th>
+          <th scope="col">Laws</th>
+          <th scope="col">Sections</th>
+          <th scope="col">Compiled</th>
+          <th scope="col">Cited in the US Code</th>
+          <th scope="col">Classification tables</th>
+        </tr>
+      </thead>
+      <tbody>
+        {congresses.map((c) => (
+          <tr>
+            <th scope="row">
+              <a href={congressHref(c.congress)}>{c.ordinal} Congress</a>
+              <div class="doc-meta">{c.start_year}–{c.end_year}</div>
+            </th>
+            <td>{c.volumes.length > 0 ? c.volumes.join(", ") : <span class="doc-meta">—</span>}</td>
+            <td>
+              {number(c.total_laws)}
+              {c.total_laws > 0 && (
+                <div class="doc-meta">
+                  {number(c.public_laws + c.public_acts)} public, {number(c.private_laws + c.private_acts)} private
+                </div>
+              )}
+            </td>
+            <td>{number(c.section_count)}</td>
+            <td>
+              {c.compiled_laws_count > 0 ? (
+                <a href={congressHref(c.congress, { has_comp: "true" })}>{number(c.compiled_laws_count)}</a>
+              ) : (
+                <span class="doc-meta">0</span>
+              )}
+            </td>
+            <td>
+              {c.cited_laws_count > 0 ? (
+                <>
+                  <a href={congressHref(c.congress, { cited: "true" })}>
+                    {number(c.cited_laws_count)} {c.cited_laws_count === 1 ? "law" : "laws"}
+                  </a>
+                  <div class="doc-meta">
+                    by {number(c.citing_sections_count)} {c.citing_sections_count === 1 ? "section" : "sections"}
+                  </div>
+                </>
+              ) : (
+                <span class="doc-meta">0</span>
+              )}
+            </td>
+            <td>
+              {c.uscode_classification_urls.length > 0 ? (
+                <ul class="classification-links">
+                  {c.uscode_classification_urls.map((u) => (
+                    <li>
+                      <a class="usa-link usa-link--external" href={u.url}>
+                        {u.session === "all" ? "whole Congress" : `session ${u.session}`}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <span class="doc-meta">—</span>
+              )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</Base>
+
+<style>
+  .timeline {
+    margin: 0 0 2rem;
+    padding: 1rem 1rem 0.5rem;
+    background: var(--panel);
+    border: 1px solid var(--rule);
+  }
+  .timeline-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin: 0 0 0.75rem;
+    padding: 0;
+    list-style: none;
+    font-size: 0.875rem;
+  }
+  .swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    vertical-align: -1px;
+  }
+  .congress-chart {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .bar--public {
+    fill: var(--bar);
+    background: var(--bar);
+  }
+  .bar--private {
+    fill: #2670c4;
+    background: #2670c4;
+  }
+  .bar--unmarked {
+    fill: var(--muted);
+    background: var(--muted);
+  }
+  .grid {
+    stroke: var(--rule);
+    stroke-dasharray: 2 2;
+  }
+  .axis {
+    stroke: var(--muted);
+  }
+  .label {
+    fill: var(--muted);
+    font-size: 11px;
+  }
+  .congresses-table {
+    width: 100%;
+  }
+  .congresses-table th[scope="row"] {
+    font-weight: normal;
+  }
+  .classification-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+</style>

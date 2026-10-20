@@ -231,6 +231,7 @@ def parse_plaw(xml_text: str, *, package: str | None = None) -> LawRecord:
         provenance_identifiers=MIXED_PROVENANCE if assigned else IDENTIFIER_PROVENANCE,
         identifiers_assigned=dict(assigned),
         sections_in_quoted_content=quoted,
+        public_private="private" if kind == "pvtl" else "public",
     )
     return record
 

@@ -7,6 +7,8 @@ of the boundary and writes `db/` models directly.
 from storage.identifiers import (
     ParsedIdentifier,
     StatPageId,
+    congress_ordinal,
+    congress_years,
     history_ref_label,
     law_label,
     law_label_of_identifier,
@@ -35,6 +37,10 @@ from storage.repository import (
     ClassificationRow,
     ClassificationStatus,
     CollectionStatus,
+    CongressDetail,
+    CongressesOverview,
+    CongressLawItem,
+    CongressSummary,
     IndexCoverage,
     LawCite,
     SourceCreditEvidence,
@@ -57,6 +63,7 @@ from storage.repository import (
     StatPageResult,
     UnitRef,
     UnitResult,
+    VolumeStart,
 )
 from storage.session import get_repository
 
@@ -77,6 +84,10 @@ __all__ = [
     "ClassificationRow",
     "ClassificationStatus",
     "CollectionStatus",
+    "CongressDetail",
+    "CongressesOverview",
+    "CongressLawItem",
+    "CongressSummary",
     "IndexCoverage",
     "LawCite",
     "SourceCreditEvidence",
@@ -102,6 +113,9 @@ __all__ = [
     "StatPageResult",
     "UnitRef",
     "UnitResult",
+    "VolumeStart",
+    "congress_ordinal",
+    "congress_years",
     "get_repository",
     "history_ref_label",
     "law_label",

@@ -272,6 +272,7 @@ def _write_law(session: Session, law: LawRecord, now: datetime.datetime) -> Writ
         congress=law.congress,
         number=law.number,
         chapter=law.chapter,
+        public_private=law.public_private,
         enacted=law.enacted,
         doc_type=law.doc_type,
         official_title=law.official_title,
