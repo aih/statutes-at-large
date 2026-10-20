@@ -115,6 +115,9 @@ STAT_PAGES = [
     ("64 Stat. B3", "/us/stat/64/b3"),
     ("113 Stat. 1501A-594", "/us/stat/113/1501a-594"),
     ("113 Stat. 1501A–594", "/us/stat/113/1501a-594"),
+    ("68A Stat. 3", "/us/stat/68A/3"),
+    ("68a Stat. 3", "/us/stat/68A/3"),
+    ("70A Stat. 641", "/us/stat/70A/641"),
 ]
 
 CHAPTERS_ON_PAGES = [
@@ -122,6 +125,7 @@ CHAPTERS_ON_PAGES = [
     ("64 Stat. 563, ch. 823", "/us/stat/64/563"),
     ("chapter 823, 64 Stat. 563", "/us/stat/64/563"),
     ("ch. 823, 64 Stat. 563, § 3", "/us/stat/64/563"),
+    ("ch. 736, 68A Stat. 3", "/us/stat/68A/3"),
 ]
 
 # --------------------------------------------------------------- identifiers
@@ -136,6 +140,8 @@ PATHS = [
     ("us/act/1954-08-30/ch1073", "/us/act/1954-08-30/ch1073"),
     ("/us/stat/64/563", "/us/stat/64/563"),
     ("/us/stat/64/B3", "/us/stat/64/b3"),
+    ("/us/stat/70A/641", "/us/stat/70A/641"),
+    ("us/stat/68a/3", "/us/stat/68A/3"),
     ("/us/sComp/83/703/tI/ch1./s1", "/us/sComp/83/703/tI/ch1./s1"),
     ("/us/sComp/83/703/tI/ch1./s1/a", "/us/sComp/83/703/tI/ch1./s1/a"),
     ("/us/sComp/51/647", "/us/sComp/51/647"),
@@ -172,6 +178,7 @@ REJECTED = [
     "2023-01-01",
     "Pub. L. 104-333 and other words",
     "Stat. 4196",
+    "69A Stat. 3",
     "Pub. L. 104",
     "section 814",
     "title VIII",
@@ -259,6 +266,18 @@ def test_an_act_carries_its_date_and_chapter():
 def test_an_impossible_date_is_not_a_citation():
     assert parse_citation("Feb. 30, 1954, ch. 1073") is None
     assert parse_citation("/us/act/1954-13-01/ch1") is None
+
+
+def test_a_lettered_volume_keeps_its_letter():
+    parsed = parse_citation("68A Stat. 3")
+    assert parsed.kind == "stat"
+    assert parsed.volume is None and parsed.lettered_volume == "68A"
+    assert parsed.page == "3" and parsed.label == "68A Stat. 3"
+    act = parse_citation("Aug. 16, 1954, ch. 736, 68A Stat. 3")
+    assert act.identifier == "/us/act/1954-08-16/ch736"
+    assert act.stat_page == "/us/stat/68A/3" and act.lettered_volume == "68A" and act.volume is None
+    numbered = parse_citation("Pub. L. 104-333, § 814, 110 Stat. 4196")
+    assert numbered.volume == 110 and numbered.lettered_volume is None
 
 
 def test_a_chapter_on_a_page_names_the_page_and_carries_the_chapter():

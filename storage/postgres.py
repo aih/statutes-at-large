@@ -51,6 +51,7 @@ from storage.identifiers import (
     history_ref_label,
     law_label,
     parse_identifier,
+    parse_lettered_page,
     parse_stat_page,
     title_order,
 )
@@ -1099,6 +1100,11 @@ class PostgresRepository:
         if stat is not None:
             target = and_(Citation.to_volume == stat.volume, Citation.to_page == stat.page)
             return self._cited_by(identifier, identifier, None, (identifier,), None, None, target, contexts, limit, offset)
+        lettered = parse_lettered_page(identifier)
+        if lettered is not None:
+            target = and_(Citation.to_kind == "stat", Citation.to_identifier == lettered.identifier)
+            requested = lettered.identifier
+            return self._cited_by(requested, requested, None, (requested,), None, None, target, contexts, limit, offset)
         parsed = parse_identifier(identifier)
         if parsed is None or parsed.kind == "sComp":
             return None

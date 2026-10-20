@@ -52,6 +52,7 @@ from params import (
     RepositoryDep,
     ThroughParam,
     ViewParam,
+    lettered_volume_note,
     limit_text,
     negotiated_format,
     normalize_identifier,
@@ -60,7 +61,7 @@ from params import (
     rate_limit,
 )
 from site_version import GIT_COMMIT, SITE_VERSION
-from storage import Repository, normalize_page, parse_stat_page
+from storage import LETTERED_VOLUMES, Repository, normalize_page, parse_stat_page
 
 api = APIRouter(prefix="/api/v1", tags=["api"], dependencies=[Depends(public_cache)])
 
@@ -238,15 +239,19 @@ def act_unit(
     summary="Every law on a Statutes at Large page",
 )
 def stat_page(
-    volume: int, page: str, request: Request, repository: RepositoryDep, format: FormatParam = None
+    volume: str, page: str, request: Request, repository: RepositoryDep, format: FormatParam = None
 ) -> Response:
     """The laws that start on or span the page, each with what it prints there:
     the text of the page, the units the page touches, the unit the page marker
     falls in, and the GovInfo link to the printed page. `format=xml` serves the
     same slices as USLM. Page labels are matched lower case (`a12`, `B3` →
-    `b3`)."""
+    `b3`). A page of volume 68A or 70A is a 404 that names the volume."""
     label = normalize_page(page)
-    result = repository.stat_page(volume, label, with_slices=True)
+    if volume.upper() in LETTERED_VOLUMES:
+        raise HTTPException(status_code=404, detail=lettered_volume_note(volume.upper()))
+    if not volume.isdigit():
+        raise HTTPException(status_code=404, detail=not_found(f"/us/stat/{volume}/{label}"))
+    result = repository.stat_page(int(volume), label, with_slices=True)
     if result is None:
         raise HTTPException(status_code=404, detail=not_found(f"/us/stat/{volume}/{label}"))
     return stat_page_response(request, result, negotiated_format(request, format, allowed=MACHINE_FORMATS))

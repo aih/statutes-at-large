@@ -548,6 +548,15 @@ def test_head_is_not_served(client):
     assert response.headers["allow"] == "GET"
 
 
+def test_a_page_of_a_lettered_volume_is_404_naming_the_volume(client):
+    response = client.get("/api/v1/us/stat/70A/641")
+    assert response.status_code == 404
+    assert response.json()["detail"].startswith("Volume 70A of the Statutes at Large prints titles 10 and 32")
+    other = client.get("/api/v1/us/stat/69A/1")
+    assert other.status_code == 404
+    assert other.json()["detail"] == "nothing at /us/stat/69A/1 in the loaded Statutes at Large volumes"
+
+
 def test_labels_answer_a_stat_page(client):
     response = client.post(
         "/api/v1/labels", json={"identifiers": ["/us/stat/64/563", "/us/stat/64/A12", "/us/stat/110/4196"]}

@@ -9,6 +9,7 @@
  * | `/us/stat/{v}/{p}` with `exists: true`                     | `/app/us/stat/{v}/{p}`; hover the first document's label |
  * | `/us/pl/{c}/{n}…` with `exists: false`, `c` ≥ 104          | govinfo's public-law link              |
  * | `/us/stat/{v}/{p}` with `exists: false`                    | govinfo's statute link                 |
+ * | `/us/stat/68A/{p}`, `/us/stat/70A/{p}`                     | govinfo's page for the volume          |
  * | anything else, or no label for it                          | plain text                             |
  *
  * `fetchLabels` answers `{}` when the call failed, so every reference this
@@ -16,7 +17,15 @@
  */
 
 import type { Label, Labels } from "./types";
-import { appHref, govinfoPlaw, govinfoStatute, parseStatPage, uscodeHref } from "./url";
+import {
+  appHref,
+  govinfoLetteredVolume,
+  govinfoPlaw,
+  govinfoStatute,
+  letteredVolumeOf,
+  parseStatPage,
+  uscodeHref,
+} from "./url";
 
 const OWN = ["/us/pl/", "/us/pvtl/", "/us/act/", "/us/stat/"];
 const PUBLIC_LAW = /^\/us\/pl\/(\d+)\/(\d+)/u;
@@ -75,6 +84,10 @@ export function resolveRef(href: string, labels: Labels): ResolvedRef {
   const page = parseStatPage(identifier);
   if (page) {
     return { href: govinfoStatute(page.volume, page.page), title: null };
+  }
+  const lettered = letteredVolumeOf(identifier);
+  if (lettered) {
+    return { href: govinfoLetteredVolume(lettered), title: null };
   }
   return PLAIN;
 }

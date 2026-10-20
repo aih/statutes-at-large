@@ -1100,3 +1100,23 @@ for the pending laws, loaded on SQLite only; the reader at `/app/congress` and f
 horizontal scroll at 375 pixels. `ingest statute` over the downloaded volume
 26 into Postgres: the same counts, 450 congresses dated. Not run against the
 box's database.
+
+## 2026-10-20 — the lettered volumes 68A and 70A (issue #14)
+
+Asked: implement issue #14 if it was not already done.
+
+The issue's second item, hyphenated section numbers in `citeparse`, was
+already in place: `_SECTION_NUM` takes `204-1` and `254b-2`, and
+`tests/test_citeparse.py` has both. The first item was not.
+
+Done: `68A Stat. 3` and `/us/stat/70A/641` parse to `/us/stat/68A/3` and
+`/us/stat/70A/641`; `cite` answers them with a message naming the volume and
+its GovInfo page; the stat page route answers 404 with the same sentence;
+`cited-by` lists the US Code sections that cite a lettered page; the reader
+links such refs to GovInfo's page for the volume (ADR-0034). Neither volume
+is in the Hub dataset or in GovInfo's package files, so neither is loaded.
+
+Verified: `make test` 698 passed, 1 skipped; vitest 120 passed. The citation
+fixture's four `/us/stat/68A/…` refs now load as parsed rows
+(`rows_unparsed` 0); `cited-by` for `/us/stat/68A/483` returns 26 U.S.C.
+§§ 4081 and 4083. Not run against the dev or box database.

@@ -104,8 +104,7 @@ def test_the_load_report(loaded):
     assert set(report.rows_by_kind) <= {"pl", "pvtl", "act", "stat"}
     assert report.anchors_stored >= 3
     assert report.rows_act_by_date_only >= 1
-    assert report.rows_unparsed == 4
-    assert all("/us/stat/68A/" in sample for sample in report.unparsed_samples)
+    assert report.rows_unparsed == 0
     assert report.target_laws_loaded >= 7
     assert report.dataset_revision == "fixture"
 
