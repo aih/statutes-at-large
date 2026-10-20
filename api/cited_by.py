@@ -14,7 +14,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 
-from api.alternatives import USCODE_ORIGIN
 from api.schemas import CitedByOut, ErrorOut
 from params import (
     REVALIDATE,
@@ -23,6 +22,7 @@ from params import (
     if_none_match,
     normalize_identifier,
     not_found,
+    origins,
     public_cache,
     rate_limit,
 )
@@ -136,7 +136,7 @@ def cited_by(
         limit=limit,
         offset=offset,
         index=index,
-        section_url=lambda section: f"{USCODE_ORIGIN}{section}",
+        section_url=lambda section: f"{origins.uscode_origin}{section}",
         note=cited_by_note(what=unit_phrase(answer), total=answer.total, release_labels=answer.release_labels),
     )
     return Response(content=out.model_dump_json(), media_type="application/json", headers=headers)

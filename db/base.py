@@ -13,14 +13,23 @@ def make_engine(url: str):
     database wants, so they are applied only to a non-SQLite URL.
     """
     if url.startswith("sqlite"):
+        from sqlalchemy import event
         from sqlalchemy.pool import StaticPool
 
-        return create_engine(
+        sqlite_engine = create_engine(
             url,
             future=True,
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
         )
+
+        @event.listens_for(sqlite_engine, "connect")
+        def _set_sqlite_pragma(dbapi_connection, _connection_record):
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
+
+        return sqlite_engine
     return create_engine(
         url,
         future=True,

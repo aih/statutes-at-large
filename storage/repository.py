@@ -619,6 +619,49 @@ class ClassificationRow:
 
 
 @dataclass(frozen=True, slots=True)
+class CanonicalUscHistoryItem:
+    """One ref of the note or source credit, in document order: a law or one
+    of its provisions, or the Statutes at Large page that follows it."""
+
+    identifier: str
+    label: str
+    """`Public Law 102-486, title IX, § 902(a)(8)`, `106 Stat. 2944`."""
+    date: datetime.date | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class CanonicalUscRef:
+    """The US Code section an act is found at: the one whose Short Title note
+    cites the act as enacting or adding the short title, else the first one
+    whose source credit cites the act as enacting it (ADR-0032)."""
+
+    identifier: str
+    """`/us/usc/t42/s2011`."""
+    citation: str | None
+    heading: str | None
+    context: str
+    """`note` or `sourceCredit`: where in the section the act is cited."""
+    note_topic: str | None
+    """`shortTitle` for a note; None for a source credit."""
+    history: tuple[CanonicalUscHistoryItem, ...]
+    """The refs of that Short Title note or source credit."""
+    citing_sections_count: int
+    """US Code sections that cite the act anywhere."""
+
+
+@dataclass(frozen=True, slots=True)
+class ActMatch:
+    """An act whose popular name a search query matches: its compilation,
+    the enacted law, and its US Code section, each when there is one."""
+
+    title: str
+    short_titles: tuple[str, ...]
+    compilation: CompRef | None = None
+    law: LawRef | None = None
+    canonical_usc: CanonicalUscRef | None = None
+
+
+@dataclass(frozen=True, slots=True)
 class IndexCoverage:
     """Whether the indexes know a law at all: what tells `no_record` from
     `unknown` (design section 4)."""
@@ -856,6 +899,12 @@ class Repository(Protocol):
     def pending_law(self, identifier: str) -> PendingLaw | None:
         """The public law at `identifier` when Congress.gov lists it and its
         text is not loaded (ADR-0031); None otherwise."""
+        ...
+
+    def act_matches(self, query: str, *, limit: int = 5) -> list[ActMatch]:
+        """Compilations and laws whose popular name the query matches as whole
+        words, best match first, one per compilation prefix (ADR-0032). A
+        query of only common title words or numbers matches nothing."""
         ...
 
     # --------------------------------------------------------------- congresses

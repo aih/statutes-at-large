@@ -120,7 +120,16 @@ def test_law_labels():
 def test_roman_chapter_numbers_of_the_first_volumes():
     from ingest.identifiers import parse_doc_number, roman_to_int
 
-    assert roman_to_int("CXLVII") == 147 and roman_to_int("IV") == 4 and roman_to_int("x") == 10
+    assert roman_to_int("I") == 1
+    assert roman_to_int("XIV") == 14
+    assert roman_to_int("CXLVII") == 147
+    assert roman_to_int("MCMXCIX") == 1999
+    assert roman_to_int("IV") == 4
+    assert roman_to_int("x") == 10
+    assert roman_to_int("DIV") is None
+    assert roman_to_int("MIX") is None
+    assert roman_to_int("LLC") is None
+    assert roman_to_int("IIV") is None
     assert roman_to_int("12") is None and roman_to_int("") is None
     assert parse_doc_number("I") == 1 and parse_doc_number("3]") == 3 and parse_doc_number("[CHAPTER 5") == 5
     identity = identify_law(congress=1, doc_type="Chapter", doc_number="I", public_private="public",
@@ -138,3 +147,31 @@ def test_act_title_and_title_order():
     assert act_title(None, "II") is None
     assert sorted(["XXXII", "I", "IX", "X", "II", "VI", "12", "A"], key=title_order) == ["I", "II", "VI", "IX", "X", "12", "XXXII", "A"]
 
+
+
+@pytest.mark.parametrize(
+    "identifier, label",
+    [
+        ("/us/act/1946-08-01/ch724/tI/s291", "Act of August 1, 1946, ch. 724, title I, § 291"),
+        ("/us/act/1954-08-30/ch1073/s1", "Act of August 30, 1954, ch. 1073, § 1"),
+        ("/us/act/1937-08-17/ch690", "Act of August 17, 1937, ch. 690"),
+        ("/us/pl/102/486/tIX/s902/a/8", "Public Law 102-486, title IX, § 902(a)(8)"),
+        ("/us/pl/117/328/dGG/s101", "Public Law 117-328, div. GG, § 101"),
+        ("/us/pl/107/273/dC/tI", "Public Law 107-273, div. C, title I"),
+        ("/us/pl/113/128/tV/s512/hh/3", "Public Law 113-128, title V, § 512(hh)(3)"),
+        (
+            "/us/pl/105/277/dA/s101/f/tVIII/s405/d/14/A",
+            "Public Law 105-277, div. A, § 101(f) [title VIII, § 405(d)(14)(A)]",
+        ),
+        ("/us/pl/108/237", "Public Law 108-237"),
+        ("/us/pvtl/81/375", "Private Law 81-375"),
+        ("/us/stat/68/960", "68 Stat. 960"),
+        ("/us/stat/110/1321-335", "110 Stat. 1321-335"),
+        ("/us/stat/64/a12", "64 Stat. A12"),
+        ("/us/usc/t42/s2011", "/us/usc/t42/s2011"),
+    ],
+)
+def test_history_ref_labels(identifier, label):
+    from storage.identifiers import history_ref_label
+
+    assert history_ref_label(identifier) == label

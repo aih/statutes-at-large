@@ -16,6 +16,7 @@ from collections.abc import Sequence
 from typing import Annotated, Callable, Literal
 
 from fastapi import Depends, HTTPException, Query, Request, Response
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from storage import (
     CompUnitResult,
@@ -31,6 +32,18 @@ Format = Literal["json", "xml", "html"]
 View = Literal["enacted", "compiled"]
 
 RepositoryDep = Annotated[Repository, Depends(get_repository)]
+
+
+class Origins(BaseSettings):
+    """The public origins used in absolute URLs."""
+
+    site_origin: str = "https://statutes.linkedlegislation.org"
+    uscode_origin: str = "https://uscode.linkedlegislation.org"
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+
+origins = Origins()
 
 
 def normalize_identifier(path: str) -> str:

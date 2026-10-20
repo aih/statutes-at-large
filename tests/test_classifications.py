@@ -54,6 +54,7 @@ def fresh():
     factory = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
     with factory() as session:
         yield session
+    engine.dispose()
 
 
 def _page(items: list[dict], total: int) -> dict:

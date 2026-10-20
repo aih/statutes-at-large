@@ -11,7 +11,6 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
-from api.comps import origins
 from api.schemas import (
     ClassificationSessionUrlOut,
     CongressDetailOut,
@@ -25,6 +24,7 @@ from params import (
     RepositoryDep,
     congress_note,
     congresses_note,
+    origins,
     public_cache,
 )
 from storage import CongressDetail, CongressSummary, congress_ordinal

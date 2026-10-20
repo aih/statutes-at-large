@@ -9,6 +9,7 @@
 import ErrorPage from "../components/ErrorPage.astro";
 import Note from "../components/Note.astro";
 import Pager from "../components/Pager.astro";
+import SearchActCard from "../components/SearchActCard.astro";
 import SearchFacets from "../components/SearchFacets.astro";
 import SearchResult from "../components/SearchResult.astro";
 import Base from "../layouts/Base.astro";
@@ -99,8 +100,10 @@ const CITE_FORMS = [
 const crumbs: Link[] = [{ href: `${APP}/`, label: "Home" }];
 const title = query ? `Search: ${query} — Statutes at Large` : "Search — Statutes at Large";
 
+const acts = data?.acts ?? [];
 const hasFacets = data ? data.facets.congress.length > 0 || data.facets.kind.length > 0 || data.facets.view.length > 0 : false;
 const sections: Link[] = [];
+if (acts.length > 0) sections.push({ href: "#acts", label: "Act & Compilation" });
 if (data && total > 0) {
   sections.push({ href: "#results", label: "Results" });
   if (hasFacets) sections.push({ href: "#facets", label: "Narrow these results" });
@@ -127,6 +130,16 @@ if (data && total > 0) {
         <h2 class="group">
           {total === 0 ? "No results" : `${total.toLocaleString()} result${total === 1 ? "" : "s"}`} for “{query}”
         </h2>
+
+        {
+          acts.length > 0 && (
+            <section id="acts" aria-label="Act and compilation matches">
+              {acts.map((act) => (
+                <SearchActCard act={act} />
+              ))}
+            </section>
+          )
+        }
 
         {
           total > 0 && (

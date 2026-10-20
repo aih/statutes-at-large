@@ -20,7 +20,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 
-from api.comps import origins
 from api.schemas import CiteOut, ErrorOut, PendingLawOut
 from citeparse import ParsedCitation, parse_citation
 from params import (
@@ -31,6 +30,7 @@ from params import (
     cite_note,
     cite_pending,
     if_none_match,
+    origins,
     public_cache,
     rate_limit,
 )
