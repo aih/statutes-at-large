@@ -7,7 +7,6 @@ of the boundary and writes `db/` models directly.
 from storage.identifiers import (
     ParsedIdentifier,
     StatPageId,
-    congress_of_date,
     congress_ordinal,
     congress_years,
     history_ref_label,
@@ -64,6 +63,7 @@ from storage.repository import (
     StatPageResult,
     UnitRef,
     UnitResult,
+    VolumeStart,
 )
 from storage.session import get_repository
 
@@ -113,7 +113,7 @@ __all__ = [
     "StatPageResult",
     "UnitRef",
     "UnitResult",
-    "congress_of_date",
+    "VolumeStart",
     "congress_ordinal",
     "congress_years",
     "get_repository",

@@ -916,30 +916,36 @@ class CiteOut(BaseModel):
 
 
 class ClassificationSessionUrlOut(BaseModel):
-    session: str = Field(description="The session number or 'all'.")
-    url: str = Field(description="Absolute URL to the OLRC table on uscode.linkedlegislation.org.")
+    session: str = Field(description="`1`, `2`, or `all` for a whole-congress table.")
+    url: str = Field(description="The table on the US Code site.")
 
 
 class CongressSummaryOut(BaseModel):
+    """One Congress. Each `*_laws_count` counts loaded laws and is the total
+    its filter on `/api/v1/congress/{congress}` returns."""
+
     congress: int
-    ordinal: str
+    ordinal: str = Field(examples=["81st"])
     start_year: int
     end_year: int
     first_enacted: datetime.date | None = None
     last_enacted: datetime.date | None = None
     total_laws: int
-    public_laws: int
-    private_laws: int
-    chapter_acts: int
+    public_laws: int = Field(description="Numbered public laws.")
+    private_laws: int = Field(description="Numbered private laws.")
+    chapter_acts: int = Field(description="Acts known by chapter only, before the 57th Congress.")
+    public_acts: int = Field(description="Chapter acts the source marks public.")
+    private_acts: int = Field(description="Chapter acts the source marks private.")
     volumes: list[int] = Field(default_factory=list)
     section_count: int
-    compilations_count: int
-    classified_laws_count: int
-    classification_sessions: list[int] = Field(default_factory=list)
+    compilations_count: int = Field(description="Compilation files of this Congress's laws, loaded or not.")
+    compiled_laws_count: int
+    classified_laws_count: int = Field(description="Public laws with a row in an OLRC classification table.")
+    classification_sessions: list[int] = Field(default_factory=list, description="0 is a whole-congress table.")
     cited_laws_count: int
-    citing_sections_count: int
+    citing_sections_count: int = Field(description="US Code sections citing any of the Congress's laws.")
     pending_laws_count: int
-    url: str
+    url: str = Field(description="The Congress's page in the reader.")
     uscode_classification_urls: list[ClassificationSessionUrlOut] = Field(default_factory=list)
 
 
@@ -955,6 +961,12 @@ class CongressesOverviewOut(BaseModel):
     congresses: list[CongressSummaryOut]
 
 
+class VolumeStartOut(BaseModel):
+    volume: int
+    page: str | None = Field(description="The lowest numeric first page of the Congress's laws in the volume.")
+    url: str | None = None
+
+
 class CongressLawCompOut(BaseModel):
     identifier_prefix: str
     display_title: str | None = None
@@ -964,7 +976,8 @@ class CongressLawCompOut(BaseModel):
 
 class CongressLawItemOut(BaseModel):
     identifier: str
-    kind: str
+    kind: str = Field(description="`pl`, `pvtl`, or `act`.")
+    public_private: str | None = Field(default=None, description="`public` or `private`, as the source marks the law.")
     congress: int
     number: int | None = None
     chapter: int | None = None
@@ -983,15 +996,18 @@ class CongressLawItemOut(BaseModel):
     cited_by_url: str | None = None
     usc_classifications_count: int
     usc_titles: list[str] = Field(default_factory=list)
-    uscode_classification_url: str | None = None
+    uscode_classification_url: str | None = Field(
+        default=None, description="The classification table that lists the law, filtered to it."
+    )
 
 
 class CongressDetailOut(BaseModel):
     summary: CongressSummaryOut
+    latest_congress: int = Field(description="The latest Congress with a loaded or a pending law.")
+    volume_starts: list[VolumeStartOut] = Field(default_factory=list)
     laws: list[CongressLawItemOut]
     pending_laws: list[PendingLawOut] = Field(default_factory=list)
     total: int
     limit: int
     offset: int
     note: str
-

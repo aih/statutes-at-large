@@ -249,25 +249,27 @@ def compiled_note(result: CompUnitResult, *, enacted_link: str | None, codified:
 def _files(result: CompUnitResult) -> str:
     count = len(result.files)
     return f"{count} file" if count == 1 else f"{count} files"
- 
- 
+
+
 def congresses_note(overview: CongressesOverview) -> str:
-    """The overview note: how many Congresses and laws are loaded."""
+    """The overview note: what the counts are of."""
     return (
-        f"Acts enacted across {overview.total_congresses} Congresses "
-        f"({overview.total_laws:,} laws), cross-referenced to the United States Code "
-        f"and OLRC classification tables."
+        f"{overview.total_laws:,} laws of {overview.total_congresses} Congresses are loaded. "
+        "Every count is of loaded laws."
     )
 
 
 def congress_note(detail: CongressDetail) -> str:
-    """The detail note for one Congress."""
-    return (
-        f"Acts enacted by the {detail.summary.ordinal} Congress "
-        f"({detail.summary.start_year}–{detail.summary.end_year}), "
-        f"cross-referenced to the United States Code and OLRC classification tables."
+    """One Congress's note: its years, its loaded laws, and its pending ones."""
+    summary = detail.summary
+    note = (
+        f"The {summary.ordinal} Congress sat from {summary.start_year} to {summary.end_year}; "
+        f"{summary.total_laws:,} of its laws are loaded."
     )
-
+    if summary.pending_laws_count:
+        more = summary.pending_laws_count
+        note += f" {more} more {'is' if more == 1 else 'are'} enacted with no published text yet."
+    return note
 
 
 # -------------------------------------------------------------------- caching
