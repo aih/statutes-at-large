@@ -1006,17 +1006,42 @@ violations. Not run against the box's database or cluster.
 
 ## 2026-10-19 — QA, accuracy, robustness, and modularity fixes (#11–#18)
 
-Asked: Track 1 fixes covering GitHub Issues #11, #12, #13, #14, #15, #16, #17, and #18.
+Asked: fixes for GitHub issues #11 to #18; then review the PR and fix it as
+commits on it.
 
 Done:
-- #11: `uslmtext.page_slice` preserves preface elements (`docNumber`, `longTitle`) when the first page marker of a law sits in preface or matches the starting page in meta; returns an empty `PageSlice` for nonexistent pages.
-- #12: `PostgresRepository.labels` batches `Law` and `LawAlias` queries and candidate unit lookups without loading XML, text, children, pages, or occurrences.
-- #13: `roman_to_int` strictly validates Roman numeral syntax against `_VALID_ROMAN` and excludes English words `DIV`, `MIX`, and `DIM`.
-- #14: `citeparse` supports hyphenated public law section numbers (`§ 204-1`) while preserving range parsing for plural section designators.
-- #15: `ingest.plaw_pending.parse_listing` supports both `"bills"` and `"laws"` top-level listing shapes from Congress.gov.
-- #16: `storage.search.SearchSettings` adds `search_timeout` (10.0s default); `_build_client` configures `use_ssl` based on scheme and passes `timeout`.
-- #17: Centralized `Origins` and `origins` singleton in `params.py`; standardized `SearchResult.url` to absolute URL and updated `SearchResult.astro` to use `appHref`.
-- #18: Enabled `PRAGMA foreign_keys=ON` on SQLite engine connections; disposed engine bindings in test sessions fixtures; wrapped `decodeURIComponent` in `try / catch` in `Base.astro`.
+- #11: `page_slice` takes the law's first page (`stat_page` passes
+  `Law.stat_page_first`); a page no marker names that is not the first page
+  gives an empty slice. The slicing is otherwise unchanged. A first version
+  started a slip law's first page at the root, which put the cover page
+  (`note role="coverPage"`) on 137 Stat. 112; in GovInfo's PLAW XML the page
+  marker comes after the cover and before `docNumber`, so the original slice
+  already held the docNumber and long title.
+- #12: `labels` resolves a batch in at most six queries (100 subsection
+  identifiers: 500 before, 5 now), without children, pages or occurrences.
+  Its labels match `get_unit`'s for 803 identifiers over the fixture database.
+- #13: `roman_to_int` checks numeral syntax and rejects `DIV` and `MIX`,
+  which pass it.
+- #14: hyphenated public law sections (`§ 204-1`, `sec. 204-1`,
+  `section 254b-2`); `§§`, `secs.` and `sections` keep a range's first number.
+  `§ 204-206` with a hyphen is section 204-206; with an en dash it is a range.
+  Lettered volumes (68A Stat., 70A Stat.) are not parsed; #14 stays open.
+- #15: `GET https://api.congress.gov/v3/law/119/pub` answers 200 with `bills`,
+  and `/law/119/public` 404, so the path and shape were right. ADR-0031 and the
+  fixture README record the check; `cmd_pending` has a test.
+- #16: `SEARCH_TIMEOUT` (10 s, opensearch-py's default) and `use_ssl` from the
+  scheme of `SEARCH_URL`. Every deployment's `SEARCH_URL` is `https`.
+- #17: `params.origins` is the one source in `api/`; `api/alternatives.py`'s
+  environment reads and `db/config.py`'s unread origin fields are gone. Search
+  result and act-card compilation `url`s are absolute citation URLs.
+  `ingest/classifications.py` keeps its own `USCODE_ORIGIN`.
+- #18: SQLite enforces foreign keys; every test engine is disposed, and
+  `pyproject.toml` makes `ResourceWarning` and pytest's unraisable warning
+  errors, so an unclosed connection fails `make test`. `-W
+  error::ResourceWarning` alone did not fail on one. The hash handler in
+  `Base.astro` ignores a malformed fragment.
 
-Verified: `uv run pytest -W error::ResourceWarning` 616 passed; `npm --prefix frontend test` 115 passed.
-
+Verified: `uv run pytest` 647 passed; vitest 115 passed; `astro check` 0
+errors; `npm run build` completed. Old and new page slices compared over the
+116 stat pages of the fixture database (identical); `/api/v1/us/stat/137/112`
+starts at "Public Law 118–22". Not run against the box's database or cluster.
