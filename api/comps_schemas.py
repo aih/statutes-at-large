@@ -54,6 +54,30 @@ class CompDetailOut(CompOut):
     toc: list[UnitRefOut] | None = Field(None, description="The top-level units of the current version; null when the file cannot be told apart from another with the same prefix.")
 
 
+class CompTocOut(BaseModel):
+    identifier_prefix: str
+    current_through: CurrentThroughOut = Field(description="The version the table of contents is from; `enacted` is not filled here.")
+    units_count: int
+    sections_count: int
+    toc: list[UnitRefOut] = Field(description="Every unit of the compilation in reading order: the whole-act file's, or every per-title file's gathered in title order.")
+
+
+class CompTitleOut(BaseModel):
+    file_id: str
+    package_id: str
+    identifier_prefix: str
+    identifier: str = Field(description="What the file is read at: the prefix for a whole-act file, the title node (`…/tII`) for a per-title file.")
+    display_title: str | None = None
+    title: str | None = None
+    partial_of: str | None = None
+    current_through: str | None = Field(None, description="`118-67`.")
+
+
+class CompTitlesOut(BaseModel):
+    count: int
+    comps: list[CompTitleOut]
+
+
 class CompilationOut(BaseModel):
     file_id: str
     package_id: str

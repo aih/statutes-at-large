@@ -42,6 +42,11 @@ export function congressesHref(): string {
   return `${APP}/congress`;
 }
 
+/** `/app/comps`, every Statute Compilation file by title. */
+export function compsHref(q?: string): string {
+  return `${APP}/comps${queryString({ q })}`;
+}
+
 /** `1` → `1st`, `12` → `12th`, `22` → `22nd`, `113` → `113th`. */
 export function congressOrdinal(congress: number): string {
   const tens = congress % 100;

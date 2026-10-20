@@ -78,6 +78,8 @@ from storage.repository import (
     SourceCreditEvidence,
     CompCounterpart,
     CompRef,
+    CompTitle,
+    CompToc,
     CompUnitResult,
     CompVersionRef,
     LabelInfo,
@@ -901,6 +903,47 @@ class PostgresRepository:
         if unit is None:
             return None
         return self._unit_result(law, unit, unit.identifier, "exact", provision_path=None)
+
+    def comp_toc(self, identifier_prefix: str, *, through: str | None = None) -> CompToc | None:
+        comps = self._session.scalars(
+            select(Comp).where(Comp.identifier_prefix == identifier_prefix).order_by(Comp.file_id)
+        ).all()
+        versions = [v for v in (self._version_of(c, through) for c in comps) if v is not None]
+        if not versions:
+            return None
+        whole = next((v for v in versions if v.comp.partial_of is None), None)
+        ordered = [whole] if whole is not None else sorted(
+            versions, key=lambda v: (title_order(v.comp.partial_of), v.comp.file_id)
+        )
+        position = {v.id: index for index, v in enumerate(ordered)}
+        rows = self._session.execute(
+            select(CompUnit.comp_version_id, CompUnit.seq, CompUnit.identifier, CompUnit.level, CompUnit.num, CompUnit.heading)
+            .where(CompUnit.comp_version_id.in_(list(position)))
+        ).all()
+        rows = sorted(rows, key=lambda r: (position[r.comp_version_id], r.seq))
+        return CompToc(
+            identifier_prefix=identifier_prefix,
+            current_through_pl=ordered[0].current_through_pl,
+            units=tuple(UnitRef(r.identifier, r.level, r.num, r.heading, r.level == "section") for r in rows),
+        )
+
+    def comp_titles(self) -> list[CompTitle]:
+        rows = self._session.execute(
+            select(
+                Comp.file_id, Comp.package_id, Comp.identifier_prefix, Comp.display_title, Comp.title,
+                Comp.partial_of, CompVersion.current_through_pl,
+            )
+            .outerjoin(CompVersion, (CompVersion.comp_id == Comp.id) & CompVersion.is_current.is_(True))
+            .order_by(Comp.display_title, Comp.file_id, CompVersion.id.desc())
+        ).all()
+        seen: set[str] = set()
+        out: list[CompTitle] = []
+        for r in rows:
+            if r.file_id in seen:
+                continue
+            seen.add(r.file_id)
+            out.append(CompTitle(r.file_id, r.package_id, r.identifier_prefix, r.display_title, r.title, r.partial_of, r.current_through_pl))
+        return out
 
     # -- helpers
 

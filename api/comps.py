@@ -1,4 +1,5 @@
-"""The compiled view: `/api/v1/us/sComp/…`, `/api/v1/comps`, `/api/v1/comps/{fileId}`
+"""The compiled view: `/api/v1/us/sComp/…`, `/api/v1/comps`, `/api/v1/comps/titles`,
+`/api/v1/comps/{c}/{n}/toc`, `/api/v1/comps/{fileId}`
 (design sections 4 and 5).
 
 Everything is answered by the `Repository`; this module shapes the JSON, the
@@ -20,6 +21,9 @@ from api.comps_schemas import (
     CompilationOut,
     CompListOut,
     CompOut,
+    CompTitleOut,
+    CompTitlesOut,
+    CompTocOut,
     CompUnitOut,
     CompVersionOut,
     CurrencyOut,
@@ -330,6 +334,55 @@ def list_comps(
     compilations by title."""
     comps = repository.list_comps(law_identifier=law, q=q, limit=limit)
     return CompListOut(comps=[comp_out(c) for c in comps])
+
+
+@comps_router.get("/comps/titles", response_model=CompTitlesOut, summary="Every compilation file by title")
+def comp_titles(repository: RepositoryDep) -> CompTitlesOut:
+    """Every stored compilation file, ordered by display title then file id,
+    with the identifier it is read at. A per-title file (`partial_of`) is read
+    at its title node under the shared prefix."""
+    rows = repository.comp_titles()
+    return CompTitlesOut(
+        count=len(rows),
+        comps=[
+            CompTitleOut(
+                file_id=r.file_id,
+                package_id=r.package_id,
+                identifier_prefix=r.identifier_prefix,
+                identifier=f"{r.identifier_prefix}/t{r.partial_of}" if r.partial_of else r.identifier_prefix,
+                display_title=r.display_title,
+                title=r.title,
+                partial_of=r.partial_of,
+                current_through=r.current_through_pl,
+            )
+            for r in rows
+        ],
+    )
+
+
+@comps_router.get(
+    "/comps/{congress}/{number}/toc",
+    dependencies=[Depends(limit_text)],
+    response_model=CompTocOut,
+    summary="A compilation's whole table of contents",
+    responses={404: {"description": "No compilation has this prefix, or `through` names no stored version"}},
+)
+def comp_toc(congress: int, number: int, repository: RepositoryDep, through: ThroughParam = None) -> CompTocOut:
+    """Every unit under `/us/sComp/{congress}/{number}` in reading order,
+    nested by identifier prefix. An act with one file per title and no
+    whole-act file answers with every file's units in title order.
+    `through=118-67` selects a stored version."""
+    prefix = f"/us/sComp/{congress}/{number}"
+    toc = repository.comp_toc(prefix, through=through)
+    if toc is None:
+        raise HTTPException(status_code=404, detail=not_found(prefix, view="compiled"))
+    return CompTocOut(
+        identifier_prefix=toc.identifier_prefix,
+        current_through=CurrentThroughOut(pl=toc.current_through_pl),
+        units_count=len(toc.units),
+        sections_count=sum(1 for u in toc.units if u.is_section),
+        toc=[_unit_ref_out(u) for u in toc.units],
+    )
 
 
 def _toc(repository: Repository, comp: CompRef) -> list[UnitRefOut] | None:

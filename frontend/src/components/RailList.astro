@@ -5,18 +5,19 @@
  * section) is a plain link. A node carrying children is a link plus a
  * separate `<details>` holding the nested list, so the link and the
  * disclosure toggle are two controls rather than one nested inside the
- * other.
+ * other. `query` is added to every link (`through=` on a compilation).
  */
 import type { RailNode } from "../lib/rail";
 import { smallCapsClass, unitLabel } from "../lib/toc";
-import { appHref } from "../lib/url";
+import { appHref, type Query } from "../lib/url";
 
 interface Props {
   nodes: RailNode[];
   current: string | null;
+  query?: Query;
 }
 
-const { nodes, current } = Astro.props;
+const { nodes, current, query } = Astro.props;
 ---
 
 <ul class="rail__list">
@@ -27,7 +28,7 @@ const { nodes, current } = Astro.props;
       const heading = node.entry.heading;
       return (
         <li>
-          <a class="rail__link" href={appHref(node.entry.identifier)} aria-current={here ? "page" : undefined}>
+          <a class="rail__link" href={appHref(node.entry.identifier, query)} aria-current={here ? "page" : undefined}>
             {label}
             {label && heading && " "}
             {heading && <span class={smallCapsClass(heading)}>{heading}</span>}
@@ -35,7 +36,7 @@ const { nodes, current } = Astro.props;
           {node.children.length > 0 && (
             <details class="rail__details" open={node.open}>
               <summary class="rail__summary">Contents</summary>
-              <Astro.self nodes={node.children} current={current} />
+              <Astro.self nodes={node.children} current={current} query={query} />
             </details>
           )}
         </li>

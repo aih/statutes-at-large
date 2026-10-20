@@ -3,24 +3,28 @@
  * `/app/us/sComp/{c}/{n}[/{path}][?through=]`: the compiled view. The
  * compilation's title, the enacted law, the compiled currency line, `note`
  * verbatim, `provenance`, `usc_refs`, the table of contents or the rendered
- * text, the version picker and the alternatives. Passes `up` to `Base` for
- * the `u` keyboard shortcut (D, ADR-0022); `previous` and `next` stay null,
- * since this view fetches no neighbouring section.
+ * text, the version picker and the alternatives. The rail and the Contents
+ * disclosure read the compilation's whole table of contents
+ * (`/api/v1/comps/{c}/{n}/toc`), falling back to the unit's own `children`
+ * when it cannot be fetched; the rail opens the branch holding this unit.
+ * Passes `previous`, `next` and `up` to `Base` for the `j`, `k` and `u`
+ * keyboard shortcuts (D, ADR-0022). Every contents link keeps `through=`.
  */
 import Alternatives from "../../../components/Alternatives.astro";
 import CompiledCurrency from "../../../components/CompiledCurrency.astro";
 import ErrorPage from "../../../components/ErrorPage.astro";
+import Neighbors from "../../../components/Neighbors.astro";
 import Note from "../../../components/Note.astro";
 import Provenance from "../../../components/Provenance.astro";
 import TocList from "../../../components/TocList.astro";
 import VersionPicker from "../../../components/VersionPicker.astro";
 import Base from "../../../layouts/Base.astro";
-import { ApiError, fetchCompUnit, fetchCompUnitXml, fetchLabels } from "../../../lib/api";
+import { ApiError, fetchCompToc, fetchCompUnit, fetchCompUnitXml, fetchLabels } from "../../../lib/api";
 import { NO_STORE, REVALIDATE } from "../../../lib/cache";
 import { clientAddressOf, identifierParam } from "../../../lib/params";
 import { citedIdentifiers } from "../../../lib/refs";
-import { nestToc, smallCapsClass, unitLabel } from "../../../lib/toc";
-import type { CompUnit, Link } from "../../../lib/types";
+import { countToc, nestToc, sectionNeighbors, smallCapsClass, subtreeOf, unitLabel } from "../../../lib/toc";
+import type { CompToc, CompUnit, Link } from "../../../lib/types";
 import { APP, apiHref, appHref, uscodeHref } from "../../../lib/url";
 import { hrefs, parseFragment, render } from "../../../lib/uslm";
 
@@ -36,6 +40,7 @@ interface Failure {
 
 let unit: CompUnit | null = null;
 let failure: Failure | null = null;
+const tocCall = fetchCompToc(identifier, through, call).catch((): CompToc | null => null);
 try {
   const answer = await fetchCompUnit(identifier, through, call);
   unit = answer.body;
@@ -92,9 +97,20 @@ const title = !unit
     ? `${unit.compilation.display_title ?? unit.compilation.identifier_prefix} (compiled) — Statutes at Large`
     : `${unitLabel(unit.level, unit.num)} — ${unit.compilation.display_title ?? unit.compilation.identifier_prefix} (compiled) — Statutes at Large`;
 
-const tocNodes = unit ? nestToc(unit.children) : [];
-const unitsCount = unit ? unit.children.length : 0;
-const sectionsCount = unit ? unit.children.filter((entry) => entry.is_section).length : 0;
+const compToc = unit ? await tocCall : null;
+/** The whole compilation, nested; the unit's own children when the table of
+ * contents could not be fetched. */
+const railToc = compToc ? nestToc(compToc.toc) : unit ? nestToc(unit.children) : [];
+/** What the Contents disclosure lists: the whole compilation on the root,
+ * the node's subtree on a hierarchy node. */
+const tocNodes = !unit
+  ? []
+  : compToc
+    ? isRoot
+      ? railToc
+      : (subtreeOf(railToc, unit.served_identifier) ?? nestToc(unit.children))
+    : nestToc(unit.children);
+const { units: unitsCount, sections: sectionsCount } = countToc(tocNodes);
 const contentsSummary = `Contents — ${unitsCount.toLocaleString("en-US")} unit${unitsCount === 1 ? "" : "s"}, ${sectionsCount.toLocaleString("en-US")} section${sectionsCount === 1 ? "" : "s"}`;
 
 const sections: Link[] = [];
@@ -106,8 +122,7 @@ if (unit) {
 }
 
 /** The `u` key's target: the nearest ancestor, else the compilation root;
- * null on the root itself, which has neither. The compiled view fetches no
- * neighbouring section, so `previous` and `next` stay null here. */
+ * null on the root itself, which has neither. */
 function upLink(): Link | null {
   if (!unit || isRoot) return null;
   const nearest = unit.ancestors[unit.ancestors.length - 1];
@@ -118,6 +133,10 @@ function upLink(): Link | null {
   };
 }
 const up = upLink();
+const neighbors =
+  unit && isSection && compToc
+    ? sectionNeighbors(compToc.toc, unit.served_identifier, query)
+    : { previous: null, next: null };
 ---
 
 <Base
@@ -126,10 +145,12 @@ const up = upLink();
   current={current}
   text={isSection}
   sections={sections}
-  toc={unit ? tocNodes : null}
+  toc={unit ? railToc : null}
+  tocQuery={query}
+  tocTitle="In this compilation"
   currentIdentifier={unit?.served_identifier ?? null}
-  previous={null}
-  next={null}
+  previous={neighbors.previous}
+  next={neighbors.next}
   up={up}
 >
   {failure && <ErrorPage status={failure.status} detail={failure.detail} retryAfter={failure.retryAfter} />}
@@ -193,8 +214,10 @@ const up = upLink();
             </>
           ))}
 
+        {isSection && <Neighbors previous={neighbors.previous} next={neighbors.next} />}
+
         {!isSection && (
-          <details id="contents" class="disclosure">
+          <details id="contents" class="disclosure" open>
             <summary>{contentsSummary}</summary>
             {tocNodes.length > 0 ? (
               <TocList nodes={tocNodes} query={query} />

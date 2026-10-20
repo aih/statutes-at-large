@@ -4,6 +4,7 @@
   "headroom": "Each ceiling is the measured size plus 200 bytes, rounded up to the next 500, so an ordinary comment edit does not fail the build but real growth does.",
   "budgets": {
     "/app/": 3500,
+    "/app/comps": 5000,
     "/app/congress": 3500,
     "/app/goto": 3500,
     "/app/healthz": 500,

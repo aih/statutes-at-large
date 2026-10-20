@@ -339,6 +339,31 @@ class CompUnitResult:
 
 
 @dataclass(frozen=True, slots=True)
+class CompToc:
+    """Every unit of a compilation in reading order: the whole-act file's
+    units, or every per-title file's gathered in title order when the act has
+    no whole-act file (ADR-0007, decision 8)."""
+
+    identifier_prefix: str
+    current_through_pl: str | None
+    """The version's `current_through_pl`; the first file's when gathered."""
+    units: tuple[UnitRef, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class CompTitle:
+    """One compilation file in the title index."""
+
+    file_id: str
+    package_id: str
+    identifier_prefix: str
+    display_title: str | None
+    title: str | None
+    partial_of: str | None
+    current_through_pl: str | None
+
+
+@dataclass(frozen=True, slots=True)
 class CompCounterpart:
     """A compiled unit that corresponds to an enacted section (or the reverse),
     matched by law and section number."""
@@ -864,6 +889,17 @@ class Repository(Protocol):
         both. A bare prefix with no whole-act file is answered from every
         per-title file under it (`files`).
         """
+        ...
+
+    def comp_toc(self, identifier_prefix: str, *, through: str | None = None) -> CompToc | None:
+        """Every unit under a `/us/sComp/{c}/{n}` prefix in reading order, from
+        the current versions or the ones whose `current_through_pl` is
+        `through`. None when no compilation has the prefix or no version
+        matches. Reads no XML or text."""
+        ...
+
+    def comp_titles(self) -> list[CompTitle]:
+        """Every compilation file, by display title then file id."""
         ...
 
     def compiled_counterparts(self, law_identifier: str, section_num: str | None) -> list[CompCounterpart]:

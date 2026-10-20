@@ -393,6 +393,32 @@ export interface CompUnitRef {
   is_section: boolean;
 }
 
+/** `GET /api/v1/comps/{c}/{n}/toc`: every unit in reading order. */
+export interface CompToc {
+  identifier_prefix: string;
+  current_through: { pl: string | null; enacted: string | null };
+  units_count: number;
+  sections_count: number;
+  toc: CompUnitRef[];
+}
+
+/** One file of `GET /api/v1/comps/titles`. */
+export interface CompTitle {
+  file_id: string;
+  package_id: string;
+  identifier_prefix: string;
+  identifier: string;
+  display_title: string | null;
+  title: string | null;
+  partial_of: string | null;
+  current_through: string | null;
+}
+
+export interface CompTitles {
+  count: number;
+  comps: CompTitle[];
+}
+
 export interface CompCompilation {
   file_id: string;
   package_id: string;
