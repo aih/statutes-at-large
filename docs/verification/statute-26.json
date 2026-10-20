@@ -3,14 +3,15 @@
   "package": "STATUTE-26",
   "source_file": "data/statute/xmls/STATUTE-26.xml",
   "source_sha256": "901ba30a7986bd700feb50f4e4b00f68ed1694d583a00e63f12046c1ff85f011",
-  "loaded_at": "2026-09-08T03:10:35.929810+00:00",
-  "seconds": 13.1,
+  "loaded_at": "2026-10-20T01:18:34.888430+00:00",
+  "seconds": 29.8,
   "components": 2214,
   "laws_loaded": 2093,
   "laws_by_kind": {
     "act": 2093
   },
   "laws_replaced": 0,
+  "laws_kept_from_plaw": [],
   "units": 3461,
   "units_by_level": {
     "section": 3459,
@@ -74,6 +75,7 @@
   "merged_components": 0,
   "unidentified": [],
   "warnings": {
+    "congress taken from the approval date, not meta/congress": 450,
     "occurs 2 times": 8
   },
   "identifier_rules": "rules-1.0",

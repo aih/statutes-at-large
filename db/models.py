@@ -45,6 +45,11 @@ class Law(Base):
     chapter: Mapped[int | None] = mapped_column(Integer)
     """Chapter number, for laws through 1957."""
 
+    public_private: Mapped[str | None] = mapped_column(Text)
+    """`public` | `private`, the source's `publicPrivate`; null when it does
+    not say. For an act (`kind` `act`, before the 57th Congress) it is the
+    only record of which the act is."""
+
     enacted: Mapped[datetime.date | None] = mapped_column(Date)
     doc_type: Mapped[str | None] = mapped_column(Text)
     """`An Act` | `Joint Resolution`, as the long title names it."""
@@ -366,7 +371,6 @@ class Citation(Base):
     """For a `stat` target: the volume and lower-case page label."""
 
     __table_args__ = (
-        Index("ix_citations_to_congress", "to_congress"),
         Index("ix_citations_to_law_section", "to_law", "to_section_num"),
         Index("ix_citations_to_stat", "to_volume", "to_page"),
     )

@@ -19,7 +19,7 @@ import datetime
 import re
 from dataclasses import dataclass, field
 
-from storage.identifiers import roman_to_int
+from storage.identifiers import congress_of_date, roman_to_int
 
 FIRST_NUMBERED_CONGRESS = 57
 """Public-law numbering begins with the 57th Congress (1901)."""
@@ -217,3 +217,19 @@ def segment(level: str, value: str) -> str:
     if prefix is None:
         return value
     return f"{prefix}{value}"
+
+
+def congress_of_act(meta_congress: int | None, enacted: datetime.date | None) -> int | None:
+    """The Congress a chapter act belongs to: the one sitting on the day it
+    was approved. A volume's `meta/congress` names another for 450 of the
+    2,101 laws in volume 26 and 518 of the 3,145 in volume 6 (ADR-0033). It
+    is kept when the act has no date, and on the March 4 a term ended at
+    noon, when it names the outgoing Congress."""
+    if enacted is None:
+        return meta_congress
+    dated = congress_of_date(enacted)
+    end_of_term = enacted < datetime.date(1935, 1, 3) and (enacted.month, enacted.day) == (3, 4) and enacted.year % 2 == 1
+    if end_of_term and meta_congress == dated - 1:
+        return meta_congress
+    return dated
+

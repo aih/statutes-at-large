@@ -322,7 +322,7 @@ def history_ref_label(identifier: str) -> str:
 
 
 def congress_ordinal(congress: int) -> str:
-    """The English ordinal for a Congress number: 1 -> '1st', 2 -> '2nd', 3 -> '3rd', 11 -> '11th', 21 -> '21st', 118 -> '118th'."""
+    """`1` → `1st`, `12` → `12th`, `22` → `22nd`, `113` → `113th`."""
     if 11 <= (congress % 100) <= 13:
         suffix = "th"
     else:
@@ -331,23 +331,16 @@ def congress_ordinal(congress: int) -> str:
 
 
 def congress_years(congress: int) -> tuple[int, int]:
-    """The calendar years of a Congress term: (1787 + 2 * congress, 1789 + 2 * congress)."""
+    """The years a Congress's term begins and ends: `1` → (1789, 1791)."""
     return (1787 + 2 * congress, 1789 + 2 * congress)
 
 
-def congress_of_date(enacted: datetime.date) -> int:
-    """The Congress that sat when a law was enacted.
-
-    Before 1935 (the 74th Congress), a Congress term began March 4 of odd years;
-    from 1935 onward, January 3 of odd years (Twentieth Amendment).
-    """
-    if enacted < datetime.date(1935, 1, 3):
-        cutoff = (3, 4)
-    else:
-        cutoff = (1, 3)
-    start_year = enacted.year if (enacted.month, enacted.day) >= cutoff else enacted.year - 1
-    if start_year % 2 == 0:
-        start_year -= 1
-    congress = (start_year - 1789) // 2 + 1
-    return max(1, congress)
-
+def congress_of_date(day: datetime.date) -> int:
+    """The Congress sitting on `day`. A term began on March 4 of an odd year
+    until 1935 and on January 3 since (the Twentieth Amendment); March 4 is
+    counted to the new term."""
+    start = (3, 4) if day < datetime.date(1935, 1, 3) else (1, 3)
+    year = day.year if (day.month, day.day) >= start else day.year - 1
+    if year % 2 == 0:
+        year -= 1
+    return max(1, (year - 1789) // 2 + 1)
