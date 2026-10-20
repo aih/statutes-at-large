@@ -1048,24 +1048,55 @@ starts at "Public Law 118–22". Not run against the box's database or cluster.
 
 ## 2026-10-19 — historical data analysis of Acts by Congress (1st to 119th)
 
-Asked: Issue #19: historical data analysis of Acts by Congress from the 1st
-to the 119th Congress, cross-referenced to uscode.linkedlegislation.org and
-statutes.linkedlegislation.org.
+Asked: issue #19: the laws of every Congress from the 1st to the 119th,
+cross-referenced to the US Code site and this one.
 
-Done (ADR-0032): index `ix_citations_to_congress` on `citations.to_congress`
-(migration `d8e3c7b1a209_ix_citations_to_congress.py`); Congress metadata
-helpers `congress_ordinal`, `congress_years`, and `congress_of_date` in
-`storage/identifiers.py`; `Repository.congresses_overview()` and
-`Repository.congress_detail()` in `storage/repository.py` and
-`storage/postgres.py`; API routes `GET /api/v1/congress` and
-`GET /api/v1/congress/{congress}` in `api/congress.py`; reader pages
-`/app/congress` (facts, pure SVG timeline, master table) and
-`/app/congress/[congress]` (facts, pending laws, filter and sort pills,
-search, laws table with cross-links, keyboard navigation) in
-`frontend/src/pages/congress/`; header navigation in `SiteHeader.astro`;
-route JS budget for `/app/congress` set to 3500 bytes in
-`docs/js-budgets.json` (3139 bytes measured).
+Done: `GET /api/v1/congress` and `GET /api/v1/congress/{congress}`
+(`api/congress.py`) over `Repository.congresses_overview` and
+`congress_detail`; the reader pages `/app/congress` and
+`/app/congress/{congress}`; a Congresses link in the header and on the home
+page; `/app/congress` in `docs/js-budgets.json` at 3,500 bytes.
 
-Verified: `uv run pytest` 620 passed, 13 new in `tests/test_congress.py`;
-`npm --prefix frontend test` 118 passed across 10 test files; `npm --prefix frontend run build`
-built cleanly.
+## 2026-10-19 — review of PR #22
+
+Asked: review the PR, test its assertions, add the tests it needs, fix it as
+commits on it.
+
+Found and fixed:
+- `index.astro` used `APP` without importing it, so `/app/` answered 500; the
+  Congress heading printed `(2025–$2027)`; a pending law printed
+  `Public Law -`. CI now runs `astro check`, which reports the first and
+  third.
+- Pre-1901 public and private counts (the issue's first requirement) were
+  absent: every chapter act counted as `act`. `laws.public_private` keeps the
+  source's flag, and the filters and counts use it.
+- `meta/congress` is wrong for 450 of volume 26's 2,101 laws and 518 of
+  volume 6's 3,145, checked against the downloaded volumes. An act's congress
+  is now its approval date's (ADR-0033); migration `e4a1c9d27b63` fixes the
+  rows loaded.
+- The `citations.to_congress` index was read by no query and is dropped.
+- A compilation was matched to a law on number or chapter, so Public Law
+  81-740 (chapter 823) took a compilation of 81-823, and Private Law 81-375
+  one of Public Law 81-375. Classification rows matched private laws.
+  `cited_laws_count` counted a law cited under two aliases twice. All three
+  reproduced on the PR's commit and are tests now.
+- Pill counts differed from their filters' totals; `cited` included
+  classified laws; the table link named the Congress's first session.
+- The overview listed only Congresses with laws; it lists the 1st to the
+  latest, each with a page.
+- Volume links went to page 1, which is not a law's page in volumes 137 and
+  139; `url` fields were `/app` paths. The detail page fetched the overview
+  for its neighbours.
+- The chart drew 8-pixel bars in 6-pixel slots and a label under each of
+  119; as an `img` with links it failed axe, and the detail pages failed
+  colour contrast.
+- The tests asserted lower bounds; they assert the fixture database's counts.
+
+Verified: `uv run pytest` 688 passed, 1 skipped (the Postgres migration test,
+which passed against a throwaway `postgres:16`); vitest 119 passed;
+`astro check` 0 errors; `npm run build` completed. The API over the fixture
+database on SQLite and on Postgres gave the same answers to 11 requests but
+for the pending laws, loaded on SQLite only; the reader at `/app/congress` and four Congress pages, axe clean on 21 pages, no
+horizontal scroll at 375 pixels. `ingest statute` over the downloaded volume
+26 into Postgres: the same counts, 450 congresses dated. Not run against the
+box's database.
