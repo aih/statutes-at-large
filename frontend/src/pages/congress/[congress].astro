@@ -21,6 +21,7 @@ import {
   congressesHref,
   longDate,
   pageOffset,
+  parseLawNumber,
 } from "../../lib/url";
 
 const { congress: rawCongress } = Astro.params;
@@ -112,6 +113,12 @@ const currentQuery = {
 };
 
 const number = (val: number) => val.toLocaleString("en-US");
+
+/** `/us/pl/119/120` → `Public Law 119-120`. */
+const pendingLabel = (identifier: string) => {
+  const law = parseLawNumber(identifier);
+  return law ? `Public Law ${law.congress}-${law.number}` : identifier;
+};
 ---
 
 {
@@ -132,7 +139,7 @@ const number = (val: number) => val.toLocaleString("en-US");
       previous={previousLink}
       next={nextLink}
     >
-      <h1 class="doc-title">{summary.ordinal} Congress ({summary.start_year}–${summary.end_year})</h1>
+      <h1 class="doc-title">{summary.ordinal} Congress ({summary.start_year}–{summary.end_year})</h1>
       <p class="lede">
         Acts enacted by the {summary.ordinal} Congress, cross-referenced to Statute Compilations
         and the United States Code.
@@ -223,7 +230,7 @@ const number = (val: number) => val.toLocaleString("en-US");
             <ul class="pending-list">
               {detail.pending_laws.map((p) => (
                 <li>
-                  <strong>Public Law {p.congress}-{p.number}</strong> ({p.bill}):{" "}
+                  <strong>{pendingLabel(p.identifier)}</strong> ({p.bill}):{" "}
                   {p.title || "Untitled"}{" "}
                   <a href={p.url} target="_blank" rel="noopener noreferrer">
                     Congress.gov ↗

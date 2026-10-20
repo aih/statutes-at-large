@@ -49,6 +49,12 @@ jobs:
         working-directory: frontend
         run: npm test
 
+      # The build does not type-check; an undefined name in a page is a
+      # runtime error that only `astro check` reports.
+      - name: Type-check
+        working-directory: frontend
+        run: npm run check
+
   compose:
     name: deploy config validates
     runs-on: ubuntu-latest
