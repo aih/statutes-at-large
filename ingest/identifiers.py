@@ -233,3 +233,63 @@ def congress_of_act(meta_congress: int | None, enacted: datetime.date | None) ->
         return meta_congress
     return dated
 
+
+_VOLUME_CONGRESSES: dict[int, frozenset[int]] = {
+    1: frozenset(range(1, 6)),
+    2: frozenset(range(6, 13)),
+    3: frozenset(range(13, 18)),
+    4: frozenset(range(18, 24)),
+    5: frozenset(range(24, 29)),
+    6: frozenset(range(1, 29)),
+    9: frozenset(range(29, 32)),
+    10: frozenset({32, 33}),
+    11: frozenset({34, 35}),
+    12: frozenset({36, 37}),
+    50: frozenset({75}),
+    77: frozenset({87, 88}),
+    89: frozenset({93, 94}),
+}
+
+
+def volume_congresses(volume: int) -> frozenset[int] | None:
+    """The Congresses whose laws a volume prints: volumes 1 to 5 the public
+    laws to 1845, volume 6 the private laws to 1845, one volume a Congress
+    from 13 (the 38th) to 49 (the 74th), two a Congress from 51 (the 75th).
+    Volume 77 reprints Public Laws 87-456 and 87-794; volume 89 prints laws
+    of the 93rd approved in January 1975. None for the treaty volumes 7
+    and 8."""
+    if volume in _VOLUME_CONGRESSES:
+        return _VOLUME_CONGRESSES[volume]
+    if 13 <= volume <= 49:
+        return frozenset({volume + 25})
+    if volume >= 51:
+        return frozenset({(volume - 55) // 2 + 77})
+    return None
+
+
+def congress_in_volume(
+    meta_congress: int | None, enacted: datetime.date | None, volume: int, *, act: bool
+) -> int | None:
+    """The Congress of a law printed in `volume` (ADR-0036). A chapter act
+    takes `congress_of_act` and a numbered law `meta/congress`, each when the
+    volume prints that Congress; else the Congress of the approval date when
+    the volume prints it; else the volume's one Congress; else
+    `meta/congress`. An OCR year (34 Stat. 2683 is dated 1807), an act
+    approved after its Congress ended (54 Stat. 1397, January 3, 1941), and
+    a `meta/congress` naming the next Congress (37 Stat. 739) are kept to the
+    volume's Congress."""
+    allowed = volume_congresses(volume)
+    if allowed is None:
+        return congress_of_act(meta_congress, enacted) if act else meta_congress
+    if act:
+        dated_act = congress_of_act(meta_congress, enacted)
+        if dated_act in allowed:
+            return dated_act
+    if meta_congress in allowed:
+        return meta_congress
+    if enacted is not None and congress_of_date(enacted) in allowed:
+        return congress_of_date(enacted)
+    if len(allowed) == 1:
+        return next(iter(allowed))
+    return meta_congress
+

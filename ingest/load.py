@@ -67,6 +67,9 @@ class VolumeLoadReport:
     laws_loaded: int = 0
     laws_by_kind: dict[str, int] = field(default_factory=dict)
     laws_replaced: int = 0
+    laws_dropped_as_stale: list[str] = field(default_factory=list)
+    """Laws stored from this volume that the file no longer yields under
+    their identifier."""
     laws_kept_from_plaw: list[str] = field(default_factory=list)
     """Laws of the volume left alone because a PLAW-derived copy is stored
     (ADR-0011): the bulk-data file outranks the volume file."""
@@ -154,7 +157,16 @@ def load_volume(session: Session, path: Path, *, record_check: bool = True) -> V
     from ingest.numbering import plan_numbering
     from ingest.statute import iter_claims
 
-    plan = plan_numbering(list(iter_claims(path)))
+    claims = list(iter_claims(path))
+    plan = plan_numbering(claims)
+    yielded: set[str] = set()
+    for claim in claims:
+        decision = plan.action_for(claim.seq)
+        if decision is None:
+            yielded.add(claim.primary)
+        elif decision.action != "drop" and decision.kept_as is not None:
+            yielded.add(decision.kept_as)
+    stale_dropped = False
 
     for item in iter_volume(path, plan):
         if isinstance(item, VolumeParse):
@@ -169,6 +181,9 @@ def load_volume(session: Session, path: Path, *, record_check: bool = True) -> V
             continue
         assert header is not None and report is not None
         law: LawRecord = item
+        if not stale_dropped:
+            report.laws_dropped_as_stale = _drop_stale_laws(session, law.stat_volume, yielded)
+            stale_dropped = True
         if law.identifier in seen_primaries:
             # The same act printed twice in the volume file (vol 12 repeats 19
             # private acts); the first printing is the one stored.
@@ -238,6 +253,23 @@ def load_volume(session: Session, path: Path, *, record_check: bool = True) -> V
     session.commit()
     report.seconds = round(time.monotonic() - started, 1)
     return report
+
+
+def _drop_stale_laws(session: Session, volume: int, kept: set[str]) -> list[str]:
+    """Delete the volume's stored laws the file no longer yields under the
+    same identifier (a congress `congress_in_volume` moved, ADR-0036), and
+    return their identifiers. A compilation linked to one is unlinked."""
+    stale = [
+        law
+        for law in session.scalars(select(Law).where(Law.source_collection == "STATUTE", Law.stat_volume == volume))
+        if law.identifier not in kept
+    ]
+    for law in stale:
+        session.execute(update(Comp).where(Comp.law_id == law.id).values(law_id=None))
+        session.execute(delete(StatPage).where(StatPage.law_id == law.id))
+        session.delete(law)
+    session.flush()
+    return sorted(law.identifier for law in stale)
 
 
 def _write_law(session: Session, law: LawRecord, now: datetime.datetime) -> WriteOutcome:

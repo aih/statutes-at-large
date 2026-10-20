@@ -47,6 +47,7 @@ from storage.identifiers import (
     ParsedIdentifier,
     act_title,
     congress_ordinal,
+    congress_term,
     congress_years,
     history_ref_label,
     law_label,
@@ -1603,8 +1604,6 @@ class PostgresRepository:
                 of(
                     select(
                         Law.congress,
-                        func.min(Law.enacted),
-                        func.max(Law.enacted),
                         func.count(Law.id),
                         func.count(case((Law.kind == "pl", 1))),
                         func.count(case((Law.kind == "pvtl", 1))),
@@ -1618,6 +1617,16 @@ class PostgresRepository:
                 )
             ).tuples()
         }
+        # The first and last approval date within the Congress's term; an OCR
+        # date (32 Stat. 1337 reads 1110-04-16) or a placeholder (0001-01-01)
+        # is left out.
+        enacted: dict[int, list[datetime.date]] = defaultdict(list)
+        for c, day in self._session.execute(
+            of(select(Law.congress, Law.enacted).where(Law.congress.is_not(None), Law.enacted.is_not(None)).distinct(), Law.congress)
+        ).tuples():
+            start, end = congress_term(c)
+            if start <= day <= end:
+                enacted[c].append(day)
         volumes: dict[int, set[int]] = defaultdict(set)
         for c, volume in self._session.execute(
             of(select(Law.congress, Law.stat_volume).where(Law.congress.is_not(None)).distinct(), Law.congress)
@@ -1682,7 +1691,9 @@ class PostgresRepository:
 
         summaries = []
         for c in wanted:
-            first, last, total, pl, pvtl, acts, public_acts, private_acts = laws.get(c, (None, None, 0, 0, 0, 0, 0, 0))
+            total, pl, pvtl, acts, public_acts, private_acts = laws.get(c, (0, 0, 0, 0, 0, 0))
+            days = enacted.get(c)
+            first, last = (min(days), max(days)) if days else (None, None)
             start_year, end_year = congress_years(c)
             cited_laws, citing_sections = cited.get(c, (0, 0))
             summaries.append(

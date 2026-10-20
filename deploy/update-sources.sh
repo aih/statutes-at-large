@@ -5,6 +5,7 @@
 #   bash deploy/update-sources.sh               # ask each source; load what changed
 #   bash deploy/update-sources.sh --check-only  # record the checks, fetch nothing, load nothing
 #   bash deploy/update-sources.sh --force       # reload whether or not anything changed
+#   bash deploy/update-sources.sh --current     # the current Congress and the one before only
 #
 # Steps, each logged with its exit status and time; a failed step is logged
 # and the run goes on, and the exit status is 1 when any step failed:
@@ -31,6 +32,10 @@
 # without --if-changed and classifications --force; the search step is
 # unchanged, since a mapping change is what decides a rebuild, not the mode.
 #
+# --current runs plaw poll, plaw pending and classifications for the current
+# Congress and the one before, reindex-search --since, the dump when rows were
+# written, and the status. It is the daily run between the weekly ones.
+#
 # flock on ${DATA_ROOT}/update.lock; the log is ${DATA_ROOT}/logs/update-<date>.log.
 # The API is read inside the container (python, no jq on the box), never
 # through the public hostname.
@@ -43,8 +48,9 @@ MODE="auto"
 case "${1:-}" in
     --check-only) MODE="check-only" ;;
     --force)      MODE="force" ;;
+    --current)    MODE="current" ;;
     "")           ;;
-    *) echo "usage: $0 [--check-only|--force]" >&2; exit 2 ;;
+    *) echo "usage: $0 [--check-only|--force|--current]" >&2; exit 2 ;;
 esac
 
 DATA_ROOT="$(env_value DATA_ROOT /var/lib/statutes)"
@@ -102,6 +108,15 @@ if check.get("checked_at"):
 else:
     t = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=7)
 print((t - datetime.timedelta(days=1)).date().isoformat())
+' 2>/dev/null
+}
+
+# The Congress sitting today (ingest.plaw_pending.current_congress).
+current_congress() {
+    "${COMPOSE[@]}" exec -T api python -c '
+import datetime
+from ingest.plaw_pending import current_congress
+print(current_congress(datetime.datetime.now(datetime.timezone.utc).date()))
 ' 2>/dev/null
 }
 
@@ -180,6 +195,21 @@ case "$MODE" in
         step citations "${INGEST[@]}" citations --from-hub --report data/verification
         step classifications "${INGEST[@]}" classifications --force --report data/verification
         step reindex-search reindex_search_step
+        ;;
+    current)
+        CURRENT="$(current_congress)"
+        if [ -z "$CURRENT" ]; then
+            echo "could not compute the current Congress; nothing run"
+            FAILED=1
+        else
+            PREVIOUS=$((CURRENT - 1))
+            echo "congresses ${PREVIOUS} and ${CURRENT}"
+            step plaw "${INGEST[@]}" plaw poll --congress "$PREVIOUS" --congress "$CURRENT" --report data/verification
+            step plaw-pending "${INGEST[@]}" plaw pending --report data/verification
+            step classifications-previous "${INGEST[@]}" classifications --congress "$PREVIOUS"
+            step classifications "${INGEST[@]}" classifications --congress "$CURRENT" --report data/verification
+            step reindex-search "${INGEST[@]}" reindex-search --since "$SEARCH_SINCE"
+        fi
         ;;
     auto)
         step plaw "${INGEST[@]}" plaw poll --report data/verification

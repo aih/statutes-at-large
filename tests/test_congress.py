@@ -16,9 +16,9 @@ from pathlib import Path
 
 import pytest
 
-from ingest.identifiers import congress_of_act
+from ingest.identifiers import congress_in_volume, congress_of_act, volume_congresses
 from storage import congress_ordinal, congress_years
-from storage.identifiers import congress_of_date
+from storage.identifiers import congress_of_date, congress_term
 from tests.conftest import FIXTURES
 
 SITE = "https://statutes.linkedlegislation.org"
@@ -73,6 +73,53 @@ def test_an_acts_congress_is_the_one_sitting_on_its_approval_date():
     assert congress_of_act(16, datetime.date(1843, 3, 4)) == 28
 
 
+@pytest.mark.parametrize(
+    ("volume", "congresses"),
+    [(1, set(range(1, 6))), (6, set(range(1, 29))), (7, None), (13, {38}), (26, {51}), (32, {57}), (49, {74}),
+     (50, {75}), (52, {75}), (54, {76}), (70, {84}), (71, {85}), (77, {87, 88}), (89, {93, 94}), (123, {111}),
+     (137, {118}), (140, {119})],
+)
+def test_volume_congresses(volume, congresses):
+    assert volume_congresses(volume) == (frozenset(congresses) if congresses is not None else None)
+
+
+@pytest.mark.parametrize(
+    ("meta", "enacted", "volume", "act", "congress"),
+    [
+        # Vol 26's chapter 784, tagged 52, approved in the 51st.
+        (52, datetime.date(1890, 8, 15), 26, True, 51),
+        # Vol 6 tags an act of 1836 with the 16th.
+        (16, datetime.date(1836, 1, 19), 6, True, 24),
+        # OCR years: 34 Stat. 2683 reads 1807, 32 Stat. 1031 reads 1901 for 1903.
+        (59, datetime.date(1807, 2, 28), 34, True, 59),
+        (57, datetime.date(1901, 3, 3), 32, True, 57),
+        # An act of the 76th approved after its Congress ended.
+        (76, datetime.date(1941, 1, 7), 54, True, 76),
+        # 37 Stat. 739, Public No. 427 of the 62nd, tagged 63.
+        (63, datetime.date(1913, 3, 4), 37, False, 62),
+        # 44 Stat. 1762, Private No. 328 of the 69th, tagged 72.
+        (72, datetime.date(1926, 12, 16), 44, False, 69),
+        # 123 Stat. 2085, Public Law 111-78, tagged 110.
+        (110, datetime.date(2009, 10, 19), 123, False, 111),
+        # Public Law 93-650 in vol 89; an OCR date leaves a numbered law alone.
+        (93, datetime.date(1975, 1, 4), 89, False, 93),
+        (90, datetime.date(1958, 5, 17), 82, False, 90),
+        # Neither the tag nor the date is the volume's, and the volume has two.
+        (91, datetime.date(1970, 12, 25), 89, False, 91),
+        # The treaty volumes have no table.
+        (52, datetime.date(1890, 8, 15), 7, True, 51),
+    ],
+)
+def test_congress_in_volume(meta, enacted, volume, act, congress):
+    assert congress_in_volume(meta, enacted, volume, act=act) == congress
+
+
+def test_congress_term():
+    assert congress_term(1) == (datetime.date(1789, 3, 4), datetime.date(1791, 3, 4))
+    assert congress_term(73) == (datetime.date(1933, 3, 4), datetime.date(1935, 2, 3))
+    assert congress_term(110) == (datetime.date(2007, 1, 3), datetime.date(2009, 2, 3))
+
+
 # ------------------------------------------------------------ the loaders
 
 
@@ -86,6 +133,29 @@ def test_a_chapter_act_takes_its_congress_from_its_date_and_keeps_its_side():
     ]
     assert laws[0].warnings == []
     assert laws[1].warnings == ["/us/act/1890-08-15/ch784 congress taken from the approval date, not meta/congress"]
+
+
+def test_a_volume_reload_drops_the_laws_it_no_longer_yields():
+    """A law stored from the volume under an identifier the file no longer
+    yields (a congress since moved) is deleted on the next load."""
+    from sqlalchemy import select
+    from sqlalchemy.orm import sessionmaker
+
+    from db.base import Base, make_engine
+    from db.models import Law
+    from ingest.load import load_volume
+
+    engine = make_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    factory = sessionmaker(bind=engine, autoflush=False, future=True)
+    with factory() as session:
+        load_volume(session, FIXTURES / "statute-26-slice.xml")
+        law = session.scalars(select(Law).where(Law.identifier == "/us/act/1890-08-15/ch784")).one()
+        law.identifier = "/us/act/1890-08-15/ch999"
+        session.commit()
+        report = load_volume(session, FIXTURES / "statute-26-slice.xml")
+        assert report.laws_dropped_as_stale == ["/us/act/1890-08-15/ch999"]
+        assert sorted(session.scalars(select(Law.identifier))) == ["/us/act/1890-07-02/ch647", "/us/act/1890-08-15/ch784"]
 
 
 def test_every_loaded_law_records_its_side(db):
@@ -111,6 +181,22 @@ def test_the_overview_lists_every_congress_to_the_latest(repo):
     by = {s.congress: s for s in overview.congresses}
     empty = by[2]
     assert (empty.total_laws, empty.volumes, empty.first_enacted, empty.compilations_count) == (0, (), None, 0)
+
+
+def test_an_approval_date_outside_the_term_is_left_out_of_the_range(repo, db):
+    from sqlalchemy import select
+
+    from db.models import Law
+
+    before = {s.congress: s for s in repo.congresses_overview().congresses}[81]
+    law = db.scalars(select(Law).where(Law.congress == 81, Law.kind == "pl").order_by(Law.id)).first()
+    law.enacted = datetime.date(1, 1, 1)
+    db.flush()
+    after = {s.congress: s for s in repo.congresses_overview().congresses}[81]
+    assert after.first_enacted is not None and after.first_enacted >= datetime.date(1949, 1, 3)
+    assert after.last_enacted == before.last_enacted
+    assert after.total_laws == before.total_laws
+    db.rollback()
 
 
 def test_the_overview_counts_each_congress(repo):

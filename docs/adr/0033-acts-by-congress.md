@@ -1,6 +1,6 @@
 # ADR-0033: Acts by Congress
 
-Date: 2026-10-19. Status: accepted.
+Date: 2026-10-19. Status: accepted; decision 2 amended by ADR-0036.
 
 ## Context
 

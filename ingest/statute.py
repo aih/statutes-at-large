@@ -31,11 +31,12 @@ from lxml import etree
 from ingest.identifiers import (
     HIERARCHY_LEVELS,
     SUBSECTION_LEVELS,
-    congress_of_act,
+    congress_in_volume,
     designator,
     identify_law,
     segment,
 )
+from storage.identifiers import congress_of_date
 from uslmtext import USLM_NS, content_hash, local_name, page_label, plain_text, serialize
 
 if False:  # imported for type names only
@@ -183,10 +184,10 @@ def iter_claims(path: Path) -> Iterator["Claim"]:
         try:
             for plaw in _plaws(element):
                 seq += 1
-                found = _identity_of(plaw)
+                found = _identity_of(plaw, volume)
                 if found is None:
                     continue
-                identity, meta = found
+                identity, meta, _congress = found
                 citation, _first, _last = _pages_of(meta, plaw, volume)
                 title = meta.findtext(f"{DC}title")
                 yield Claim(
@@ -294,8 +295,10 @@ def _skipped_component(component: etree._Element, seq: int) -> SkippedComponent:
     return SkippedComponent(seq, root_name, doc_type, doc_number, reason)
 
 
-def _identity_of(plaw: etree._Element):
-    """(LawIdentity, meta) for a `pLaw` element, else None."""
+def _identity_of(plaw: etree._Element, volume: int):
+    """(LawIdentity, meta, congress) for a `pLaw` element of `volume`, else
+    None. `congress` is `congress_in_volume`'s; a numbered law's identifier
+    is built with it."""
     meta = plaw.find(f"{N}meta")
     if meta is None:
         return None
@@ -321,19 +324,25 @@ def _identity_of(plaw: etree._Element):
         match = _PREFACE_CHAPTER.search(plain_text(preface, skip=frozenset({"page"})))
         if match:
             preface_chapter = int(match.group(1))
-    identity = identify_law(
-        congress=congress,
-        doc_type=doc_type,
-        doc_number=doc_number,
-        public_private=public_private,
-        enacted=enacted,
-        long_title_text=long_title_text,
-        long_title_hrefs=hrefs,
-        preface_chapter=preface_chapter,
-    )
+    def identify(congress: int | None):
+        return identify_law(
+            congress=congress,
+            doc_type=doc_type,
+            doc_number=doc_number,
+            public_private=public_private,
+            enacted=enacted,
+            long_title_text=long_title_text,
+            long_title_hrefs=hrefs,
+            preface_chapter=preface_chapter,
+        )
+
+    identity = identify(congress)
     if identity is None:
         return None
-    return identity, meta
+    placed = congress_in_volume(congress, enacted, volume, act=identity.kind == "act")
+    if placed != congress and identity.kind != "act":
+        identity = identify(placed) or identity
+    return identity, meta, placed
 
 
 def _parse_law(
@@ -343,10 +352,10 @@ def _parse_law(
     meta = root.find(f"{N}meta")
     doc_type = meta.findtext(f"{DC}type") if meta is not None else None
     doc_number = meta.findtext(f"{N}docNumber") if meta is not None else None
-    found = _identity_of(root)
+    found = _identity_of(root, volume)
     if found is None:
         return None, 0, SkippedComponent(seq, "pLaw", doc_type, doc_number, "unidentified law")
-    identity, meta = found
+    identity, meta, placed = found
     congress = _int(meta.findtext(f"{N}congress"))
     public_private = (meta.findtext(f"{N}publicPrivate") or "").strip().lower()
     enacted = _date(meta.findtext(f"{N}approvedDate"))
@@ -365,11 +374,10 @@ def _parse_law(
 
     component = root
     warnings: list[str] = []
-    if identity.kind == "act":
-        dated = congress_of_act(congress, enacted)
-        if dated != congress:
-            warnings.append(f"{identity.primary} congress taken from the approval date, not meta/congress")
-            congress = dated
+    if placed != congress:
+        source = "the approval date" if enacted is not None and placed == congress_of_date(enacted) else f"volume {volume}"
+        warnings.append(f"{identity.primary} congress taken from {source}, not meta/congress")
+        congress = placed
     citation, first_page, last_page = _pages_of(meta, component, volume)
     official_title = None
     if long_title is not None:
