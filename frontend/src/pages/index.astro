@@ -8,7 +8,7 @@ import Base from "../layouts/Base.astro";
 import { fetchStatus } from "../lib/api";
 import { REVALIDATE } from "../lib/cache";
 import { clientAddressOf } from "../lib/params";
-import { appHref, congressesHref, gotoHref, searchHref } from "../lib/url";
+import { appHref, compsHref, congressesHref, gotoHref, searchHref } from "../lib/url";
 
 /** `params.CITE_FORMS`, the same six strings. */
 const CITE_FORMS = [
@@ -29,6 +29,7 @@ const EXAMPLES: [string, string][] = [
   [appHref("/us/stat/110/4196"), "110 Stat. 4196, a page printed in the middle of a section"],
   [searchHref("wild horses"), "wild horses, a keyword search"],
   [congressesHref(), "Acts by Congress, from the 1st Congress on"],
+  [compsHref(), "Statute Compilations, A to Z, filtered by title"],
 ];
 
 const status = await fetchStatus({ clientAddress: clientAddressOf(Astro) });
@@ -107,6 +108,8 @@ const number = (value: number) => value.toLocaleString("en-US");
         </dd>
         <dt>Statute Compilations</dt>
         <dd>
+          <a href={compsHref()}>Statute Compilations by title</a>
+          {": "}
           {comps ? `${number(comps.packages_loaded)} packages` : "none"}
           {comps && compsSeen !== null && (
             <span>

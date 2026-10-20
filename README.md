@@ -91,6 +91,8 @@ Stage 2 (compiled view):
 | `/us/sComp/{congress}/{num}[/{path}]` | a Statute Compilation unit in GPO's identifier form (`/tI/ch1./s1`); `?through=118-67` selects a stored version. `text` is empty on the compilation and on a hierarchy level. `?format=xml` serves a section or a provision as USLM; the compilation and a hierarchy level answer the same JSON with `xml_url` null (ADR-0019). A prefix whose act has one file per title and no whole-act file answers with the files gathered in title order: the act's name, every file's top-level units as `children`, the packages as `files` (ADR-0007, decision 8) |
 | `/us/pl/…?view=compiled` (also `/us/pvtl`, `/us/act`) | the compiled counterpart of the enacted unit, matched by section number; 404 with `alternatives` when there is none |
 | `GET /api/v1/comps?law=/us/pl/83/703&q=atomic` | compilations for a law, or by title search |
+| `GET /api/v1/comps/titles` | every compilation file: package, prefix, display title, title, `partial_of`, current-through law, and the identifier it is read at |
+| `GET /api/v1/comps/{c}/{n}/toc?through=` | every unit under `/us/sComp/{c}/{n}` in reading order, gathered in title order for an act with no whole-act file (ADR-0034) |
 | `GET /api/v1/comps/{fileId}` | a compilation's summary, version list, and table of contents |
 
 Every unit response carries `alternatives`: the compiled counterpart with its
@@ -264,7 +266,8 @@ and bottom, `/` focuses the citation box, `?` opens the shortcut list
 | `/app/goto?q=` | the box's target: 307 to the unit on a hit, 307 to the US Code site for a US Code citation, 404 with the note for a citation naming nothing loaded, 307 to `/app/search?q=` for text that is not a citation |
 | `/app/us/pl/{c}/{n}`, `/us/pvtl/…`, `/us/act/…` | the law: titles, dates, citation, aliases, sources, table of contents, the "cited by" panel |
 | `/app/us/pl/{c}/{n}/{path}` (and the other kinds) | a hierarchy node's contents, or a section's text rendered from `?format=xml` with a provision marked, the note, the currency line, alternatives, Stat. pages with govinfo links, breadcrumbs, previous and next, cross references resolved through `/labels`, the "cited by" panel, provenance |
-| `/app/us/sComp/{c}/{n}[/{path}]` | the compiled view with the version picker (`?through=`) and the enacted counterpart |
+| `/app/us/sComp/{c}/{n}[/{path}]` | the compiled view with the version picker (`?through=`) and the enacted counterpart; the rail lists the whole compilation with the current branch open, the Contents disclosure is open and lists the whole compilation on its root and the node's subtree below it, and a section has previous and next (ADR-0034) |
+| `/app/comps[?q=]` | every compilation file A to Z with a letter bar; `q=` and the box filter on the title, prefix and package (ADR-0034) |
 | `/app/us/stat/{vol}/{page}` | the page label and volume, numeric neighbours, the text the law prints on the page (the slice between page markers from `?format=xml`, rendered through the USLM renderer), "Begins inside Sec. N — Read section N in full" for each unit on the page, and every law that starts on or spans the page (ADR-0020) |
 | `/app/search?q=` | keyword results over `/api/v1/search`: a box per act the words name, with its compilation, US Code section and enacted law (ADR-0032); law and unit linked, highlighted snippets, facets that edit the query, a sort and view control, a pager, the note; zero results links the syntax page and the six citation forms (ADR-0023) |
 | `/app/congress` | every Congress: the totals, a chart of laws per Congress (public, private, unmarked), and a table of each Congress's counts and classification tables (ADR-0033) |

@@ -24,6 +24,7 @@ import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
 import type { TocNode } from "../lib/toc";
 import type { Link } from "../lib/types";
+import type { Query } from "../lib/url";
 import "../styles/site.scss";
 
 interface Props {
@@ -40,6 +41,10 @@ interface Props {
   sections?: Link[];
   /** The rail's "In this law" list: the law's nested contents, or null. */
   toc?: TocNode[] | null;
+  /** Added to every link in the rail's contents list (`through=`). */
+  tocQuery?: Query;
+  /** The rail's contents title; "In this law" unless given. */
+  tocTitle?: string;
   /** The identifier the rail marks `aria-current` and opens the branch of. */
   currentIdentifier?: string | null;
   /** The previous and next section, and the nearest ancestor (or the law),
@@ -57,6 +62,8 @@ const {
   text = false,
   sections = [],
   toc = null,
+  tocQuery,
+  tocTitle,
   currentIdentifier = null,
   previous = null,
   next = null,
@@ -91,7 +98,7 @@ const layoutClass = hasRail ? "reader-layout" : "reader-layout reader-layout--si
           <Breadcrumbs crumbs={crumbs} current={current} />
           <slot />
         </div>
-        {hasRail && <Rail sections={sections} toc={toc} current={currentIdentifier} />}
+        {hasRail && <Rail sections={sections} toc={toc} current={currentIdentifier} query={tocQuery} tocTitle={tocTitle} />}
       </div>
     </main>
     <EndLinks />

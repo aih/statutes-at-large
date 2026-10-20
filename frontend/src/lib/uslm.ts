@@ -7,7 +7,9 @@
  * `id` on the first element that carries it; unknown elements become `div`;
  * `ref` is resolved through `refs.ts`; `sidenote` is an `aside`; `page` is an
  * inline marker linked to the govinfo page; the element whose identifier is
- * `target` is marked `target` and its ancestors `target-path`.
+ * `target` is marked `target` and its ancestors `target-path`. A COMPS
+ * table (GPO's CALS markup in the `comps-dtd` namespace, inside `foreign`)
+ * is rendered as an HTML table by `renderCals`.
  */
 
 import { DOMParser } from "@xmldom/xmldom";
@@ -28,6 +30,7 @@ export interface UslmNode {
 export interface UslmElement extends UslmNode {
   tagName: string;
   localName: string | null;
+  namespaceURI?: string | null;
   getAttribute(name: string): string | null;
 }
 
@@ -246,6 +249,7 @@ function hasBlockDescendant(el: UslmElement): boolean {
 }
 
 function renderElement(el: UslmElement, state: State, depth: number): string {
+  if (el.namespaceURI === COMPS_DTD) return renderCals(el, state, depth);
   const tag = tagOf(el);
   if (tag.includes(":") || SKIP_TAGS.has(tag)) return "";
 
@@ -287,6 +291,110 @@ function renderTable(el: UslmElement, state: State, depth: number): string {
   const table = wrapTag("table", el, state, depth, ["uslm-table"]);
   const label = captionText(el) || "Table";
   return `<div class="uslm-tablewrap" role="region" tabindex="0" aria-label="${escapeAttr(label)}">${table}</div>`;
+}
+
+/** The namespace of the COMPS files' CALS tables and their inline formatting. */
+const COMPS_DTD = "http://schemas.gpo.gov/xml/comps-dtd";
+
+const CALS_INLINE: Record<string, string> = {
+  italic: "i",
+  bold: "b",
+  superscript: "sup",
+  subscript: "sub",
+  quote: "q",
+};
+
+/** A `comps-dtd` element. `table` is a scrolling region holding one HTML
+ * table per `tgroup`, captioned by `ttitle`; `row` is `tr`; `entry` is `th`
+ * in `thead` and `td` elsewhere, with `colspan` from `namest` and `nameend`;
+ * the last entry of a row with fewer cells than `tgroup/@cols` spans the rest.
+ * `tfoot` follows `tbody`. Inline formatting maps to `i`, `b`, `sup`, `sub`
+ * and `q`; anything else is a `span`. */
+function renderCals(el: UslmElement, state: State, depth: number): string {
+  const tag = tagOf(el);
+  if (tag === "table") {
+    const children = elementChildren(el);
+    const title = children.find((child) => tagOf(child) === "ttitle");
+    const label = title ? normalizeSpace(inlineText(title)) : "";
+    const caption = title ? `<caption class="uslm-caption">${renderCalsChildren(title, state, depth)}</caption>` : "";
+    const groups = children.filter((child) => tagOf(child) === "tgroup");
+    const tables = groups.map((group, index) => renderTgroup(group, state, depth, index === 0 ? caption : ""));
+    const region = `role="region" tabindex="0" aria-label="${escapeAttr(label || "Table")}"`;
+    return `<div class="uslm-tablewrap" ${region}>${tables.join("") || caption}</div>`;
+  }
+  if (tag in CALS_INLINE) return `<${CALS_INLINE[tag]}>${renderCalsChildren(el, state, depth)}</${CALS_INLINE[tag]}>`;
+  return `<span class="uslm-${escapeAttr(tag)}">${renderCalsChildren(el, state, depth)}</span>`;
+}
+
+function renderTgroup(group: UslmElement, state: State, depth: number, caption: string): string {
+  const columns = new Map<string, number>();
+  const children = elementChildren(group);
+  for (const spec of children.filter((child) => tagOf(child) === "colspec")) {
+    const name = spec.getAttribute("colname");
+    if (name) columns.set(name, columns.size + 1);
+  }
+  const position = (name: string | null): number | null => {
+    if (!name) return null;
+    const known = columns.get(name);
+    if (known !== undefined) return known;
+    const digits = /^col(\d+)$/u.exec(name);
+    return digits ? Number(digits[1]) : null;
+  };
+  const width = Number(group.getAttribute("cols")) || columns.size;
+  const part = (name: string, htmlTag: string, cell: "th" | "td"): string =>
+    children
+      .filter((child) => tagOf(child) === name)
+      .map((section) => {
+        const rows = elementChildren(section)
+          .filter((row) => tagOf(row) === "row")
+          .map((row) => {
+            const entries = elementChildren(row).filter((entry) => tagOf(entry) === "entry");
+            const spans = entries.map((entry) => {
+              const start = position(entry.getAttribute("namest"));
+              const end = position(entry.getAttribute("nameend"));
+              return start !== null && end !== null && end > start ? end - start + 1 : 1;
+            });
+            const short = width - spans.reduce((sum, span) => sum + span, 0);
+            if (short > 0 && spans.length > 0) spans[spans.length - 1] += short;
+            const cells = entries
+              .map((entry, index) => {
+                const attrs = [`class="uslm-${cell}"`];
+                if (spans[index] > 1) attrs.push(`colspan="${spans[index]}"`);
+                if (cell === "th") attrs.push('scope="col"');
+                const align = entry.getAttribute("align");
+                if (align && /^(left|right|center)$/u.test(align)) attrs.push(`style="text-align: ${align}"`);
+                return `<${cell} ${attrs.join(" ")}>${renderCalsChildren(entry, state, depth).trim()}</${cell}>`;
+              });
+            return `<tr class="uslm-tr">${cells.join("")}</tr>`;
+          });
+        return `<${htmlTag} class="uslm-${name}">${rows.join("")}</${htmlTag}>`;
+      })
+      .join("");
+  const body = part("thead", "thead", "th") + part("tbody", "tbody", "td") + part("tfoot", "tfoot", "td");
+  return `<table class="uslm-table uslm-cals">${caption}${body}</table>`;
+}
+
+function renderCalsChildren(el: UslmElement, state: State, depth: number): string {
+  let out = "";
+  for (let i = 0; i < el.childNodes.length; i++) {
+    const node = el.childNodes[i];
+    if (node.nodeType === ELEMENT_NODE) {
+      const child = node as UslmElement;
+      out += child.namespaceURI === COMPS_DTD ? renderCals(child, state, depth) : renderElement(child, state, depth);
+    } else if (node.nodeType === TEXT_NODE) {
+      out += escapeText(node.nodeValue ?? "");
+    }
+  }
+  return out;
+}
+
+function elementChildren(el: UslmElement): UslmElement[] {
+  const out: UslmElement[] = [];
+  for (let i = 0; i < el.childNodes.length; i++) {
+    const node = el.childNodes[i];
+    if (node.nodeType === ELEMENT_NODE) out.push(node as UslmElement);
+  }
+  return out;
 }
 
 function captionText(table: UslmElement): string {

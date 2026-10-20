@@ -1100,3 +1100,31 @@ for the pending laws, loaded on SQLite only; the reader at `/app/congress` and f
 horizontal scroll at 375 pixels. `ingest statute` over the downloaded volume
 26 into Postgres: the same counts, 450 congresses dated. Not run against the
 box's database.
+
+## 2026-10-20 — a compilation's whole contents, the compilations index, COMPS tables
+
+Asked: show the whole compilation outline on compiled pages, with the current
+title open and the landing page's Contents open; a link from the landing page
+to an alphabetical, filterable list of compilations; fix the table on
+`/app/us/sComp/80/758/tII/s205?through=119-60`.
+
+Found: the compiled view read the unit's own `children` (none on a section,
+direct children elsewhere), and no endpoint returned a compilation's units at
+every level. The table was GPO's CALS markup in the `comps-dtd` namespace;
+`row` and `entry` rendered as `div` inside an HTML `table`.
+
+Done: `GET /api/v1/comps/{c}/{n}/toc`, `GET /api/v1/comps/titles`, the
+compiled view's rail, Contents, previous and next from the table of contents,
+`/app/comps`, `renderCals` (ADR-0034). The `/app/comps` inline script is
+4,641 bytes; its ceiling is 5,000.
+
+Verified: `uv run pytest` 691 passed, 1 skipped; vitest 127 passed; `astro
+check` 0 errors. Against the dev servers with COMPS-2989 and COMPS-18181
+loaded: `/app/us/sComp/119/24/s2` lists sections 1 and 2 in the rail with
+section 1 as previous; `/app/us/sComp/80/758/tII/s205?through=119-60` lists
+the six titles with title II open and links carrying `through=119-60`, and
+its allotment table renders in two columns with the footnote spanning both;
+`/app/comps` filters as typed. Playwright over the dev servers: 81 passed, 7
+failed (six search tests, because the dev stack has no search cluster, and
+the one-section law test, which expects 118-3 to be volume-derived and fails
+on `main` against the dev database too).

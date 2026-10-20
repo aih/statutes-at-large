@@ -13,6 +13,8 @@
 import type {
   Cite,
   CitedBy,
+  CompTitles,
+  CompToc,
   CompUnit,
   CongressDetail,
   CongressesOverview,
@@ -120,6 +122,25 @@ export async function fetchCompUnitXml(
 ): Promise<string> {
   const query: Query = { format: "xml", through };
   return getXml(apiHref(identifier, query), options);
+}
+
+/** `GET /api/v1/comps/{c}/{n}/toc[?through=]` for the compilation `identifier`
+ * names: every unit in reading order. Null when the identifier is not under
+ * a `/us/sComp/{c}/{n}` prefix. */
+export async function fetchCompToc(
+  identifier: string,
+  through?: string | null,
+  options: CallOptions = {},
+): Promise<CompToc | null> {
+  const prefix = /^\/us\/sComp\/(\d+)\/(\d+)(?:\/|$)/u.exec(identifier);
+  if (!prefix) return null;
+  const path = `${API}/comps/${prefix[1]}/${prefix[2]}/toc`;
+  return (await getJson<CompToc>(through ? `${path}?through=${encodeURIComponent(through)}` : path, options)).body;
+}
+
+/** `GET /api/v1/comps/titles`: every compilation file by title. */
+export async function fetchCompTitles(options: CallOptions = {}): Promise<CompTitles> {
+  return (await getJson<CompTitles>(`${API}/comps/titles`, options)).body;
 }
 
 /** `GET /api/v1/laws/{c}/{n}`. */
