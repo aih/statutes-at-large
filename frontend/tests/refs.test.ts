@@ -59,6 +59,7 @@ const labels: Labels = {
   "/us/pvtl/99/1": { exists: false },
   "/us/act/1916-08-25/ch408": { exists: false },
   "/us/stat/110/4196": { exists: false },
+  "/us/stat/68A/3": { exists: false },
 };
 
 describe("citedIdentifiers", () => {
@@ -137,6 +138,13 @@ describe("resolveRef", () => {
   it("a Stat. page that does not exist goes to govinfo", () => {
     expect(resolveRef("/us/stat/110/4196", labels)).toEqual({
       href: "https://www.govinfo.gov/link/statute/110/4196",
+      title: null,
+    });
+  });
+
+  it("a page of volume 68A or 70A goes to govinfo's page for the volume", () => {
+    expect(resolveRef("/us/stat/68A/3", labels)).toEqual({
+      href: "https://www.govinfo.gov/app/details/STATUTE-68A",
       title: null,
     });
   });

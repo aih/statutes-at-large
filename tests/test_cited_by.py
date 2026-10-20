@@ -146,6 +146,10 @@ def test_the_note_wording(client):
     page = _get(client, "/us/stat/92/3479").json()
     assert "cite page 3479 of volume 92 of the Statutes at Large: 1 section" in page["note"]
     assert page["sections"][0]["identifier"] == "/us/usc/t16/s45f"
+    lettered = _get(client, "/us/stat/68A/483").json()
+    assert "cite page 483 of volume 68A of the Statutes at Large: 2 sections" in lettered["note"]
+    assert [s["identifier"] for s in lettered["sections"]] == ["/us/usc/t26/s4081", "/us/usc/t26/s4083"]
+    assert _get(client, "/us/stat/68a/483").json()["total"] == 2
 
 
 # ---------------------------------------------------------------- caching

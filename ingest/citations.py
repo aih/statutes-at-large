@@ -39,7 +39,7 @@ from sqlalchemy import delete, insert, select
 from sqlalchemy.orm import Session
 
 from db.models import Citation, LawAlias, SourceCheck
-from storage.identifiers import parse_identifier, parse_stat_page
+from storage.identifiers import parse_identifier, parse_lettered_page, parse_stat_page
 from uslmtext import local_name
 
 COLLECTION = "USCODE"
@@ -120,8 +120,8 @@ class CitationLoadReport:
     """`/us/act/{date}/s{n}` with no chapter: indexed under the date, matched
     by no alias."""
     rows_unparsed: int = 0
-    """Hrefs with a stored prefix that could not be parsed (`/us/stat/70A/641`:
-    the lettered volumes 68A and 70A); stored verbatim with no law or section."""
+    """Hrefs with a stored prefix that could not be parsed; stored verbatim
+    with no law or section."""
     unparsed_samples: list[str] = field(default_factory=list)
     rows_with_date: int = 0
     distinct_targets: int = 0
@@ -170,7 +170,13 @@ def _law_of(href: str) -> RefRecord | None:
         page = parse_stat_page(href)
         record = RefRecord(context="", note_topic=None, seq=0, to_identifier=href, to_kind="stat")
         if page is None:
-            record.parsed = False
+            lettered = parse_lettered_page(href)
+            if lettered is None:
+                record.parsed = False
+                return record
+            # `/us/stat/70A/641`: the page, with no volume number; `cited_by`
+            # matches these by `to_identifier`.
+            record.to_identifier, record.to_page = lettered.identifier, lettered.page
             return record
         record.to_volume, record.to_page = page.volume, page.page
         return record

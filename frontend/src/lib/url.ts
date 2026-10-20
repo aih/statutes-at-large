@@ -79,6 +79,11 @@ export function govinfoPlaw(congress: number | string, number: number | string):
   return `https://www.govinfo.gov/link/plaw/${congress}/public/${number}`;
 }
 
+/** govinfo's page for volume 68A or 70A, which its link service does not answer. */
+export function govinfoLetteredVolume(volume: string): string {
+  return `https://www.govinfo.gov/app/details/STATUTE-${volume.toUpperCase()}`;
+}
+
 /** govinfo's link service for a Statutes at Large page. */
 export function govinfoStatute(volume: number | string, page: number | string): string {
   return `https://www.govinfo.gov/link/statute/${volume}/${page}`;
@@ -132,6 +137,13 @@ export function citedByApiHref(identifier: string, limit: number, offset = 0): s
 }
 
 const STAT_PAGE = /^\/us\/stat\/(\d+)\/([^/?#]+)/u;
+const LETTERED_PAGE = /^\/us\/stat\/(68A|70A)\/[^/?#]+/iu;
+
+/** `/us/stat/68A/3` → `68A`, or null. */
+export function letteredVolumeOf(identifier: string): string | null {
+  const match = LETTERED_PAGE.exec(identifier);
+  return match ? match[1].toUpperCase() : null;
+}
 
 /** `/us/stat/64/564` → `{ volume: "64", page: "564" }`, or null. */
 export function parseStatPage(identifier: string): { volume: string; page: string } | null {

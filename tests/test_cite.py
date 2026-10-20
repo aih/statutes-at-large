@@ -128,6 +128,22 @@ def test_a_stat_page_in_a_volume_not_loaded(client):
     assert body["note"] == "110 Stat. 4196 is /us/stat/110/4196; no loaded law prints on that page."
 
 
+def test_a_page_of_a_lettered_volume_names_the_volume(client):
+    response = client.get(CITE, params={"q": "68A Stat. 3"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["exists"] is False
+    assert body["identifier"] == "/us/stat/68A/3"
+    assert body["note"] == "68A Stat. 3 is /us/stat/68A/3; no loaded law prints on that page."
+    assert body["message"] == (
+        "Volume 68A of the Statutes at Large prints the Internal Revenue Code of 1954 (Act of August 16, 1954, "
+        "ch. 736). It is not loaded here. GovInfo has the volume at https://www.govinfo.gov/app/details/STATUTE-68A."
+    )
+    act = client.get(CITE, params={"q": "Aug. 10, 1956, ch. 1041, § 1, 70A Stat. 1"}).json()
+    assert act["exists"] is False and act["stat_page"] == "/us/stat/70A/1"
+    assert act["message"].startswith("Volume 70A of the Statutes at Large prints titles 10 and 32")
+
+
 def test_a_chapter_with_its_page_resolves_to_the_law_on_the_page(client):
     body = client.get(CITE, params={"q": "ch. 823, 64 Stat. 563"}).json()
     assert body["exists"] is True

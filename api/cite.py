@@ -30,6 +30,7 @@ from params import (
     cite_note,
     cite_pending,
     if_none_match,
+    lettered_volume_note,
     origins,
     public_cache,
     rate_limit,
@@ -77,6 +78,8 @@ def _resolve_unit(
     found = repository.labels([identifier]).get(identifier)
     if found is None:
         pending, message = _pending(repository, parsed)
+        if message is None and parsed.lettered_volume is not None:
+            message = lettered_volume_note(parsed.lettered_volume)
         return CiteOut.of(
             parsed, query, identifier=identifier, section_identifier=section_identifier, kind=kind, label=label,
             exists=False, note=cite_note(label=label, identifier=identifier, kind=kind, exists=False),
@@ -130,6 +133,12 @@ def _pending(repository: Repository, parsed: ParsedCitation) -> tuple[PendingLaw
 
 
 def _resolve_page(repository: Repository, parsed: ParsedCitation, query: str) -> CiteOut:
+    if parsed.lettered_volume is not None:
+        return CiteOut.of(
+            parsed, query, exists=False,
+            note=cite_note(label=parsed.label, identifier=parsed.identifier, kind="stat", exists=False),
+            message=lettered_volume_note(parsed.lettered_volume),
+        )
     assert parsed.volume is not None and parsed.page is not None
     page = repository.stat_page(parsed.volume, parsed.page)
     if page is None:
@@ -221,7 +230,8 @@ def cite(
     loaded. A law from 1901 to 1957 cited by date and chapter resolves through
     its `/us/act/` alias; a Stat. page resolves to `/us/stat/{vol}/{page}`; a
     chapter cited with its page resolves to the law on that page with that
-    chapter. A US Code citation answers `kind: "usc"` with the US Code site's
+    chapter. A page of volume 68A or 70A answers `exists: false` with a
+    `message` that names the volume. A US Code citation answers `kind: "usc"` with the US Code site's
     URL and `exists: null`. Text that is not a citation is a 422 whose detail
     names the accepted forms; a citation naming nothing loaded is `exists:
     false`."""

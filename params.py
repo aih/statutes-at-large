@@ -549,6 +549,20 @@ def cite_pending(*, label: str, bill: str, url: str) -> str:
     )
 
 
+_LETTERED_VOLUMES = {
+    "68A": "the Internal Revenue Code of 1954 (Act of August 16, 1954, ch. 736)",
+    "70A": "titles 10 and 32 of the United States Code as enacted by the Act of August 10, 1956, ch. 1041",
+}
+
+
+def lettered_volume_note(volume: str) -> str:
+    """A page of volume 68A or 70A: what the volume holds and where to read it."""
+    return (
+        f"Volume {volume} of the Statutes at Large prints {_LETTERED_VOLUMES[volume]}. It is not loaded "
+        f"here. GovInfo has the volume at https://www.govinfo.gov/app/details/STATUTE-{volume}."
+    )
+
+
 def cite_chapter_not_on_page(*, chapter: int, page_identifier: str) -> str:
     """A chapter cited with a Stat. page, when the page is loaded and no law
     on it has that chapter."""

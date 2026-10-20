@@ -26,7 +26,7 @@ from params import (
     public_cache,
     rate_limit,
 )
-from storage import CitedBy, law_label_of_identifier, parse_identifier, parse_stat_page
+from storage import CitedBy, law_label_of_identifier, parse_identifier, parse_lettered_page, parse_stat_page
 from storage.identifiers import LEVEL_PREFIXES
 
 API_PREFIX = "/api/v1"
@@ -44,7 +44,7 @@ _limit_cited_by = rate_limit("cited-by", capacity=60, per_second=2.0)
 def unit_phrase(answer: CitedBy) -> str:
     """`section 814 of Public Law 104-333`, `title I of Public Law 81-910`,
     `Public Law 83-703`, `page 563 of volume 64 of the Statutes at Large`."""
-    stat = parse_stat_page(answer.requested_identifier)
+    stat = parse_stat_page(answer.requested_identifier) or parse_lettered_page(answer.requested_identifier)
     if stat is not None:
         return f"page {stat.page} of volume {stat.volume} of the Statutes at Large"
     law = answer.law.label if answer.law is not None else law_label_of_identifier(answer.law_identifier)

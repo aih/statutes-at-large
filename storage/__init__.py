@@ -5,6 +5,8 @@ of the boundary and writes `db/` models directly.
 """
 
 from storage.identifiers import (
+    LETTERED_VOLUMES,
+    LetteredPageId,
     ParsedIdentifier,
     StatPageId,
     congress_ordinal,
@@ -16,6 +18,7 @@ from storage.identifiers import (
     normalize_identifier,
     normalize_page,
     parse_identifier,
+    parse_lettered_page,
     parse_stat_page,
     section_number_of,
 )
@@ -73,6 +76,7 @@ __all__ = [
     "GOVINFO_COMPS_DETAILS",
     "GOVINFO_PLAW_LINK",
     "GOVINFO_STATUTE_LINK",
+    "LETTERED_VOLUMES",
     "SOURCE_CHECK_STALE_AFTER",
     "ActMatch",
     "CanonicalUscHistoryItem",
@@ -105,6 +109,7 @@ __all__ = [
     "LawSummary",
     "PageRef",
     "PendingLaw",
+    "LetteredPageId",
     "ParsedIdentifier",
     "PostgresRepository",
     "Provision",
@@ -128,6 +133,7 @@ __all__ = [
     "normalize_identifier",
     "normalize_page",
     "parse_identifier",
+    "parse_lettered_page",
     "parse_stat_page",
     "section_number_of",
 ]

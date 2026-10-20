@@ -18,6 +18,12 @@ _ACT = re.compile(
 )
 _COMP = re.compile(r"^/us/sComp/(?P<congress>\d+)/(?P<number>\d+)(?P<path>/.*)?$")
 _STAT = re.compile(r"^/us/stat/(?P<volume>\d+)/(?P<page>[0-9A-Za-z]+(?:-\d+)?)$")
+#: 68A (the Internal Revenue Code of 1954) and 70A (titles 10 and 32, 1956).
+#: No volume file exists for either, so no page of them is stored.
+LETTERED_VOLUMES = ("68A", "70A")
+_LETTERED_STAT = re.compile(
+    r"^/us/stat/(?P<volume>" + "|".join(LETTERED_VOLUMES) + r")/(?P<page>[0-9A-Za-z]+(?:-\d+)?)$", re.IGNORECASE
+)
 
 #: The last segment of a section-or-lower identifier: `s814`, `e`, `1`, `A`.
 _SECTION_SEGMENT = re.compile(r"^s(?P<num>\d.*)$")
@@ -159,6 +165,27 @@ def parse_stat_page(identifier: str) -> StatPageId | None:
     return StatPageId(int(match.group("volume")), normalize_page(match.group("page")))
 
 
+@dataclass(frozen=True, slots=True)
+class LetteredPageId:
+    volume: str
+    """`68A` or `70A`."""
+    page: str
+    """Lower-case label."""
+
+    @property
+    def identifier(self) -> str:
+        return f"/us/stat/{self.volume}/{self.page}"
+
+
+def parse_lettered_page(identifier: str) -> LetteredPageId | None:
+    """`/us/stat/70A/641` → volume `70A`, page `641`. `parse_stat_page` answers
+    None for these."""
+    match = _LETTERED_STAT.match(normalize_identifier(identifier))
+    if not match:
+        return None
+    return LetteredPageId(match.group("volume").upper(), normalize_page(match.group("page")))
+
+
 def normalize_page(label: str) -> str:
     """Page labels are lower case (`b3`, not `B3`), spaces removed."""
     return "".join(label.split()).lower()
@@ -295,7 +322,7 @@ def history_ref_label(identifier: str) -> str:
     section) is bracketed. Anything that is not a law or a page is returned
     as given.
     """
-    stat = parse_stat_page(identifier)
+    stat = parse_stat_page(identifier) or parse_lettered_page(identifier)
     if stat is not None:
         return f"{stat.volume} Stat. {stat.page.upper()}"
     parsed = parse_identifier(identifier)

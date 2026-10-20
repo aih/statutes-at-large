@@ -4,6 +4,7 @@
 `119-111` → `/us/pl/119/111`, a bare law number read as a public law;
 `Act of Aug. 25, 1916, ch. 408` → `/us/act/1916-08-25/ch408`;
 `110 Stat. 4196` → `/us/stat/110/4196`;
+`68A Stat. 3` → `/us/stat/68A/3`, a page of a lettered volume;
 `43 U.S.C. 1701` → `/us/usc/t43/s1701`, which the US Code site serves.
 
 Named `citeparse`, not `citations`: `citation.py` is the `/us/…` redirector
@@ -31,6 +32,8 @@ Rules that are easy to get wrong:
     chapter it is `/us/act/…`. Both are the same law (ADR-0002); the
     repository resolves the alias.
   * A US Code citation parses to `/us/usc/…` and is not resolved here.
+  * Volumes 68A and 70A keep their letter, upper case, in the identifier
+    (`/us/stat/68A/3`) and in `lettered_volume`; `volume` is None for them.
 """
 
 from __future__ import annotations
@@ -69,6 +72,8 @@ class ParsedCitation:
     chapter: int | None = None
     enacted: datetime.date | None = None
     volume: int | None = None
+    lettered_volume: str | None = None
+    """`68A` or `70A`, for a page of a lettered volume; `volume` is then None."""
     page: str | None = None
     """Lower case, the way pages are stored (`a12`)."""
 
@@ -113,8 +118,12 @@ _PVTL_WORD = r"(?:Priv(?:ate)?\.?\s*L(?:aw)?\.?|Pvt\.?\s*L(?:aw)?\.?)(?:\s*No\.?
 _LAW_NUM = r"(?P<congress>\d{1,3})\s*" + _DASH + r"\s*(?P<number>\d{1,5})"
 
 _CHAPTER = r"ch(?:ap(?:ter)?)?\.?\s*(?P<chapter>\d+)"
+#: Volumes printed with a letter after the number: 68A, the Internal Revenue
+#: Code of 1954, and 70A, titles 10 and 32 enacted in 1956.
+LETTERED_VOLUMES = ("68A", "70A")
+_LETTERED = "|".join(v[:-1] + f"[{v[-1]}{v[-1].lower()}]" for v in LETTERED_VOLUMES)
 _STAT_PAGE = r"(?P<page>\d+[A-Za-z]?(?:" + _DASH + r"\d+)?|[A-Za-z]\d+)"
-_STAT = r"(?P<volume>\d{1,3})\s*Stat\.?\s*" + _STAT_PAGE + r"(?:\s*,\s*\d+[A-Za-z]?)*(?:\s*\(\d{4}\))?"
+_STAT = r"(?P<volume>" + _LETTERED + r"|\d{1,3})\s*Stat\.?\s*" + _STAT_PAGE + r"(?:\s*,\s*\d+[A-Za-z]?)*(?:\s*\(\d{4}\))?"
 
 #: `814`, `2A`, `204-1`; a range (`§§ 814–816`) keeps its first number.
 _SECTION_WORD = r"(?:(?P<plural>§§|[Ss]ecs\.?|[Ss]ections)|§|[Ss]ec\.?|[Ss]ection)"
@@ -196,7 +205,7 @@ _USC_TITLE = re.compile(r"^title\s+(?P<title>[0-9]+[aA]?)" + _USC_APP + r"\.?$",
 
 _PATH_LAW = re.compile(r"^/?us/(?P<kind>pl|pvtl)/(?P<congress>\d+)/(?P<number>\d+)(?P<path>(?:/[A-Za-z0-9.]+)*)/?$")
 _PATH_ACT = re.compile(r"^/?us/act/" + _ISO_DATE + r"/ch(?P<chapter>\d+)(?P<path>(?:/[A-Za-z0-9.]+)*)/?$")
-_PATH_STAT = re.compile(r"^/?us/stat/(?P<volume>\d+)/" + _STAT_PAGE + r"/?$")
+_PATH_STAT = re.compile(r"^/?us/stat/(?P<volume>" + _LETTERED + r"|\d+)/" + _STAT_PAGE + r"/?$")
 _PATH_COMP = re.compile(r"^/?us/sComp/(?P<congress>\d+)/(?P<number>\d+)(?P<path>(?:/[A-Za-z0-9.]+)*)/?$")
 _PATH_USC = re.compile(r"^/?us/usc/t(?P<title>[0-9]+[a-zA-Z]?)(?P<path>(?:/[A-Za-z0-9.‐-―-]+)*)/?$")
 
@@ -262,6 +271,13 @@ def _normalize_page(label: str) -> str:
     return re.sub(_DASH, "-", "".join(label.split())).lower()
 
 
+def _volume(printed: str) -> tuple[int | None, str | None]:
+    """`64` → (64, None); `68a` → (None, `68A`)."""
+    if printed.isdigit():
+        return int(printed), None
+    return None, printed.upper()
+
+
 @dataclass
 class _Tail:
     """What the pieces after a law or an act said."""
@@ -271,6 +287,7 @@ class _Tail:
     hierarchy: list[str] = None  # type: ignore[assignment]
     stat_page: str | None = None
     volume: int | None = None
+    lettered_volume: str | None = None
     page: str | None = None
     note: bool = False
 
@@ -335,9 +352,9 @@ def _parse_tail(tail: str | None) -> _Tail | None:
             continue
         match = _TAIL_STAT.match(piece)
         if match and out.stat_page is None:
-            out.volume = int(match.group("volume"))
+            out.volume, out.lettered_volume = _volume(match.group("volume"))
             out.page = _normalize_page(match.group("page"))
-            out.stat_page = f"/us/stat/{out.volume}/{out.page}"
+            out.stat_page = f"/us/stat/{out.lettered_volume or out.volume}/{out.page}"
             continue
         if _TAIL_DATE.match(piece) or _TAIL_YEAR.match(piece) or _NOISE.match(piece):
             continue
@@ -411,6 +428,7 @@ def _build_law(
         chapter=chapter,
         enacted=enacted,
         volume=tail.volume,
+        lettered_volume=tail.lettered_volume,
         page=tail.page,
         section_num=tail.section,
         subdivisions=tail.subdivisions,
@@ -420,9 +438,10 @@ def _build_law(
     )
 
 
-def _build_stat(volume: int, page: str, *, chapter: int | None = None, printed: str | None = None) -> ParsedCitation:
-    identifier = f"/us/stat/{volume}/{page}"
-    label = f"{volume} Stat. {printed or page}"
+def _build_stat(printed_volume: str, page: str, *, chapter: int | None = None, printed: str | None = None) -> ParsedCitation:
+    volume, lettered = _volume(printed_volume)
+    identifier = f"/us/stat/{lettered or volume}/{page}"
+    label = f"{lettered or volume} Stat. {printed or page}"
     if chapter is not None:
         label = f"ch. {chapter}, {label}"
     return ParsedCitation(
@@ -431,6 +450,7 @@ def _build_stat(volume: int, page: str, *, chapter: int | None = None, printed: 
         section_identifier=identifier,
         label=label,
         volume=volume,
+        lettered_volume=lettered,
         page=page,
         chapter=chapter,
     )
@@ -523,7 +543,7 @@ def _parse_path(text: str) -> ParsedCitation | None:
         return _build_law("act", f"/us/act/{enacted.isoformat()}/ch{chapter}", tail, chapter=chapter, enacted=enacted)
     match = _PATH_STAT.match(text)
     if match:
-        return _build_stat(int(match.group("volume")), _normalize_page(match.group("page")), printed=match.group("page"))
+        return _build_stat(match.group("volume"), _normalize_page(match.group("page")), printed=match.group("page"))
     match = _PATH_COMP.match(text)
     if match:
         congress, number = int(match.group("congress")), int(match.group("number"))
@@ -613,7 +633,7 @@ def _parse_act(text: str) -> ParsedCitation | None:
         tail = _parse_tail(match.group("tail"))
         if tail is None:
             return None
-        parsed = _build_stat(int(match.group("volume")), _normalize_page(match.group("page")), chapter=int(match.group("chapter")), printed=match.group("page"))
+        parsed = _build_stat(match.group("volume"), _normalize_page(match.group("page")), chapter=int(match.group("chapter")), printed=match.group("page"))
         if tail.section is not None:
             return ParsedCitation(
                 kind=parsed.kind,
@@ -621,6 +641,7 @@ def _parse_act(text: str) -> ParsedCitation | None:
                 section_identifier=parsed.section_identifier,
                 label=parsed.label + _section_label(tail.section, tail.subdivisions, ()),
                 volume=parsed.volume,
+                lettered_volume=parsed.lettered_volume,
                 page=parsed.page,
                 chapter=parsed.chapter,
                 section_num=tail.section,
@@ -634,7 +655,7 @@ def _parse_stat(text: str) -> ParsedCitation | None:
     match = _STAT_ONLY.match(text)
     if not match:
         return None
-    return _build_stat(int(match.group("volume")), _normalize_page(match.group("page")), printed=match.group("page"))
+    return _build_stat(match.group("volume"), _normalize_page(match.group("page")), printed=match.group("page"))
 
 
 def _parse_usc(text: str) -> ParsedCitation | None:

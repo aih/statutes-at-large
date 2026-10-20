@@ -43,9 +43,9 @@ All under `/api/v1`. The bare identifier URL (`/us/pl/81/740/s3`) is a 307 to
 | Route | Answer |
 |---|---|
 | `GET /us/pl/{c}/{n}[/{path}]`, `/us/pvtl/…`, `/us/act/{date}/ch{n}[/{path}]` | the unit: `identifier`, `served_identifier`, `view`, `resolution`, `law`, `currency`, `alternatives`, `note`, `provenance`, `pages`, `text`, `xml_url`, `level`, `num`, `heading`, `ancestors`, `children`, `provision`, `occurrences`; `?format=xml` serves a section or a provision as stamped USLM, and a law or a hierarchy node answers the same JSON with `xml_url` null (ADR-0019) |
-| `GET /us/stat/{volume}/{page}[?format=xml]` | `{page, identifier, volume, documents: [{identifier, kind, title, label, citation, enacted, starts_here, unit_on_page, units, text}], pdf}`; `text` and `units` are what the law prints on the page, the slice between its page markers (ADR-0020), and `format=xml` serves the slices as USLM |
+| `GET /us/stat/{volume}/{page}[?format=xml]` | `{page, identifier, volume, documents: [{identifier, kind, title, label, citation, enacted, starts_here, unit_on_page, units, text}], pdf}`; `text` and `units` are what the law prints on the page, the slice between its page markers (ADR-0020), and `format=xml` serves the slices as USLM; a page of volume 68A or 70A is a 404 whose detail names the volume and its GovInfo page (ADR-0035) |
 | `POST /labels` `{"identifiers": […]}`, `GET /labels?identifier=…` | per identifier: `{exists: true, served_identifier, resolution, num, heading, level, kind, law_identifier, law_label, currency}`, for a `/us/stat/{vol}/{page}` identifier `{exists: true, level: "page", kind: "stat", volume, page, documents: [{identifier, label, kind, starts_here}], pdf}`, or `{exists: false}`; 1 to 100 per request; 300 requests then 30 per second per address |
-| `GET /cite?q=Pub. L. 104-333, § 814` | a written citation parsed (`citeparse.py`) and checked: `{query, kind, identifier, section_identifier, law_identifier, label, exists, served_identifier, resolution, level, num, heading, law_label, url, stat_page, hierarchy, note, message}`; 422 when the text is not a citation, `exists: false` when nothing is loaded at the identifier, `exists: true` with the citation URL; `kind: "usc"` with the US Code site's URL and `exists: null` for a US Code citation; `max-age=300`, ETag; 60 requests then 2 per second per address |
+| `GET /cite?q=Pub. L. 104-333, § 814` | a written citation parsed (`citeparse.py`) and checked: `{query, kind, identifier, section_identifier, law_identifier, label, exists, served_identifier, resolution, level, num, heading, law_label, url, stat_page, hierarchy, note, message}`; 422 when the text is not a citation, `exists: false` when nothing is loaded at the identifier, `exists: true` with the citation URL; `kind: "usc"` with the US Code site's URL and `exists: null` for a US Code citation; `exists: false` with a `message` naming the volume for a page of volume 68A or 70A (ADR-0035); `max-age=300`, ETag; 60 requests then 2 per second per address |
 | `GET /status` | `{collections: {STATUTE, COMPS, PLAW}, checks: {…}, stale, citations, classifications}`; the `PLAW` block adds `congresses` and `laws_by_congress` |
 | `GET /laws/{c}/{n}` | `{law, toc, section_count, compilations, sources}`; `sources` is `{served_from, package, identifiers, volume: {package, loaded, govinfo}, plaw: {package, uslm, loaded, govinfo}}` |
 | `GET /laws/{c}/{n}/sections/{num}` | the section by number, ignoring hierarchy; same body as the identifier routes |
@@ -277,7 +277,8 @@ and bottom, `/` focuses the citation box, `?` opens the shortcut list
 Cross references: `/us/usc/…` links to the US Code site (`USCODE_ORIGIN`);
 `/us/pl/`, `/us/pvtl/`, `/us/act/` and `/us/stat/` links stay on this site
 when `/labels` says they exist, go to govinfo for a public law of the 104th
-Congress onward or a Stat. page that does not, and are text otherwise. The
+Congress onward or a Stat. page that does not, go to govinfo's page for the
+volume for a page of volume 68A or 70A, and are text otherwise. The
 US Code site applies the same rule towards this site (ADR-0016).
 
 ## Running it
