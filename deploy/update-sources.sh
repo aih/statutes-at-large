@@ -19,22 +19,24 @@
 #   6  reindex-search --if-changed, then reindex-search --since <the day
 #      before this run started> (ADR-0023; the shared cluster, so a failed
 #      rebuild is logged and the run goes on)
-#   7  pg_dump to s3://${BACKUP_BUCKET}/db/statutes-<date>.dump, only when a
+#   7  congress-summaries: the per-Congress counts stored at the current
+#      data version, a no-op when nothing they count changed (ADR-0037)
+#   8  pg_dump to s3://${BACKUP_BUCKET}/db/statutes-<date>.dump, only when a
 #      step wrote rows: /api/v1/status is read before and after the steps with
 #      `checks`, `stale`, `citations.checked_at` and `classifications.last_check`
 #      removed (the members every check moves), and a difference means a load.
-#   8  /api/v1/status into the log, with `stale` asserted false
+#   9  /api/v1/status into the log, with `stale` asserted false
 #
 # --check-only runs the two polls with --limit 0 (the check row is written,
 # nothing is fetched) and fetch-statute --if-changed (changed volume files are
-# downloaded, not loaded); plaw pending and steps 4 to 7 are skipped. --force runs plaw poll
+# downloaded, not loaded); plaw pending and steps 4 to 8 are skipped. --force runs plaw poll
 # --force, comps poll --force, statute without --changed-only, citations
 # without --if-changed and classifications --force; the search step is
 # unchanged, since a mapping change is what decides a rebuild, not the mode.
 #
 # --current runs plaw poll, plaw pending and classifications for the current
-# Congress and the one before, reindex-search --since, the dump when rows were
-# written, and the status. It is the daily run between the weekly ones.
+# Congress and the one before, reindex-search --since, congress-summaries, the
+# dump when rows were written, and the status. It is the daily run between the weekly ones.
 #
 # flock on ${DATA_ROOT}/update.lock; the log is ${DATA_ROOT}/logs/update-<date>.log.
 # The API is read inside the container (python, no jq on the box), never
@@ -224,6 +226,7 @@ case "$MODE" in
 esac
 
 if [ "$MODE" != "check-only" ]; then
+    step congress-summaries "${INGEST[@]}" congress-summaries
     AFTER="$(status_snapshot)"
     if [ -z "$BEFORE" ] || [ -z "$AFTER" ] || [ "$BEFORE" != "$AFTER" ]; then
         echo "rows were written (or the status could not be compared): dumping"

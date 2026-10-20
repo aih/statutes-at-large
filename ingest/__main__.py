@@ -12,6 +12,7 @@
     python -m ingest plaw load 118 --report docs/verification   # public laws from the zips (ingest/plaw.py)
     python -m ingest plaw pending                    # enacted public laws whose text is not published yet (ingest/plaw_pending.py)
     python -m ingest reindex-search [--if-changed] [--since YYYY-MM-DD] [--recreate]   # the OpenSearch index (ingest/reindex_search.py)
+    python -m ingest congress-summaries [--force]    # the stored per-Congress counts (ingest/congress_summaries.py)
 """
 
 from __future__ import annotations
@@ -206,6 +207,10 @@ def main(argv: list[str] | None = None) -> int:
     from ingest.reindex_search import add_reindex_search_command
 
     add_reindex_search_command(sub)
+
+    from ingest.congress_summaries import add_congress_summaries_command
+
+    add_congress_summaries_command(sub)
 
     args = parser.parse_args(argv)
     return args.func(args)

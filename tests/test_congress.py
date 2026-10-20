@@ -369,6 +369,57 @@ def test_pending_laws_are_listed_with_their_congress(repo, db):
         db.rollback()
 
 
+# ------------------------------------------------- the stored summaries
+
+
+def test_a_write_to_a_counted_table_moves_the_stamp_and_a_rollback_restores_it(repo, db):
+    from sqlalchemy import select
+
+    from db.models import Law
+
+    before = repo.data_stamp()
+    law = db.scalars(select(Law).where(Law.congress == 81).order_by(Law.id)).first()
+    law.official_title = "An Act renamed"
+    db.flush()
+    assert repo.data_stamp()[0] > before[0]
+    db.rollback()
+    assert repo.data_stamp() == before
+
+
+def test_the_summaries_are_stored_at_the_stamp_and_served_from_the_rows(repo, db, monkeypatch):
+    from sqlalchemy import select
+
+    import storage.postgres
+    from db.models import CongressSummaryRow, Law
+    from ingest.congress_summaries import refresh_congress_summaries
+
+    computed = repo.compute_congress_summaries()
+    report = refresh_congress_summaries(db)
+    assert (report["stored"], report["congresses"]) == (True, 119)
+    assert refresh_congress_summaries(db)["stored"] is False
+    assert repo.stored_summaries(repo.data_stamp()) == computed
+
+    # A stored row is what the overview reads when this process holds nothing.
+    row = db.get(CongressSummaryRow, 81)
+    row.summary = {**row.summary, "total_laws": 999}
+    db.flush()
+    monkeypatch.setattr(storage.postgres, "_summaries_held", None)
+    assert repo.congress_detail(81).summary.total_laws == 999
+    db.rollback()
+
+    # A write moves the stamp past the rows; the counts are computed again.
+    monkeypatch.setattr(storage.postgres, "_summaries_held", None)
+    law = db.scalars(select(Law).where(Law.congress == 81, Law.kind == "pvtl")).first()
+    db.delete(law)
+    db.flush()
+    try:
+        assert repo.stored_summaries(repo.data_stamp()) is None
+        assert repo.congress_detail(81).summary.total_laws == 9
+    finally:
+        db.rollback()
+    assert repo.congress_detail(81).summary.total_laws == 10
+
+
 # ----------------------------------------------------------------- routes
 
 

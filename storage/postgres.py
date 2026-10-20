@@ -21,6 +21,7 @@ import functools
 import hashlib
 import itertools
 import re
+import threading
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
 from typing import Any
@@ -36,6 +37,8 @@ from db.models import (
     Comp,
     CompUnit,
     CompVersion,
+    CongressSummaryRow,
+    DataVersion,
     Law,
     LawAlias,
     PendingLaw as PendingLawRow,
@@ -120,6 +123,32 @@ def _law_page_slice(law: Law, page: str) -> PageSlice:
         return _page_slice(law.id, law.content_hash, page)
     finally:
         _slice_source.reset(token)
+
+
+DataStamp = tuple[int, str]
+"""`data_version`'s (`version`, `changed_at`): what a stored or a remembered
+set of Congress summaries was computed at (ADR-0037)."""
+
+_summaries_held: tuple[DataStamp, tuple[CongressSummary, ...]] | None = None
+"""The last set of summaries this process read or computed, and its stamp."""
+_summaries_computing = threading.Lock()
+
+
+def summary_to_json(summary: CongressSummary) -> dict[str, Any]:
+    """A `CongressSummary` as a `congress_summaries.summary` value."""
+    out = dataclasses.asdict(summary)
+    for name in ("first_enacted", "last_enacted"):
+        out[name] = out[name].isoformat() if out[name] is not None else None
+    return out
+
+
+def summary_from_json(value: dict[str, Any]) -> CongressSummary:
+    fields = dict(value)
+    for name in ("first_enacted", "last_enacted"):
+        fields[name] = datetime.date.fromisoformat(fields[name]) if fields[name] is not None else None
+    for name in ("volumes", "classification_sessions"):
+        fields[name] = tuple(fields[name])
+    return CongressSummary(**fields)
 
 
 FIRST_PLAW_CONGRESS = 104
@@ -1568,7 +1597,7 @@ class PostgresRepository:
     # --------------------------------------------------------------- congresses
 
     def congresses_overview(self) -> CongressesOverview:
-        summaries = self._congress_summaries(None, self._latest_congress())
+        summaries = self.congress_summaries()
         return CongressesOverview(
             total_congresses=len(summaries),
             total_laws=sum(s.total_laws for s in summaries),
@@ -1579,6 +1608,47 @@ class PostgresRepository:
             total_compilations=sum(s.compilations_count for s in summaries),
             congresses=tuple(summaries),
         )
+
+    def data_stamp(self) -> DataStamp | None:
+        row = self._session.get(DataVersion, 1)
+        return (row.version, row.changed_at) if row is not None else None
+
+    def congress_summaries(self) -> tuple[CongressSummary, ...]:
+        """Every Congress from the 1st to the latest, at the current stamp:
+        the set this process holds, else the stored rows, else computed.
+        While another request computes, the held set is served, older or not."""
+        global _summaries_held
+        stamp = self.data_stamp()
+        held = _summaries_held
+        if held is not None and stamp is not None and held[0] == stamp:
+            return held[1]
+        stored = self.stored_summaries(stamp) if stamp is not None else None
+        if stored is not None:
+            _summaries_held = (stamp, stored)
+            return stored
+        if not _summaries_computing.acquire(blocking=False):
+            if held is not None:
+                return held[1]
+            _summaries_computing.acquire()
+        try:
+            held = _summaries_held
+            if held is not None and held[0] == stamp:
+                return held[1]
+            summaries = self.compute_congress_summaries()
+            if stamp is not None:
+                _summaries_held = (stamp, summaries)
+            return summaries
+        finally:
+            _summaries_computing.release()
+
+    def compute_congress_summaries(self) -> tuple[CongressSummary, ...]:
+        return tuple(self._congress_summaries(None, self._latest_congress()))
+
+    def stored_summaries(self, stamp: DataStamp) -> tuple[CongressSummary, ...] | None:
+        rows = self._session.scalars(select(CongressSummaryRow).order_by(CongressSummaryRow.congress)).all()
+        if not rows or any((r.version, r.changed_at) != stamp for r in rows):
+            return None
+        return tuple(summary_from_json(r.summary) for r in rows)
 
     def _latest_congress(self) -> int:
         """The latest Congress with a loaded or a pending law; 0 for none."""
@@ -1778,9 +1848,9 @@ class PostgresRepository:
         limit: int = 100,
         offset: int = 0,
     ) -> CongressDetail | None:
-        latest = self._latest_congress()
-        summaries = self._congress_summaries(congress, latest)
-        if not summaries:
+        summaries = self.congress_summaries()
+        latest = len(summaries)
+        if not 1 <= congress <= latest:
             return None
         pending = tuple(
             self._pending_of(row)
@@ -1833,7 +1903,7 @@ class PostgresRepository:
         rows = list(self._session.scalars(stmt.offset(offset).limit(limit)).all())
 
         return CongressDetail(
-            summary=summaries[0],
+            summary=summaries[congress - 1],
             latest_congress=latest,
             volume_starts=self._volume_starts(congress),
             laws=self._congress_law_items(congress, rows, comps_of_law),
