@@ -83,6 +83,11 @@ $COMPOSE up -d --wait db
 echo "=== migrating (new image, before it serves) ==="
 $COMPOSE run --rm --no-deps api uv run alembic upgrade head
 
+# A no-op unless the migration or a load moved the data version (ADR-0037).
+echo "=== storing the per-Congress counts ==="
+$COMPOSE run --rm --no-deps api uv run python -m ingest congress-summaries \
+    || echo "congress-summaries failed; the API computes the counts on the first request"
+
 echo "=== bringing the stack up ==="
 $COMPOSE up -d --wait
 

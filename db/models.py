@@ -19,6 +19,7 @@ from sqlalchemy import (
     Integer,
     Text,
     UniqueConstraint,
+    event,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -163,6 +164,7 @@ class Unit(Base):
     __table_args__ = (
         UniqueConstraint("identifier", "occurrence", name="uq_units_identifier"),
         Index("ix_units_law_section_num", "law_id", "section_num"),
+        Index("ix_units_level_law", "level", "law_id"),
     )
 
 
@@ -372,6 +374,7 @@ class Citation(Base):
 
     __table_args__ = (
         Index("ix_citations_to_law_section", "to_law", "to_section_num"),
+        Index("ix_citations_to_law_from", "to_law", "from_identifier", "from_title"),
         Index("ix_citations_to_stat", "to_volume", "to_page"),
     )
 
@@ -516,3 +519,86 @@ class PendingLaw(Base):
     congress_gov_url: Mapped[str] = mapped_column(Text, nullable=False)
     """The bill's page on www.congress.gov."""
     checked_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+# ------------------------------------------------------- congress summaries
+
+
+class DataVersion(Base):
+    """One row (`id` 1) that a trigger moves whenever a table the Congress
+    summaries count is written (ADR-0037). Postgres bumps it once per
+    transaction; SQLite once per row."""
+
+    __tablename__ = "data_version"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    changed_at: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    """The time of the last bump as the database writes it; with `version`,
+    the stamp a stored summary is checked against."""
+
+
+class CongressSummaryRow(Base):
+    """One Congress's `storage.CongressSummary` as `ingest congress-summaries`
+    computed it, under the `data_version` stamp it was computed at."""
+
+    __tablename__ = "congress_summaries"
+
+    congress: Mapped[int] = mapped_column(Integer, primary_key=True)
+    version: Mapped[int] = mapped_column(Integer, nullable=False)
+    changed_at: Mapped[str] = mapped_column(Text, nullable=False)
+    summary: Mapped[dict] = mapped_column(JSON, nullable=False)
+
+
+DATA_VERSION_TABLES = (
+    "laws",
+    "units",
+    "law_aliases",
+    "comps",
+    "citations",
+    "classifications",
+    "classification_files",
+    "pending_laws",
+)
+"""The tables `_congress_summaries` reads."""
+
+POSTGRES_BUMP_FUNCTION = """
+CREATE OR REPLACE FUNCTION bump_data_version() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    IF current_setting('statutes.data_version_bumped', true) IS DISTINCT FROM 'on' THEN
+        UPDATE data_version SET version = version + 1, changed_at = clock_timestamp()::text WHERE id = 1;
+        PERFORM set_config('statutes.data_version_bumped', 'on', true);
+    END IF;
+    RETURN NULL;
+END
+$$
+"""
+
+
+def postgres_bump_trigger(table: str) -> str:
+    return (
+        f"CREATE TRIGGER data_version_{table} AFTER INSERT OR UPDATE OR DELETE OR TRUNCATE ON {table} "
+        "FOR EACH STATEMENT EXECUTE FUNCTION bump_data_version()"
+    )
+
+
+def sqlite_bump_trigger(table: str, operation: str) -> str:
+    return (
+        f"CREATE TRIGGER data_version_{table}_{operation.lower()} AFTER {operation} ON {table} BEGIN "
+        "UPDATE data_version SET version = version + 1, changed_at = strftime('%Y-%m-%d %H:%M:%f', 'now') WHERE id = 1; "
+        "END"
+    )
+
+
+@event.listens_for(Base.metadata, "after_create")
+def _data_version_triggers(target, connection, **kw) -> None:
+    """`create_all` builds what the migration builds: the row and the triggers."""
+    connection.execute(DataVersion.__table__.insert().values(id=1, version=0, changed_at=""))
+    if connection.dialect.name == "postgresql":
+        connection.exec_driver_sql(POSTGRES_BUMP_FUNCTION)
+        for table in DATA_VERSION_TABLES:
+            connection.exec_driver_sql(postgres_bump_trigger(table))
+    elif connection.dialect.name == "sqlite":
+        for table in DATA_VERSION_TABLES:
+            for operation in ("INSERT", "UPDATE", "DELETE"):
+                connection.exec_driver_sql(sqlite_bump_trigger(table, operation))

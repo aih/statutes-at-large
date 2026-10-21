@@ -1181,3 +1181,28 @@ Verified: `make test` 733 passed, 1 skipped. The parser over the Hub's volumes 6
 volume 37 as `/us/pl/62/427`…`430`, and the light pass and the full pass
 yielding the same identifiers in all six. Not run against the box: the
 reload of volumes 32, 34, 37, 44, 46, 54, 121 and 123 is in ADR-0036.
+
+## 2026-10-20 — the Congress counts, stored at a data version
+
+Asked: `/app/congress` is slow to load; cache its data, with a trigger when
+the data changes, and improve the response time.
+
+Measured on the box: `/api/v1/congress` 9.4 s, `/app/congress` 11.1 s,
+`/api/v1/congress/81` 1.8 s. Over the dev database the overview's eleven
+queries took 10.6 s cold, 6.1 s of it counting citations per Congress and
+3.6 s counting sections.
+
+Done (ADR-0037): a `data_version` row that statement triggers on the eight
+counted tables move once per transaction; `congress_summaries`, the
+per-Congress counts stored at that stamp by `python -m ingest
+congress-summaries`, run after the update's loads and after the deploy's
+migration; `PostgresRepository.congress_summaries()`, which serves the set
+held in memory, else the stored rows, else a live computation; covering
+indexes `ix_units_level_law` and `ix_citations_to_law_from`. Migration
+`c5d0e7a3f218`.
+
+Verified: `make test` 735 passed, 1 skipped. Over the dev Postgres, after
+the migration: the overview 6 ms from the stored rows and 0.4 s computed
+live; `congress_detail(81)` 36 ms; `GET /api/v1/congress` 10 ms and
+`/app/congress` 18 ms on the dev servers once warm. The trigger bumps once
+per transaction and a rollback restores the stamp. Not run against the box.
