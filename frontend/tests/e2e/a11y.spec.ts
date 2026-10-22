@@ -16,6 +16,7 @@ const PAGES = [
   "/app/us/sComp/74/271",
   "/app/us/stat/137/112",
   "/app/search/syntax",
+  "/app/sources",
   "/app/search?q=rubber",
   "/app/search?q=zzzznoresultsforthissearchxyz",
   "/app/goto?q=110%20Stat.%204196",
