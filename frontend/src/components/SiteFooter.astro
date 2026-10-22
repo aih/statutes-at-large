@@ -7,7 +7,7 @@
  * (ADR-0021). A build with no `GIT_COMMIT` prints "commit unknown" with no
  * link, since there is nothing on GitHub to point at.
  */
-import { API, uscodeHref } from "../lib/url";
+import { API, sourcesHref, uscodeHref } from "../lib/url";
 
 declare const __COMMIT_HASH__: string;
 declare const __SITE_VERSION__: string;
@@ -22,6 +22,7 @@ const repoUrl = "https://github.com/aih/statutes-at-large";
     <ul>
       <li><a href={API}>API at {API}</a></li>
       <li><a href="/docs">API docs at /docs</a></li>
+      <li><a href={sourcesHref()}>Sources</a></li>
       <li><a href={uscodeHref("/")}>US Code</a></li>
       <li><a href="#shortcuts" data-shortcuts-open>Keyboard shortcuts</a></li>
     </ul>

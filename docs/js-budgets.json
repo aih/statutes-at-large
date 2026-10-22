@@ -10,6 +10,7 @@
     "/app/healthz": 500,
     "/app/search": 3500,
     "/app/search/syntax": 3500,
+    "/app/sources": 3500,
     "/app/us/act": 3500,
     "/app/us/pl": 3500,
     "/app/us/pvtl": 3500,

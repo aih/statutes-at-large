@@ -1,0 +1,110 @@
+---
+/**
+ * `/app/sources` — where the text comes from: GovInfo's USLM by era, the Hub
+ * mirror, and what this site adds. The repository's account is
+ * `docs/sources.md`; the two say the same.
+ */
+import Base from "../layouts/Base.astro";
+import { REVALIDATE } from "../lib/cache";
+import { API, APP } from "../lib/url";
+
+/** Static prose; it changes when a source does. Revalidate rather than pin. */
+Astro.response.headers.set("Cache-Control", REVALIDATE);
+
+const RELEASES: [string, string, string][] = [
+  ["June 2025", "https://www.govinfo.gov/features/june-2025-release-notes", "40–43, 45–50, 105, 109"],
+  ["September 2025", "https://www.govinfo.gov/features/september-2025-release-notes", "94–104, 106"],
+  ["December 2025", "https://www.govinfo.gov/features/december-2025-release-notes", "29–35, 37–39, 44, 80–93"],
+  ["March 2026", "https://www.govinfo.gov/features/march-2026-release-notes", "1–28, 36, 64–79"],
+];
+---
+
+<Base title="Sources · Statutes at Large" crumbs={[{ label: "Home", href: `${APP}/` }]} current="Sources">
+  <h1 class="doc-title">Sources</h1>
+  <p class="lede">
+    The text is GPO's USLM XML from GovInfo, with identifiers added by this site. This site runs no OCR and corrects
+    no text.
+  </p>
+
+  <h2 class="group" id="volumes-1-116">Statutes at Large, volumes 1 to 116 (1789 to 2002)</h2>
+  <p>
+    The XML is GovInfo package <code>STATUTE-<var>n</var></code> in USLM. Every law in these volumes has
+    <code>processedBy</code> <code>Digitization Vendor</code>: GPO's digitization vendor read the text from the scanned
+    pages and marked it up in USLM.
+  </p>
+  <p>
+    The page images come from two efforts, as GovInfo's
+    <a href="https://www.govinfo.gov/help/statute">Statutes at Large help page</a> describes them: volumes 1 to 64
+    through digitization led by GPO, with the Library of Congress
+    (<a href="https://www.gpo.gov/who-we-are/news-media/news-and-press-releases/gpo-makes-available-new-statutes-at-large-dating-back-to-1789">GPO press release</a>), and volumes 65 to 116 through digital imaging on behalf of the
+    Library of Congress. GovInfo released the USLM for these volumes in batches, among them:
+  </p>
+  <table class="usa-table">
+    <thead>
+      <tr>
+        <th scope="col">GovInfo release</th>
+        <th scope="col">Volumes in USLM</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        RELEASES.map(([label, href, volumes]) => (
+          <tr>
+            <td>
+              <a href={href}>{label}</a>
+            </td>
+            <td>{volumes}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+  <p>
+    GPO and GovInfo do not name the vendor or the OCR engine, or publish an accuracy figure. The text keeps the
+    vendor's OCR errors: law numbers misread in marginal notes (<code>835</code> for <code>535</code>),
+    <code>Private Lavr</code> for <code>Private Law</code>, and approval dates such as <code>1110-04-16</code> on 32
+    Stat. 1337.
+  </p>
+  <p>
+    Example: <a href={`${APP}/us/stat/1/73`}>1 Stat. 73</a>, and its XML at
+    <a href={`${API}/us/stat/1/73?format=xml`}><code>{API}/us/stat/1/73?format=xml</code></a>.
+  </p>
+
+  <h2 class="group" id="volumes-117">Statutes at Large, volumes 117 on, and public laws from PLAW</h2>
+  <p>
+    Volumes 117 to 137 (GovInfo package <code>STATUTE-<var>n</var></code>) and the public laws of the 113th Congress
+    on (GovInfo bulk data, <code>PLAW-<var>c</var>publ<var>n</var>.xml</code>) have <code>processedBy</code>
+    <code>GPO Locator to USLM Converter</code>: GPO converted them from its typesetting (locator) files, with no OCR.
+    A PLAW file replaces the volume's copy of the same law. Private laws, and laws before the 113th Congress, come
+    from the volumes.
+  </p>
+
+  <h2 class="group" id="mirror">The volume files</h2>
+  <p>
+    The loader reads the volume files from the Hugging Face dataset
+    <a href="https://huggingface.co/datasets/dreamproit/us-statutes-at-large"><code>dreamproit/us-statutes-at-large</code></a>,
+    which holds GovInfo's files as GovInfo serves them, with each file's sha256. A volume GovInfo republishes is
+    reloaded in the weekly update.
+  </p>
+
+  <h2 class="group" id="compilations">Statute Compilations, citations, and classification tables</h2>
+  <ul>
+    <li>
+      Statute Compilations: GovInfo's <code>COMPS</code> packages in USLM, maintained by the House Office of the
+      Legislative Counsel.
+    </li>
+    <li>
+      The US Code sections that cite a law: the source credits, notes and text of the current US Code, from the
+      <code>dreamproit/uscode</code> dataset.
+    </li>
+    <li>Classification tables: the Office of the Law Revision Counsel's tables, mirrored through the US Code site.</li>
+  </ul>
+
+  <h2 class="group" id="identifiers">What this site adds</h2>
+  <p>
+    The stored XML is GPO's text with <code>identifier</code> attributes added. The volume files carry none; the loader
+    assigns them by rule (<code>rules-1.0</code>). PLAW files carry GPO's own. Every API response has a
+    <code>provenance</code> block naming the text's source, the identifiers' source and a sha256, and the note on
+    each enacted page ends with a sentence naming the GovInfo package and the converter.
+  </p>
+</Base>

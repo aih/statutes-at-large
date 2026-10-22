@@ -1206,3 +1206,23 @@ the migration: the overview 6 ms from the stored rows and 0.4 s computed
 live; `congress_detail(81)` 36 ms; `GET /api/v1/congress` 10 ms and
 `/app/congress` 18 ms on the dev servers once warm. The trigger bumps once
 per transaction and a rollback restores the stamp. Not run against the box.
+
+## 2026-10-22 — where the early volumes' XML comes from
+
+Asked: where the XML for the earliest statutes (`/api/v1/us/stat/1/73?format=xml`)
+comes from and how the OCR was done; document the sources on the site and in
+the repository.
+
+Found: the repository has never run OCR. The volume files are GovInfo's
+`STATUTE-{n}` USLM, mirrored by the Hub dataset `dreamproit/us-statutes-at-large`
+(ADR-0027's sha256 check). Volumes 1 to 116 are `processedBy` `Digitization
+Vendor`; GovInfo's release notes of June 2025 to March 2026 list the batches,
+volumes 1–28 in March 2026. GPO names neither the vendor nor the OCR engine.
+The Hub card names `statute-pdf-to-xml` (Docling) for its own PDF conversion,
+which this site does not serve.
+
+Done: `docs/sources.md`; the reader's `/app/sources`, linked from the footer
+(`sourcesHref`, a budget in `docs/js-budgets.json`, axe and an e2e spec); a
+Sources paragraph in the OpenAPI description at `/docs`; README's source
+paragraph. No ADR: no decision departs from the design.
+

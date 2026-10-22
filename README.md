@@ -69,9 +69,11 @@ carries the same block, without the compiled-text comparison.
 Source: GovInfo `STATUTE` volume USLM from the Hub dataset
 `dreamproit/us-statutes-at-large` (`xmls/STATUTE-{n}.xml`), which holds
 GovInfo's files as GovInfo serves them. Volumes 1 to 116 were converted from the
-scanned volumes by GPO's digitization vendor (`processedBy` `Digitization
-Vendor`); volume 117 on, and every PLAW file, by GPO's locator-to-USLM
-converter. The last sentence of an enacted unit's `note` names the package and
+scanned volumes by GPO's digitization vendor, which read the text by OCR
+(`processedBy` `Digitization Vendor`; GPO names neither the vendor nor the OCR
+engine); volume 117 on, and every PLAW file, by GPO's locator-to-USLM
+converter from its typesetting files. `docs/sources.md` and the reader's
+`/app/sources` give the account by source, with GovInfo's release dates. The last sentence of an enacted unit's `note` names the package and
 the converter (ADR-0027). The volume files carry no identifiers; the loader assigns them by the rules in the OCR plan,
 section 7 (`ingest/identifiers.py`, version `rules-1.0`), and stamps them into
 the stored XML. `provenance` on every response records `gpo-uslm` text and
@@ -239,7 +241,7 @@ routed (405).
 - Concurrent resolutions, proclamations, treaties, and agreements printed in
   the volumes. They are counted in the load report and skipped.
 - The reprocessed OCR text (design stage 6). The text is GPO's digitization
-  vendor's, errors included.
+  vendor's, errors included; this site runs no OCR (`docs/sources.md`).
 
 ## Reader
 
