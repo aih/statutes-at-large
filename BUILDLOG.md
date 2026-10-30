@@ -1223,3 +1223,19 @@ Verified: `make test` (`tests/test_api_tokens.py`, six tests: the scaled
 bucket, one bucket per token across addresses, the 401 directly and on
 `/api/v1/us/pl/81/740`, another scheme ignored, the setting's validation).
 Not run against the box; the setting is unset there until a token is issued.
+
+## 2026-10-30 — how to generate, store and use an API token
+
+Asked: document how to generate, store and use the ADR-0038 tokens.
+
+Done: `docs/api-tokens.md`: `scripts/api_token.py` (standard library only, so
+`python3` from any checkout), the per-caller budgets before scaling, the
+`STATUTES_API_TOKENS` line in the box's `.env` in single quotes, `docker
+compose … up -d --no-deps --force-recreate --wait api` to apply it, the
+caller's side, the responses, rotation and revocation. Linked from the README
+and the CLAUDE.md command list; `.env.example` shows the quoted form.
+
+Verified: `docker compose config` over a `.env` holding the single-quoted JSON
+passes the value through unchanged, and `pydantic_settings` reads the line as
+the same string. Not run against the box.
+

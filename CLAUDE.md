@@ -162,6 +162,7 @@ python -m ingest congress-summaries [--force]   the per-Congress counts at the c
 make load-prod / update-prod / update-prod-check   on the box: the first load; the weekly update; the checks only
 bash deploy/deploy-on-box.sh <sha> / deploy/edge/up.sh   the deploy; the shared edge (plan sections 4 to 7)
 bash deploy/deploy-gate.sh <sha> [health-url]   deploy=true|false: false for docs only since /health's commit
+python3 scripts/api_token.py NAME [--scale N]   an API token and its STATUTES_API_TOKENS entry (ADR-0038, docs/api-tokens.md)
 ```
 
 Sources have a precedence (ADR-0011): a PLAW load replaces the volume-derived
