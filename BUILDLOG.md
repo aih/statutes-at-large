@@ -1239,3 +1239,21 @@ Verified: `docker compose config` over a `.env` holding the single-quoted JSON
 passes the value through unchanged, and `pydantic_settings` reads the line as
 the same string. Not run against the box.
 
+
+## 2026-10-30 — reintro.linkedlegislation.org on the edge
+
+Asked (in the reintroductions-us project): deploy that site on the box.
+
+Done: a third site block in `deploy/edge/Caddyfile`,
+`{$REINTRO_SITE_ADDRESS:reintro.linkedlegislation.org}` → `reintro-proxy:8000`,
+with the same `header_up` lines and a 120 s `response_header_timeout` (a PDF
+rendered on request takes up to about 20 s of CPU). `REINTRO_SITE_ADDRESS` in
+`deploy/edge/docker-compose.yml`. `deploy/edge/README.md` names the three
+sites and the recreate a Caddyfile change needs.
+
+Verified: `caddy validate` with the production defaults and with rehearsal
+addresses. The rehearsal (`up.sh` on :8020 against reintroductions-us's
+`docker-compose.prod.yml`): `/healthz` and `/robots.txt` 200, a PDF 200 in
+2.3 s and 0.006 s from its cache, a forged `X-Forwarded-For` replaced by the
+edge's peer at the inner proxy, and `statutes.localhost` 502 with its stack
+down. Not run on the box.
