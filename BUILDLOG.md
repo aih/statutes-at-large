@@ -1206,3 +1206,20 @@ the migration: the overview 6 ms from the stored rows and 0.4 s computed
 live; `congress_detail(81)` 36 ms; `GET /api/v1/congress` 10 ms and
 `/app/congress` 18 ms on the dev servers once warm. The trigger bumps once
 per transaction and a rollback restores the stamp. Not run against the box.
+
+## 2026-10-30 — API tokens for known callers
+
+Asked (in the reintroductions-us project): if token-based access to this API
+would help that site's design, plan it and open a PR here.
+
+Done (ADR-0038): `Authorization: Bearer <token>` checked against
+`STATUTES_API_TOKENS` (named SHA-256 digests with a `scale`) in `params.py`.
+A token holder's per-caller budgets key on `token:<name>` and are multiplied
+by the scale; an unknown bearer token is a 401. `scripts/api_token.py` makes a
+token and prints its entry; `docker-compose.prod.yml` passes the setting to
+the api service.
+
+Verified: `make test` (`tests/test_api_tokens.py`, six tests: the scaled
+bucket, one bucket per token across addresses, the 401 directly and on
+`/api/v1/us/pl/81/740`, another scheme ignored, the setting's validation).
+Not run against the box; the setting is unset there until a token is issued.
