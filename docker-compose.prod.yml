@@ -30,6 +30,8 @@
 #   SEARCH_PASSWORD=…                    the US Code site's OpenSearch admin password,
 #                                         typed into .env by hand (deploy/bootstrap-box.sh);
 #                                         unset leaves search unconfigured (ADR-0023)
+#   STATUTES_API_TOKENS=…                named API token digests and their scale, as JSON
+#                                         (scripts/api_token.py, ADR-0038); unset, none
 #
 # The project name is the one the box has carried since the cut-over (its
 # checkout is ~/statutes-at-large), fixed here so a checkout in another
@@ -78,6 +80,7 @@ services:
       # service is on this project's network only.
       SEARCH_URL: https://search-relay:9200
       SEARCH_PASSWORD: ${SEARCH_PASSWORD:-}
+      STATUTES_API_TOKENS: ${STATUTES_API_TOKENS:-}
       # False on both stacks: the cluster is reached over a private Docker
       # network and presents the OpenSearch image's self-signed certificate,
       # which names neither `opensearch` nor `search-relay`.
