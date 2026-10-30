@@ -318,6 +318,7 @@ make load-prod                           # the first load: volumes, PLAW, the in
 sudo systemd-run --unit statutes-comps-walk --uid ec2-user --working-directory $PWD bash deploy/comps-walk.sh
                                          # the rest of the COMPS walk: `make comps-walk` hourly until a run loads nothing
 make update-prod                         # the weekly update (deploy/update-sources.sh); update-prod-check records the checks only
+python3 scripts/api_token.py NAME --scale N   # an API token and its STATUTES_API_TOKENS entry (docs/api-tokens.md)
 bash deploy/watchdog.sh                  # one probe; cron runs it every minute
 bash deploy/edge/up.sh                   # the shared edge proxy (once per box)
 ALERT_EMAIL=<address> bash deploy/alarms.sh <instance-id>
