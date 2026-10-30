@@ -1,10 +1,12 @@
 # The edge
 
-One Caddy in front of both sites on the box (`docs/plans/2026-09-08-deployment-plan.md`,
-section 1). It terminates TLS for `uscode.linkedlegislation.org` and
-`statutes.linkedlegislation.org` and hands each to that site's own Caddy over
-the external Docker network `edge` (subnet `10.83.0.0/24`), under the aliases
-`uscode-proxy` and `statutes-proxy`. Each inner Caddyfile trusts that subnet
+One Caddy in front of the sites on the box (`docs/plans/2026-09-08-deployment-plan.md`,
+section 1). It terminates TLS for `uscode.linkedlegislation.org`,
+`statutes.linkedlegislation.org` and `reintro.linkedlegislation.org` and hands
+each to that site's own Caddy over the external Docker network `edge` (subnet
+`10.83.0.0/24`), under the aliases `uscode-proxy`, `statutes-proxy` and
+`reintro-proxy`. The third is the reintroductions-us compose project; its
+`docs/deploy.md` has its setup. Each inner Caddyfile trusts that subnet
 and no other, so the client address the edge forwards survives the inner hop
 and a peer on the dev stack cannot forge one.
 
@@ -12,8 +14,9 @@ Files:
 
 - `docker-compose.yml` — compose project `edge`: the Caddy, its ports, its
   certificate store at `${DATA_ROOT}/edge-caddy`.
-- `Caddyfile` — the two site blocks; addresses from `USCODE_SITE_ADDRESS` and
-  `STATUTES_SITE_ADDRESS`, production hostnames by default.
+- `Caddyfile` — the three site blocks; addresses from `USCODE_SITE_ADDRESS`,
+  `STATUTES_SITE_ADDRESS` and `REINTRO_SITE_ADDRESS`, production hostnames by
+  default.
 - `up.sh` — creates the network with the subnet when absent, refuses a
   network named `edge` with another subnet, brings the Caddy up. Idempotent.
   `--network-only` stops after the network.
@@ -24,6 +27,20 @@ On the box, in this order:
 bash deploy/edge/up.sh --network-only   # before the US Code site's deploy: its compose file needs the network
 bash deploy/edge/up.sh                  # after that deploy, before deploy/deploy-on-box.sh here
 ```
+
+After a change to `Caddyfile`, recreate the Caddy. The file is a single-file
+bind mount, so a `caddy reload` or `up -d` reads the file as it was before the
+checkout; both sites are unreachable for the few seconds of the recreate:
+
+```
+docker compose -p edge -f deploy/edge/docker-compose.yml run --rm --no-deps caddy \
+    caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+docker compose -p edge -f deploy/edge/docker-compose.yml up -d --force-recreate --wait
+```
+
+A site block whose proxy is not running answers 502 and leaves the other
+sites alone. A hostname whose DNS does not point at the box yet gets no
+certificate; Caddy retries and serves it once the record resolves.
 
 ## The rehearsal on a workstation
 
