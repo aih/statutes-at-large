@@ -5,6 +5,8 @@
 
 export const APP = "/app";
 export const API = "/api/v1";
+/** The site's public address, named in the footer and on `/app/about`. */
+export const SITE_URL = "https://statutes.linkedlegislation.org";
 
 /** The US Code site's origin, from `USCODE_ORIGIN` in the environment. */
 export const USCODE_ORIGIN = (process.env.USCODE_ORIGIN ?? "https://uscode.linkedlegislation.org").replace(
@@ -109,6 +111,11 @@ export function searchHref(
   if (opts.view && opts.view !== "enacted") params.set("view", opts.view);
   if (opts.offset) params.set("offset", String(opts.offset));
   return `${APP}/search?${params.toString()}`;
+}
+
+/** `/app/about`, what the site is and who made it. */
+export function aboutHref(): string {
+  return `${APP}/about`;
 }
 
 /** `/app/search/syntax`, the operators and scope words page. */
