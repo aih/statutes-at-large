@@ -1,13 +1,14 @@
 ---
 /**
- * Names the API and its docs, and the US Code site. The version and commit
+ * Names the API and its docs, the US Code site, the About page, and the
+ * site's author. The version and commit
  * line names the build (`astro.config.mjs`'s `__SITE_VERSION__` and
  * `__COMMIT_HASH__`, the US Code site's approach in its SiteFooter.astro):
  * plain text, no script, so it costs nothing against the byte budget
  * (ADR-0021). A build with no `GIT_COMMIT` prints "commit unknown" with no
  * link, since there is nothing on GitHub to point at.
  */
-import { API, uscodeHref } from "../lib/url";
+import { API, SITE_URL, aboutHref, uscodeHref } from "../lib/url";
 
 declare const __COMMIT_HASH__: string;
 declare const __SITE_VERSION__: string;
@@ -23,12 +24,17 @@ const repoUrl = "https://github.com/aih/statutes-at-large";
       <li><a href={API}>API at {API}</a></li>
       <li><a href="/docs">API docs at /docs</a></li>
       <li><a href={uscodeHref("/")}>US Code</a></li>
+      <li><a href={aboutHref()}>About</a></li>
       <li><a href="#shortcuts" data-shortcuts-open>Keyboard shortcuts</a></li>
     </ul>
     <p>
       Statutes at Large and Statute Compilations served at the section level by the
       identifiers the US Code cites. The text is GovInfo's USLM; every page says which
       source and which identifier rule it came from.
+    </p>
+    <p>
+      <a href={SITE_URL}>statutes.linkedlegislation.org</a> was made as a proof of concept by{" "}
+      <a href="https://aih.github.io">Ari Hershowitz</a>.
     </p>
     <div class="site-footer__version">
       Source: <a href={repoUrl}>github.com/aih/statutes-at-large</a> — version {siteVersion}, commit{" "}

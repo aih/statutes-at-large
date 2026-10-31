@@ -1,0 +1,36 @@
+---
+/**
+ * `/app/about` — what the site is and who made it.
+ */
+import Base from "../layouts/Base.astro";
+import { REVALIDATE } from "../lib/cache";
+import { API, APP, SITE_URL, uscodeHref } from "../lib/url";
+
+/** Static prose; it changes when the code does. */
+Astro.response.headers.set("Cache-Control", REVALIDATE);
+---
+
+<Base title="About · Statutes at Large" crumbs={[{ label: "Home", href: `${APP}/` }]} current="About">
+  <h1 class="doc-title">About</h1>
+  <p class="lede">
+    <a href={SITE_URL}>statutes.linkedlegislation.org</a> serves the Statutes at Large and the
+    Statute Compilations at the section level, by the identifiers the US Code cites.
+  </p>
+
+  <p>
+    The site was made as a proof of concept by <a href="https://aih.github.io">Ari Hershowitz</a>.
+  </p>
+
+  <h2 class="group" id="text">The text</h2>
+  <p>
+    The text is GovInfo's USLM. Every page says which source and which identifier rule it came
+    from. The <a href={API}>API</a> answers the same identifiers as JSON and XML; its documentation
+    is at <a href="/docs">/docs</a>. The <a href={uscodeHref("/")}>US Code</a> site links its source
+    credits here.
+  </p>
+
+  <h2 class="group" id="code">Code</h2>
+  <p>
+    The source is at <a href="https://github.com/aih/statutes-at-large">github.com/aih/statutes-at-large</a>.
+  </p>
+</Base>
