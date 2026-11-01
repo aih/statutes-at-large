@@ -1257,3 +1257,21 @@ addresses. The rehearsal (`up.sh` on :8020 against reintroductions-us's
 2.3 s and 0.006 s from its cache, a forged `X-Forwarded-For` replaced by the
 edge's peer at the inner proxy, and `statutes.localhost` 502 with its stack
 down. Not run on the box.
+
+
+## 2026-10-31 — Author credit in the footer and on /app/about
+
+Asked: say in the footer and on an About page that the site was made as a
+proof of concept by Ari Hershowitz, linking https://aih.github.io, and point
+to https://statutes.linkedlegislation.org.
+
+Done: `frontend/src/pages/about.astro` at `/app/about` (what the site serves,
+the credit, the API and its docs, the US Code site, the repository).
+`SiteFooter.astro` links it (`aboutHref`) and carries the credit line;
+`SITE_URL` in `lib/url.ts`. Budget for `/app/about` in `docs/js-budgets.json`,
+`js-bytes.json` regenerated, the page added to the axe list, and
+`tests/e2e/about.spec.ts`.
+
+Verified: `npm test` 129 passed, `astro check` 0 errors, `astro build`
+complete; the built server answers `/app/about` 200 with both links and the
+footer's. e2e not run.
