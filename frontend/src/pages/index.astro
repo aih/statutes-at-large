@@ -1,14 +1,16 @@
 ---
 /**
- * `/app/`: what is loaded (from `/api/v1/status`), the citation box, the
- * forms it accepts, and example links.
+ * `/app/`: the latest laws loaded and when the sources were last checked,
+ * the citation box, the forms it accepts, example links, and what is loaded
+ * (all from `/api/v1/status`).
  */
 import CiteBox from "../components/CiteBox.astro";
 import Base from "../layouts/Base.astro";
 import { fetchStatus } from "../lib/api";
 import { REVALIDATE } from "../lib/cache";
+import type { LatestLaw } from "../lib/types";
 import { clientAddressOf } from "../lib/params";
-import { appHref, compsHref, congressesHref, gotoHref, searchHref } from "../lib/url";
+import { appHref, checkedTime, compsHref, congressesHref, gotoHref, longDate, searchHref } from "../lib/url";
 
 /** `params.CITE_FORMS`, the same six strings. */
 const CITE_FORMS = [
@@ -47,6 +49,26 @@ const compsSeen =
     : null;
 const compsNotLoaded = comps && compsSeen !== null ? compsSeen - comps.packages_loaded : 0;
 const number = (value: number) => value.toLocaleString("en-US");
+
+/** `[collection, source]`, in the order the checks are listed. */
+const SOURCES: [string, string][] = [
+  ["PLAW", "GovInfo public-law bulk data"],
+  ["STATUTE", "Statutes at Large volumes, GovInfo's files on the Hub mirror"],
+  ["COMPS", "GovInfo Statute Compilations"],
+];
+const latest = status?.latest ?? null;
+/** What follows the linked label: `, Laken Riley Act, enacted January 29, 2025, 139 Stat. 3`. */
+const latestDetail = (law: LatestLaw) =>
+  [law.title?.replace(/\.$/u, ""), law.enacted && `enacted ${longDate(law.enacted)}`, law.citation]
+    .filter(Boolean)
+    .map((part) => `, ${part}`)
+    .join("");
+const latestLaws = latest
+  ? ([
+      ["Public law", latest.public],
+      ["Private law", latest.private],
+    ] as const)
+  : [];
 ---
 
 <Base title="Statutes at Large">
@@ -56,6 +78,49 @@ const number = (value: number) => value.toLocaleString("en-US");
     Compilations beside them. The box below takes a citation or words; a Statutes at Large page
     shows the text it prints.
   </p>
+
+  <h2 class="group" id="latest">Latest laws</h2>
+  {
+    status ? (
+      <dl class="facts latest">
+        {latestLaws.map(([kind, law]) => (
+          <>
+            <dt>{kind}</dt>
+            <dd>
+              {law ? (
+                <>
+                  <a href={appHref(law.identifier)}>{law.label}</a>{latestDetail(law)}
+                </>
+              ) : (
+                "none"
+              )}
+            </dd>
+          </>
+        ))}
+        <dt>Statutes at Large volume</dt>
+        <dd>{latest?.volume ?? "none"}</dd>
+        <dt>Sources last checked</dt>
+        <dd>
+          {status.last_checked ? checkedTime(status.last_checked) : "no check recorded"}
+          <ul class="checks">
+            {SOURCES.map(([collection, source]) => {
+              const check = status.checks[collection];
+              return (
+                <li>
+                  {source}:{" "}
+                  {check
+                    ? `${checkedTime(check.checked_at)}${check.ok ? "" : " (the check failed)"}`
+                    : "no check recorded"}
+                </li>
+              );
+            })}
+          </ul>
+        </dd>
+      </dl>
+    ) : (
+      <p class="doc-meta">The API's status could not be read.</p>
+    )
+  }
 
   <h2 class="group">Go to a citation</h2>
   <CiteBox id="front-q" />
