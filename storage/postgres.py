@@ -87,6 +87,7 @@ from storage.repository import (
     CompUnitResult,
     CompVersionRef,
     LabelInfo,
+    LatestLaw,
     PendingLaw,
     LawRef,
     LawSummary,
@@ -1574,6 +1575,28 @@ class PostgresRepository:
             packages_seen=row.packages_seen,
             new_packages=tuple(row.new_packages or ()),
             error=row.error,
+        )
+
+    def latest_law(self, kind: str) -> LatestLaw | None:
+        row = self._session.execute(
+            select(
+                Law.identifier, Law.kind, Law.congress, Law.number, Law.chapter, Law.enacted,
+                Law.citation, Law.short_titles, Law.official_title, Law.source_collection,
+            )
+            .where(Law.kind == kind, Law.congress.is_not(None), Law.number.is_not(None))
+            .order_by(Law.congress.desc(), Law.number.desc())
+            .limit(1)
+        ).first()
+        if row is None:
+            return None
+        short_titles = row.short_titles or []
+        return LatestLaw(
+            identifier=row.identifier,
+            label=law_label(row.kind, row.congress, row.number, row.chapter, row.enacted),
+            enacted=row.enacted,
+            citation=row.citation,
+            title=(short_titles[0] if short_titles else None) or row.official_title,
+            source_collection=row.source_collection,
         )
 
     def pending_law(self, identifier: str) -> PendingLaw | None:

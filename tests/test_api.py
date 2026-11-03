@@ -470,7 +470,9 @@ def test_status(client):
     assert response.status_code == 200
     assert response.headers["cache-control"] == "public, max-age=300"
     body = response.json()
-    assert set(body) == {"collections", "checks", "stale", "citations", "classifications", "site"}
+    assert set(body) == {
+        "collections", "checks", "stale", "last_checked", "latest", "citations", "classifications", "site",
+    }
     assert body["site"] == {"version": "0.1.0", "commit": body["site"]["commit"]}
     assert body["site"]["commit"] == "unknown" or len(body["site"]["commit"]) >= 7
     assert set(body["collections"]) == {"STATUTE", "COMPS", "PLAW"} == set(body["checks"])
@@ -492,6 +494,21 @@ def test_status(client):
     assert datetime.datetime.fromisoformat(check["checked_at"])
     # The COMPS fixtures are loaded from files, which records no poll.
     assert body["checks"]["COMPS"] is None or body["checks"]["COMPS"]["ok"] is True
+    ok_checks = [c["checked_at"] for c in body["checks"].values() if c is not None and c["ok"]]
+    assert body["last_checked"] == max(ok_checks, key=datetime.datetime.fromisoformat)
+    latest = body["latest"]
+    assert latest["volume"] == 137
+    assert latest["public"] == {
+        "identifier": "/us/pl/119/1",
+        "label": "Public Law 119-1",
+        "enacted": "2025-01-29",
+        "citation": "139 Stat. 3",
+        "title": "Laken Riley Act",
+        "source_collection": "PLAW",
+    }
+    assert latest["private"]["identifier"] == "/us/pvtl/111/2"
+    assert latest["private"]["label"] == "Private Law 111-2"
+    assert latest["private"]["source_collection"] == "STATUTE"
     plaw = body["collections"]["PLAW"]
     assert plaw["packages_loaded"] == 4 and plaw["laws"] == 4 and plaw["latest_package"] == "PLAW-119publ1"
     assert plaw["volumes"] == [137, 139] and plaw["congresses"] == [118, 119]
