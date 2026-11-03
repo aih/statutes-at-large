@@ -148,14 +148,19 @@ def test_a_volume_reload_drops_the_laws_it_no_longer_yields():
     engine = make_engine("sqlite://")
     Base.metadata.create_all(engine)
     factory = sessionmaker(bind=engine, autoflush=False, future=True)
-    with factory() as session:
-        load_volume(session, FIXTURES / "statute-26-slice.xml")
-        law = session.scalars(select(Law).where(Law.identifier == "/us/act/1890-08-15/ch784")).one()
-        law.identifier = "/us/act/1890-08-15/ch999"
-        session.commit()
-        report = load_volume(session, FIXTURES / "statute-26-slice.xml")
-        assert report.laws_dropped_as_stale == ["/us/act/1890-08-15/ch999"]
-        assert sorted(session.scalars(select(Law.identifier))) == ["/us/act/1890-07-02/ch647", "/us/act/1890-08-15/ch784"]
+    try:
+        with factory() as session:
+            load_volume(session, FIXTURES / "statute-26-slice.xml")
+            law = session.scalars(select(Law).where(Law.identifier == "/us/act/1890-08-15/ch784")).one()
+            law.identifier = "/us/act/1890-08-15/ch999"
+            session.commit()
+            report = load_volume(session, FIXTURES / "statute-26-slice.xml")
+            assert report.laws_dropped_as_stale == ["/us/act/1890-08-15/ch999"]
+            assert sorted(session.scalars(select(Law.identifier))) == [
+                "/us/act/1890-07-02/ch647", "/us/act/1890-08-15/ch784",
+            ]
+    finally:
+        engine.dispose()
 
 
 def test_every_loaded_law_records_its_side(db):

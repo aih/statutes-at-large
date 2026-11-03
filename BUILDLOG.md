@@ -1296,8 +1296,12 @@ data, the volume files on the Hub mirror, GovInfo Statute Compilations), or
 "the check failed". `checkedTime` in `lib/url.ts`. The About page links the
 section. `tests/e2e/home.spec.ts`. No ADR: no decision departs from the design.
 
-Verified: `pytest` 740 passed (one `test_congress.py` test fails in the full
-run on an unclosed-SQLite `ResourceWarning`, as on `main`); `npm test` 130
+`test_congress.py`'s stale-identifier test now disposes its engine: its
+SQLite connection, closed at a later garbage collection, failed whichever test
+was running then under `error::ResourceWarning`, which is why `main`'s CI has
+been red since #31.
+
+Verified: `pytest` 741 passed, three runs in a row; `npm test` 130
 passed; `astro check` 0 errors. The reader on the dev server against the
 test database's `/status` prints Public Law 119-1, Private Law 111-2 and
 volume 137; `home.spec.ts` passes against it.
