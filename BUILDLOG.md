@@ -1226,3 +1226,71 @@ Done: `docs/sources.md`; the reader's `/app/sources`, linked from the footer
 Sources paragraph in the OpenAPI description at `/docs`; README's source
 paragraph. No ADR: no decision departs from the design.
 
+## 2026-10-30 — API tokens for known callers
+
+Asked (in the reintroductions-us project): if token-based access to this API
+would help that site's design, plan it and open a PR here.
+
+Done (ADR-0038): `Authorization: Bearer <token>` checked against
+`STATUTES_API_TOKENS` (named SHA-256 digests with a `scale`) in `params.py`.
+A token holder's per-caller budgets key on `token:<name>` and are multiplied
+by the scale; an unknown bearer token is a 401. `scripts/api_token.py` makes a
+token and prints its entry; `docker-compose.prod.yml` passes the setting to
+the api service.
+
+Verified: `make test` (`tests/test_api_tokens.py`, six tests: the scaled
+bucket, one bucket per token across addresses, the 401 directly and on
+`/api/v1/us/pl/81/740`, another scheme ignored, the setting's validation).
+Not run against the box; the setting is unset there until a token is issued.
+
+## 2026-10-30 — how to generate, store and use an API token
+
+Asked: document how to generate, store and use the ADR-0038 tokens.
+
+Done: `docs/api-tokens.md`: `scripts/api_token.py` (standard library only, so
+`python3` from any checkout), the per-caller budgets before scaling, the
+`STATUTES_API_TOKENS` line in the box's `.env` in single quotes, `docker
+compose … up -d --no-deps --force-recreate --wait api` to apply it, the
+caller's side, the responses, rotation and revocation. Linked from the README
+and the CLAUDE.md command list; `.env.example` shows the quoted form.
+
+Verified: `docker compose config` over a `.env` holding the single-quoted JSON
+passes the value through unchanged, and `pydantic_settings` reads the line as
+the same string. Not run against the box.
+
+
+## 2026-10-30 — reintro.linkedlegislation.org on the edge
+
+Asked (in the reintroductions-us project): deploy that site on the box.
+
+Done: a third site block in `deploy/edge/Caddyfile`,
+`{$REINTRO_SITE_ADDRESS:reintro.linkedlegislation.org}` → `reintro-proxy:8000`,
+with the same `header_up` lines and a 120 s `response_header_timeout` (a PDF
+rendered on request takes up to about 20 s of CPU). `REINTRO_SITE_ADDRESS` in
+`deploy/edge/docker-compose.yml`. `deploy/edge/README.md` names the three
+sites and the recreate a Caddyfile change needs.
+
+Verified: `caddy validate` with the production defaults and with rehearsal
+addresses. The rehearsal (`up.sh` on :8020 against reintroductions-us's
+`docker-compose.prod.yml`): `/healthz` and `/robots.txt` 200, a PDF 200 in
+2.3 s and 0.006 s from its cache, a forged `X-Forwarded-For` replaced by the
+edge's peer at the inner proxy, and `statutes.localhost` 502 with its stack
+down. Not run on the box.
+
+
+## 2026-10-31 — Author credit in the footer and on /app/about
+
+Asked: say in the footer and on an About page that the site was made as a
+proof of concept by Ari Hershowitz, linking https://aih.github.io, and point
+to https://statutes.linkedlegislation.org.
+
+Done: `frontend/src/pages/about.astro` at `/app/about` (what the site serves,
+the credit, the API and its docs, the US Code site, the repository).
+`SiteFooter.astro` links it (`aboutHref`) and carries the credit line;
+`SITE_URL` in `lib/url.ts`. Budget for `/app/about` in `docs/js-budgets.json`,
+`js-bytes.json` regenerated, the page added to the axe list, and
+`tests/e2e/about.spec.ts`.
+
+Verified: `npm test` 129 passed, `astro check` 0 errors, `astro build`
+complete; the built server answers `/app/about` 200 with both links and the
+footer's. e2e not run.

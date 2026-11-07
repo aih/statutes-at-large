@@ -9,10 +9,15 @@ conventions, ADR-0018 there). Nothing here touches a database session:
 from __future__ import annotations
 
 import datetime
+import hashlib
+import hmac
 import ipaddress
+import json
+import re
 import threading
 import time
 from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import Annotated, Callable, Literal
 
 from fastapi import Depends, HTTPException, Query, Request, Response
@@ -312,6 +317,8 @@ def public_cache(response: Response) -> None:
 # -------------------------------------------------------------- rate limiting
 #
 # ADR-0029's shape: a token bucket per client address, 429 with `Retry-After`.
+# A caller with an API token is keyed by the token and its budgets scaled
+# (ADR-0038).
 # `labels` is sized for a server (the US Code site calls it once per rendered
 # page); `cite` and `cited-by` for a person. The state is per process.
 
@@ -335,20 +342,26 @@ class RateLimiter:
         self._lock = threading.Lock()
         self._swept = time.monotonic()
 
-    def check(self, key: str) -> float | None:
-        """None if the request may proceed; otherwise seconds until it may."""
+    def check(self, key: str, scale: float = 1.0) -> float | None:
+        """None if the request may proceed; otherwise seconds until it may.
+
+        `scale` multiplies the capacity and the refill rate for this key: an
+        API token's tier (ADR-0038). A bucket takes as long to refill at every
+        scale, so the sweep needs no change."""
+        capacity = self.capacity * scale
+        per_second = self.per_second * scale
         now = time.monotonic()
         with self._lock:
             if now - self._swept > self.SWEEP_INTERVAL:
                 self._sweep(now)
             bucket = self._buckets.get(key)
             if bucket is None:
-                bucket = _Bucket(self.capacity, now)
+                bucket = _Bucket(capacity, now)
                 self._buckets[key] = bucket
-            bucket.tokens = min(self.capacity, bucket.tokens + (now - bucket.updated) * self.per_second)
+            bucket.tokens = min(capacity, bucket.tokens + (now - bucket.updated) * per_second)
             bucket.updated = now
             if bucket.tokens < 1.0:
-                return max(1.0, (1.0 - bucket.tokens) / self.per_second)
+                return max(1.0, (1.0 - bucket.tokens) / per_second)
             bucket.tokens -= 1.0
             return None
 
@@ -363,7 +376,73 @@ class RateLimiter:
             self._swept = time.monotonic()
 
 
+# ------------------------------------------------------------- API tokens
+
+
+class ApiTokenSettings(BaseSettings):
+    """Named API tokens (ADR-0038), configured on the box and never in the code."""
+
+    statutes_api_tokens: str = ""
+    """JSON: `{"name": {"sha256": "<hex digest of the token>", "scale": 20}}`.
+
+    Only the digest is stored. `scale` multiplies every per-caller budget the
+    token's holder meets and defaults to 10. Removing an entry revokes the
+    token at the next restart. `scripts/api_token.py` makes a token and prints
+    its entry."""
+
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+
+@dataclass(frozen=True)
+class ApiToken:
+    name: str
+    scale: float
+
+
+def parse_api_tokens(raw: str) -> dict[str, ApiToken]:
+    """The setting's JSON as {digest: token}. A malformed setting fails at
+    start-up."""
+    if not raw.strip():
+        return {}
+    out: dict[str, ApiToken] = {}
+    for name, entry in json.loads(raw).items():
+        digest = str(entry["sha256"]).lower()
+        if not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise ValueError(f"STATUTES_API_TOKENS[{name!r}].sha256 is not a SHA-256 hex digest")
+        scale = float(entry.get("scale", 10))
+        if scale < 1:
+            raise ValueError(f"STATUTES_API_TOKENS[{name!r}].scale is below 1")
+        out[digest] = ApiToken(name=name, scale=scale)
+    return out
+
+
+API_TOKENS: dict[str, ApiToken] = parse_api_tokens(ApiTokenSettings().statutes_api_tokens)
+
+
+def api_token(request: Request) -> ApiToken | None:
+    """The token an `Authorization: Bearer` header names, or None without one.
+    A bearer token that names no configured token is a 401. Any other
+    `Authorization` scheme is ignored."""
+    headers = getattr(request, "headers", None) or {}
+    scheme, _, presented = headers.get("authorization", "").partition(" ")
+    if scheme.lower() != "bearer" or not presented.strip():
+        return None
+    digest = hashlib.sha256(presented.strip().encode()).hexdigest()
+    for known, token in API_TOKENS.items():
+        if hmac.compare_digest(known, digest):
+            return token
+    raise HTTPException(
+        status_code=401,
+        detail="unknown API token",
+        headers={"WWW-Authenticate": 'Bearer error="invalid_token"'},
+    )
+
+
 def client_key(request: Request) -> str:
+    """The bucket key: the caller's token name, or else its address."""
+    token = api_token(request)
+    if token is not None:
+        return f"token:{token.name}"
     return request.client.host if request.client else "-"
 
 
@@ -392,7 +471,8 @@ def rate_limit(
     def dependency(request: Request) -> None:
         if exempt_internal and is_internal_caller(request):
             return
-        retry_after = limiter.check(client_key(request))
+        token = api_token(request)
+        retry_after = limiter.check(client_key(request), scale=token.scale if token else 1.0)
         if retry_after is not None:
             raise HTTPException(
                 status_code=429,

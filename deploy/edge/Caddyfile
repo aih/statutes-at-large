@@ -1,5 +1,5 @@
 # The edge (docs/plans/2026-09-08-deployment-plan.md, section 1): TLS for
-# both hostnames, each handed to its site's own Caddy over the `edge` network.
+# the three hostnames, each handed to its site's own Caddy over the `edge` network.
 #
 # The site addresses come from the environment with the production defaults;
 # a bare hostname means automatic HTTPS. The rehearsal sets plain-HTTP
@@ -34,6 +34,25 @@
 		transport http {
 			dial_timeout 5s
 			response_header_timeout 30s
+		}
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
+
+# reintro.linkedlegislation.org, the reintroductions-us compose project
+# (that repository's docs/deploy.md). A bill's PDF is rendered on request in
+# up to about 20 s of CPU, 60 s at the box's baseline; the header timeout is 120 s.
+{$REINTRO_SITE_ADDRESS:reintro.linkedlegislation.org} {
+	reverse_proxy reintro-proxy:8000 {
+		header_up X-Forwarded-For {remote_host}
+		header_up Host {host}
+		transport http {
+			dial_timeout 5s
+			response_header_timeout 120s
 		}
 	}
 
