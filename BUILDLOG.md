@@ -1324,3 +1324,8 @@ Verified: `pytest` 741 passed, three runs in a row; `npm test` 130
 passed; `astro check` 0 errors. The reader on the dev server against the
 test database's `/status` prints Public Law 119-1, Private Law 111-2 and
 volume 137; `home.spec.ts` passes against it.
+
+## 2026-11-07 — the search box's format list label
+
+The front page's label above the list of query forms reads "Accepted query
+formats" (was "Forms the box reads:"). `frontend/src/pages/index.astro`.
