@@ -124,10 +124,10 @@ Astro.response.headers.set("Cache-Control", REVALIDATE);
       </tr>
     </tbody>
   </table>
-  <p class="doc-meta">A scope value this site cannot read stays as ordinary words in the search, so a colon is a search rather than an empty result set.</p>
+  <p class="doc-meta">If the site doesn't recognize a scope value, it searches for it as ordinary words, so a stray colon doesn't empty the results.</p>
 
   <h2 class="group" id="sorting">Sorting</h2>
-  <p>Results come back sorted by relevance by default. The sort control above the results accepts:</p>
+  <p>Results are sorted by relevance unless you pick another order above the results:</p>
   <ul>
     <li><code>relevance</code> — the best matches first.</li>
     <li><code>date</code> — newest laws first, by date enacted.</li>

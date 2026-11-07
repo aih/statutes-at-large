@@ -86,7 +86,7 @@ def test_a_loaded_law_nothing_cites_is_an_empty_200(client):
     assert body["law"]["identifier"] == "/us/pvtl/81/375"
     assert body["total"] == 0 and body["sections"] == [] and body["contexts"] == {} and body["release_labels"] == []
     assert body["note"].startswith(
-        "Sections of the United States Code whose source credits, notes, or text cite Private Law 81-375: no sections"
+        "No section of the United States Code cites Private Law 81-375 in source credits, notes, or text"
     )
 
 
@@ -132,22 +132,22 @@ def test_the_note_wording(client):
     section = _get(client, "/us/pl/83/703/s1").json()
     assert section["note"] == cited_by_note(what="section 1 of Public Law 83-703", total=8, release_labels=["119-83"])
     assert section["note"].startswith(
-        "Sections of the United States Code whose source credits, notes, or text cite section 1 of "
-        "Public Law 83-703: 8 sections, from the release points 119-83."
+        "8 sections of the United States Code cite section 1 of Public Law 83-703 in source credits, "
+        "notes, or text (release points 119-83)."
     )
     law = _get(client, "/us/act/1890-07-02/ch647").json()
-    assert "cite Act of July 2, 1890, ch. 647: 8 sections" in law["note"]
+    assert law["note"].startswith("8 sections of the United States Code cite Act of July 2, 1890, ch. 647 ")
     unloaded = _get(client, "/us/pl/104/333/s814").json()
-    assert "cite section 814 of Public Law 104-333: 5 sections, from the release points 119-102not101." in unloaded["note"]
+    assert unloaded["note"].startswith("5 sections of the United States Code cite section 814 of Public Law 104-333 in source credits, notes, or text (release points 119-102not101).")
     below = _get(client, "/us/pl/104/333/s814/e/1").json()
-    assert "cite section 814(e)(1) of Public Law 104-333: 1 section," in below["note"]
+    assert "1 section of the United States Code cites section 814(e)(1) of Public Law 104-333 in" in below["note"]
     node = _get(client, "/us/pl/104/333/dI/tVIII").json()
-    assert "cite title VIII of division I of Public Law 104-333: 5 sections" in node["note"]
+    assert "5 sections of the United States Code cite title VIII of division I of Public Law 104-333 in" in node["note"]
     page = _get(client, "/us/stat/92/3479").json()
-    assert "cite page 3479 of volume 92 of the Statutes at Large: 1 section" in page["note"]
+    assert "1 section of the United States Code cites page 3479 of volume 92 of the Statutes at Large in" in page["note"]
     assert page["sections"][0]["identifier"] == "/us/usc/t16/s45f"
     lettered = _get(client, "/us/stat/68A/483").json()
-    assert "cite page 483 of volume 68A of the Statutes at Large: 2 sections" in lettered["note"]
+    assert "2 sections of the United States Code cite page 483 of volume 68A of the Statutes at Large in" in lettered["note"]
     assert [s["identifier"] for s in lettered["sections"]] == ["/us/usc/t26/s4081", "/us/usc/t26/s4083"]
     assert _get(client, "/us/stat/68a/483").json()["total"] == 2
 

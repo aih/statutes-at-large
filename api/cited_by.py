@@ -122,7 +122,7 @@ def cited_by(
         raise HTTPException(status_code=422, detail=f"unknown context {', '.join(bad)}; use sourceCredit, note, text")
     answer = repository.cited_by(path, contexts=list(contexts), limit=limit, offset=offset)
     if answer is None:
-        raise HTTPException(status_code=422, detail=f"{path} is not an identifier the citation index answers for")
+        raise HTTPException(status_code=422, detail=f"the citation index does not cover {path}")
     if answer.total == 0 and answer.law is None:
         raise HTTPException(status_code=404, detail=not_found(path, searched="the citation index"))
     index = repository.citation_index_status()

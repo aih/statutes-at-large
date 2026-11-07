@@ -22,8 +22,8 @@ const RELEASES: [string, string, string][] = [
 <Base title="Sources · Statutes at Large" crumbs={[{ label: "Home", href: `${APP}/` }]} current="Sources">
   <h1 class="doc-title">Sources</h1>
   <p class="lede">
-    The text is GPO's USLM XML from GovInfo, with identifiers added by this site. This site runs no OCR and corrects
-    no text.
+    The text is GPO's USLM XML from GovInfo. This site adds identifiers to it; it doesn't run OCR or correct the
+    text.
   </p>
 
   <h2 class="group" id="volumes-1-116">Statutes at Large, volumes 1 to 116 (1789 to 2002)</h2>
@@ -83,8 +83,8 @@ const RELEASES: [string, string, string][] = [
   <p>
     The loader reads the volume files from the Hugging Face dataset
     <a href="https://huggingface.co/datasets/dreamproit/us-statutes-at-large"><code>dreamproit/us-statutes-at-large</code></a>,
-    which holds GovInfo's files as GovInfo serves them, with each file's sha256. A volume GovInfo republishes is
-    reloaded in the weekly update.
+    which holds GovInfo's files as GovInfo serves them, with each file's sha256. When GovInfo republishes a volume,
+    the weekly update reloads it.
   </p>
 
   <h2 class="group" id="compilations">Statute Compilations, citations, and classification tables</h2>

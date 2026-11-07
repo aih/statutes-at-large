@@ -1329,3 +1329,23 @@ volume 137; `home.spec.ts` passes against it.
 
 The front page's label above the list of query forms reads "Accepted query
 formats" (was "Forms the box reads:"). `frontend/src/pages/index.astro`.
+
+## 2026-11-07 — plainer wording across the site
+
+Asked: rewrite site text with object-first relative clauses ("Forms the box
+reads:", "the text it prints") and other stilted phrasing in plain English.
+
+Done: the reader's front page, About, Sources, Statute Compilations, search,
+search syntax, Congress pages, section and Stat. page notices, the footer and
+the shortcuts dialog; the API sentences the reader prints verbatim in
+`params.py` (`served_note`, `amended_sentence`, `cited_by_note`,
+`congresses_note`, `congress_note`, `cite_note`, `cite_pending`,
+`cite_chapter_not_on_page`) and the `cited-by` 422 detail. Tests that quote
+those sentences follow them. The plans and ADRs that quote the old sentences
+are left as written.
+
+Verified: `pytest` 741 passed; `vitest` 131 passed; `astro check` 0 errors.
+Playwright against the API on a SQLite copy of the test database and the dev
+reader: 83 passed, 12 failed; the failures are the search specs (no
+OpenSearch), laws absent from the fixtures (118-5, 118-35's amendment), and
+the footer locator matching two paragraphs, none of them on a changed string.

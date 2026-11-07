@@ -118,8 +118,8 @@ if (data && total > 0) {
   {
     !query && !failure && (
       <p class="lede">
-        Search the text of the Statutes at Large and the Statute Compilations. A citation typed
-        into the box above goes straight to the unit instead. <a href={syntaxHref()}>The operators and scope words</a>.
+        Search the text of the Statutes at Large and the Statute Compilations. If you type a citation
+        in the box above, it takes you straight to that law or section. See the <a href={syntaxHref()}>search operators and scope words</a>.
       </p>
     )
   }
@@ -189,10 +189,10 @@ if (data && total > 0) {
               <div class="usa-alert__body">
                 <h2 class="usa-alert__heading">Nothing matched those words</h2>
                 <p class="usa-alert__text">
-                  Every word in the query has to appear. <a href={syntaxHref()}>The operators and scope words</a>{" "}
-                  loosen that.
+                  Every word you type has to appear. The <a href={syntaxHref()}>search operators and scope words</a>{" "}
+                  can loosen that.
                 </p>
-                <p class="usa-alert__text">Or this is a citation this site does not read as one. Forms it accepts:</p>
+                <p class="usa-alert__text">If you meant a citation, the site didn't recognize it. These are the formats it understands:</p>
                 <ul class="forms">
                   {CITE_FORMS.map((form) => (
                     <li>

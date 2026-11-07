@@ -74,9 +74,9 @@ const latestLaws = latest
 <Base title="Statutes at Large">
   <h1 class="doc-title">Statutes at Large</h1>
   <p class="lede">
-    Public laws at the section level, by the identifiers the US Code cites, and the Statute
-    Compilations beside them. The box below takes a citation or words; a Statutes at Large page
-    shows the text it prints.
+    Public laws, section by section, under the same identifiers the US Code uses to cite them,
+    alongside the Statute Compilations. Type a citation or search words in the box below. A
+    Statutes at Large page citation, like 64 Stat. 563, opens the text printed on that page.
   </p>
 
   <h2 class="group" id="latest">Latest laws</h2>
@@ -118,7 +118,7 @@ const latestLaws = latest
         </dd>
       </dl>
     ) : (
-      <p class="doc-meta">The API's status could not be read.</p>
+      <p class="doc-meta">The API's status couldn't be loaded.</p>
     )
   }
 
@@ -179,9 +179,9 @@ const latestLaws = latest
           {comps && compsSeen !== null && (
             <span>
               {" "}
-              of the {number(compsSeen)} GovInfo lists
+              of the {number(compsSeen)} listed on GovInfo
               {compsNotLoaded > 0 &&
-                `; the ${number(compsNotLoaded)} not loaded have no USLM text on GovInfo or a file with no body`}
+                `; the other ${number(compsNotLoaded)} have no USLM text on GovInfo or an empty file`}
             </span>
           )}
         </dd>
@@ -205,7 +205,7 @@ const latestLaws = latest
         <dd>{status.stale ? "yes" : "no"}</dd>
       </dl>
     ) : (
-      <p class="doc-meta">The API's status could not be read.</p>
+      <p class="doc-meta">The API's status couldn't be loaded.</p>
     )
   }
 </Base>

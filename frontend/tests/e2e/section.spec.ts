@@ -27,14 +27,14 @@ test("prints the API's note verbatim and renders the text", async ({ page }) => 
 test("the alias note on /us/act/…", async ({ page }) => {
   await page.goto("/app/us/act/1950-08-30/ch823/s3");
   await expect(page.locator(".note")).toContainText(
-    "/us/act/1950-08-30/ch823/s3 is served as /us/pl/81/740/s3, the same law under its other identifier.",
+    "/us/act/1950-08-30/ch823/s3 is another identifier for /us/pl/81/740/s3, shown here.",
   );
 });
 
 test("the section-number note on /us/pl/118/22/s101", async ({ page }) => {
   await page.goto("/app/us/pl/118/22/s101");
   await expect(page.locator(".note")).toContainText(
-    "No unit is stored at /us/pl/118/22/s101; the section numbered 101 in this law is at /us/pl/118/22/dA/s101 and is served here.",
+    "There is nothing at /us/pl/118/22/s101. Section 101 of this law is at /us/pl/118/22/dA/s101, shown here.",
   );
   await expect(page.locator(".note")).toContainText(
     "This section has been amended since; the most recent law recorded is Public Law 118-35 (January 19, 2024).",
@@ -48,7 +48,7 @@ test("a provision is marked inside its section", async ({ page }) => {
   await expect(target).toHaveCount(1);
   await expect(target).toHaveAttribute("id", "/us/pl/118/5/dA/tI/s101/a");
   await expect(page.locator(".section-body .target-path")).toHaveAttribute("id", "/us/pl/118/5/dA/tI/s101");
-  await expect(page.getByText("is shown, marked, in the context of section 101")).toBeVisible();
+  await expect(page.getByText("is highlighted within section 101")).toBeVisible();
   await expect(page.locator(".section-body blockquote.uslm-quotedContent").first()).toBeVisible();
 });
 

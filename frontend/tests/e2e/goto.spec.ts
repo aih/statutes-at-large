@@ -24,7 +24,7 @@ test("a citation naming nothing loaded is a 404 with the note", async ({ page })
   expect(response?.status()).toBe(404);
   expect(response?.headers()["cache-control"]).toBe("private, no-store");
   await expect(page.locator(".usa-alert--warning")).toContainText(
-    "999 Stat. 1 is /us/stat/999/1; no loaded law prints on that page.",
+    "999 Stat. 1 is /us/stat/999/1; no law on this site is printed on that page.",
   );
   await expect(page.locator(".usa-alert--warning")).toContainText("/us/stat/999/1");
   await expect(page.locator("main input[name=q]")).toHaveValue("999 Stat. 1");

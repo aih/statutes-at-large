@@ -433,7 +433,7 @@ def test_the_overview_route(client):
     assert response.status_code == 200
     assert response.headers["cache-control"] == "public, max-age=300"
     body = response.json()
-    assert body["note"] == "31 laws of 119 Congresses are loaded. Every count is of loaded laws."
+    assert body["note"] == "This site has 31 laws from 119 Congresses. All counts are of the laws on this site."
     c104 = body["congresses"][103]
     assert c104["url"] == f"{SITE}/app/congress/104"
     assert c104["uscode_classification_urls"] == [{"session": "all", "url": f"{USCODE}/app/classification/104/all"}]

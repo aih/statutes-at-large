@@ -80,8 +80,8 @@ def test_cite_says_a_pending_law_is_enacted_and_links_congress_gov(client, pendi
     assert body["pending"]["bill"] == "H.R. 9001"
     assert body["pending"]["url"] == "https://www.congress.gov/bill/119th-congress/house-bill/9001"
     assert body["message"] == (
-        "Public Law 119-120 has been enacted, and its text is not on this site yet: a law is loaded once GPO "
-        "publishes its enrolled text. Congress.gov has the law as H.R. 9001 at "
+        "Public Law 119-120 has been enacted, but its text isn't on this site yet. It will be added once GPO "
+        "publishes the enrolled text. Congress.gov has the law as H.R. 9001 at "
         "https://www.congress.gov/bill/119th-congress/house-bill/9001."
     )
 
