@@ -51,6 +51,14 @@ Compilations the House Office of the Legislative Counsel maintains.
 * `/api/v1/congress` — Acts by Congress from the 1st Congress on, cross-referenced
   to the US Code and classification tables.
 
+Sources: the text is GPO's USLM from GovInfo. Volumes 1 to 116 of the
+Statutes at Large were converted to USLM from the scanned volumes by GPO's
+digitization vendor (OCR, `processedBy` `Digitization Vendor`; the vendor and
+the OCR engine are not named by GPO); volume 117 on, and the public laws from
+PLAW, by GPO from its typesetting files. This site adds the `identifier`
+attributes and corrects no text. `provenance` on every response names the
+sources; [/app/sources](/app/sources) has the full account.
+
 The bare citation URL (`/us/pl/81/740/s3`) is a **307 redirect** to whichever
 surface the caller can read, so `curl` it with `-L` or address `/api/v1`.
 """

@@ -118,6 +118,11 @@ export function aboutHref(): string {
   return `${APP}/about`;
 }
 
+/** `/app/sources`, where the text comes from. */
+export function sourcesHref(): string {
+  return `${APP}/sources`;
+}
+
 /** `/app/search/syntax`, the operators and scope words page. */
 export function syntaxHref(): string {
   return `${APP}/search/syntax`;
