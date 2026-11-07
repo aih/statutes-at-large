@@ -1293,4 +1293,34 @@ the credit, the API and its docs, the US Code site, the repository).
 
 Verified: `npm test` 129 passed, `astro check` 0 errors, `astro build`
 complete; the built server answers `/app/about` 200 with both links and the
-footer's. e2e not run.
+footer's. 
+
+
+## 2026-11-03 — Latest laws and the last check on the front page
+
+Asked: note on the site's page which laws are the latest loaded and when the
+official sources were last checked.
+
+Found: every source run already writes a `source_checks` row (`fetch-statute`,
+`statute`, `plaw load`/`plaw poll`, `comps poll`), and `/status` already
+served the last one per collection. Nothing new is recorded.
+
+Done: `Repository.latest_law(kind)`, the `pl` or `pvtl` row with the highest
+(congress, number). `/status` adds `latest` (`public`, `private`, `volume`,
+the highest volume from a `STATUTE` file) and `last_checked`, the newest
+successful check among `checks`. The front page's new "Latest laws" section
+prints both laws linked, with title, enactment date and citation, the volume,
+the last check, and the last check of each source (GovInfo public-law bulk
+data, the volume files on the Hub mirror, GovInfo Statute Compilations), or
+"the check failed". `checkedTime` in `lib/url.ts`. The About page links the
+section. `tests/e2e/home.spec.ts`. No ADR: no decision departs from the design.
+
+`test_congress.py`'s stale-identifier test now disposes its engine: its
+SQLite connection, closed at a later garbage collection, failed whichever test
+was running then under `error::ResourceWarning`, which is why `main`'s CI has
+been red since #31.
+
+Verified: `pytest` 741 passed, three runs in a row; `npm test` 130
+passed; `astro check` 0 errors. The reader on the dev server against the
+test database's `/status` prints Public Law 119-1, Private Law 111-2 and
+volume 137; `home.spec.ts` passes against it.

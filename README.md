@@ -46,7 +46,7 @@ All under `/api/v1`. The bare identifier URL (`/us/pl/81/740/s3`) is a 307 to
 | `GET /us/stat/{volume}/{page}[?format=xml]` | `{page, identifier, volume, documents: [{identifier, kind, title, label, citation, enacted, starts_here, unit_on_page, units, text}], pdf}`; `text` and `units` are what the law prints on the page, the slice between its page markers (ADR-0020), and `format=xml` serves the slices as USLM; a page of volume 68A or 70A is a 404 whose detail names the volume and its GovInfo page (ADR-0035) |
 | `POST /labels` `{"identifiers": […]}`, `GET /labels?identifier=…` | per identifier: `{exists: true, served_identifier, resolution, num, heading, level, kind, law_identifier, law_label, currency}`, for a `/us/stat/{vol}/{page}` identifier `{exists: true, level: "page", kind: "stat", volume, page, documents: [{identifier, label, kind, starts_here}], pdf}`, or `{exists: false}`; 1 to 100 per request; 300 requests then 30 per second per address |
 | `GET /cite?q=Pub. L. 104-333, § 814` | a written citation parsed (`citeparse.py`) and checked: `{query, kind, identifier, section_identifier, law_identifier, label, exists, served_identifier, resolution, level, num, heading, law_label, url, stat_page, hierarchy, note, message}`; 422 when the text is not a citation, `exists: false` when nothing is loaded at the identifier, `exists: true` with the citation URL; `kind: "usc"` with the US Code site's URL and `exists: null` for a US Code citation; `exists: false` with a `message` naming the volume for a page of volume 68A or 70A (ADR-0035); `max-age=300`, ETag; 60 requests then 2 per second per address |
-| `GET /status` | `{collections: {STATUTE, COMPS, PLAW}, checks: {…}, stale, citations, classifications}`; the `PLAW` block adds `congresses` and `laws_by_congress` |
+| `GET /status` | `{collections: {STATUTE, COMPS, PLAW}, checks: {…}, stale, last_checked, latest, citations, classifications}`; the `PLAW` block adds `congresses` and `laws_by_congress`; `latest` names the public and private law with the highest (congress, number) and the highest volume loaded; `last_checked` is the newest successful check |
 | `GET /laws/{c}/{n}` | `{law, toc, section_count, compilations, sources}`; `sources` is `{served_from, package, identifiers, volume: {package, loaded, govinfo}, plaw: {package, uslm, loaded, govinfo}}` |
 | `GET /laws/{c}/{n}/sections/{num}` | the section by number, ignoring hierarchy; same body as the identifier routes |
 
@@ -264,7 +264,7 @@ and bottom, `/` focuses the citation box, `?` opens the shortcut list
 
 | Page | Shows |
 |---|---|
-| `/app/` | what is loaded, from `/status`; the citation box; the forms it accepts |
+| `/app/` | the latest laws and when each source was last checked, and what is loaded, from `/status`; the citation box; the forms it accepts |
 | `/app/goto?q=` | the box's target: 307 to the unit on a hit, 307 to the US Code site for a US Code citation, 404 with the note for a citation naming nothing loaded, 307 to `/app/search?q=` for text that is not a citation |
 | `/app/us/pl/{c}/{n}`, `/us/pvtl/…`, `/us/act/…` | the law: titles, dates, citation, aliases, sources, table of contents, the "cited by" panel |
 | `/app/us/pl/{c}/{n}/{path}` (and the other kinds) | a hierarchy node's contents, or a section's text rendered from `?format=xml` with a provision marked, the note, the currency line, alternatives, Stat. pages with govinfo links, breadcrumbs, previous and next, cross references resolved through `/labels`, the "cited by" panel, provenance |

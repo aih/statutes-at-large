@@ -26,6 +26,7 @@ from storage import (
     CollectionStatus,
     CompRef,
     LabelInfo,
+    LatestLaw,
     LawRef,
     LawSources,
     LawSummary,
@@ -616,6 +617,34 @@ class SourceCheckOut(BaseModel):
         )
 
 
+class LatestLawOut(BaseModel):
+    """The newest law of one kind loaded, by (congress, number)."""
+
+    identifier: str = Field(examples=["/us/pl/119/60"])
+    label: str = Field(examples=["Public Law 119-60"])
+    enacted: datetime.date | None
+    citation: str | None = Field(description="`139 Stat. 1234`; null when the source prints none yet.")
+    title: str | None = Field(description="The first short title, else the official title.")
+    source_collection: str = Field(description="`STATUTE` | `PLAW`.")
+
+    @classmethod
+    def of(cls, law: LatestLaw) -> LatestLawOut:
+        return cls(
+            identifier=law.identifier,
+            label=law.label,
+            enacted=law.enacted,
+            citation=law.citation,
+            title=law.title,
+            source_collection=law.source_collection,
+        )
+
+
+class LatestLawsOut(BaseModel):
+    public: LatestLawOut | None = Field(description="The public law with the highest (congress, number).")
+    private: LatestLawOut | None = Field(description="The private law with the highest (congress, number).")
+    volume: int | None = Field(description="The highest Statutes at Large volume loaded from a `STATUTE` file.")
+
+
 class CitationsStatusOut(BaseModel):
     """The citation index: rows, citing sections, titles, the release labels."""
 
@@ -722,6 +751,10 @@ class StatusOut(BaseModel):
     stale: bool = Field(
         description="True when any collection with loaded packages has no check or a stale one."
     )
+    last_checked: datetime.datetime | None = Field(
+        description="The newest successful check among `checks`; null when none is recorded."
+    )
+    latest: LatestLawsOut
     citations: CitationsStatusOut
     classifications: ClassificationsStatusOut
     site: SiteOut

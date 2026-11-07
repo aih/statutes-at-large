@@ -296,10 +296,30 @@ export interface Site {
   commit: string;
 }
 
+/** `LatestLawOut`: the newest law of one kind loaded, by (congress, number). */
+export interface LatestLaw {
+  identifier: string;
+  label: string;
+  enacted: string | null;
+  citation: string | null;
+  title: string | null;
+  source_collection: string;
+}
+
+/** `LatestLawsOut`. */
+export interface LatestLaws {
+  public: LatestLaw | null;
+  private: LatestLaw | null;
+  volume: number | null;
+}
+
 export interface Status {
   collections: Record<string, CollectionStatus>;
   checks: Record<string, SourceCheck | null>;
   stale: boolean;
+  /** The newest successful check among `checks`. */
+  last_checked: string | null;
+  latest: LatestLaws;
   citations: CitationsStatus;
   classifications: ClassificationsStatus;
   site: Site;

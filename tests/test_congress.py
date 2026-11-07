@@ -156,7 +156,9 @@ def test_a_volume_reload_drops_the_laws_it_no_longer_yields():
             session.commit()
             report = load_volume(session, FIXTURES / "statute-26-slice.xml")
             assert report.laws_dropped_as_stale == ["/us/act/1890-08-15/ch999"]
-            assert sorted(session.scalars(select(Law.identifier))) == ["/us/act/1890-07-02/ch647", "/us/act/1890-08-15/ch784"]
+            assert sorted(session.scalars(select(Law.identifier))) == [
+                "/us/act/1890-07-02/ch647", "/us/act/1890-08-15/ch784",
+            ]
     finally:
         engine.dispose()
 
