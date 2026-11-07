@@ -421,6 +421,20 @@ class CollectionStatus:
 
 
 @dataclass(frozen=True, slots=True)
+class LatestLaw:
+    """The newest law of one kind by (congress, number): what `/status` and
+    the front page name as the latest public or private law loaded."""
+
+    identifier: str
+    label: str
+    enacted: datetime.date | None
+    citation: str | None
+    title: str | None
+    """The first short title, else the official title."""
+    source_collection: str
+
+
+@dataclass(frozen=True, slots=True)
 class PendingLaw:
     """A public law Congress.gov lists and this site has not loaded: its text
     is not published yet (ADR-0031)."""
@@ -968,6 +982,11 @@ class Repository(Protocol):
         ...
 
     def last_source_check(self, collection: str) -> SourceCheckInfo | None:
+        ...
+
+    def latest_law(self, kind: str) -> LatestLaw | None:
+        """The loaded law of `kind` (`pl` | `pvtl`) with the highest
+        (congress, number); None when none is loaded."""
         ...
 
     def pending_law(self, identifier: str) -> PendingLaw | None:

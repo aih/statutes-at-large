@@ -4,6 +4,7 @@ import { nestToc, sectionNeighbors, unitLabel } from "../src/lib/toc";
 import {
   apiHref,
   appHref,
+  checkedTime,
   congressHref,
   congressOrdinal,
   congressesHref,
@@ -90,6 +91,14 @@ describe("parsers", () => {
     expect(longDate("1950-08-30")).toBe("August 30, 1950");
     expect(longDate(null)).toBe("");
     expect(longDate("2026-09-04T12:08:06Z")).toBe("2026-09-04T12:08:06Z");
+  });
+
+  it("checkedTime", () => {
+    expect(checkedTime("2026-11-02T06:00:01+00:00")).toBe("November 2, 2026, 06:00 UTC");
+    expect(checkedTime("2026-11-02T01:30:00-05:00")).toBe("November 2, 2026, 06:30 UTC");
+    expect(checkedTime("2026-11-03T15:27:39.721249")).toBe("November 3, 2026, 15:27 UTC");
+    expect(checkedTime(null)).toBe("");
+    expect(checkedTime("not a time")).toBe("not a time");
   });
 });
 

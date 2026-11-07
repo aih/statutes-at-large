@@ -164,6 +164,22 @@ export function parseLawNumber(identifier: string): { kind: string; congress: nu
   return match ? { kind: match[1], congress: Number(match[2]), number: Number(match[3]) } : null;
 }
 
+/**
+ * A check's time, `2026-11-02T06:00:01+00:00` → `November 2, 2026, 06:00 UTC`.
+ * A time with no offset (the SQLite test database) is read as UTC; anything
+ * that is not a time is returned as it is.
+ */
+export function checkedTime(value: string | null | undefined): string {
+  if (!value) return "";
+  const zoned = /(?:Z|[+-]\d{2}:?\d{2})$/u.test(value) ? value : `${value}Z`;
+  const date = new Date(zoned);
+  if (Number.isNaN(date.getTime())) return value;
+  const day = date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" });
+  const hh = String(date.getUTCHours()).padStart(2, "0");
+  const mm = String(date.getUTCMinutes()).padStart(2, "0");
+  return `${day}, ${hh}:${mm} UTC`;
+}
+
 /** `1950-08-30` → `August 30, 1950`; anything else is returned as it is. */
 export function longDate(value: string | null | undefined): string {
   if (!value) return "";

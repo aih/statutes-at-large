@@ -38,6 +38,8 @@ from api.schemas import (
     LabelOut,
     LabelPageOut,
     LabelsIn,
+    LatestLawOut,
+    LatestLawsOut,
     LawSummaryOut,
     NotFoundOut,
     SiteOut,
@@ -349,10 +351,19 @@ def status(repository: RepositoryDep) -> StatusOut:
     stale = any(
         collections[c].packages_loaded > 0 and (checks[c] is None or checks[c].stale) for c in COLLECTIONS
     )
+    ok_checks = [check.checked_at for check in checks.values() if check is not None and check.ok]
+    public, private = repository.latest_law("pl"), repository.latest_law("pvtl")
+    statute_volumes = collections["STATUTE"].volumes
     return StatusOut(
         collections=collections,
         checks=checks,
         stale=stale,
+        last_checked=max(ok_checks, default=None),
+        latest=LatestLawsOut(
+            public=LatestLawOut.of(public) if public is not None else None,
+            private=LatestLawOut.of(private) if private is not None else None,
+            volume=max(statute_volumes, default=None),
+        ),
         citations=CitationsStatusOut.of(repository.citation_index_status()),
         classifications=ClassificationsStatusOut.of(repository.classification_status()),
         site=SiteOut(version=SITE_VERSION, commit=GIT_COMMIT),
