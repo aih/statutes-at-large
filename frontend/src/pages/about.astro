@@ -13,8 +13,8 @@ Astro.response.headers.set("Cache-Control", REVALIDATE);
 <Base title="About · Statutes at Large" crumbs={[{ label: "Home", href: `${APP}/` }]} current="About">
   <h1 class="doc-title">About</h1>
   <p class="lede">
-    <a href={SITE_URL}>statutes.linkedlegislation.org</a> serves the Statutes at Large and the
-    Statute Compilations at the section level, by the identifiers the US Code cites.
+    <a href={SITE_URL}>statutes.linkedlegislation.org</a> has the Statutes at Large and the
+    Statute Compilations, section by section, under the same identifiers the US Code uses to cite them.
   </p>
 
   <p>
@@ -23,11 +23,11 @@ Astro.response.headers.set("Cache-Control", REVALIDATE);
 
   <h2 class="group" id="text">The text</h2>
   <p>
-    The text is GovInfo's USLM. Every page says which source and which identifier rule it came
-    from. The <a href={API}>API</a> answers the same identifiers as JSON and XML; its documentation
-    is at <a href="/docs">/docs</a>. The <a href={uscodeHref("/")}>US Code</a> site links its source
-    credits here. The <a href={`${APP}/#latest`}>front page</a> names the latest laws loaded and
-    when GovInfo and the Hub mirror were last checked for new ones.
+    The text is GovInfo's USLM. Every page notes where its text came from and how its identifiers
+    were assigned. The <a href={API}>API</a> returns the same identifiers as JSON and XML; its
+    documentation is at <a href="/docs">/docs</a>. Source credits on the
+    <a href={uscodeHref("/")}>US Code</a> site link here. The <a href={`${APP}/#latest`}>front page</a>
+    lists the newest laws on the site and when GovInfo and the Hub mirror were last checked for new ones.
   </p>
 
   <h2 class="group" id="code">Code</h2>

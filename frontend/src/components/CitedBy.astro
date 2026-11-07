@@ -51,7 +51,7 @@ const contexts = answer ? Object.entries(answer.contexts) : [];
       {answer.total > answer.sections.length && (
         <p class="doc-meta">
           <a href={citedByApiHref(answer.identifier, 200)}>
-            The rest in the API ({answer.total} in all)
+            All {answer.total} in the API
           </a>
         </p>
       )}

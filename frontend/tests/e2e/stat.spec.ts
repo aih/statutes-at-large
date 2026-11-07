@@ -18,7 +18,7 @@ test("renders the slice and names the unit the page marker falls in", async ({ p
 
   // The reworded documents list: the law began on an earlier page.
   const row = page.locator(".toc a[href='/app/us/pl/81/740']");
-  await expect(row).toContainText("begins at 64 Stat. 563 and prints on this page");
+  await expect(row).toContainText("starts at 64 Stat. 563 and continues onto this page");
 
   // "Text on this page": the "Begins inside …" line and the "Read … in full" link.
   await expect(page.locator("#text")).toHaveText("Text on this page");

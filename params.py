@@ -76,19 +76,19 @@ def served_note(result: UnitResult | CompUnitResult) -> str | None:
     if result.resolution == "exact":
         return None
     if result.resolution == "alias":
-        return f"{requested} is served as {served}, the same law under its other identifier."
+        return f"{requested} is another identifier for {served}, shown here."
     if result.resolution == "section_number":
         return (
-            f"No unit is stored at {requested}; the section numbered "
-            f"{result.num} in this law is at {served} and is served here."
+            f"There is nothing at {requested}. Section {result.num} of this law "
+            f"is at {served}, shown here."
         )
     if result.resolution == "prefix":
         missing = ""
         if result.provision is not None and not result.provision.found:
             missing = f" {result.provision.identifier} is not in its text."
         return (
-            f"Nothing is stored at {requested}; {served} is the longest stored "
-            f"prefix and is served here.{missing}"
+            f"There is nothing at {requested}, so this shows {served}, the closest "
+            f"level above it.{missing}"
         )
     return None
 
@@ -171,10 +171,10 @@ def amended_sentence(
         return f"This {noun} has been amended since."
     if status == "no_record":
         return (
-            f"No later amendment of this {noun} is recorded in the indexes here ({INDEXES}); "
-            "amendment may still have occurred."
+            f"The indexes here ({INDEXES}) record no later amendment of this {noun}, "
+            "but it may still have been amended."
         )
-    return f"Whether this {noun} has been amended since is not recorded here."
+    return f"This site has no record of whether this {noun} has been amended since."
 
 
 def amended_unknown_sentence(result: UnitResult) -> str:
@@ -187,11 +187,12 @@ def cited_by_note(*, what: str, total: int, release_labels: Sequence[str]) -> st
     """The `cited-by` answer's note: what was counted and from which release
     points of the US Code (design section 5)."""
     labels = ", ".join(release_labels) if release_labels else "no release point loaded"
-    count = "no sections" if total == 0 else ("1 section" if total == 1 else f"{total} sections")
+    count = "No section" if total == 0 else ("1 section" if total == 1 else f"{total} sections")
+    verb = "cites" if total <= 1 else "cite"
     return (
-        f"Sections of the United States Code whose source credits, notes, or text cite {what}: "
-        f"{count}, from the release points {labels}. A source-credit citation records that the law "
-        "enacted or amended the section; a note or text citation is a reference."
+        f"{count} of the United States Code {verb} {what} in source credits, notes, or text "
+        f"(release points {labels}). A citation in a source credit means the law enacted or amended "
+        "the section; a citation in a note or the text is a reference."
     )
 
 
@@ -259,8 +260,8 @@ def _files(result: CompUnitResult) -> str:
 def congresses_note(overview: CongressesOverview) -> str:
     """The overview note: what the counts are of."""
     return (
-        f"{overview.total_laws:,} laws of {overview.total_congresses} Congresses are loaded. "
-        "Every count is of loaded laws."
+        f"This site has {overview.total_laws:,} laws from {overview.total_congresses} Congresses. "
+        "All counts are of the laws on this site."
     )
 
 
@@ -273,7 +274,7 @@ def congress_note(detail: CongressDetail) -> str:
     )
     if summary.pending_laws_count:
         more = summary.pending_laws_count
-        note += f" {more} more {'is' if more == 1 else 'are'} enacted with no published text yet."
+        note += f" {more} more {'has' if more == 1 else 'have'} been enacted but not published yet."
     return note
 
 
@@ -597,35 +598,35 @@ def cite_note(
     """
     if kind == "usc":
         return (
-            f"{label} is a United States Code citation, {identifier}; the US Code site serves it "
-            f"at {url}. It is not checked here."
+            f"{label} is a United States Code citation ({identifier}). It is on the US Code site "
+            f"at {url}; this site does not check it."
         )
     if not exists:
-        where = "no loaded law prints on that page" if kind == "stat" else "nothing is loaded there"
+        where = "no law on this site is printed on that page" if kind == "stat" else "this site has nothing there"
         return f"{label} is {identifier}; {where}."
-    first = f"{label} is {identifier}, which is loaded here."
+    first = f"{label} is {identifier}, which is on this site."
     if served_identifier is None or served_identifier == identifier or resolution == "exact":
         return first
     if resolution == "alias":
-        return f"{first} It is served as {served_identifier}, the same law under its other identifier."
+        return f"{first} It is another identifier for {served_identifier}."
     if resolution == "section_number":
         return (
-            f"{first} No unit is stored at {identifier}; the section numbered {num} in this law "
-            f"is at {served_identifier} and is served."
+            f"{first} There is nothing at {identifier}; section {num} of this law "
+            f"is at {served_identifier}."
         )
     if resolution == "prefix":
         return (
-            f"{first} Nothing is stored at {identifier}; {served_identifier} is the longest stored "
-            "prefix and is served."
+            f"{first} There is nothing at {identifier}; {served_identifier} is the closest "
+            "level above it."
         )
-    return f"{first} It is served as {served_identifier}."
+    return f"{first} It is at {served_identifier}."
 
 
 def cite_pending(*, label: str, bill: str, url: str) -> str:
     """A public law Congress.gov lists and this site has not loaded (ADR-0031)."""
     return (
-        f"{label} has been enacted, and its text is not on this site yet: a law is loaded once GPO "
-        f"publishes its enrolled text. Congress.gov has the law as {bill} at {url}."
+        f"{label} has been enacted, but its text isn't on this site yet. It will be added once GPO "
+        f"publishes the enrolled text. Congress.gov has the law as {bill} at {url}."
     )
 
 
@@ -646,4 +647,4 @@ def lettered_volume_note(volume: str) -> str:
 def cite_chapter_not_on_page(*, chapter: int, page_identifier: str) -> str:
     """A chapter cited with a Stat. page, when the page is loaded and no law
     on it has that chapter."""
-    return f"The page {page_identifier} is loaded, and no law on it is chapter {chapter}; the page's documents are served."
+    return f"No law on page {page_identifier} is chapter {chapter}, so this shows everything printed on that page."

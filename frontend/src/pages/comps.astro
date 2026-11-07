@@ -35,13 +35,13 @@ const searchText = (comp: CompTitle) =>
 <Base title="Statute Compilations — Statutes at Large" crumbs={[{ label: "Home", href: `${APP}/` }]} current="Statute Compilations">
   <h1 class="doc-title">Statute Compilations</h1>
   <p class="lede">
-    Every Statute Compilation file loaded from GovInfo, by title. An act compiled one title per file
-    is listed once per title.
+    Every Statute Compilation file loaded from GovInfo, sorted by title. When an act is compiled
+    in one file per title, each title has its own entry.
   </p>
 
   {
     all === null ? (
-      <p class="doc-meta">The list of compilations could not be read.</p>
+      <p class="doc-meta">The list of compilations couldn't be loaded.</p>
     ) : (
       <>
         <form method="get" action={compsHref()} class="search-bar" role="search">

@@ -145,7 +145,7 @@ if (stat) sections.push({ href: "#documents", label: "Documents" });
                   <article class="section-body" set:html={sliceHtml[index]} />
                 ) : (
                   <>
-                    <p class="doc-meta">The source XML could not be fetched; this is the reading text.</p>
+                    <p class="doc-meta">The source XML couldn't be loaded, so this is the plain text.</p>
                     <article class="section-body">
                       <p>{document.text}</p>
                     </article>
@@ -158,7 +158,7 @@ if (stat) sections.push({ href: "#documents", label: "Documents" });
 
         <section class="panel" aria-labelledby="documents">
           <h2 class="group" id="documents">Documents on this page</h2>
-          {stat.documents.length === 0 && <p class="doc-meta">No loaded law prints on this page.</p>}
+          {stat.documents.length === 0 && <p class="doc-meta">No law on this site is printed on this page.</p>}
           <ul class="toc">
             {stat.documents.map((document) => (
               <li>
@@ -170,7 +170,7 @@ if (stat) sections.push({ href: "#documents", label: "Documents" });
                     {document.enacted && `, ${longDate(document.enacted)}`}
                     {document.starts_here
                       ? "; starts on this page"
-                      : `; begins at ${document.citation} and prints on this page`}
+                      : `; starts at ${document.citation} and continues onto this page`}
                   </span>
                 </a>
               </li>

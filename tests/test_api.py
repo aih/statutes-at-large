@@ -20,9 +20,9 @@ VOLUME_64_SOURCE = (
 )
 ENACTED_NOTE_740 = (
     "This is section 3 of Public Law 81-740 as enacted on August 30, 1950 (64 Stat. 563). "
-    "It is not updated. No later amendment of this section is recorded in the indexes here "
-    "(the US Code's source credits, the classification tables, and the Statute Compilations); "
-    "amendment may still have occurred. "
+    "It is not updated. The indexes here (the US Code's source credits, the classification "
+    "tables, and the Statute Compilations) record no later amendment of this section, but it may "
+    "still have been amended. "
     "To check for later amendments: the classification tables at uscode.house.gov for laws "
     "after August 30, 1950. " + VOLUME_64_SOURCE
 )
@@ -76,8 +76,8 @@ def test_the_note_for_a_provision_that_is_not_in_the_text(client):
     assert body["served_identifier"] == "/us/pl/81/740/s3"
     assert body["provision"] == {"identifier": "/us/pl/81/740/s3/9", "found": False, "xml": None, "text": None}
     assert body["note"] == (
-        "Nothing is stored at /us/pl/81/740/s3/9; /us/pl/81/740/s3 is the longest stored prefix "
-        "and is served here. /us/pl/81/740/s3/9 is not in its text. " + ENACTED_NOTE_740
+        "There is nothing at /us/pl/81/740/s3/9, so this shows /us/pl/81/740/s3, the closest level "
+        "above it. /us/pl/81/740/s3/9 is not in its text. " + ENACTED_NOTE_740
     )
 
 
@@ -87,10 +87,10 @@ def test_the_note_for_a_section_found_by_number(client):
     assert body["served_identifier"] == "/us/pl/81/910/tI/s101"
     assert body["ancestors"][0]["identifier"] == "/us/pl/81/910/tI"
     assert body["note"] == (
-        "No unit is stored at /us/pl/81/910/s101; the section numbered 101 in this law is at "
-        "/us/pl/81/910/tI/s101 and is served here. This is section 101 of Public Law 81-910 as "
-        "enacted on January 6, 1951 (64 Stat. 1221). It is not updated. Whether this section has "
-        "been amended since is not recorded here. To check for later amendments: the "
+        "There is nothing at /us/pl/81/910/s101. Section 101 of this law is at "
+        "/us/pl/81/910/tI/s101, shown here. This is section 101 of Public Law 81-910 as "
+        "enacted on January 6, 1951 (64 Stat. 1221). It is not updated. This site has no record of "
+        "whether this section has been amended since. To check for later amendments: the "
         "classification tables at uscode.house.gov for laws after January 6, 1951. " + VOLUME_64_SOURCE
     )
 
@@ -104,8 +104,7 @@ def test_the_chapter_form_is_an_alias(client):
     assert response.headers["x-served-identifier"] == "/us/pl/81/740/s3"
     assert body["provenance"]["sha256"] == client.get(SECTION).json()["provenance"]["sha256"]
     assert body["note"] == (
-        "/us/act/1950-08-30/ch823/s3 is served as /us/pl/81/740/s3, the same law under its other "
-        "identifier. " + ENACTED_NOTE_740
+        "/us/act/1950-08-30/ch823/s3 is another identifier for /us/pl/81/740/s3, shown here. " + ENACTED_NOTE_740
     )
     assert body["xml_url"] == "/api/v1/us/act/1950-08-30/ch823/s3?format=xml"
 

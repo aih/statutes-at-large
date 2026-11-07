@@ -175,11 +175,11 @@ def test_the_note_sentence_for_each_status(client):
         "Public Law 108-237 (June 22, 2004)."
     ) in known
     no_record = client.get("/api/v1/us/pl/81/740/s3").json()["note"]
-    assert f"No later amendment of this section is recorded in the indexes here ({INDEXES}); amendment may still have occurred." in no_record
+    assert f"The indexes here ({INDEXES}) record no later amendment of this section, but it may still have been amended." in no_record
     unknown = client.get("/api/v1/us/pl/81/910/tI").json()["note"]
-    assert "Whether this title has been amended since is not recorded here." in unknown
+    assert "This site has no record of whether this title has been amended since." in unknown
     law = client.get("/api/v1/us/pvtl/81/375").json()["note"]
-    assert "Whether this law has been amended since is not recorded here." in law
+    assert "This site has no record of whether this law has been amended since." in law
 
 
 # ------------------------------------------------------------------- labels

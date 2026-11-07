@@ -40,7 +40,7 @@ def test_a_section_of_a_public_law(client):
     assert body["label"] == "Public Law 81-740, section 3"
     assert body["level"] == "section" and body["num"] == "3"
     assert body["url"] == f"{ORIGIN}/us/pl/81/740/s3"
-    assert body["note"] == "Public Law 81-740, section 3 is /us/pl/81/740/s3, which is loaded here."
+    assert body["note"] == "Public Law 81-740, section 3 is /us/pl/81/740/s3, which is on this site."
     assert body["message"] is None
 
 
@@ -71,8 +71,8 @@ def test_a_chapter_era_law_by_date_and_chapter_resolves_through_its_alias(client
     assert body["law_identifier"] == "/us/pl/81/740"
     assert body["url"] == f"{ORIGIN}/us/act/1950-08-30/ch823/s3"
     assert body["note"] == (
-        "Act of August 30, 1950, ch. 823, section 3 is /us/act/1950-08-30/ch823/s3, which is loaded here. "
-        "It is served as /us/pl/81/740/s3, the same law under its other identifier."
+        "Act of August 30, 1950, ch. 823, section 3 is /us/act/1950-08-30/ch823/s3, which is on this site. "
+        "It is another identifier for /us/pl/81/740/s3."
     )
 
 
@@ -83,7 +83,7 @@ def test_a_section_under_another_hierarchy_is_found_by_number(client):
     assert body["served_identifier"].endswith("/s101")
     if body["served_identifier"] != "/us/pl/118/22/s101":
         assert body["resolution"] == "section_number"
-        assert "the section numbered 101 in this law is at" in body["note"]
+        assert "section 101 of this law is at" in body["note"]
 
 
 def test_a_hierarchy_in_the_citation_is_reported_not_resolved(client):
@@ -100,7 +100,7 @@ def test_a_law_that_is_not_loaded_is_exists_false(client):
     assert body["identifier"] == "/us/pl/104/333/s814"
     assert body["law_identifier"] == "/us/pl/104/333"
     assert body["served_identifier"] is None and body["url"] is None
-    assert body["note"] == "Public Law 104-333, section 814 is /us/pl/104/333/s814; nothing is loaded there."
+    assert body["note"] == "Public Law 104-333, section 814 is /us/pl/104/333/s814; this site has nothing there."
 
 
 def test_a_private_law(client):
@@ -118,14 +118,14 @@ def test_a_stat_page(client):
     assert body["served_identifier"] == "/us/stat/64/563"
     assert body["level"] == "page" and body["num"] == "563"
     assert body["url"] == f"{ORIGIN}/us/stat/64/563"
-    assert body["note"] == "64 Stat. 563 is /us/stat/64/563, which is loaded here."
+    assert body["note"] == "64 Stat. 563 is /us/stat/64/563, which is on this site."
 
 
 def test_a_stat_page_in_a_volume_not_loaded(client):
     body = client.get(CITE, params={"q": "110 Stat. 4196"}).json()
     assert body["exists"] is False
     assert body["identifier"] == "/us/stat/110/4196"
-    assert body["note"] == "110 Stat. 4196 is /us/stat/110/4196; no loaded law prints on that page."
+    assert body["note"] == "110 Stat. 4196 is /us/stat/110/4196; no law on this site is printed on that page."
 
 
 def test_a_page_of_a_lettered_volume_names_the_volume(client):
@@ -134,7 +134,7 @@ def test_a_page_of_a_lettered_volume_names_the_volume(client):
     body = response.json()
     assert body["exists"] is False
     assert body["identifier"] == "/us/stat/68A/3"
-    assert body["note"] == "68A Stat. 3 is /us/stat/68A/3; no loaded law prints on that page."
+    assert body["note"] == "68A Stat. 3 is /us/stat/68A/3; no law on this site is printed on that page."
     assert body["message"] == (
         "Volume 68A of the Statutes at Large prints the Internal Revenue Code of 1954 (Act of August 16, 1954, "
         "ch. 736). It is not loaded here. GovInfo has the volume at https://www.govinfo.gov/app/details/STATUTE-68A."
@@ -163,7 +163,7 @@ def test_a_chapter_absent_from_its_page_serves_the_page(client):
     assert body["kind"] == "stat"
     assert body["identifier"] == "/us/stat/64/563"
     assert body["message"] == (
-        "The page /us/stat/64/563 is loaded, and no law on it is chapter 999; the page's documents are served."
+        "No law on page /us/stat/64/563 is chapter 999, so this shows everything printed on that page."
     )
 
 
@@ -194,8 +194,8 @@ def test_a_us_code_citation_is_handed_to_the_us_code_site(client):
     assert body["url"] == f"{USCODE}/us/usc/t43/s1701"
     assert body["law_identifier"] is None
     assert body["note"] == (
-        "43 U.S.C. 1701 is a United States Code citation, /us/usc/t43/s1701; the US Code site serves it "
-        f"at {USCODE}/us/usc/t43/s1701. It is not checked here."
+        "43 U.S.C. 1701 is a United States Code citation (/us/usc/t43/s1701). It is on the US Code site "
+        f"at {USCODE}/us/usc/t43/s1701; this site does not check it."
     )
     deep = client.get(CITE, params={"q": "16 USC 45f(c)(5)"}).json()
     assert deep["identifier"] == "/us/usc/t16/s45f/c/5"

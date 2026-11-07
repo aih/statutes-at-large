@@ -114,8 +114,8 @@ def test_rule_3_the_section_number_under_the_compilation(client):
     assert body["identifier"] == "/us/sComp/83/703/s1"
     assert body["served_identifier"] == "/us/sComp/83/703/tI/ch1./s1"
     assert body["note"].startswith(
-        "No unit is stored at /us/sComp/83/703/s1; the section numbered 1 in this law is at "
-        "/us/sComp/83/703/tI/ch1./s1 and is served here. This is section 1 of Atomic Energy Act of 1954"
+        "There is nothing at /us/sComp/83/703/s1. Section 1 of this law is at "
+        "/us/sComp/83/703/tI/ch1./s1, shown here. This is section 1 of Atomic Energy Act of 1954"
     )
     assert response.headers["Cache-Control"] == "public, max-age=300"
     # Pinned but not exact: revalidates.
@@ -281,7 +281,7 @@ def test_the_root_of_an_act_served_title_by_title(client, repo):
     # A path under the prefix that nothing answers is served the gathered root as its prefix.
     missing = client.get("/api/v1/us/sComp/74/271/tIX").json()
     assert missing["resolution"] == "prefix" and missing["heading"] == "Social Security Act"
-    assert missing["note"].startswith("Nothing is stored at /us/sComp/74/271/tIX; /us/sComp/74/271 is the longest stored prefix")
+    assert missing["note"].startswith("There is nothing at /us/sComp/74/271/tIX, so this shows /us/sComp/74/271, the closest level above it")
     gathered = repo.get_comp_unit("/us/sComp/74/271", wanted="xml")
     assert gathered.is_gathered and gathered.xml == ""
     # The whole-act file, when there is one, is the root as before.
