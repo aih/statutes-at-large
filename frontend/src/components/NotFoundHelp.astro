@@ -1,0 +1,47 @@
+---
+/**
+ * The body of a 404 below its first sentence: links close to what was asked
+ * for, the citation box, and the site's pages (`lib/notfound.ts`).
+ */
+import CiteBox from "./CiteBox.astro";
+import { SITE_PAGES } from "../lib/notfound";
+import type { Link } from "../lib/types";
+
+interface Props {
+  suggestions: Link[];
+  /** The heading over `suggestions`. */
+  heading?: string;
+}
+
+const { suggestions, heading = "Did you mean" } = Astro.props;
+---
+
+<div class="notfound">
+  {
+    suggestions.length > 0 && (
+      <>
+        <h2>{heading}</h2>
+        <ul class="notfound__suggest">
+          {suggestions.map((link) => (
+            <li>
+              <a href={link.href}>{link.label}</a>
+            </li>
+          ))}
+        </ul>
+      </>
+    )
+  }
+  <h2>Look up a citation or search the text</h2>
+  <p class="doc-meta">A citation such as <code>64 Stat. 563</code> or <code>Pub. L. 81-740, § 3</code>, or words.</p>
+  <CiteBox id="nf-q" />
+  <h2>Pages on this site</h2>
+  <ul class="notfound__pages">
+    {
+      SITE_PAGES.map((link) => (
+        <li>
+          <a href={link.href}>{link.label}</a>
+        </li>
+      ))
+    }
+  </ul>
+</div>

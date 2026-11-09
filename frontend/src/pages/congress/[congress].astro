@@ -30,7 +30,8 @@ const { congress: rawCongress } = Astro.params;
 const congressNum = Number(rawCongress);
 
 if (!Number.isInteger(congressNum) || congressNum < 1 || congressNum > 200) {
-  return new Response("Invalid Congress number", { status: 404 });
+  Astro.locals.notFoundPath = Astro.url.pathname;
+  return Astro.rewrite("/404");
 }
 
 Astro.response.headers.set("Cache-Control", REVALIDATE);

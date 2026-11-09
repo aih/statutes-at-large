@@ -12,7 +12,7 @@ from collections.abc import MutableMapping
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, Request
 from fastapi.openapi.docs import (
     get_redoc_html,
     get_swagger_ui_html,
@@ -20,6 +20,7 @@ from fastapi.openapi.docs import (
 )
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Response
 from fastapi.telemetry import TelemetryConfig
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from api.cite import cite_router
 from api.cited_by import cited_by_router
@@ -27,6 +28,7 @@ from api.comps import comps_router
 from api.congress import congress_router
 from api.routes import api
 from api.search import search_router
+from citation import reader_redirect
 from citation import router as citation_router
 from site_version import GIT_COMMIT, SITE_VERSION
 from storage import RepositoryUnavailableError
@@ -156,7 +158,11 @@ def repository_unavailable(request: Request, exc: RepositoryUnavailableError) ->
     )
 
 
-@app.exception_handler(HTTPException)
-def http_exception(request: Request, exc: HTTPException) -> Response:
-    """Errors are JSON, because everything this process serves is."""
+@app.exception_handler(StarletteHTTPException)
+def http_exception(request: Request, exc: StarletteHTTPException) -> Response:
+    """Errors are JSON, because everything this process serves is. A browser's
+    404 outside `/api/` is a 307 to the same path under `/app`
+    (`citation.reader_redirect`)."""
+    if exc.status_code == 404 and (redirect := reader_redirect(request)) is not None:
+        return redirect
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail}, headers=exc.headers)
