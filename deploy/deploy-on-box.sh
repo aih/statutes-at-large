@@ -67,11 +67,19 @@ bash deploy/otel-env.sh .env
 # A Caddyfile that does not parse would leave the proxy down once it is
 # recreated, so it is checked with the proxy's own image before anything on
 # the box changes (ADR-0030). A failure here leaves the running stack as it was.
+# Google's and Bing's crawler ranges for the landing-page exemption
+# (ADR-0039). Never fatal: on a failed fetch the file from the last deploy
+# stays, and with no file at all the exemption matches nobody.
+echo "=== refreshing the search engine address ranges ==="
+SEARCHBOTS="$(bash deploy/searchbot-ranges.sh || echo failed)"
+echo "search engine ranges: $SEARCHBOTS"
+
 echo "=== validating deploy/Caddyfile ==="
 docker run --rm \
     -e SITE_ADDRESS="$(env_value SITE_ADDRESS)" \
     -e GATE_HOST="$(env_value GATE_HOST statutes.linkedlegislation.org)" \
     -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" \
+    -v "$PWD/deploy/searchbots:/etc/caddy/searchbots:ro" \
     caddy:2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
 
 echo "=== pulling images ==="
@@ -107,8 +115,8 @@ $COMPOSE exec -T api uv run python -m ingest reindex-search --if-changed \
 echo "=== recreating the proxy if deploy/Caddyfile changed ==="
 REPO_CADDYFILE_SUM="$(sha256sum deploy/Caddyfile | awk '{print $1}')"
 LIVE_CADDYFILE_SUM="$($COMPOSE exec -T proxy sha256sum /etc/caddy/Caddyfile 2>/dev/null | awk '{print $1}' || true)"
-if [ "$LIVE_CADDYFILE_SUM" = "$REPO_CADDYFILE_SUM" ]; then
-    echo "the running proxy has the current Caddyfile; left running"
+if [ "$LIVE_CADDYFILE_SUM" = "$REPO_CADDYFILE_SUM" ] && [ "$SEARCHBOTS" != changed ]; then
+    echo "the running proxy has the current Caddyfile and ranges; left running"
 else
     $COMPOSE up -d --no-deps --force-recreate --wait proxy
 fi
@@ -124,7 +132,7 @@ if [ -z "$(docker ps -q --filter label=com.docker.compose.project=edge)" ]; then
 fi
 curl -sfL --retry 5 --retry-delay 2 --retry-all-errors \
     --resolve "${HOST}:443:127.0.0.1" \
-    "https://${HOST}/robots.txt" | grep -qx 'Disallow: /'
+    "https://${HOST}/robots.txt" | grep -q '^Sitemap: https://'
 echo "robots.txt served as expected"
 
 echo "=== pruning old images ==="
