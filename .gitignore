@@ -16,3 +16,6 @@ frontend/.astro/
 frontend/test-results/
 frontend/playwright-report/
 frontend/public/uswds/
+
+# Google and Bing crawler ranges, written on the box by deploy/searchbot-ranges.sh (ADR-0039)
+/deploy/searchbots/

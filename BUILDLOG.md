@@ -1349,3 +1349,21 @@ Playwright against the API on a SQLite copy of the test database and the dev
 reader: 83 passed, 12 failed; the failures are the search specs (no
 OpenSearch), laws absent from the fixtures (118-5, 118-35's amendment), and
 the footer locator matching two paragraphs, none of them on a changed string.
+
+## 2026-11-09 — landing pages open to Google and Bing (ADR-0039)
+
+Asked: a sitemap and robots.txt so the site can be submitted to Google Search
+Console, with only the landing pages opened.
+
+Done: `robots.txt` gains a Googlebot/Bingbot group allowing the home page,
+About, Sources, the Congress index and the compilations index; `/sitemap.xml`
+lists them; `(search_engine_landing)` exempts Google's and Bing's published
+crawler ranges from the crawler 403 and the cookie gate on those paths.
+`deploy/searchbot-ranges.sh` writes the ranges on the box at each deploy.
+
+Verified: `uv run pytest tests/test_search_engines.py` (10 passed). The
+Caddyfile under Caddy 2.10.2 with `127.0.0.1/32` as the ranges file: a
+Googlebot User-Agent from that address reached the upstream on `/`, `/app/`,
+`/app/about`, `/app/sources`, `/app/congress`, `/app/comps` and
+`/app/_astro/*`, and got 403 on `/app/?q=x`, `/app/us/pl/81/740/s3`,
+`/app/congress/118` and `/api/v1/status`; with no ranges file all were 403.

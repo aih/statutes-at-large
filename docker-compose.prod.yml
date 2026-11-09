@@ -184,6 +184,9 @@ services:
       GATE_HOST: ${GATE_HOST:-statutes.linkedlegislation.org}
     volumes:
       - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # Google's and Bing's crawler ranges (ADR-0039), written by
+      # deploy/searchbot-ranges.sh. Caddy reads them only at start.
+      - ./deploy/searchbots:/etc/caddy/searchbots:ro
       - ${DATA_ROOT:-/var/lib/statutes}/caddy:/data
     networks:
       default: {}
