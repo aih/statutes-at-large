@@ -1,5 +1,11 @@
 ---
-/** The API's `detail`, printed as it came, under the API's status. */
+/**
+ * The API's `detail`, printed as it came, under the API's status. A 404 adds
+ * the links `lib/notfound.ts` reads out of the identifier, the citation box
+ * and the site's pages.
+ */
+import NotFoundHelp from "./NotFoundHelp.astro";
+import { identifierSuggestions } from "../lib/notfound";
 import { APP } from "../lib/url";
 
 interface Props {
@@ -9,11 +15,30 @@ interface Props {
 }
 
 const { status, detail, retryAfter = null } = Astro.props;
+let path = Astro.url.pathname;
+try {
+  path = decodeURIComponent(path);
+} catch {
+  // a malformed escape is read as it came
+}
+const identifier = path.startsWith(`${APP}/us/`) ? path.slice(APP.length) : null;
 ---
 
-<h1 class="doc-title">{status}</h1>
-<p class="lede">{detail}</p>
-{retryAfter && <p class="doc-meta">Retry after {retryAfter} seconds.</p>}
-<p class="doc-meta">
-  Try the citation box above, or <a href={`${APP}/`}>start from the front page</a>.
-</p>
+{
+  status === 404 ? (
+    <>
+      <h1 class="doc-title">Not found</h1>
+      <p class="lede">{detail}</p>
+      <NotFoundHelp heading="Where else to look" suggestions={identifier ? identifierSuggestions(identifier) : []} />
+    </>
+  ) : (
+    <>
+      <h1 class="doc-title">{status}</h1>
+      <p class="lede">{detail}</p>
+      {retryAfter && <p class="doc-meta">Retry after {retryAfter} seconds.</p>}
+      <p class="doc-meta">
+        Try the citation box above, or <a href={`${APP}/`}>start from the front page</a>.
+      </p>
+    </>
+  )
+}

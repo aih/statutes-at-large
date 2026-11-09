@@ -1367,3 +1367,23 @@ Googlebot User-Agent from that address reached the upstream on `/`, `/app/`,
 `/app/about`, `/app/sources`, `/app/congress`, `/app/comps` and
 `/app/_astro/*`, and got 403 on `/app/?q=x`, `/app/us/pl/81/740/s3`,
 `/app/congress/118` and `/api/v1/status`; with no ranges file all were 403.
+
+## 2026-11-09 — a 404 page for the whole site (ADR-0040)
+
+Asked: improve the 404 page, following the one in reintroductions-us.
+
+Done: `frontend/src/pages/404.astro` with `lib/notfound.ts` and
+`NotFoundHelp.astro`: the path, near-miss links (an identifier missing `/us`
+or with the kind in another case, a law number in the path, reader pages
+spelled within 0.75), the citation box and the site's pages; a 301 for a
+reader page in another letter case. `/app/congress/{n}` with an invalid
+number rewrites to it. `ErrorPage` on an API 404 adds the citation box, the
+pages and the law's Congress page. FastAPI sends a browser's 404 outside
+`/api/` and `/app` to the same path under `/app`. `/app/404` gets a JS
+budget of 3,500 bytes (measured 3,153: `Base`'s two inline scripts).
+
+Verified: `uv run pytest` 754 passed; `vitest` 142 passed; `astro check` 0
+errors. Playwright against uvicorn on a SQLite copy of the test database and
+the dev reader: `notfound.spec.ts` 7 passed, the axe pass over `/app/abuot`
+and `/app/congress/abc` clean; the 5 failures in `chrome.spec.ts` and
+`section.spec.ts` also fail on `main` against the same database.

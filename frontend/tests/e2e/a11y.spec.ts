@@ -23,6 +23,8 @@ const PAGES = [
   "/app/goto?q=110%20Stat.%204196",
   "/app/goto?q=garbage",
   "/app/us/pl/99/99999",
+  "/app/abuot",
+  "/app/congress/abc",
   "/app/congress",
   "/app/congress/51",
   "/app/comps",

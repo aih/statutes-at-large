@@ -5,6 +5,9 @@ ADR-0010).
 A caller that prefers HTML is sent to the reader at `/app`, everyone else to
 `/api/v1`; `?format=` overrides the header. 307, `Vary: Accept`, and the query
 string copied through verbatim.
+
+`reader_redirect` sends a browser's 404 outside `/api/` and `/app` to the same
+path under `/app`, where the reader serves the page or its 404 page.
 """
 
 from __future__ import annotations
@@ -36,3 +39,16 @@ def citation(request: Request, kind: str, format: FormatParam = None):
 @router.api_route("/", methods=["GET", "HEAD"])
 def home(request: Request) -> RedirectResponse:
     return RedirectResponse(f"{READER}/", status_code=307)
+
+
+def reader_redirect(request: Request) -> RedirectResponse | None:
+    """A 307 to `/app{path}` for a GET or HEAD that prefers HTML, outside `/api/`
+    and `/app`; None for every other request, which keeps the JSON 404."""
+    path = request.url.path
+    if request.method not in ("GET", "HEAD"):
+        return None
+    if path == API or path.startswith(f"{API}/") or path == READER or path.startswith(f"{READER}/"):
+        return None
+    if path.startswith("/api/") or negotiated_format(request, None) != "html":
+        return None
+    return _redirect_to(READER, request)
