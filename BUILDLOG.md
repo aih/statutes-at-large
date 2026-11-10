@@ -1387,3 +1387,19 @@ errors. Playwright against uvicorn on a SQLite copy of the test database and
 the dev reader: `notfound.spec.ts` 7 passed, the axe pass over `/app/abuot`
 and `/app/congress/abc` clean; the 5 failures in `chrome.spec.ts` and
 `section.spec.ts` also fail on `main` against the same database.
+
+## 2026-11-10 — the edge serves codification.linkedlegislation.org
+
+Asked (from the codification-bills project): deploy the Codification Bill
+Reader on the box at codification.linkedlegislation.org.
+
+Done: a fourth site block in `deploy/edge/Caddyfile`, address from
+`CODIFICATION_SITE_ADDRESS`, dialling `codification-proxy:8000`; the compose
+file and `deploy/edge/README.md` name it. The container behind it is
+aih/codification-bills `deploy/deploy-on-box.sh`'s `codification-reader`.
+
+Verified: the block is the reintro block's shape with another name and
+upstream. Not run against a Caddy here. On the box, the README's
+`caddy validate` and `--force-recreate` commands apply the change; until the
+reader container runs and the A record resolves, the new block answers 502
+or has no certificate and the other three sites are unaffected.

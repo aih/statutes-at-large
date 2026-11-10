@@ -2,11 +2,14 @@
 
 One Caddy in front of the sites on the box (`docs/plans/2026-09-08-deployment-plan.md`,
 section 1). It terminates TLS for `uscode.linkedlegislation.org`,
-`statutes.linkedlegislation.org` and `reintro.linkedlegislation.org` and hands
-each to that site's own Caddy over the external Docker network `edge` (subnet
-`10.83.0.0/24`), under the aliases `uscode-proxy`, `statutes-proxy` and
-`reintro-proxy`. The third is the reintroductions-us compose project; its
-`docs/deploy.md` has its setup. Each inner Caddyfile trusts that subnet
+`statutes.linkedlegislation.org`, `reintro.linkedlegislation.org` and
+`codification.linkedlegislation.org` and hands each to that site's own Caddy
+over the external Docker network `edge` (subnet `10.83.0.0/24`), under the
+aliases `uscode-proxy`, `statutes-proxy`, `reintro-proxy` and
+`codification-proxy`. The third is the reintroductions-us compose project; its
+`docs/deploy.md` has its setup. The fourth is one container run by
+aih/codification-bills `deploy/deploy-on-box.sh`; that repository's
+`deploy/README.md` has its setup. Each inner Caddyfile trusts that subnet
 and no other, so the client address the edge forwards survives the inner hop
 and a peer on the dev stack cannot forge one.
 
@@ -14,9 +17,9 @@ Files:
 
 - `docker-compose.yml` — compose project `edge`: the Caddy, its ports, its
   certificate store at `${DATA_ROOT}/edge-caddy`.
-- `Caddyfile` — the three site blocks; addresses from `USCODE_SITE_ADDRESS`,
-  `STATUTES_SITE_ADDRESS` and `REINTRO_SITE_ADDRESS`, production hostnames by
-  default.
+- `Caddyfile` — the four site blocks; addresses from `USCODE_SITE_ADDRESS`,
+  `STATUTES_SITE_ADDRESS`, `REINTRO_SITE_ADDRESS` and
+  `CODIFICATION_SITE_ADDRESS`, production hostnames by default.
 - `up.sh` — creates the network with the subnet when absent, refuses a
   network named `edge` with another subnet, brings the Caddy up. Idempotent.
   `--network-only` stops after the network.
