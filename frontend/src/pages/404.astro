@@ -1,0 +1,41 @@
+---
+/**
+ * The page for a path under `/app` that the reader has no route for: the path,
+ * links whose spelling is close to it or that read a law out of it, the
+ * citation box, and the site's pages. A path that is one of the reader's pages
+ * in another letter case is a 301 there. FastAPI sends a browser's 404 outside
+ * `/api/` to the same path under `/app` (`citation.reader_redirect`), so this
+ * is the 404 a browser sees anywhere on the site. A page may
+ * `Astro.rewrite("/404")` after setting `Astro.locals.notFoundPath`.
+ */
+import NotFoundHelp from "../components/NotFoundHelp.astro";
+import Base from "../layouts/Base.astro";
+import { NO_STORE } from "../lib/cache";
+import { caseRedirect, suggestions } from "../lib/notfound";
+import type { Link } from "../lib/types";
+import { APP } from "../lib/url";
+
+// A page that rewrites here sets `notFoundPath`; after the rewrite the URL is `/app/404`.
+const path = Astro.locals.notFoundPath ?? Astro.url.pathname;
+const lower = Astro.request.method === "GET" || Astro.request.method === "HEAD" ? caseRedirect(path) : null;
+if (lower) {
+  return Astro.redirect(`${lower}${Astro.url.search}`, 301);
+}
+
+Astro.response.status = 404;
+Astro.response.headers.set("Cache-Control", NO_STORE);
+
+let shown = path;
+try {
+  shown = decodeURIComponent(path);
+} catch {
+  // a malformed escape is shown as it came
+}
+const crumbs: Link[] = [{ href: `${APP}/`, label: "Home" }];
+---
+
+<Base title="Page not found — Statutes at Large" crumbs={crumbs} current="Page not found">
+  <h1 class="doc-title">Page not found</h1>
+  <p class="lede">There is no page at <code>{shown}</code>.</p>
+  <NotFoundHelp suggestions={suggestions(path)} />
+</Base>

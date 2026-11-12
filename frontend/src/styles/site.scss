@@ -425,6 +425,25 @@ code,
   max-width: none;
 }
 
+/* A 404's links, citation box and site pages (NotFoundHelp.astro). */
+.notfound h2 {
+  font-size: 1.15rem;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.notfound ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.notfound li {
+  margin: 0.25rem 0;
+}
+
+.notfound .usa-search {
+  max-width: 32rem;
+}
+
 /* The API's sentences, printed as they came. */
 .note {
   background: var(--panel);
