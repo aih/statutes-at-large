@@ -18,6 +18,7 @@ import threading
 import time
 from collections.abc import Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Annotated, Callable, Literal
 
 from fastapi import Depends, HTTPException, Query, Request, Response
@@ -381,7 +382,9 @@ class RateLimiter:
 
 
 class ApiTokenSettings(BaseSettings):
-    """Named API tokens (ADR-0038), configured on the box and never in the code."""
+    """Named API tokens (ADR-0038): the committed digests in `api-tokens.json`
+    (ADR-0041) and the box's `STATUTES_API_TOKENS`. A token itself is never
+    in the code."""
 
     statutes_api_tokens: str = ""
     """JSON: `{"name": {"sha256": "<hex digest of the token>", "scale": 20}}`.
@@ -390,6 +393,10 @@ class ApiTokenSettings(BaseSettings):
     token's holder meets and defaults to 10. Removing an entry revokes the
     token at the next restart. `scripts/api_token.py` makes a token and prints
     its entry."""
+
+    statutes_api_tokens_file: str = str(Path(__file__).resolve().parent / "api-tokens.json")
+    """The committed digests (ADR-0041), in the same JSON shape. A missing file
+    is no tokens."""
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
@@ -417,7 +424,21 @@ def parse_api_tokens(raw: str) -> dict[str, ApiToken]:
     return out
 
 
-API_TOKENS: dict[str, ApiToken] = parse_api_tokens(ApiTokenSettings().statutes_api_tokens)
+def load_api_tokens(settings: ApiTokenSettings) -> dict[str, ApiToken]:
+    """The committed file's tokens and the setting's, as {digest: token}. An
+    entry in the setting replaces a committed entry of the same name, so the
+    box can change a scale or revoke a committed token without a commit
+    (`"scale"` raised, or the digest replaced)."""
+    path = Path(settings.statutes_api_tokens_file)
+    committed = parse_api_tokens(path.read_text()) if path.is_file() else {}
+    configured = parse_api_tokens(settings.statutes_api_tokens)
+    overridden = {t.name for t in configured.values()}
+    out = {d: t for d, t in committed.items() if t.name not in overridden}
+    out.update(configured)
+    return out
+
+
+API_TOKENS: dict[str, ApiToken] = load_api_tokens(ApiTokenSettings())
 
 
 def api_token(request: Request) -> ApiToken | None:

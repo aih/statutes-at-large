@@ -85,3 +85,44 @@ def test_the_tokens_setting_is_checked_at_start_up():
         parse_api_tokens('{"x": {"sha256": "' + "0" * 64 + '", "scale": 0.5}}')
     token = parse_api_tokens('{"x": {"sha256": "' + "A" * 64 + '"}}')
     assert next(iter(token.values())).scale == 10
+
+
+def _settings(tmp_path, *, committed: str | None, configured: str = "") -> params.ApiTokenSettings:
+    path = tmp_path / "api-tokens.json"
+    if committed is not None:
+        path.write_text(committed)
+    return params.ApiTokenSettings(statutes_api_tokens=configured, statutes_api_tokens_file=str(path))
+
+
+def test_the_committed_file_is_read_beside_the_setting(tmp_path):
+    a, b = hashlib.sha256(b"a").hexdigest(), hashlib.sha256(b"b").hexdigest()
+    tokens = params.load_api_tokens(
+        _settings(
+            tmp_path,
+            committed=f'{{"drafting": {{"sha256": "{a}", "scale": 10}}}}',
+            configured=f'{{"reintro": {{"sha256": "{b}", "scale": 20}}}}',
+        )
+    )
+    assert {t.name: t.scale for t in tokens.values()} == {"drafting": 10.0, "reintro": 20.0}
+
+
+def test_the_setting_replaces_a_committed_entry_of_the_same_name(tmp_path):
+    a, b = hashlib.sha256(b"a").hexdigest(), hashlib.sha256(b"b").hexdigest()
+    tokens = params.load_api_tokens(
+        _settings(
+            tmp_path,
+            committed=f'{{"drafting": {{"sha256": "{a}", "scale": 10}}}}',
+            configured=f'{{"drafting": {{"sha256": "{b}", "scale": 2}}}}',
+        )
+    )
+    assert list(tokens) == [b]
+    assert tokens[b].scale == 2.0
+
+
+def test_a_missing_file_is_no_committed_tokens(tmp_path):
+    assert params.load_api_tokens(_settings(tmp_path, committed=None)) == {}
+
+
+def test_the_repository_file_parses():
+    tokens = params.load_api_tokens(params.ApiTokenSettings(statutes_api_tokens=""))
+    assert all(t.scale >= 1 for t in tokens.values())

@@ -67,6 +67,18 @@ setting, since `.env` is not in the repository.
 
 In development, put the same line in the checkout's `.env` and restart `make dev`.
 
+## Commit a digest instead
+
+A token's entry can also go in `api-tokens.json` at the repository root, in the same JSON shape
+(ADR-0041). The API reads the file at start-up beside `STATUTES_API_TOKENS`, so the token takes
+effect at the deploy that carries the commit, with nothing typed on the box. An entry in
+`STATUTES_API_TOKENS` replaces a committed entry of the same name: set a lower `scale` there, or
+another digest to revoke it, and recreate the API.
+
+| Name | Scale | Caller |
+|---|---|---|
+| `codification-bills` | 10 | the codification-bills drafting tools |
+
 ## Store with the caller
 
 The token goes to the caller over a private channel and is kept as a secret: an environment

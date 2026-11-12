@@ -1403,3 +1403,22 @@ upstream. Not run against a Caddy here. On the box, the README's
 `caddy validate` and `--force-recreate` commands apply the change; until the
 reader container runs and the A record resolves, the new block answers 502
 or has no certificate and the other three sites are unaffected.
+
+## 2026-11-11 — a committed token for the codification drafting tools (ADR-0041)
+
+Asked (in the codification-bills project): if the server can handle it, raise
+the statutes API's limits for internal use, to speed up the drafting tools'
+retrieval of enacted sections and Statute Compilations.
+
+Done: `params.load_api_tokens` reads `api-tokens.json` beside
+`STATUTES_API_TOKENS`; an entry in the setting replaces a committed entry of
+the same name. `api-tokens.json` carries `codification-bills` at scale 10.
+The token is held in the project's shared files, outside every repository.
+
+Measured from outside before the change: 60 requests to
+`/api/v1/us/pl/81/{600..659}/s2`, 10 at a time, mean 0.33 s to first byte,
+slowest 0.95 s, 53 answered 200 and 7 404, none 429 or 5xx.
+
+Verified: `uv run pytest tests/test_api_tokens.py` (10 passed); `uv run
+pytest` 755 passed. Not run against the box; the token answers 401 there
+until the deploy.
