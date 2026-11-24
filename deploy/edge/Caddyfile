@@ -5,15 +5,46 @@
 # a bare hostname means automatic HTTPS. The rehearsal sets plain-HTTP
 # addresses with a port (`http://statutes.localhost:8020`).
 #
-# No `trusted_proxies`: the peer is the internet. `header_up X-Forwarded-For
-# {remote_host}` overwrites the header with the real peer, and the inner
-# proxies trust this hop (their `trusted_proxies static 10.83.0.0/24`, the
-# network deploy/edge/up.sh creates) and pass that address on. `Host` goes
-# through unchanged so each inner site block matches its own hostname.
+# The peer is the internet or Cloudflare (ADR-0042). A peer in Cloudflare's
+# published ranges names the client in `CF-Connecting-IP`; for any other peer
+# `{client_ip}` is the peer itself, and a `CF-Connecting-IP` it sends is
+# ignored. `header_up X-Forwarded-For {client_ip}` overwrites the header with
+# that address, and the inner proxies trust this hop (their `trusted_proxies
+# static 10.83.0.0/24`, the network deploy/edge/up.sh creates) and pass it on.
+# The access log's `client_ip` is the same address. `Host` goes through
+# unchanged so each inner site block matches its own hostname.
+#
+# The ranges are https://api.cloudflare.com/client/v4/ips as of 2026-11-24
+# (etag 38f79d050aa027e3be3865e495dcc9bc). They are written out twice, here
+# and in `(cloudflare_only)`; a change to one is a change to both.
+{
+	servers {
+		trusted_proxies static 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
+		client_ip_headers CF-Connecting-IP
+	}
+}
+
+# A hostname named in EDGE_CLOUDFLARE_ONLY (space-separated; the compose file
+# defaults it to `cloudflare-only.invalid`, which names nothing) answers 403 to
+# a peer outside Cloudflare's ranges, so the proxied hostnames cannot be
+# reached around Cloudflare's challenge at the box's address. Private ranges
+# stay allowed: the watchdog and the deploys probe through this Caddy from the
+# box itself (`--resolve host:443:127.0.0.1`), which arrives from the Docker
+# bridge gateway. The ACME HTTP challenge on :80 is answered before this route
+# runs.
+(cloudflare_only) {
+	@around_cloudflare {
+		host {$EDGE_CLOUDFLARE_ONLY:cloudflare-only.invalid}
+		not remote_ip private_ranges 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
+	}
+	respond @around_cloudflare "This address is served through Cloudflare." 403
+}
 
 {$USCODE_SITE_ADDRESS:uscode.linkedlegislation.org} {
+	import cloudflare_only
+
 	reverse_proxy uscode-proxy:8000 {
-		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-For {client_ip}
 		header_up Host {host}
 		transport http {
 			dial_timeout 5s
@@ -28,8 +59,10 @@
 }
 
 {$STATUTES_SITE_ADDRESS:statutes.linkedlegislation.org} {
+	import cloudflare_only
+
 	reverse_proxy statutes-proxy:8000 {
-		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-For {client_ip}
 		header_up Host {host}
 		transport http {
 			dial_timeout 5s
@@ -47,8 +80,10 @@
 # (that repository's docs/deploy.md). A bill's PDF is rendered on request in
 # up to about 20 s of CPU, 60 s at the box's baseline; the header timeout is 120 s.
 {$REINTRO_SITE_ADDRESS:reintro.linkedlegislation.org} {
+	import cloudflare_only
+
 	reverse_proxy reintro-proxy:8000 {
-		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-For {client_ip}
 		header_up Host {host}
 		transport http {
 			dial_timeout 5s
@@ -67,8 +102,10 @@
 # deploy/deploy-on-box.sh as `codification-reader` with the network alias
 # `codification-proxy`.
 {$CODIFICATION_SITE_ADDRESS:codification.linkedlegislation.org} {
+	import cloudflare_only
+
 	reverse_proxy codification-proxy:8000 {
-		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-For {client_ip}
 		header_up Host {host}
 		transport http {
 			dial_timeout 5s

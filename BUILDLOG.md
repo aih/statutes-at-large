@@ -1422,3 +1422,28 @@ slowest 0.95 s, 53 answered 200 and 7 404, none 429 or 5xx.
 Verified: `uv run pytest tests/test_api_tokens.py` (10 passed); `uv run
 pytest` 755 passed. Not run against the box; the token answers 401 there
 until the deploy.
+
+
+## 2026-11-24 — Cloudflare in front of both readers (ADR-0042)
+
+Tool: Claude Code. Asked: the US Code site's recurring traffic-spike alerts,
+whether they matter, and what to do; then the same for this site.
+
+Found, in the US Code site's edge log in Grafana: a crawler with browser
+User-Agents on residential addresses that passes the cookie gate (the gate
+page is its next referer), 234,532 reader pages served on 2026-11-23 against
+103,189 a week earlier, reader 5xx at 3,783 a day, and a site-down alarm
+07:05–07:59 UTC on 2026-11-24 during a burst of 27,180 requests in ten
+minutes.
+
+Decided: ADR-0042. Cloudflare proxies the two readers' hostnames with a
+managed challenge on `/app`. The edge trusts Cloudflare's ranges for
+`CF-Connecting-IP`, and `EDGE_CLOUDFLARE_ONLY` turns away peers outside them.
+`deploy/edge/README.md` has the Cloudflare and box steps.
+
+Verified: `caddy validate` on `deploy/edge/Caddyfile` (2.10.2). A local run
+with a responder behind it: a loopback peer sending `CF-Connecting-IP` and
+`X-Forwarded-For` is forwarded as itself; a variant counting loopback as
+Cloudflare forwards the `CF-Connecting-IP` value; with the lock list set and
+loopback outside it, the two named hosts answer 403 and `reintro` is served;
+with the lock unset nothing is refused.
