@@ -47,9 +47,9 @@ certificate; Caddy retries and serves it once the record resolves.
 
 ## Cloudflare in front (ADR-0042)
 
-`uscode.linkedlegislation.org` and `statutes.linkedlegislation.org` are proxied
-by Cloudflare, which puts a managed challenge in front of each reader's
-`/app`. The Caddy here takes the client address from `CF-Connecting-IP` when
+All four hostnames are proxied by Cloudflare, which puts a managed challenge
+in front of the `/app` of `uscode.linkedlegislation.org` and
+`statutes.linkedlegislation.org`. The Caddy here takes the client address from `CF-Connecting-IP` when
 the peer is in Cloudflare's ranges, and a hostname named in
 `EDGE_CLOUDFLARE_ONLY` answers 403 to any other public peer. The box's own
 probes come from the Docker bridge gateway, a private address, and are let
@@ -61,9 +61,11 @@ through.
    `linkedlegislation.org`, Free plan. Cloudflare reads the zone's records from
    the current nameservers; compare its list with Route 53's hosted zone and
    add anything it missed (MX and TXT records in particular).
-2. **Choose what is proxied.** In DNS › Records, set `uscode` and `statutes`
-   to **Proxied** (orange cloud). Leave every other record **DNS only** (grey),
-   `reintro` and `codification` included.
+2. **Choose what is proxied.** In DNS › Records, set `uscode`, `statutes`,
+   `reintro` and `codification` to **Proxied** (orange cloud): the four
+   hostnames the edge serves. Leave every other record **DNS only** (grey). A
+   record the import turned into CloudFront's addresses (an alias in Route 53)
+   becomes a `CNAME` to the CloudFront name, DNS only.
 3. **SSL/TLS › Overview:** encryption mode **Full (strict)**. The edge keeps
    its Let's Encrypt certificates, and Cloudflare checks them.
 4. **SSL/TLS › Edge Certificates:** leave **Always Use HTTPS** off. The edge
@@ -101,9 +103,10 @@ headers), then lock them:
 curl -sI https://uscode.linkedlegislation.org/health | grep -i '^cf-ray'
 curl -sI https://statutes.linkedlegislation.org/health | grep -i '^cf-ray'
 
-X
+sudo -iu ec2-user
+cd /home/ec2-user/statutes-at-large
 git pull --ff-only
-echo 'EDGE_CLOUDFLARE_ONLY=uscode.linkedlegislation.org statutes.linkedlegislation.org' \
+echo 'EDGE_CLOUDFLARE_ONLY=uscode.linkedlegislation.org statutes.linkedlegislation.org reintro.linkedlegislation.org codification.linkedlegislation.org' \
     >> deploy/edge/.env
 docker compose -p edge -f deploy/edge/docker-compose.yml run --rm --no-deps caddy \
     caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
