@@ -17,7 +17,7 @@ Files:
 
 - `docker-compose.yml` — compose project `edge`: the Caddy, its ports, its
   certificate store at `${DATA_ROOT}/edge-caddy`.
-- `Caddyfile` — the four site blocks; addresses from `USCODE_SITE_ADDRESS`,
+- `Caddyfile` — Cloudflare's ranges and the four site blocks; addresses from `USCODE_SITE_ADDRESS`,
   `STATUTES_SITE_ADDRESS`, `REINTRO_SITE_ADDRESS` and
   `CODIFICATION_SITE_ADDRESS`, production hostnames by default.
 - `up.sh` — creates the network with the subnet when absent, refuses a
@@ -44,6 +44,90 @@ docker compose -p edge -f deploy/edge/docker-compose.yml up -d --force-recreate 
 A site block whose proxy is not running answers 502 and leaves the other
 sites alone. A hostname whose DNS does not point at the box yet gets no
 certificate; Caddy retries and serves it once the record resolves.
+
+## Cloudflare in front (ADR-0042)
+
+`uscode.linkedlegislation.org` and `statutes.linkedlegislation.org` are proxied
+by Cloudflare, which puts a managed challenge in front of each reader's
+`/app`. The Caddy here takes the client address from `CF-Connecting-IP` when
+the peer is in Cloudflare's ranges, and a hostname named in
+`EDGE_CLOUDFLARE_ONLY` answers 403 to any other public peer. The box's own
+probes come from the Docker bridge gateway, a private address, and are let
+through.
+
+### In Cloudflare (once)
+
+1. **Add the zone.** Cloudflare dashboard › Add a domain ›
+   `linkedlegislation.org`, Free plan. Cloudflare reads the zone's records from
+   the current nameservers; compare its list with Route 53's hosted zone and
+   add anything it missed (MX and TXT records in particular).
+2. **Choose what is proxied.** In DNS › Records, set `uscode` and `statutes`
+   to **Proxied** (orange cloud). Leave every other record **DNS only** (grey),
+   `reintro` and `codification` included.
+3. **SSL/TLS › Overview:** encryption mode **Full (strict)**. The edge keeps
+   its Let's Encrypt certificates, and Cloudflare checks them.
+4. **SSL/TLS › Edge Certificates:** leave **Always Use HTTPS** off. The edge
+   already redirects to HTTPS, and Let's Encrypt's HTTP challenge on `:80` has
+   to reach it unredirected to renew a certificate.
+5. **Security › Bots:** leave **Bot Fight Mode** off. On the Free plan it
+   applies to every path with no exceptions, and it challenges API callers
+   such as reintroductions-us, which cannot answer a challenge.
+6. **Security › WAF › Custom rules › Create rule**, named `Challenge the
+   readers`, action **Managed Challenge**, with this expression (Edit
+   expression):
+
+   ```
+   (http.host in {"uscode.linkedlegislation.org" "statutes.linkedlegislation.org"}
+    and starts_with(http.request.uri.path, "/app")
+    and not starts_with(http.request.uri.path, "/app/healthz")
+    and not cf.client.bot)
+   ```
+
+   `cf.client.bot` is Cloudflare's verified-bot list, Googlebot and Bingbot
+   among them, so the landing pages in each site's `/sitemap.xml` stay
+   reachable to them (ADR-0039 here, ADR-0098 there). `/api/v1` and the
+   citation URL `/us/usc/…` are not challenged; a browser following a citation
+   URL is redirected into `/app` and challenged there.
+7. **Change the nameservers.** At the domain's registrar, replace the Route 53
+   nameservers with the two Cloudflare names on the zone's overview page.
+   Cloudflare emails when the zone is active, usually within an hour.
+
+### On the box (after the zone is active)
+
+Check that both hostnames answer through Cloudflare (`cf-ray` in the
+headers), then lock them:
+
+```
+curl -sI https://uscode.linkedlegislation.org/health | grep -i '^cf-ray'
+curl -sI https://statutes.linkedlegislation.org/health | grep -i '^cf-ray'
+
+X
+git pull --ff-only
+echo 'EDGE_CLOUDFLARE_ONLY=uscode.linkedlegislation.org statutes.linkedlegislation.org' \
+    >> deploy/edge/.env
+docker compose -p edge -f deploy/edge/docker-compose.yml run --rm --no-deps caddy \
+    caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+docker compose -p edge -f deploy/edge/docker-compose.yml up -d --force-recreate --wait
+```
+
+Then, from a machine off the box:
+
+```
+# 403: the box's address, around Cloudflare
+curl -s -o /dev/null -w '%{http_code}\n' --resolve uscode.linkedlegislation.org:443:<the box's Elastic IP> \
+    https://uscode.linkedlegislation.org/health
+# 200: through Cloudflare
+curl -s -o /dev/null -w '%{http_code}\n' https://uscode.linkedlegislation.org/health
+```
+
+Without `EDGE_CLOUDFLARE_ONLY` the Caddyfile behaves as before for a peer
+outside Cloudflare, so the recreate that carries this file can happen before
+the nameservers move. Removing the line and recreating undoes the lock;
+setting the two records back to DNS only undoes the proxy.
+
+The ranges in the Caddyfile are Cloudflare's published list on 2026-11-24
+(https://api.cloudflare.com/client/v4/ips). Cloudflare announces a change to
+it in advance; the list has not changed since 2021.
 
 ## The rehearsal on a workstation
 
