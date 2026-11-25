@@ -54,3 +54,13 @@ browser little.
   addresses still reach the per-caller budgets.
 - Not covered by this: a crawler that solves Cloudflare's challenge. Cloudflare's
   Free plan rate-limiting rule is the next step if one does.
+
+
+## Addendum, 2026-11-25: the challenge POST
+
+A browser that passes the challenge POSTs its answer to the page it asked for,
+and Cloudflare forwards that POST to the origin. The reader has no POST route,
+and Astro's origin check answered it with "Cross-site POST form submissions are
+forbidden", so every challenged reader got that page instead of the site. The
+proxy now answers a POST to `/app*` with a 303 to the same address, less the
+`__cf_chl_*` token parameters, and the browser fetches the page with GET.
